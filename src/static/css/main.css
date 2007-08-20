@@ -1,0 +1,50 @@
+/* $Id$ */
+
+body {
+    font-family:  Verdana, sans-serif;
+}
+
+.banner {
+   height: 120px;
+   text-align: center;
+   line-height: 83px;
+}
+
+.banner img {
+   float: left;   
+}
+
+.navlist {
+  vertical-align: middle;
+}
+
+.navlist li {
+  list-style-type: none;
+  display: inline;
+  float: left;
+  width: 100px;
+  margin:0;
+  padding:0;
+}
+
+.navlist li span {
+  display: block;
+}
+
+.navlist li a:hover {
+  color: #aaa;
+  background-color: #fff;
+}
+
+
+.main {
+  float: left;
+  width: 600px;
+
+}
+
+
+a.delete_button img {
+    border: none;
+    text-decoration: none;
+}

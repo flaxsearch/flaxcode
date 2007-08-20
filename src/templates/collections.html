@@ -1,0 +1,54 @@
+<!-- $Id$ -->
+<!-- Administrator page listing current document collections
+     Collections may be deleted. 
+     A new collection may be added.
+-->
+
+<title node="con:title">Collections</title>
+
+<div node="con:body">
+
+  <!-- The form is to support the add collection functionality. -->
+  <form action="add_collection" method="POST">
+    <table summary="This table lists current document collections." >
+      <tr>
+	<th class="col_del"></th>
+	<th class="col_name">Name</th>
+	<th class="col_description">Description</th>
+      </tr>
+      <tr node="rep:collection">
+        <td class="col_del">
+	  <a class="delete_button" node="con:delete">
+	    <img src="../static/img/del.png" alt="Delete" width="20" height="20" />
+	  </a>
+	</td>
+        <td class="col_name">
+	  <a node="con:name" href=""></a>
+	</td>
+        <td class="col_description" node="con:description"></td>
+      </tr>
+      <!-- new collection -->
+      <tr>
+	<td>
+	  <input type="image" src="../static/img/add.png" alt="New" class="add_button"  />
+	</td>
+	<td><input name="new_name" /></td>
+	<td><input name="new_description" /></td>
+      </tr>
+    </table>
+  </form>
+
+  <!-- move this to a separate help document - it's a bit intrusive here -->
+  <p> Current document collections are listed above. The columns are as follows:
+    <ol>
+      <li>A link to delete the collection in that row. This link takes
+      you to a page confirming that you wish to actually delete the
+      collection.</li>
+      <li>The name of the collection and a link to the detail page for that collection.</li>
+      <li>The description of the collection.</li>
+    </ol>
+    Note finally the last row. This allows you to enter data for a new collection and create it.
+  </p>
+
+
+</div>

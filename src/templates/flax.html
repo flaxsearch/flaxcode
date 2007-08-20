@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<!-- $Id$ -->
+
+<!-- This boilderplate is used for all the web pages.  The "banner" node
+     will be replaced with a banner (by default admin_banner.html for
+     adminstrator pages and user_banner.html for end user pages.
+     The body of specific pages replaces the
+     "main" node.
+  -->
+
+<html  xmlns="http://www.w3.org/1999/xhtml" >
+  <head>
+    <link href="../static/css/main.css" rel="stylesheet" type="text/css" />
+    <title node="con:title" ></title>
+  </head>
+  <body>
+    <div node="-con:banner">...</div>
+    <!-- main content for pages -->
+    <!-- don't do <div /> here, HTMLTemplate seems to ignore it (bug?) -->
+    <div node="-con:main"> ... </div>
+  </body>
+</html>

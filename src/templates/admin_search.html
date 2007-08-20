@@ -1,0 +1,18 @@
+<!-- $Id$ -->
+<!-- Search form for administrators -->
+
+<title node="con:title">Search</title>
+
+<div node="con:body">
+  <form method="GET"  action="search">
+    <label for="query">Search String:
+      <input name="query" />
+    </label>
+    Collections to be searched: 
+    <label node="rep:collections">
+      <span node="con:col_name">Collection name</span>
+      <input node="con:col_select" type="checkbox" name="col" value="col name"></input>
+    </label>
+    <input type="submit" />
+  </form>
+</div>
