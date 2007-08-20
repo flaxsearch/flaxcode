@@ -74,6 +74,15 @@ def render_collection_detail(template, collection):
 
 collection_detail_template = tman.create_admin_template("collection_detail.html", render_collection_detail)
 
+def render_searched_collection(node, col):
+    node.content = col.name
+
+def render_search_result(template, query, cols):
+    template.main.query.content = query
+    template.main.col.repeat(render_searched_collection, cols)
+
+search_result_template = tman.create_admin_template("admin_search_result.html", render_search_result)
+
 import collection
 COLLECTIONS = collection.collections()
 # Some dummy data for the pages that need collection(s)
@@ -84,5 +93,6 @@ def make_html():
     for d in  (  ("index.html", index_template),
                  ("search.html", admin_search_template, COLLECTIONS), 
                  ("collections.html", collection_list_template,  COLLECTIONS),
-                 ("foo.html", collection_detail_template, foo) ):
+                 ("foo.html", collection_detail_template, foo),
+                 ("foo_search.html", search_result_template, "aardvark", [foo, bar])):
         tman.write_html_file(*d)
