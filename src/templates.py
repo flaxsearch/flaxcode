@@ -70,7 +70,7 @@ def render_collection_detail(template, collection):
     template.title.col_name.content = collection.name
     body = template.main
     body.name.content = collection.name
-    body.description.content = collection.name
+    body.description.content = collection.description
 
 collection_detail_template = tman.create_admin_template("collection_detail.html", render_collection_detail)
 
@@ -86,7 +86,7 @@ search_result_template = tman.create_admin_template("admin_search_result.html", 
 import collection
 COLLECTIONS = collection.collections()
 # Some dummy data for the pages that need collection(s)
-foo = COLLECTIONS.new_collection("foo")
+foo = COLLECTIONS.new_collection("foo", description = "foo description")
 bar = COLLECTIONS.new_collection("bar")
 
 def make_html():

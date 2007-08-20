@@ -3,8 +3,6 @@
 
 class collection(object):
 
-    __slots__ = ("name", "description", "filespec", "schedule", "db")
-                 
     def __init__(self, name):
         self.name=name
         self.description = ""
@@ -15,10 +13,11 @@ class collections(object):
     def __init__(self):
         self._collections = {}
 
-    def new_collection(self, name):
+    def new_collection(self, name, **kwargs):
         if type(name) == str and not self._collections.has_key(name):
             col = collection(name)
             self._collections[name] = col
+            col.__dict__.update(kwargs)
             return col
         else:
             # error
