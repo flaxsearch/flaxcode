@@ -4,15 +4,17 @@
 <title node="con:title">Search</title>
 
 <div node="con:body">
-  <form method="GET"  action="search">
+  <form method="GET"  action="/search" enctype="application/x-www-form-urlencoded">
     <label for="query">Search String:
       <input name="query" />
     </label>
+    <br />
     Collections to be searched: 
     <label node="rep:collections">
       <span node="con:col_name">Collection name</span>
       <input node="con:col_select" type="checkbox" name="col" value="col name"></input>
     </label>
+    <br />
     <input type="submit" />
   </form>
 </div>
