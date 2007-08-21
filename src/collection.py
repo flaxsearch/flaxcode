@@ -6,7 +6,10 @@ class collection(object):
     def __init__(self, name):
         self.name=name
         self.description = ""
-        self.filespec = self.schedule = self.db = None
+        self.indexed = 0
+        self.queries = 0
+        self.docs = 0
+        self.status = 0
 
 class collections(object):
 
