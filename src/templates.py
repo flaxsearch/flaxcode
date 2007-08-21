@@ -40,7 +40,12 @@ class TemplateManager(object):
 
 tman = TemplateManager("templates", "html")
 
+##### Index Template #####
+
 index_template = tman.create_admin_template("index.html")
+
+
+##### Admin Search Template #####
 
 def render_search(template, collections):
     template.main.collections.repeat(do_collection, collections)
@@ -51,6 +56,7 @@ def do_collection(node, collection):
 
 admin_search_template = tman.create_admin_template("admin_search.html", render_search)
 
+##### Collection List Template #####
 
 def render_collections_list(template, collections):
     template.main.collection.repeat(render_collection, collections)
@@ -61,10 +67,16 @@ def render_collection(node, collection):
     node.name.content = collection.name
     node.name.atts['href'] = urllib.quote(col_url)
     node.description.content = collection.description
+    node.indexed.content = str(collection.indexed)
+    node.doc_count.content = str(collection.docs)
+    node.query_count.content = str(collection.queries)
+    node.status.content = str(collection.status)
+
     node.delete.atts['href'] = urllib.quote(col_url+'/confirm_delete')
 
-
 collection_list_template = tman.create_admin_template("collections.html", render_collections_list)
+
+###### Collection Detail Template ######
 
 def render_collection_detail(template, collection):
     template.title.col_name.content = collection.name
@@ -73,6 +85,8 @@ def render_collection_detail(template, collection):
     body.description.content = collection.description
 
 collection_detail_template = tman.create_admin_template("collection_detail.html", render_collection_detail)
+
+###### Admin Search Result Template ######
 
 def render_searched_collection(node, col):
     node.content = col.name
@@ -83,10 +97,19 @@ def render_search_result(template, query, cols):
 
 search_result_template = tman.create_admin_template("admin_search_result.html", render_search_result)
 
-import collection
-COLLECTIONS = collection.collections()
+
 # Some dummy data for the pages that need collection(s)
-foo = COLLECTIONS.new_collection("foo", description = "foo description")
+import datetime
+import collection
+import random
+COLLECTIONS = collection.collections()
+foo = COLLECTIONS.new_collection("foo", 
+                                 description = "foo description", 
+                                 indexed = datetime.date.today(),
+                                 queries = random.randrange(100000),
+                                 docs = random.randrange(100000),
+                                 status = 0)
+
 bar = COLLECTIONS.new_collection("bar")
 
 def make_html():
@@ -96,3 +119,6 @@ def make_html():
                  ("foo.html", collection_detail_template, foo),
                  ("foo_search.html", search_result_template, "aardvark", [foo, bar])):
         tman.write_html_file(*d)
+
+if __name__ == "__main__":
+    make_html()
