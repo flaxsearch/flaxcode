@@ -1,7 +1,16 @@
 /* $Id$ */
 
+html {
+    height: 100%;
+    width: 100%
+}
+
 body {
     font-family:  Verdana, sans-serif;
+    width: 800px;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0px;
 }
 
 .banner {
@@ -36,15 +45,21 @@ body {
   background-color: #fff;
 }
 
-
-.main {
-  float: left;
-  width: 600px;
-
-}
-
-
 a.delete_button img {
     border: none;
     text-decoration: none;
+}
+
+/* styling of the collection list table */
+
+table.collection_list_table {
+    border-collapse: collapse;
+}
+
+table.collection_list_table thead  {
+    border: 3px solid blue;
+}
+
+table.collection_list_table tbody  {
+    border: 1px solid black;
 }
