@@ -50,7 +50,6 @@ class CollectionListPage(resource.PostableResource):
                                                  
     # TODO: get collections class to act like a dict 
     def locateChild(self, req, segments):
-        print "Segments:", segments
         col_name=segments[0]
         if col_name in self._collections._collections:
             return (CollectionPage(self._collections._collections[col_name]), segments[1:])
@@ -69,7 +68,6 @@ class SearchForm(resource.Resource):
         self._collections = collections
 
     def render(self, req):
-        print "REQ: ", req
         if 'query' in req.args and 'col' in req.args:
             return http.Response(200, stream = self._result_template.render(req.args['query'][0], req.args['col']))
         else:
