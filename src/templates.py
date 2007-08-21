@@ -63,7 +63,7 @@ def render_collections_list(template, collections):
 
 import urllib
 def render_collection(node, collection):
-    col_url = collection.name+".html"
+    col_url = 'collections/' + collection.name
     node.name.content = collection.name
     node.name.atts['href'] = urllib.quote(col_url)
     node.description.content = collection.description
@@ -89,7 +89,7 @@ collection_detail_template = tman.create_admin_template("collection_detail.html"
 ###### Admin Search Result Template ######
 
 def render_searched_collection(node, col):
-    node.content = col.name
+    node.content = col
 
 def render_search_result(template, query, cols):
     template.main.query.content = query
