@@ -38,7 +38,6 @@ class CollectionListPage(resource.PostableResource):
 
                        
     def render(self, ctx):
-        print "HEEEELLLLLLLLLLO"
         return http.Response(stream = self._template.render(self._collections))
 
 
