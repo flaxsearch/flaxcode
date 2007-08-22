@@ -37,15 +37,15 @@ class CollectionListPage(resource.PostableResource):
         super(CollectionListPage, self).__init__(*args)
 
                        
-    def render(self, ctx):
-        return http.Response(stream = self._template.render(self._collections))
+    def render(self, req):
+        if req.method.upper() == "POST" and 'new_name' in req.args:
+            name = req.args.get('new_name')[0]
+            col = self._collections.new_collection(name)
+            return http.RedirectResponse(req.unparseURL(path = req.uri+'/'+name))
+        else:
+            return http.Response(stream = self._template.render(self._collections))
 
 
-    def child_add_collection(self, req):
-        if req.method.upper() == "POST":
-            if 'name' in req.args:
-                col = self._collections.new_collection(req.args['name'])
-                return CollectionPage(col)
                                                  
     # TODO: get collections class to act like a dict 
     def locateChild(self, req, segments):
@@ -74,7 +74,9 @@ class SearchForm(resource.Resource):
 
 
 class Toplevel(resource.Resource):
-
+    
+    addSlash = True
+    
     child_static=static.File('static')
     
     child_index = IndexPage()
@@ -84,8 +86,8 @@ class Toplevel(resource.Resource):
     child_search = SearchForm(templates.COLLECTIONS)
 
 
-    def renderHTTP(self, req):
-        return self.child_index
+    def render(self, req):
+        return http.RedirectResponse(req.unparseURL(path = 'index'))
 
 site = server.Site(Toplevel())
 
