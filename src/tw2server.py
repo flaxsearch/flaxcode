@@ -15,7 +15,7 @@ class IndexPage(resource.Resource):
     def render(self, ctx):
         return http.Response(stream = self._template.render())
 
-class CollectionPage(resource.Resource):
+class CollectionPage(resource.PostableResource):
 
     addSlash = True
 
@@ -25,7 +25,13 @@ class CollectionPage(resource.Resource):
         super(CollectionPage, self).__init__(*args)
         self._collection = collection
 
-    def render(self, ctx):
+    def render(self, req):
+
+        if req.method.upper() == "POST":
+            self._collection.description = req.args.get('description')[0]
+            self._collection.paths = req.args.get('paths')[0].split('\n')
+            self._collection.formats = req.args.get('format')
+
         return http.Response(stream = self._template.render(self._collection))
 
 class CollectionListPage(resource.PostableResource):
@@ -36,7 +42,6 @@ class CollectionListPage(resource.PostableResource):
         self._collections = collections
         super(CollectionListPage, self).__init__(*args)
 
-                       
     def render(self, req):
         if req.method.upper() == "POST" and 'new_name' in req.args:
             name = req.args.get('new_name')[0]
@@ -44,8 +49,6 @@ class CollectionListPage(resource.PostableResource):
             return http.RedirectResponse(req.unparseURL(path = req.uri+'/'+name))
         else:
             return http.Response(stream = self._template.render(self._collections))
-
-
                                                  
     # TODO: get collections class to act like a dict 
     def locateChild(self, req, segments):
@@ -84,7 +87,6 @@ class Toplevel(resource.Resource):
     child_collections = CollectionListPage(templates.COLLECTIONS)
 
     child_search = SearchForm(templates.COLLECTIONS)
-
 
     def render(self, req):
         return http.RedirectResponse(req.unparseURL(path = 'index'))
