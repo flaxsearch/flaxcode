@@ -10,6 +10,9 @@ class collection(object):
         self.queries = 0
         self.docs = 0
         self.status = 0
+        self.paths=[]
+        self.formats = ["txt", "html", "doc"]
+
 
 class collections(object):
 
