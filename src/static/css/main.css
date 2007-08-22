@@ -63,3 +63,9 @@ table.collection_list_table thead  {
 table.collection_list_table tbody  {
     border: 1px solid black;
 }
+
+label.main_label {
+    float: left;
+    width: 150px;
+
+}
