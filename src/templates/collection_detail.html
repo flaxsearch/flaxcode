@@ -4,14 +4,42 @@
 <title node="con:title">Document Collection: <span node="-con:col_name">Name</span></title>
 
 <div node="-con:body">
-  <div class="collection_summary">
-    Name: <span node="con:name"> </span>
-    Description: <span node="con:description"> </span>
-  </div>
-  <div class="collection_file_spec">
+  <!-- the form is for updating the collections -->
+  <form action="./" method="POST">
+    <fieldset>
+      <legend>Summary</legend>
+      <div>
+	<label class="main_label"> Name:</label> 
+	<span node="con:name"> </span>
+      </div>
+      <div>
+	<label class="main_label" for="description">
+	  Description:
+	</label>
+	<input type="text" node="con:description" name="description"></input>
+      </div>
+    </fieldset>
 
-  </div>
-  <div class="collection_scheduling">
+    <fieldset>
+      <legend>Files Specification</legend>
+      <div>
+	<label class="main_label" for="paths">Paths:</label>
+	<textarea node="con:paths" name = "paths" rows="5"></textarea>
+      </div>
+      <div>
+	<label class="main_label">Formats:</label>
+	<div node="-rep:formats">
+	  <label node="con:format_label">Fmt</label><input node="con:format_checkbox" type="checkbox" name="format" value="format_name"></input>
+	</div>
+      </div>
+    </fieldset>
 
-  </div>
+    <fieldset>
+      <legend>Scheduling</legend>
+
+    </fieldset>
+
+    <input type="submit" />
+
+  </form>
 </div>
