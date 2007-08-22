@@ -78,18 +78,40 @@ collection_list_template = tman.create_admin_template("collections.html", render
 
 ###### Collection Detail Template ######
 
+
+# this should come from elsewhere
+_formats = ("txt", "doc", "html")
+
+# This actually sucks a bit, really we want to make all the checkbox
+# and associated labels nodes at initialization time, and then just
+# set the checked attributes at render time, but the public api for
+# HTMLTemplate doesn't really support that - the repeat thing builds
+# new structure, really we want a way of iterating over the already
+# built items to set the checked value.
+
 def render_collection_detail(template, collection):
     template.title.col_name.content = collection.name
     body = template.main
     body.name.content = collection.name
-    body.description.content = collection.description
+    body.description.atts['value'] = collection.description
+    body.paths.content = '\n'.join(collection.paths)
+
+    def fill_format(node, format):
+        node.format_label.content = format
+        node.format_checkbox.atts['value'] = format
+        if format in collection.formats:
+            node.format_checkbox.atts['checked'] = 'on' 
+
+    body.formats.repeat(fill_format, _formats)
+    
 
 collection_detail_template = tman.create_admin_template("collection_detail.html", render_collection_detail)
+
 
 ###### Admin Search Result Template ######
 
 def render_searched_collection(node, col):
-    node.content = col
+    node.content = col.name
 
 def render_search_result(template, query, cols):
     template.main.query.content = query
@@ -104,7 +126,9 @@ import collection
 import random
 COLLECTIONS = collection.collections()
 foo = COLLECTIONS.new_collection("foo", 
-                                 description = "foo description", 
+                                 description = "foo description",
+                                 paths = ["/usr/share/doc"],
+                                 formats = ["txt", "doc"],
                                  indexed = datetime.date.today(),
                                  queries = random.randrange(100000),
                                  docs = random.randrange(100000),
