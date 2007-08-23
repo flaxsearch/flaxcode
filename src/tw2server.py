@@ -61,9 +61,9 @@ class CollectionListPage(resource.PostableResource):
         
 class SearchForm(resource.Resource):
 
-    _template = templates.admin_search_template
+    _template = templates.user_search_template
 
-    _result_template = templates.search_result_template
+    _result_template = templates.user_search_result_template
 
     def __init__(self, collections, *args):
         super(SearchForm, self).__init__(*args)
@@ -75,21 +75,38 @@ class SearchForm(resource.Resource):
         else:
             return http.Response(200, stream = self._template.render(self._collections))
 
+class AdminSearch(SearchForm):
+    
+    _template = templates.admin_search_template
+
+    _result_template = templates.admin_search_result_template
+
+class Admin(resource.Resource):
+
+    addSlash = True
+
+    child_index = IndexPage()
+
+    child_collections = CollectionListPage(templates.COLLECTIONS)
+
+    child_search = AdminSearch(templates.COLLECTIONS)
+
+    def render(self, req):
+        return http.RedirectResponse(req.unparseURL(path = req.uri+'index'))
 
 class Toplevel(resource.Resource):
     
     addSlash = True
     
-    child_static=static.File('static')
-    
-    child_index = IndexPage()
-
-    child_collections = CollectionListPage(templates.COLLECTIONS)
-
     child_search = SearchForm(templates.COLLECTIONS)
 
+    child_admin = Admin()
+
+    child_static=static.File('static')
+    
+
     def render(self, req):
-        return http.RedirectResponse(req.unparseURL(path = 'index'))
+        return http.RedirectResponse(req.unparseURL(path = req.uri+'search'))
 
 site = server.Site(Toplevel())
 

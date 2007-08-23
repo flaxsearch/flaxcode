@@ -17,6 +17,7 @@ class TemplateManager(object):
         self.template_dir = template_dir
         self.html_dir = html_dir
         self.admin_banner_html = self.make_template(self.dummy_render, "admin_banner.html").render()
+        self.user_banner_html = self.make_template(self.dummy_render, "user_banner.html").render()
     
     def dummy_render(self, template):
         pass
@@ -24,14 +25,20 @@ class TemplateManager(object):
     def make_template(self, render_fn, file_name):
         return  HTMLTemplate.Template(render_fn, open(os.path.join(self.template_dir, file_name)).read())
 
-    def create_admin_template(self, file_name,  render_fn = None):
+    def create_template(self, file_name,  banner, render_fn = None):
         fn = self.dummy_render if render_fn is None else render_fn
         common_template = self.make_template(fn, "flax.html")
-        common_template.banner.raw = self.admin_banner_html
+        common_template.banner.raw = banner
         sub_template = self.make_template(self.dummy_render, file_name)
         common_template.title = sub_template.title
         common_template.main = sub_template.body
         return common_template
+
+    def create_admin_template(self, file_name, render_fn = None):
+        return self.create_template(file_name, self.admin_banner_html, render_fn)
+
+    def create_user_template(self, file_name, render_fn = None):
+        return self.create_template(file_name, self.user_banner_html, render_fn)
 
     def write_html_file(self, filename, template, *args):
         with open(os.path.join(self.html_dir, filename), 'w') as f:
@@ -45,7 +52,7 @@ tman = TemplateManager("templates", "html")
 index_template = tman.create_admin_template("index.html")
 
 
-##### Admin Search Template #####
+##### Search Templates #####
 
 def render_search(template, collections):
     template.main.collections.repeat(do_collection, collections)
@@ -54,7 +61,8 @@ def do_collection(node, collection):
     node.col_name.content = collection.name
     node.col_select.atts['value'] = collection.name
 
-admin_search_template = tman.create_admin_template("admin_search.html", render_search)
+admin_search_template = tman.create_admin_template("search.html", render_search)
+user_search_template = tman.create_user_template("search.html", render_search)
 
 ##### Collection List Template #####
 
@@ -108,17 +116,17 @@ def render_collection_detail(template, collection):
 collection_detail_template = tman.create_admin_template("collection_detail.html", render_collection_detail)
 
 
-###### Admin Search Result Template ######
+###### Search Result Templates ######
 
 def render_searched_collection(node, col):
-    node.content = col.name
+    node.content = col
 
 def render_search_result(template, query, cols):
     template.main.query.content = query
     template.main.col.repeat(render_searched_collection, cols)
 
-search_result_template = tman.create_admin_template("admin_search_result.html", render_search_result)
-
+admin_search_result_template = tman.create_admin_template("search_result.html", render_search_result)
+user_search_result_template = tman.create_user_template("search_result.html", render_search_result)
 
 # Some dummy data for the pages that need collection(s)
 import datetime
