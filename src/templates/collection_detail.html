@@ -7,11 +7,7 @@
   <!-- the form is for updating the collections -->
   <form action="./" method="POST">
     <fieldset>
-      <legend>Summary</legend>
-      <div>
-	<label class="main_label"> Name:</label> 
-	<span node="con:name"> </span>
-      </div>
+      <legend>Document Collection: <span node="con:name"> </span></legend>
       <div>
 	<label class="main_label" for="description">
 	  Description:
@@ -29,7 +25,8 @@
       <div>
 	<label class="main_label">Formats:</label>
 	<div node="-rep:formats">
-	  <label node="con:format_label">Fmt</label><input node="con:format_checkbox" type="checkbox" name="format" value="format_name"></input>
+	  <label node="con:format_label">Fmt</label>
+	  <input node="con:format_checkbox" type="checkbox" name="format" value="format_name"></input>
 	</div>
       </div>
     </fieldset>

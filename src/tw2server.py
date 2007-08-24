@@ -48,13 +48,12 @@ class CollectionListPage(resource.PostableResource):
             col = self._collections.new_collection(name)
             return http.RedirectResponse(req.unparseURL(path = req.uri+'/'+name))
         else:
-            return http.Response(stream = self._template.render(self._collections))
+            return http.Response(stream = self._template.render(self._collections.itervalues()))
                                                  
-    # TODO: get collections class to act like a dict 
     def locateChild(self, req, segments):
         col_name=segments[0]
-        if col_name in self._collections._collections:
-            return (CollectionPage(self._collections._collections[col_name]), segments[1:])
+        if col_name in self._collections:
+            return (CollectionPage(self._collections[col_name]), segments[1:])
         else:
              #404
             return (None, segments)

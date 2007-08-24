@@ -35,7 +35,25 @@ class collections(object):
         else:
             #error
             pass
-        
+
+    def __getitem__(self, key):
+        return self._collections.__getitem__(key)
+
+    def __setitem__(self, key, val):
+        self._collections.__setitem__(key, val)
+
+    def __contains__(self, key):
+        return self._collections.__contains__(key)
+
     def __iter__(self):
+        return self._collections.__iter__()
+
+    def iterkeys(self):
+        return self._collections.iterkeys()
+
+    def iteritems(self):
+        return self._collections.iteritems()
+
+    def itervalues(self):
         return self._collections.itervalues()
 

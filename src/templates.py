@@ -55,7 +55,7 @@ index_template = tman.create_admin_template("index.html")
 ##### Search Templates #####
 
 def render_search(template, collections):
-    template.main.collections.repeat(do_collection, collections)
+    template.main.collections.repeat(do_collection, collections.itervalues())
 
 def do_collection(node, collection):
     node.col_name.content = collection.name
@@ -149,8 +149,9 @@ def make_html():
                  ("search.html", admin_search_template, COLLECTIONS), 
                  ("collections.html", collection_list_template,  COLLECTIONS),
                  ("foo.html", collection_detail_template, foo),
-                 ("foo_search.html", search_result_template, "aardvark", [foo, bar])):
+                 ("foo_search.html", admin_search_template, "aardvark", [foo, bar])):
         tman.write_html_file(*d)
 
 if __name__ == "__main__":
-    make_html()
+   # make_html()
+   pass

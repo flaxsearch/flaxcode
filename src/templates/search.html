@@ -5,16 +5,19 @@
 
 <div node="con:body">
   <form method="GET"  action="/search" >
-    <label for="query">Search String:
-      <input name="query" />
-    </label>
-    <br />
-    Collections to be searched: 
-    <label node="rep:collections">
-      <span node="con:col_name">Collection name</span>
-      <input node="con:col_select" type="checkbox" name="col" value="col name"></input>
-    </label>
-    <br />
+    <fieldset>
+      <div>
+	<label class="main_label" for="query">Search String: </label>
+	<input name="query" />
+      </div>
+      <div>
+	<label class="main_label">Collections:</label>
+	<div node="-rep:collections">
+	  <label node="con:col_name">Collection name</label>
+	  <input node="con:col_select" type="checkbox" name="col" value="col name"></input>
+	</div>
+      </div>
+    </fieldset>
     <input type="submit" />
   </form>
 </div>
