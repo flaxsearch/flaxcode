@@ -1,0 +1,29 @@
+<!-- Global options for Flax -->
+
+<title node="con:title">Global Options</title>
+
+<div node="con:body">
+  <form>
+    <fieldset>
+      <legend>File handling options</legend>
+      <div class="info">
+	These options control the files Flax uses for its data.
+	<dl>
+	  <dt>Database Directory</dt>
+	  <dd>The directory for the Xapian databases for each document collection</dd>
+	  <dt>Flax Directory</dt>
+	  <dd>The directory for persistent Flax data.</dd>
+	</dl>
+      </div>      
+      <div>
+	<label class="main_label" for="db_dir">Database directory:</label>
+	<input name="db_dir"></input>
+      </div>
+      <div>
+	<label class="main_label" for="persist_dir">Flax directory:</label>
+	<input name="persist_dir"></input>
+      </div>
+      </fieldset>
+    <input type="submit"></input>
+  </form>
+</div>

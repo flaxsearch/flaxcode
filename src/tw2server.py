@@ -15,6 +15,15 @@ class IndexPage(resource.Resource):
     def render(self, ctx):
         return http.Response(stream = self._template.render())
 
+class OptionsPage(resource.Resource):
+
+    addSlash = True
+
+    _template = templates.options_template
+
+    def render(self, ctx):
+        return http.Response(stream = self._template.render())
+
 class CollectionPage(resource.PostableResource):
 
     addSlash = True
@@ -28,9 +37,12 @@ class CollectionPage(resource.PostableResource):
     def render(self, req):
 
         if req.method.upper() == "POST":
-            self._collection.description = req.args.get('description')[0]
-            self._collection.paths = req.args.get('paths')[0].split('\n')
-            self._collection.formats = req.args.get('format')
+            if 'description' in req.args:
+                self._collection.description = req.args.get('description')[0]
+            if 'paths' in req.args:
+                self._collection.paths = req.args.get('paths')[0].split('\n')
+            if 'format' in req.args:
+                self._collection.formats = req.args.get('format')
 
         return http.Response(stream = self._template.render(self._collection))
 
@@ -45,7 +57,7 @@ class CollectionListPage(resource.PostableResource):
     def render(self, req):
         if req.method.upper() == "POST" and 'new_name' in req.args:
             name = req.args.get('new_name')[0]
-            col = self._collections.new_collection(name)
+            col = self._collections.new_collection(name, **req.args)
             return http.RedirectResponse(req.unparseURL(path = req.uri+'/'+name))
         else:
             return http.Response(stream = self._template.render(self._collections.itervalues()))
@@ -60,13 +72,11 @@ class CollectionListPage(resource.PostableResource):
         
 class SearchForm(resource.Resource):
 
-    _template = templates.user_search_template
-
-    _result_template = templates.user_search_result_template
-
-    def __init__(self, collections, *args):
+    def __init__(self, collections, search_template, result_template, *args):
         super(SearchForm, self).__init__(*args)
         self._collections = collections
+        self._template = search_template
+        self._result_template = result_template
 
     def render(self, req):
         if 'query' in req.args and 'col' in req.args:
@@ -74,21 +84,17 @@ class SearchForm(resource.Resource):
         else:
             return http.Response(200, stream = self._template.render(self._collections))
 
-class AdminSearch(SearchForm):
-    
-    _template = templates.admin_search_template
-
-    _result_template = templates.admin_search_result_template
-
 class Admin(resource.Resource):
 
     addSlash = True
 
     child_index = IndexPage()
 
+    child_options = OptionsPage()
+    
     child_collections = CollectionListPage(templates.COLLECTIONS)
 
-    child_search = AdminSearch(templates.COLLECTIONS)
+    child_search = SearchForm(templates.COLLECTIONS, templates.admin_search_template, templates.admin_search_result_template)
 
     def render(self, req):
         return http.RedirectResponse(req.unparseURL(path = req.uri+'index'))
@@ -97,12 +103,11 @@ class Toplevel(resource.Resource):
     
     addSlash = True
     
-    child_search = SearchForm(templates.COLLECTIONS)
+    child_search = SearchForm(templates.COLLECTIONS, templates.user_search_template, templates.user_search_result_template)
 
     child_admin = Admin()
 
     child_static=static.File('static')
-    
 
     def render(self, req):
         return http.RedirectResponse(req.unparseURL(path = req.uri+'search'))

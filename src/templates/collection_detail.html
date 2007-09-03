@@ -8,6 +8,12 @@
   <form action="./" method="POST">
     <fieldset>
       <legend>Document Collection: <span node="con:name"> </span></legend>
+      <div class="info">
+	<dl>
+	<dt>Description</dt>
+	<dd>The description will be visible to end users.</dd>
+	</dl>
+      </div>
       <div>
 	<label class="main_label" for="description">
 	  Description:
@@ -18,6 +24,28 @@
 
     <fieldset>
       <legend>Files Specification</legend>
+      <div class="info">
+	<p>The options in this section determine which files will be
+	included in this document collection.</p>
+	<dl>
+	  <dt>Paths</dt>
+	  <dd>The directories specified here will be (recursively) searched
+	  for files. Individual files may also be specified here.</dd>
+	  <dt>Formats</dt>
+	  <dd>Files of the selected formats will be included.</dd>
+	  <dt>Exclusions</dt>
+	  <dd>Patterns matching exclusions will be ommitted from the
+	  files specified in paths.</dd>
+	  <dt>Earliest</dt>
+	  <dd>Files modified before this date will be excluded.</dd>
+	  <dt>Latest</dt>
+	  <dd>Files modified after this date will be excluded.</dd>
+	  <dt>Oldest</dt>
+	  <dd>Files older than this duration at the time of indexing will be excluded</dd>
+	  <dt>Youngest</dt>
+	  <dd>Files newer than this duration at the time of indexing will be excluded.</dd>
+	</dl>
+      </div>
       <div>
 	<label class="main_label" for="paths">Paths:</label>
 	<textarea node="con:paths" name = "paths" rows="5"></textarea>
@@ -29,13 +57,57 @@
 	  <input node="con:format_checkbox" type="checkbox" name="format" value="format_name"></input>
 	</div>
       </div>
+      <div>
+	<label class="main_label">Earliest:</label>
+        <input node="con:earliest"></input>
+<!-- 	<div id="calEarliestContainer"></div> -->
+<!-- 	<script type="text/javascript"> -->
+<!-- 	  /* This needs yui. */ -->
+	  
+<!-- 	  var initialise = function () { -->
+<!-- 	     cal = new YAHOO.widget.Calendar ('calEarliestContainer'  , 'calEarliestContainer' ); -->
+<!-- 	     cal.render() -->
+<!-- 	  }; -->
+<!-- 	  YAHOO.util.Event.onDOMReady(initialise); -->
+<!-- 	</script> -->
+      </div>
+      <div>
+	<label class="main_label">Latest:</label>
+        <input node="con:latest"></input>
+      </div>
+      <div>
+	<label class="main_label">Oldest:</label>
+        <input node="con:oldest"></input>
+      </div>
+
+      <div>
+	<label class="main_label">Youngest:</label>
+        <input node="con:youngest"></input>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Indexing Options</legend>
+      <div class="info">
+	These options control the way this document collection is indexed.
+      </div>
     </fieldset>
 
     <fieldset>
       <legend>Scheduling</legend>
+      <div class="info">
+	These options determine when scheduling takes place
+      </div>
 
     </fieldset>
 
+    <fieldset>
+      <legend>Logging</legend>
+      <div class="info">
+	These options control the events related to this document
+	collection that are logged.
+      </div>
+    </fieldset>
     <input type="submit" />
 
   </form>

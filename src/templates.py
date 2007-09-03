@@ -51,6 +51,10 @@ tman = TemplateManager("templates", "html")
 
 index_template = tman.create_admin_template("index.html")
 
+##### Index Template #####
+
+options_template = tman.create_admin_template("options.html")
+
 
 ##### Search Templates #####
 
