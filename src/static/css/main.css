@@ -9,8 +9,6 @@ body {
     font-family:  Verdana, sans-serif;
     width: 800px;
     height: 100%;
-    margin: 0 auto;
-    padding: 0px;
 }
 
 .banner {
@@ -69,3 +67,17 @@ label.main_label {
     width: 150px;
 
 }
+
+fieldset div {
+    clear: left;
+}
+
+div.info {
+  float: right;
+  font-size: 75%;
+  border: 1px solid;
+  height: auto;
+  width: 250px;
+  padding: 3px;
+}
+
