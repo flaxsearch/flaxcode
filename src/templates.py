@@ -79,7 +79,7 @@ def render_collections_list(template, collections):
 
 import urllib
 def render_collection(node, collection):
-    col_url = 'collections/' + collection.name
+    col_url = './' + collection.name
     node.name.content = collection.name
     node.name.atts['href'] = urllib.quote(col_url)
     node.description.content = collection.description
