@@ -32,6 +32,10 @@ class TemplateManager(object):
         sub_template = self.make_template(self.dummy_render, file_name)
         common_template.title = sub_template.title
         common_template.main = sub_template.body
+        if hasattr(sub_template, 'heads'):
+            common_template.heads = sub_template.heads
+        else:
+            common_template.heads.raw = ''
         return common_template
 
     def create_admin_template(self, file_name, render_fn = None):
