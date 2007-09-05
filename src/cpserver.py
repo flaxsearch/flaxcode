@@ -43,7 +43,7 @@ class CollectionListPage(object):
          self._collections = collections
 
      @cherrypy.expose
-     def default(self, name, *args):
+     def default(self, name, *args, **kwargs):
          if name in self._collections:
              return CollectionPage(self._collections[name]).index()
          else:
@@ -52,10 +52,9 @@ class CollectionListPage(object):
      @cherrypy.expose
      def index(self, new_name = None, **kwargs):
          if new_name:
-             name = req.args.get('new_name')[0]
-             col = self._collections.new_collection(name, **kwargs)
-             print "PATH: ", cherrypy.request.path
-             return cherrypy.httptools.redirect(cherrypy.request.path.split('/')[:-1]+new_name)
+             col = self._collections.new_collection(new_name, **kwargs)
+             print "PATH: ", cherrypy.request.path_info
+             raise cherrypy.HTTPRedirect(cherrypy.request.path_info+new_name)
          else:
              return self._template.render(self._collections.itervalues())
 
