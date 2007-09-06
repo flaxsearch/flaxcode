@@ -3,13 +3,14 @@
 from __future__ import with_statement
 import os
 import sys
-sys.path = [os.path.normpath(os.path.join(__file__, '..', '..','libs', 'secore'))]+sys.path
-import secore
+sys.path = [os.path.normpath(os.path.join(__file__, '..', '..','libs', 'xappy'))]+sys.path
+import xappy
 import filespec
+
+_root_dir = os.path.dirname(os.path.abspath(os.path.normpath(__file__)))+'/dbs'
 
 class collection(object):
 
-    _root_dir = os.path.dirname(os.path.abspath(os.path.normpath(__file__)))+'/dbs'
     _stopwords = ('i', 'a', 'an', 'and', 'the')
 
     def __init__(self, name):
@@ -41,30 +42,39 @@ class collection(object):
                                            formats = self.formats)
                                            
     def dbname(self):
-        return os.path.join(self._root_dir, self.name+'.db')
+        return os.path.join(_root_dir, self.name+'.db')
             
     def process_file(self, file_name):
         print "processing file: ", file_name
         with open(file_name) as f:
-            doc = secore.UnprocessedDocument()
-            doc.fields.append('text', f.read())
+            doc = xappy.UnprocessedDocument()
+            doc.fields.append(xappy.Field('text', f.read()))
             pdoc = self._conn.process(doc)
             self._conn.add(pdoc)
                 
     def make_xapian_db(self):
-        self._conn = secore.IndexerConnection(self.dbname())
+        self._conn = xappy.IndexerConnection(self.dbname())
         for f in self._filespec.files():
+            print f
             self.process_file(f)
         self._conn.flush()
         self._conn.close()
         
     def update_connection(self):
         dbname = self.dbname()
-        self._conn = secore.IndexerConnection(dbname)
-        self._conn.add_field_action ('text', secore.FieldActions.INDEX_FREETEXT, 
+        self._conn = xappy.IndexerConnection(dbname)
+        self._conn.add_field_action ('text', xappy.FieldActions.INDEX_FREETEXT, 
                                      language='en', stop=self._stopwords, noprefix=True)
+        self._conn.add_field_action ('text', xappy.FieldActions.STORE_CONTENT)
+        
         self._conn.close()
 
+    def search(self, query):
+        db = xappy.SearchConnection(self.dbname())
+        query = db.query_parse(query.lower())
+        print query
+        return db.search(query, 0, 10)
+                                 
 class collections(object):
 
     def __init__(self):

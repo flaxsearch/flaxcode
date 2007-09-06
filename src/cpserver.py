@@ -58,7 +58,13 @@ class SearchForm(object):
     def search(self, query = None, col = None):
         if col and query:
             cols = [col] if type(col) is str else col
-            return self._result_template.render(query, cols)
+            col_results = (self._collections[c].search(query) for c in cols)
+            text = ""
+            for res in col_results:
+                for r in res:
+                    if 'text' in r.data:
+                        text+= r.data['text'][0]
+            return self._result_template.render(query, cols, text)
         else:
             return self._template.render(self._collections)
 
