@@ -130,9 +130,11 @@ collection_detail_template = tman.create_admin_template("collection_detail.html"
 def render_searched_collection(node, col):
     node.content = col
 
-def render_search_result(template, query, cols):
+def render_search_result(template, query, cols, result=None):
     template.main.query.content = query
     template.main.col.repeat(render_searched_collection, cols)
+    if result:
+        template.main.results.content = result
 
 admin_search_result_template = tman.create_admin_template("search_result.html", render_search_result)
 user_search_result_template = tman.create_user_template("search_result.html", render_search_result)
