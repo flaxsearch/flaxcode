@@ -14,8 +14,11 @@
 
 
 <div node="-con:body">
+  <form action='./do_indexing' method="POST">
+    <input type="submit" value="Index Now" />
+  </form>
   <!-- the form is for updating the collections -->
-  <form action="./" method="POST">
+  <form action="update" method="POST">
     <fieldset>
       <legend>Document Collection: <span node="con:name"> </span></legend>
       <div class="info">

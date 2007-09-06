@@ -1,7 +1,16 @@
 # $Id$
 # dummy - enough structure just to drive the web interface.
+from __future__ import with_statement
+import os
+import sys
+sys.path = [os.path.normpath(os.path.join(__file__, '..', '..','libs', 'secore'))]+sys.path
+import secore
+import filespec
 
 class collection(object):
+
+    _root_dir = os.path.dirname(os.path.abspath(os.path.normpath(__file__)))+'/dbs'
+    _stopwords = ('i', 'a', 'an', 'and', 'the')
 
     def __init__(self, name):
         self.name=name
@@ -11,8 +20,50 @@ class collection(object):
         self.docs = 0
         self.status = 0
         self.paths=[]
+        self.exclusions = []
+        self.earliest = self.latest = self.youngest = self.oldest = None
         self.formats = ["txt", "html", "doc"]
+        self.update_filespec()
+        self.update_connection()
 
+    def update(self, **kwargs):
+        self.__dict__.update(kwargs)
+        self.update_filespec()
+        self.update_connection()
+
+    def update_filespec(self):
+        self._filespec = filespec.FileSpec(paths = self.paths,
+                                           exclusions = self.exclusions,
+                                           earliest = self.earliest,
+                                           latest = self.latest,
+                                           youngest = self.youngest,
+                                           oldest = self.oldest,
+                                           formats = self.formats)
+                                           
+    def dbname(self):
+        return os.path.join(self._root_dir, self.name+'.db')
+            
+    def process_file(self, file_name):
+        print "processing file: ", file_name
+        with open(file_name) as f:
+            doc = secore.UnprocessedDocument()
+            doc.fields.append('text', f.read())
+            pdoc = self._conn.process(doc)
+            self._conn.add(pdoc)
+                
+    def make_xapian_db(self):
+        self._conn = secore.IndexerConnection(self.dbname())
+        for f in self._filespec.files():
+            self.process_file(f)
+        self._conn.flush()
+        self._conn.close()
+        
+    def update_connection(self):
+        dbname = self.dbname()
+        self._conn = secore.IndexerConnection(dbname)
+        self._conn.add_field_action ('text', secore.FieldActions.INDEX_FREETEXT, 
+                                     language='en', stop=self._stopwords, noprefix=True)
+        self._conn.close()
 
 class collections(object):
 
@@ -28,7 +79,7 @@ class collections(object):
         else:
             # error
             pass
-    
+
     def remove_collection(self, name):
         if type(name) == str and self._collections.has_key(name):
             del self._collections[name]
@@ -57,3 +108,4 @@ class collections(object):
     def itervalues(self):
         return self._collections.itervalues()
 
+        

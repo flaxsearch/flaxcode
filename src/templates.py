@@ -55,7 +55,7 @@ tman = TemplateManager("templates", "html")
 
 index_template = tman.create_admin_template("index.html")
 
-##### Index Template #####
+##### Options Template #####
 
 options_template = tman.create_admin_template("options.html")
 
@@ -74,12 +74,13 @@ user_search_template = tman.create_user_template("search.html", render_search)
 
 ##### Collection List Template #####
 
-def render_collections_list(template, collections):
-    template.main.collection.repeat(render_collection, collections)
+def render_collections_list(template, collections, base_url):
+    template.main.add_form.atts['action'] = base_url + '/add/'
+    template.main.add_form.collection.repeat(render_collection, collections, base_url)
 
 import urllib
-def render_collection(node, collection):
-    col_url = './' + collection.name
+def render_collection(node, collection, base_url):
+    col_url = base_url + '/' + collection.name + '/show'
     node.name.content = collection.name
     node.name.atts['href'] = urllib.quote(col_url)
     node.description.content = collection.description
@@ -110,7 +111,7 @@ def render_collection_detail(template, collection):
     body = template.main
     body.name.content = collection.name
     body.description.atts['value'] = collection.description
-    body.paths.content = '\n'.join(collection.paths)
+    body.paths.content = '/n'.join(collection.paths) if type(collection.paths) is list else collection.paths
 
     def fill_format(node, format):
         node.format_label.content = format

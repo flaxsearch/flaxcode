@@ -1,62 +1,52 @@
 import os
-
 import cherrypy
+import routes
 import templates
 
-class IndexPage(object):
-
-    _template = templates.index_template
-
-    @cherrypy.expose
-    def index(self):
-        return self._template.render()
-
-class OptionsPage(object):
-
-    _template = templates.options_template
-
-    @cherrypy.expose
-    def index(self):
-        return self._template.render()
-
-class CollectionPage(object):
-
-    _template = templates.collection_detail_template
-    
-    def __init__(self, collection, *args):
-        self._collection = collection
-
-    def index(self, description = "", paths="", format=[]):
-
-        if cherrypy.request.method == "POST":
-            self._collection.description = description
-            self._collection.paths = paths.split('\n')
-            self._collection.formats = format            
-
-        return self._template.render(self._collection)
-
-class CollectionListPage(object):
+class Collections(object):
 
      _template = templates.collection_list_template
+     _detail_template = templates.collection_detail_template
 
      def __init__(self, collections):
          self._collections = collections
 
-     @cherrypy.expose
-     def default(self, name, *args, **kwargs):
+     def default(self, name):
          if name in self._collections:
-             return CollectionPage(self._collections[name]).index()
+             return CollectionPage(self._collections[name])
          else:
              return None
+
+     def show(self, id=None):
+         if id in self._collections:
+             return self._detail_template.render(self._collections[id])
+         else:
+             raise cherrypy.NotFound(path) 
+
+     def do_indexing(self, id=None, **kwargs):
+         if cherrypy.request.method == "POST" and id and self._collections[id]:
+             print "calling make_xapian_db"
+             self._collections[id].make_xapian_db()
+             return self._detail_template.render(self._collections[id])
+         else:
+             raise cherrypy.NotFound(path) 
+         
+     def update(self, id=None, **kwargs):
+         if id and id in self._collections:
+             self._collections[id].update(**kwargs)
+             return self._detail_template.render(self._collections[id])
+         else:
+             raise cherrypy.NotFound(path) 
      
-     @cherrypy.expose
-     def index(self, new_name = None, **kwargs):
+     def add(self, new_name, **kwargs):
          if new_name:
              col = self._collections.new_collection(new_name, **kwargs)
-             print "PATH: ", cherrypy.request.path_info
-             raise cherrypy.HTTPRedirect(cherrypy.request.path_info+new_name)
+             raise cherrypy.HTTPRedirect('/'.join(cherrypy.request.path_info.split('/')[:-2]+[new_name, 'show']))
          else:
-             return self._template.render(self._collections.itervalues())
+             raise cherrypy.NotFound(path)
+
+     def index(self, *args, **kwargs):
+         return self._template.render(self._collections.itervalues(), routes.url_for('/admin/collections'))
 
 class SearchForm(object):
 
@@ -65,8 +55,7 @@ class SearchForm(object):
         self._template = search_template
         self._result_template = result_template
 
-    @cherrypy.expose
-    def index(self, query = None, col = None):
+    def search(self, query = None, col = None):
         if col and query:
             cols = [col] if type(col) is str else col
             return self._result_template.render(query, cols)
@@ -76,36 +65,52 @@ class SearchForm(object):
          
 class Admin(object):
 
-    _index = IndexPage()
+    def __init__(self, collections):
+        self.admin_search = SearchForm(collections,
+                                       templates.admin_search_template,
+                                       templates.admin_search_result_template)
+    def options(self):
+        return templates.options_template.render()
 
-    options = OptionsPage()
+    def search(self, *args, **kwargs):
+        return self.admin_search.search(*args, **kwargs)
 
-    collections = CollectionListPage(templates.COLLECTIONS)
-
-    search = SearchForm(templates.COLLECTIONS, templates.admin_search_template, templates.admin_search_result_template)
-
-    @cherrypy.expose
     def index(self):
-        return self._index.index()
+        return templates.index_template.render()
 
-class TopLevel(object):
 
-    def __init__(self, static_root):
-        self.static = cherrypy.tools.staticdir.handler(section = 'static', root = cd, dir = 'static')
+class Top(object):
 
-    admin = Admin()
+    def __init__(self):
+        self.user_search = SearchForm(templates.COLLECTIONS, templates.user_search_template, templates.user_search_result_template)
+
+    def search(self, *args, **kwargs):
+        return self.user_search.search(*args, **kwargs)
+
+
+
+def setup_routes():
+    d = cherrypy.dispatch.RoutesDispatcher()
+    top = Top()
+    admin = Admin(templates.COLLECTIONS)
+    collections = Collections(templates.COLLECTIONS)
+
+    d.connect('top', '/', controller = top, action='search')
+    d.connect('user_search', '/search', controller = top, action='search')
+
+    d.connect('collections', '/admin/collections/add', controller = collections, action='add', conditions=dict(method=['POST']))
+    d.connect('collection', '/admin/collections/:(id)/:action', controller = collections)
+     
+    d.connect('admin', '/admin/:action/', controller = admin)
     
-    search = SearchForm(templates.COLLECTIONS, templates.user_search_template, templates.user_search_result_template)
-
-    #   admin = Admin()
-
-    @cherrypy.expose
-    def index(self):
-        return self.search.index()
-    
+    return d
 
 
 if __name__ == "__main__":
     cd = os.path.dirname(os.path.abspath(__file__))
-    cherrypy.quickstart(TopLevel(cd), config = "cp.conf")
-
+    d = setup_routes()
+    cherrypy.config.update('cp.conf')
+    cherrypy.quickstart(None, config = { '/': { 'request.dispatch': d},
+                                         '/static': {'tools.staticdir.on': True,
+                                                     'tools.staticdir.root': os.path.dirname(os.path.abspath(__file__)),
+                                                     'tools.staticdir.dir': 'static'}})

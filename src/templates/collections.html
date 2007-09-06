@@ -9,7 +9,7 @@
 <div node="con:body">
 
   <!-- The form is to support the add collection functionality. -->
-  <form action="./" method="POST">
+  <form  node="con:add_form" action="" method="POST">
     <table class="collection_list_table" summary="This table lists current document collections." >
       <thead>
 	<tr class="header_row">
@@ -44,7 +44,7 @@
 	    <input type="image" src="/static/img/add.png" alt="New" class="add_button"  />
 	  </td>
 	  <td class="col_name"><input name="new_name" /></td>
-	  <td class="col_description"><input name="new_description" /></td>
+	  <td class="col_description"><input name="description" /></td>
 	  <td class="col_indexed" node="con:indexed"></td>
 	  <td class="col_status" node="con:status"></td>
 	  <td class="col_queries" node="con:query_count"></td>
