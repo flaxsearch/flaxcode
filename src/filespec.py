@@ -32,7 +32,7 @@ class FileSpec(object):
 
     def __init__(self, paths=None, exclusions=None, earliest=None, latest=None, oldest=None, youngest=None, formats = None):
 
-            self.paths = [os.path.abspath(p) for p in paths] if paths else []
+            self.paths = [paths] if type(paths) is str else paths
             self.exclusions = exclusions if exclusions else []
             self.earliest = earliest
             self.latest = latest
@@ -48,9 +48,6 @@ class FileSpec(object):
                     fname = os.path.join(root, f)
                     if self.included(fname):
                         yield fname
-                        
-#                dirs = filter(dirs, self.dirs_included)
-
 
     def _get_earliest(self):
         return self._earliest
@@ -83,8 +80,11 @@ class FileSpec(object):
         """ is this file permitted?"""
 
         # is this file one of the permitted formats?
-        if not any ((fnmatch.fnmatch(f, e) for e in self.formats)):
+        if not any ((fnmatch.fnmatch(f, '*.'+e) for e in self.formats)):
             return False
+
+        return True        # temporary 
+
         # format is ok, are we with the permitted range of dates.
         mtime = datetime.datetime.fromtimestamp(os.stat(f)[stat.ST_MTIME])
         #TODO: factor out the call to now().
