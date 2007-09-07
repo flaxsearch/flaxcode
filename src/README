@@ -1,0 +1,80 @@
+Flax
+----
+
+Flax is web based search system.
+
+At the moment we are at the prototyping stage. Feel free to
+experiment, but the software is not even close to being ready for
+production use.
+
+Full documentation will be produced at some point. In the mean time
+you have this file, the source, and whatever you can find on
+http://flaxcode.googlecode.com.
+
+Dependencies:
+-------------
+
+You need the following:
+
+Python at at least version 2.5 with the following packages installed:
+
+- xapian with its python bindings (see http://www.xapian.org),
+  currently you need the subversion trunk.
+
+- CherryPy - see http://www.cherrypy.org
+
+- routes - see http://routes.groovie.org/
+
+- HTMLTemplate - see http://freespace.virgin.net/hamish.sanderson/htmltemplate.html
+
+
+Note also that xappy (formerly secore), is grabbed as an external when
+you check out Flax from subversion, so if you're reading this file you
+presumably already have it, but at some point in the future this might
+be seperated completely from Flax so will need independent
+installation. See http://xappy.googlecode.com.
+
+
+Platforms.
+----------
+
+At the moment Flax should on run any system where you can install all
+the dependencies. The first release will probably only work fully on
+Windows as we plan to use ifilters to get content from documents.  The
+plan is for full functionality across at least windows/linux/mac in
+the long run.
+
+
+For the first release we will make a nice installer, in the mean time
+check the code out from subversion (presumably you already have if
+you're reading this) with e.g. ::
+
+  svn checkout http://flaxcode.googlecode.com/svn/trunk/ flaxcode
+
+then::
+
+  cd flaxcode/src
+
+then::
+
+  python cpserver.py
+
+By default the server will run on port 8090, but you can change that
+by editing cp.conf.
+
+Administration functionality is available at
+http://localhost:8090/admin
+
+
+
+Changing look and feel
+----------------------
+
+It is intended that Flax will be customizable. You can change the
+templates in flaxcode/src/templates (restart the web server for
+changes to take effect). Note however that removing the HTMLTemplate
+containers or repeaters will probably break things.  The only style
+sheet currently used is in flaxcode/src/static/css/main.css.
+
+
+
