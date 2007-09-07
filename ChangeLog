@@ -1,0 +1,229 @@
+Fri Sep 07 07:59:04 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py, src/templates/collections.html,
+	  src/templates/search_result.html, src/templates.py: Sensible
+	  redirection after actions on collections.
+
+	  Changed some variable names to avoid slight nastiness with extra
+	  keyword args arriving from the framework.
+
+Thu Sep 06 17:56:22 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src, src/collection.py, src/cpserver.py, src/templates: Ignores
+	  for semantic.cache.
+
+	  Reflect secore -> xappy change.
+
+	  Mininal indexing and searching capability to investigate proper
+	  search result formatting.
+
+Thu Sep 06 17:50:01 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/filespec.py: Changes to support prototyping, ignore the date-
+	  related specifications, and get the format matching to work.
+
+Thu Sep 06 17:47:33 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates.py: Added an optional results arg for the search
+	  results template renderer.
+
+Thu Sep 06 17:46:41 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates/search_result.html: Added a place-holder for actual
+	  search results.
+
+Thu Sep 06 10:23:17 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/collection.py, src/cpserver.py,
+	  src/templates/collection_detail.html,
+	  src/templates/collections.html, src/templates.py: Refactored the
+	  cherrypy server to use the cherrypy server routes dispatcher.
+	  Also some minor changes to the templates, to support new urls.
+
+	  Made a start on experimenting with some search functionality.
+	  This isn't intended to be in the final form this will take. I
+	  just want a prototype in order to play with the rendering of
+	  search results.
+
+Wed Sep 05 10:22:14 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/test/testfilespec.py: reinstated code inadvertenly removed
+	  during rename.
+
+Wed Sep 05 08:30:44 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cp.conf: basic authentication for admin pages.
+
+Wed Sep 05 05:41:48 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py, src/templates/collections.html: Ensured that the
+	  redirect on posting to the collections list works.
+
+Wed Sep 05 05:17:48 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cp.conf, src/cpserver.py: First pass at using cherrypy as the
+	  web server.
+
+Wed Sep 05 05:16:26 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates.py: Changed the url for the individual collection
+	  links from the collections list page.
+
+Wed Sep 05 03:43:43 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/filespec.py: various changes, to at least get the iterator to
+	  work.
+
+Wed Sep 05 03:42:59 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates/collection_detail.html, src/templates/flax.html,
+	  src/templates.py: Allowed for templates to insert different stuff
+	  in the common document head.
+
+Wed Sep 05 03:40:12 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/test/filespec.py, src/test/testfilespec.py: renaming
+
+Mon Sep 03 07:07:15 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/static/, src/templates/admin_banner.html,
+	  src/templates/collection_detail.html,
+	  src/templates/collections.html, src/templates/flax.html,
+	  src/templates/options.html, src/templates/search.html,
+	  src/templates.py, src/tw2server.py: various additions and layout
+	  improvements.
+
+Mon Sep 03 06:40:22 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/filespec.py: A class for specifying the set of files of a
+	  document collection.
+
+Mon Sep 03 06:39:20 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/test, src/test/filespec.py: tests directory
+
+Mon Sep 03 06:37:13 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/static/js/yui/README, src/static/js/yui/assets,
+	  src/static/js/yui/build, src/static/js/yui/docs,
+	  src/static/js/yui/examples, src/static/js/yui/index.html,
+	  src/static/js/yui/tests: added yui for the calendar controls
+
+Mon Sep 03 06:36:10 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/static/js, src/static/js/yui: added yui for the calendar
+	  controls
+
+Mon Sep 03 06:18:46 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/static/css/main.css: layout improvements for forms
+
+Fri Aug 24 13:40:22 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/collection.py, src/templates/collection_detail.html,
+	  src/templates/search.html, src/templates.py, src/tw2server.py:
+	  Made collections more like a dictionary.
+
+	  Cosmetic layout changes in the html.
+
+Thu Aug 23 06:31:26 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/, src/templates/admin_banner.html,
+	  src/templates/admin_search.html,
+	  src/templates/admin_search_result.html,
+	  src/templates/search.html, src/templates/search_result.html,
+	  src/templates/user_banner.html, src/templates.py,
+	  src/tw2server.py: Templates for users as well as admins. Moved
+	  urls around to accommodate.
+
+Wed Aug 22 16:11:28 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/tw2server.py: Allowed for updating collections  by posting to
+	  collection detail pages.
+
+Wed Aug 22 16:10:24 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates/collection_detail.html: More elements for
+	  collection details.
+
+Wed Aug 22 16:09:55 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates.py: More collection detail rendering.
+
+Wed Aug 22 16:09:01 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/static/css/main.css: layout for form labels
+
+Wed Aug 22 16:08:31 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/collection.py: added paths and formats
+
+Wed Aug 22 07:11:15 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates/admin_search.html, src/templates/collections.html,
+	  src/tw2server.py: Creation of new collections implemented
+
+Wed Aug 22 05:56:31 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/tw2server.py: removed a diagnostic print
+
+Tue Aug 21 20:47:15 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/tw2server.py: removed diagnostic prints
+
+Tue Aug 21 20:44:34 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates/admin_search.html: tidying
+
+Tue Aug 21 19:42:34 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates/admin_banner.html, src/templates/collections.html,
+	  src/templates/flax.html, src/templates.py, src/tw2server.py:
+	  Added a web server.
+
+	  Made changes to the templates to make the urls link properly
+	  (this means that the links between the html files written are not
+	  so good, but no real need for those now anyhow).
+
+Tue Aug 21 19:40:38 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/static/css/main.css: minor layout/rendering changes
+
+Tue Aug 21 19:39:56 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/collection.py: added more structure to dummy collection type
+
+Tue Aug 21 07:12:39 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates.py: More dummy collection properties
+
+	  render html from command line.
+
+Tue Aug 21 06:08:26 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates/collection_detail.html: typo
+
+Mon Aug 20 21:48:52 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/collection.py, src/templates.py: sorted rendering of
+	  collection descriptions, provided for arbitrary collection
+	  atributes.
+
+Mon Aug 20 21:32:42 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates.py: Added search result template
+
+Mon Aug 20 21:23:06 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates/admin_banner.html: corrected comments
+
+Mon Aug 20 17:31:14 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates/index.html: minimal index template.
+
+Mon Aug 20 17:30:34 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/, src/collection.py, src/static, src/static/css,
+	  src/static/css/main.css, src/static/img/, src/templates/,
+	  src/templates.py: Start of some HTMLTemplates and associated
+	  rendering code.
