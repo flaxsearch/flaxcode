@@ -30,7 +30,8 @@ class TemplateManager(object):
         common_template = self.make_template(fn, "flax.html")
         common_template.banner.raw = banner
         sub_template = self.make_template(self.dummy_render, file_name)
-        common_template.title = sub_template.title
+        if hasattr(sub_template, 'title'):
+            common_template.title = sub_template.title
         common_template.main = sub_template.body
         if hasattr(sub_template, 'heads'):
             common_template.heads = sub_template.heads
@@ -57,14 +58,66 @@ index_template = tman.create_admin_template("index.html")
 
 ##### Options Template #####
 
-options_template = tman.create_admin_template("options.html")
+# these need to come from elsewhere:
+_log_events = ("Create Collection",
+               "Modify Collection",
+               "Delete Collection",
+               "Index Collection",
+               "Filter file",
+               "Add to doc",
+               "Remove from doc",
+               "Add to db",
+               "Remove from db",
+               "Run search",
+               "Format results")
+
+_event_levels = ("None", "Critical", "Error", "Warning", "Info", "Debug", "All")
+
+_default_level = _event_levels[3]
+
+def render_options(template, events=_log_events, levels=_event_levels):
+
+    def fill_log_events(node, event):
+        node.event_label.content = event
+
+        def fill_input(inp, level):
+            inp.atts["name"] = event
+            inp.atts["value"] = level
+            inp.content = level[0]
+            if level == _default_level:
+                inp.atts['checked'] = 'on'
+            
+        node.event_radio.repeat(fill_input, _event_levels) 
+
+    template.main.collection_events.repeat(fill_log_events, events)
+
+    def fill_meanings(span, level):
+        span.raw = '<strong>%s</strong>%s' % (level[0], level[1:])
+
+    template.main.level_meaning.repeat(fill_meanings, levels)
+
+options_template = tman.create_admin_template("options.html", render_options)
 
 
 ##### Search Templates #####
 
-def render_search(template, collections):
-    template.main.collections.repeat(do_collection, collections.itervalues())
+advanced_search_options = tman.make_template(tman.dummy_render, "advanced_search.html")
 
+def render_search(template, collections, advanced=False, formats=[]):
+    template.main.collections.repeat(do_collection, collections.itervalues())
+    if advanced:
+        template.main.advanced_holder=advanced_search_options.body
+        def fill_format(node, format):
+            node.format_label.content = format
+            node.format_checkbox.atts['value'] = format
+            node.format_checkbox.atts['checked'] = 'on' 
+            
+        template.main.advanced_holder.formats.repeat(fill_format, formats)
+    else:
+        template.main.advanced_holder.raw = ""
+
+
+        
 def do_collection(node, collection):
     node.col_name.content = collection.name
     node.col_select.atts['value'] = collection.name

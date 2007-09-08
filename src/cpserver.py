@@ -52,7 +52,7 @@ class SearchForm(object):
         self._template = search_template
         self._result_template = result_template
 
-    def search(self, query = None, col = None):
+    def search(self, query = None, col = None, advanced = False):
         if col and query:
             cols = [col] if type(col) is str else col
             col_results = (self._collections[c].search(query) for c in cols)
@@ -63,40 +63,49 @@ class SearchForm(object):
                         text+= r.data['text'][0]
             return self._result_template.render(query, cols, text)
         else:
-            return self._template.render(self._collections)
+            return self._template.render(self._collections, advanced, self._collections._formats)
 
          
 class Admin(object):
 
-    def __init__(self, collections):
-        self.admin_search = SearchForm(collections,
-                                       templates.admin_search_template,
-                                       templates.admin_search_result_template)
-    def options(self):
-        return templates.options_template.render()
+     def __init__(self, collections):
+          self._collections = collections
+          self.admin_search = SearchForm(collections,
+                                         templates.admin_search_template,
+                                         templates.admin_search_result_template)
+     def options(self):
+          return templates.options_template.render()
 
-    def search(self, *args, **kwargs):
-        return self.admin_search.search(*args, **kwargs)
+     def search(self, **kwargs):
+          return self.admin_search.search(advanced=False, **kwargs )
 
-    def index(self):
-        return templates.index_template.render()
+     def advanced_search(self, **kwargs):
+          return self.admin_search.search(advanced=True, **kwargs )
+
+     def index(self):
+          return templates.index_template.render()
 
 
 class Top(object):
 
-    def __init__(self):
-        self.user_search = SearchForm(templates.COLLECTIONS, templates.user_search_template, templates.user_search_result_template)
+     def __init__(self, collections):
+          self._collections = collections
+          self.user_search = SearchForm(collections,
+                                        templates.user_search_template,
+                                        templates.user_search_result_template)
 
-    def search(self, *args, **kwargs):
-        return self.user_search.search(*args, **kwargs)
+     def search(self, **kwargs):
+          return self.user_search.search(advanced=False, **kwargs)
+
+     def advanced_search(self, **kwargs):
+          return self.user_search.search(advanced=True,  **kwargs )
 
 
-
-def setup_routes():
+def setup_routes(collections):
     d = cherrypy.dispatch.RoutesDispatcher()
-    top = Top()
-    admin = Admin(templates.COLLECTIONS)
-    collections = Collections(templates.COLLECTIONS)
+    top = Top(collections)
+    admin = Admin(collections)
+    collections = Collections(collections)
 
     d.connect('top', '/', controller = top, action='search')
     d.connect('user_search', '/search', controller = top, action='search')
@@ -112,7 +121,7 @@ def setup_routes():
 
 if __name__ == "__main__":
     cd = os.path.dirname(os.path.abspath(__file__))
-    d = setup_routes()
+    d = setup_routes(templates.COLLECTIONS)
     cherrypy.config.update('cp.conf')
     cherrypy.quickstart(None, config = { '/': { 'request.dispatch': d},
                                          '/static': {'tools.staticdir.on': True,

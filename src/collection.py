@@ -79,6 +79,7 @@ class collections(object):
 
     def __init__(self):
         self._collections = {}
+        self._formats = ["txt", "html", "doc"]
 
     def new_collection(self, name, **kwargs):
         if type(name) == str and not self._collections.has_key(name):

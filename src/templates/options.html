@@ -24,6 +24,24 @@
 	<input name="persist_dir"></input>
       </div>
       </fieldset>
+      <fieldset>
+        <legend>Logging</legend>
+        <div class="info">
+          <p>These options controls which event are logged.</p>
+          <p>Events have both a category and a severity. For each
+          category you can specify the level at which events are
+          logged. The extremes are for no logging, or everything
+          logged (within that category).</p>
+          
+          <p>The letters stand for the following words:
+          <span node="rep:level_meaning"></span>
+          </p>
+        </div>
+        <div node="rep:collection_events">
+          <label node="con:event_label" class="main_label">Event</label>
+          <input node="rep:event_radio" type="radio" value="level">Level</input>
+        </div> 
+      </fieldset>
     <input type="submit"></input>
   </form>
 </div>
