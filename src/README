@@ -31,7 +31,7 @@ Python at at least version 2.5 with the following packages installed:
 Note also that xappy (formerly secore), is grabbed as an external when
 you check out Flax from subversion, so if you're reading this file you
 presumably already have it, but at some point in the future this might
-be seperated completely from Flax so will need independent
+be separated completely from Flax so will need independent
 installation. See http://xappy.googlecode.com.
 
 
@@ -75,6 +75,3 @@ templates in flaxcode/src/templates (restart the web server for
 changes to take effect). Note however that removing the HTMLTemplate
 containers or repeaters will probably break things.  The only style
 sheet currently used is in flaxcode/src/static/css/main.css.
-
-
-
