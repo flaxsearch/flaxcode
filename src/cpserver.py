@@ -1,4 +1,4 @@
-#$Id:$
+# $Id: $
 
 # Copyright (C) 2007 Lemur Consulting Ltd
 
@@ -7,7 +7,7 @@
 """
 Flax web server.
 """
-__docformat__ = "restructuredtext en"
+
 import os
 import cherrypy
 import routes
@@ -19,51 +19,134 @@ class Collections(object):
     """
 
     def __init__(self, collections, list_template, detail_template):
-         self._collections = collections
-         self._list_template = list_template
-         self._detail_template = detail_template
+        """
+        Collections constructor.
+        
+        :Parameters:
+            - `collections`: The set of document collections.
+            - `list_template`: A template for rendering the set of document collections.
+            - `detail_template`: A template for rendering a single collection.
+        """
+        self._collections = collections
+        self._list_template = list_template
+        self._detail_template = detail_template
+
+    def _redirect_to_view(self, col):
+        raise cherrypy.HTTPRedirect('/admin/collections/' + col + '/view' )
 
     def do_indexing(self, col=None, **kwargs):
+        """
+        (Re)-index a document collection.
+        
+        :Parameters:
+            - `col`: Names the document collection to be indexed.
+
+        This method forces an immediate indexing of the document
+        collection named by the parameter `col` when the HTTP method
+        is POST. A 404 is returned if either:
+        
+        - `col` is ommited; or
+        - `col` is present by does not name a collection;
+        - or if the HTTP method is not POST.
+        """
+
         if cherrypy.request.method == "POST" and col and col in self._collections:
             self._collections[col].make_xapian_db()
-            self.redirect_to_show(col)
+            self._redirect_to_view(col)
         else:
             raise cherrypy.NotFound() 
          
     def update(self, col=None, **kwargs):
-        if col and col in self._collections:
+        """
+        Update the attributes of a document collection.
+
+        :Parameters:
+            - `col`: The name of the document collection to be updated.
+
+        Updates the document collection named by `col` with the
+        remaining keyword arguments by POSTing. If `col` is not
+        supplied, does not name a collection or the HTTP method is not
+        POST then 404 is returned.
+
+        """
+        if  cherrypy.request.method == "POST" and col and col in self._collections:
             self._collections[col].update(**kwargs)
-            self.redirect_to_show(col)
+            self._redirect_to_view(col)
         else:
             raise cherrypy.NotFound() 
      
     def add(self, col = None, **kwargs):
-        if col:
+        """
+        Create a new document collection.
+
+        :Parameters:
+            - `col`: The name for the new collection.
+
+        Creates a new collection named `col`. The remaining keywords
+        args are used to update the new collection.
+
+        If col is not provided or there is already a collection named
+        `col` or the HTTP method is not POST then a 404 is returned.
+        """
+        if cherrypy.request.method == "POST" and col and not col in self._collections:
             self._collections.new_collection(col, **kwargs)
-            self.redirect_to_show(col)
+            self._redirect_to_view(col)
         else:
             raise cherrypy.NotFound()
 
-    def redirect_to_show(self, col):
-        raise cherrypy.HTTPRedirect('/admin/collections/' + col + '/view' )
-
     def view(self, col=None, **kwargs):
+        """
+        View a document collection.
+
+        :Parameters:
+            - `col`: The name of the collection to be viewed.
+
+        Shows the detail for the document collection named by `col`,
+        if it exists; otherwise return 404.
+        """
         if col:
             if col in self._collections:
                 return self._detail_template.render(self._collections[col])
             else:
                 raise cherrypy.NotFound()
         else:
-            return self._list_template.render(self._collections.itervalues(), routes.url_for('/admin/collections'))
+            return self._list_template.render(self._collections.itervalues(),
+                                              routes.url_for('/admin/collections'))
 
 class SearchForm(object):
+    """
+    A controller for searching document collections and rendering
+    the results.
+    """
 
     def __init__(self, collections, search_template, result_template):
+        """
+        :Parameters:
+            - `collections`: the set of document collections to be searched.
+            - `search_template`: A template for redering the search form.
+            - `result_template`: A template for rendering search results.
+        """
         self._collections = collections
         self._template = search_template
         self._result_template = result_template
 
     def search(self, query = None, col = None, advanced = False):
+        """
+        Search document collections.
+
+        :Parameters:
+            - `query`: the search query
+            - `col`: the (list of) collection(s) to be searched.
+            - `advanced`: the style of search form.
+
+        If `col` and `query` are provided then use `query` to search all
+        the document collections named by `col` and return the
+        results. (In this case the value of `advanced` is ignored.)
+
+        Otherwise render a page containing a form to initiate a new
+        search. If `advanced` tests true then the form will have more
+        structure.
+        """
         if col and query:
             cols = [col] if type(col) is str else col
             col_results = (self._collections[c].search(query) for c in cols)
@@ -76,43 +159,75 @@ class SearchForm(object):
         else:
             return self._template.render(self._collections, advanced, self._collections._formats)
 
-         
-class Admin(object):
 
-    def __init__(self, collections, search_template, search_result_template, options_template, index_template):
-        self._collections = collections
-        self._options_template = options_template
-        self._index_template = index_template
-        self._admin_search = SearchForm(collections,
-                                        search_template,
-                                        search_result_template)
-
-    def options(self):
-        return self._options_template.render()
-
-    def search(self, **kwargs):
-        return self._admin_search.search(advanced=False, **kwargs )
-
-    def advanced_search(self, **kwargs):
-        return self._admin_search.search(advanced=True, **kwargs )
-
-    def index(self):
-        return self._index_template.render()
 
 class Top(object):
-
+    """
+    A contoller for the default (end-user) web pages.
+    """
     def __init__(self, collections, search_template, search_result_template):
+        """
+        Constructor.
+
+        :Parameters:
+            - `collections`: collections to be processed.
+            - `search_template`: template for the search forms.
+            - `search_result_template`: template for rendering search results.
+        """
+
         self._collections = collections
-        self._user_search = SearchForm(collections, search_template, search_result_template)
+        self._search = SearchForm(collections, search_template, search_result_template)
 
     def search(self, **kwargs):
-        return self._user_search.search(advanced=False, **kwargs)
+        """
+        Do a basic (i.e. advanced = False) search. See `SearchForm.search`.
+        """
+        return self._search.search(advanced=False, **kwargs )
 
     def advanced_search(self, **kwargs):
-        return self._user_search.search(advanced=True,  **kwargs )
+        """
+        Do an advanced (i.e. advanced = True) search. See `SearchForm.search`.
+        """
+        return self._search.search(advanced=True, **kwargs )
+
+         
+class Admin(Top):
+    """
+    A controller for the administration pages.
+    """
+
+    def __init__(self, collections, search_template, search_result_template, options_template, index_template):
+        """
+        Constructor.
+
+        :Parameters:
+            - `collections`: collections to be processed.
+            - `search_template`: template for the search forms.
+            - `search_result_template`: template for rendering search results.
+            - `options_template`: template for the global options page.
+            - `index_template`: template for the index page.
+        """
+        self._options_template = options_template
+        self._index_template = index_template
+        super(Admin, self).__init__(collections, search_template, search_result_template)
+
+    def options(self):
+        """
+        Render the options template.
+        """
+        return self._options_template.render()
+
+    def index(self):
+        """
+        Render the index template.
+        """
+        return self._index_template.render()
 
 
 def setup_routes(top_controller, admin_contoller, collections_controller):
+    """
+    Define the mapping from urls to objects/methods for the CherryPy routes dispatcher.
+    """
 
     d = cherrypy.dispatch.RoutesDispatcher()
     d.connect('top', '/', controller = top_controller, action='search')
@@ -127,7 +242,10 @@ def setup_routes(top_controller, admin_contoller, collections_controller):
     return d
 
 
-if __name__ == "__main__":
+def main():
+    """
+    Run Flax web server.
+    """
     cd = os.path.dirname(os.path.abspath(__file__))
     collections = templates.COLLECTIONS
 
@@ -150,3 +268,8 @@ if __name__ == "__main__":
                                          '/static': {'tools.staticdir.on': True,
                                                      'tools.staticdir.root': os.path.dirname(os.path.abspath(__file__)),
                                                      'tools.staticdir.dir': 'static'}})
+
+if __name__ == "__main__":
+    main()
+
+

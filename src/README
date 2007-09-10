@@ -75,3 +75,15 @@ templates in flaxcode/src/templates (restart the web server for
 changes to take effect). Note however that removing the HTMLTemplate
 containers or repeaters will probably break things.  The only style
 sheet currently used is in flaxcode/src/static/css/main.css.
+
+
+Documentation
+-------------
+
+The docstrings can be used to generate some api documentation. Use::
+
+   epydoc -v --config epydoc.conf
+
+and then look in the html subdirectory. Epydoc at at least version 3
+is needed.
+
