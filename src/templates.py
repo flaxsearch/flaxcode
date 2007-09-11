@@ -1,28 +1,44 @@
 # $Id$
-""" HTMLTemplates for Flax and rendering thereof
-
-    This code is just to do enough to get some templates rendered for viewing in a web browser.
-
-    Some of this can maybe be used later, but that's not particularly the intention, 
-    we just want to get the look and feel of the main web pages right.
+""" HTMLTemplates for Flax and rendering thereof.
 """
 
 from __future__ import with_statement
-import HTMLTemplate
 import os
+import urllib
+import HTMLTemplate
 
 class TemplateManager(object):
+    """
+    Facilities for making HTMLTemplates for Flax with preconfigured
+    banner sections from files on disk.
+    """
 
-    def __init__(self, template_dir, html_dir):
+    def __init__(self, template_dir, html_dir, admin_banner_file="admin_banner.html", user_banner_file="user_banner.html"):
+        """
+        Constructor
+
+        :Parameters:
+           - `template_dir`: The directory for loading template files.
+           - `html_dir`: The directory for writing html files.
+           - `user_banner_file`: The name of the file to use as the banner for user templates.
+           - `admin_banner_file`: The name of the file to use as the banner for admin templates.
+        """
         self.template_dir = template_dir
         self.html_dir = html_dir
-        self.admin_banner_html = self.make_template(self.dummy_render, "admin_banner.html").render()
-        self.user_banner_html = self.make_template(self.dummy_render, "user_banner.html").render()
+        self.admin_banner_html = self.make_template(self.dummy_render, admin_banner_file).render()
+        self.user_banner_html = self.make_template(self.dummy_render, user_banner_file).render()
     
     def dummy_render(self, template):
+        """
+        A renderer that does nothing.
+        """
         pass
 
     def make_template(self, render_fn, file_name):
+        """
+        Make an HTMLTemplate from `file_name` in `template_dir` using `render_fn`.
+        
+        """
         return  HTMLTemplate.Template(render_fn, open(os.path.join(self.template_dir, file_name)).read())
 
     def create_template(self, file_name,  banner, render_fn = None):
@@ -40,20 +56,30 @@ class TemplateManager(object):
         return common_template
 
     def create_admin_template(self, file_name, render_fn = None):
+        """
+        Make an administrator template.
+        """
         return self.create_template(file_name, self.admin_banner_html, render_fn)
 
     def create_user_template(self, file_name, render_fn = None):
+        """
+        Make a user template.
+        """
         return self.create_template(file_name, self.user_banner_html, render_fn)
 
     def write_html_file(self, filename, template, *args):
+        """
+        Render a template as html to a file.
+        """
         with open(os.path.join(self.html_dir, filename), 'w') as f:
-            f.write(template.render(*args))               
+            f.write(template.render(*args))        
 
 
 tman = TemplateManager("templates", "html")
 
 ##### Index Template #####
 
+#: Template admin index pages.
 index_template = tman.create_admin_template("index.html")
 
 ##### Options Template #####
@@ -96,17 +122,17 @@ def render_options(template, events=_log_events, levels=_event_levels):
 
     template.main.level_meaning.repeat(fill_meanings, levels)
 
+#: Template for global options page
 options_template = tman.create_admin_template("options.html", render_options)
-
 
 ##### Search Templates #####
 
-advanced_search_options = tman.make_template(tman.dummy_render, "advanced_search.html")
+_advanced_search_options = tman.make_template(tman.dummy_render, "advanced_search.html")
 
 def render_search(template, collections, advanced=False, formats=[]):
     template.main.collections.repeat(do_collection, collections.itervalues())
     if advanced:
-        template.main.advanced_holder=advanced_search_options.body
+        template.main.advanced_holder=_advanced_search_options.body
         def fill_format(node, format):
             node.format_label.content = format
             node.format_checkbox.atts['value'] = format
@@ -117,12 +143,14 @@ def render_search(template, collections, advanced=False, formats=[]):
         template.main.advanced_holder.raw = ""
 
 
-        
 def do_collection(node, collection):
     node.col_name.content = collection.name
     node.col_select.atts['value'] = collection.name
 
+#: template for administrator search pages.
 admin_search_template = tman.create_admin_template("search.html", render_search)
+
+#: template for user search pages.
 user_search_template = tman.create_user_template("search.html", render_search)
 
 ##### Collection List Template #####
@@ -131,7 +159,6 @@ def render_collections_list(template, collections, base_url):
     template.main.add_form.atts['action'] = base_url + '/add/'
     template.main.add_form.collection.repeat(render_collection, collections, base_url)
 
-import urllib
 def render_collection(node, collection, base_url):
     col_url = base_url + '/' + collection.name + '/view'
     node.name.content = collection.name
@@ -144,6 +171,7 @@ def render_collection(node, collection, base_url):
 
     node.delete.atts['href'] = urllib.quote(col_url+'/confirm_delete')
 
+#: template for collections listing
 collection_list_template = tman.create_admin_template("collections.html", render_collections_list)
 
 ###### Collection Detail Template ######
@@ -174,7 +202,7 @@ def render_collection_detail(template, collection):
 
     body.formats.repeat(fill_format, _formats)
     
-
+#: template for viewing a collection.
 collection_detail_template = tman.create_admin_template("collection_detail.html", render_collection_detail)
 
 
@@ -189,7 +217,10 @@ def render_search_result(template, query, cols, result=None):
     if result:
         template.main.results.content = result
 
+#: administrator template for viewing search results.
 admin_search_result_template = tman.create_admin_template("search_result.html", render_search_result)
+
+#: user template for viewing search results.
 user_search_result_template = tman.create_user_template("search_result.html", render_search_result)
 
 # Some dummy data for the pages that need collection(s)
