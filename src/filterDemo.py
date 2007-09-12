@@ -242,7 +242,7 @@ if __name__ == "__main__":
     for propName, propValue in propMap.items():            
         print propName,":",
         if propName == 'body':
-            print "<%s length: %d>" % (propName, reduce(operator.add, [len(p) for p in propValue]),)
+            print "<%s length: %d>" % (propName, sum([len(p) for p in propValue]))
         elif type(propValue) == type([]):
             print
             for pv in propValue:
