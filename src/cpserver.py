@@ -220,7 +220,6 @@ class Admin(Top):
         """
         if cherrypy.request.method == "POST":
 
-            print kwargs
             for arg in ("db_dir", "flax_dir"):
                 if arg in kwargs:
                     setattr(self._flax_data, arg, kwargs[arg])
