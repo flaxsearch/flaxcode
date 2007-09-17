@@ -6,6 +6,8 @@ import util
 util.setup_sys_path()
 import xappy
 
+util.setup_psyco()
+
 class Indexer(Pyro.core.ObjBase):
     
     def __init__(self):

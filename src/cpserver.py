@@ -13,7 +13,8 @@ import routes
 
 import flax
 import templates
-
+import util
+util.setup_psyco()
 
 class Collections(object):
     """
