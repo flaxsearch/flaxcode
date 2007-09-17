@@ -84,6 +84,10 @@ index_template = tman.create_admin_template("index.html")
 
 ##### Options Template #####
 
+
+# this should come from elsewhere
+_formats = ("txt", "doc", "html")
+
 # these need to come from elsewhere:
 _log_events = ("Create Collection",
                "Modify Collection",
@@ -101,7 +105,7 @@ _event_levels = ("None", "Critical", "Error", "Warning", "Info", "Debug", "All")
 
 _default_level = _event_levels[3]
 
-def render_options(template, events=_log_events, levels=_event_levels):
+def render_options(template, events=_log_events, levels=_event_levels, formats=_formats):
 
     def fill_log_events(node, event):
         node.event_label.content = event
@@ -114,13 +118,19 @@ def render_options(template, events=_log_events, levels=_event_levels):
                 inp.atts['checked'] = 'on'
             
         node.event_radio.repeat(fill_input, _event_levels) 
-
+                
     template.main.collection_events.repeat(fill_log_events, events)
 
     def fill_meanings(span, level):
         span.raw = '<strong>%s</strong>%s' % (level[0], level[1:])
 
     template.main.level_meaning.repeat(fill_meanings, levels)
+
+    def fill_formats(node, fmt):
+        node.format_label.content = fmt
+        node.format_select.atts['name'] = fmt
+
+    template.main.format_filters.repeat(fill_formats, formats)
 
 #: Template for global options page
 options_template = tman.create_admin_template("options.html", render_options)
@@ -177,9 +187,6 @@ collection_list_template = tman.create_admin_template("collections.html", render
 ###### Collection Detail Template ######
 
 
-# this should come from elsewhere
-_formats = ("txt", "doc", "html")
-
 # This actually sucks a bit, really we want to make all the checkbox
 # and associated labels nodes at initialization time, and then just
 # set the checked attributes at render time, but the public api for
@@ -204,6 +211,7 @@ def render_collection_detail(template, collection):
     
 #: template for viewing a collection.
 collection_detail_template = tman.create_admin_template("collection_detail.html", render_collection_detail)
+
 
 
 ###### Search Result Templates ######
@@ -237,7 +245,8 @@ foo = COLLECTIONS.new_collection("foo",
                                  docs = random.randrange(100000),
                                  status = 0)
 
-bar = COLLECTIONS.new_collection("bar")
+bar = COLLECTIONS.new_collection("bar",
+                                 paths = ['%s/My Documents/'% os.path.expanduser('~')])
 
 def make_html():
     for d in  (  ("index.html", index_template),
