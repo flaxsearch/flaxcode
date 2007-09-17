@@ -20,7 +20,7 @@ class Collections(object):
     Controller for web pages dealing with document collections.
     """
 
-    def __init__(self, collections, list_template, detail_template):
+    def __init__(self, collections, formats, list_template, detail_template):
         """
         Collections constructor.
         
@@ -30,6 +30,7 @@ class Collections(object):
             - `detail_template`: A template for rendering a single collection.
         """
         self._collections = collections
+        self._formats = formats
         self._list_template = list_template
         self._detail_template = detail_template
 
@@ -53,7 +54,6 @@ class Collections(object):
         """
 
         if cherrypy.request.method == "POST" and col and col in self._collections:
-#            self._collections[col].make_xapian_db()
             self._collections[col].do_indexing()
             self._redirect_to_view(col)
         else:
@@ -109,7 +109,7 @@ class Collections(object):
         """
         if col:
             if col in self._collections:
-                return self._detail_template.render(self._collections[col])
+                return self._detail_template.render(self._collections[col], self._formats)
             else:
                 raise cherrypy.NotFound()
         else:
@@ -276,6 +276,7 @@ def main():
                   templates.index_template)
     
     collections = Collections(flax_data.collections,
+                              flax_data.formats,
                               templates.collection_list_template,
                               templates.collection_detail_template)
 
