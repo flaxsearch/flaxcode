@@ -1,11 +1,15 @@
 # $Id$
 # dummy - enough structure just to drive the web interface.
 from __future__ import with_statement
+import copy
 import os
-import sys
-sys.path = [os.path.normpath(os.path.join(__file__, '..', '..','libs', 'xappy'))]+sys.path
-import xappy
 import filespec
+import Pyro.core
+
+import sys
+import util
+util.setup_sys_path()
+import xappy
 
 _root_dir = os.path.dirname(os.path.abspath(os.path.normpath(__file__)))+'/dbs'
 
@@ -25,12 +29,12 @@ class collection(object):
         self.earliest = self.latest = self.youngest = self.oldest = None
         self.formats = ["txt", "html", "doc"]
         self.update_filespec()
-        self.update_connection()
+        self.maybe_make_db()
 
     def update(self, **kwargs):
         self.__dict__.update(kwargs)
         self.update_filespec()
-        self.update_connection()
+
 
     def update_filespec(self):
         self._filespec = filespec.FileSpec(paths = self.paths,
@@ -44,30 +48,18 @@ class collection(object):
     def dbname(self):
         return os.path.join(_root_dir, self.name+'.db')
             
-    def process_file(self, file_name):
-        print "processing file: ", file_name
-        with open(file_name) as f:
-            doc = xappy.UnprocessedDocument()
-            doc.fields.append(xappy.Field('text', f.read()))
-            pdoc = self._conn.process(doc)
-            self._conn.add(pdoc)
+    def do_indexing(self):
+        indexer = Pyro.core.getProxyForURI("PYRONAME://indexer")
+        indexer.do_indexing(self._filespec, self.dbname())
                 
-    def make_xapian_db(self):
-        self._conn = xappy.IndexerConnection(self.dbname())
-        for f in self._filespec.files():
-            print f
-            self.process_file(f)
-        self._conn.flush()
-        self._conn.close()
-        
-    def update_connection(self):
+    def maybe_make_db(self):
         dbname = self.dbname()
-        self._conn = xappy.IndexerConnection(dbname)
-        self._conn.add_field_action ('text', xappy.FieldActions.INDEX_FREETEXT, 
-                                     language='en', stop=self._stopwords, noprefix=True)
-        self._conn.add_field_action ('text', xappy.FieldActions.STORE_CONTENT)
-        
-        self._conn.close()
+        if not os.path.exists(dbname):
+            conn = xappy.IndexerConnection(dbname)
+            conn.add_field_action ('text', xappy.FieldActions.INDEX_FREETEXT, 
+                                   language='en', stop=self._stopwords, noprefix=True)
+            conn.add_field_action ('text', xappy.FieldActions.STORE_CONTENT)      
+            conn.close()
 
     def search(self, query):
         db = xappy.SearchConnection(self.dbname())

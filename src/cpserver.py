@@ -1,4 +1,4 @@
-# $Id: $
+#$Id : foo $
 
 # Copyright (C) 2007 Lemur Consulting Ltd
 
@@ -8,11 +8,11 @@
 Flax web server.
 """
 
+
 import os
 import cherrypy
 import routes
 import templates
-
 class Collections(object):
     """
     Controller for web pages dealing with document collections.
@@ -51,7 +51,8 @@ class Collections(object):
         """
 
         if cherrypy.request.method == "POST" and col and col in self._collections:
-            self._collections[col].make_xapian_db()
+#            self._collections[col].make_xapian_db()
+            self._collections[col].do_indexing()
             self._redirect_to_view(col)
         else:
             raise cherrypy.NotFound() 
@@ -211,7 +212,7 @@ class Admin(Top):
         self._index_template = index_template
         super(Admin, self).__init__(collections, search_template, search_result_template)
 
-    def options(self):
+    def options(self, **kwargs):
         """
         Render the options template.
         """
@@ -268,6 +269,7 @@ def main():
                                          '/static': {'tools.staticdir.on': True,
                                                      'tools.staticdir.root': os.path.dirname(os.path.abspath(__file__)),
                                                      'tools.staticdir.dir': 'static'}})
+
 
 if __name__ == "__main__":
     main()
