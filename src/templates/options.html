@@ -17,11 +17,11 @@
       </div>      
       <div>
 	<label class="main_label" for="db_dir">Database directory:</label>
-	<input name="db_dir"></input>
+	<input name="db_dir" node="con:db_dir"></input>
       </div>
       <div>
-	<label class="main_label" for="persist_dir">Flax directory:</label>
-	<input name="persist_dir"></input>
+	<label class="main_label" for="flax_dir">Flax directory:</label>
+	<input name="flax_dir" node="con:flax_dir"></input>
       </div>
       </fieldset>
       <fieldset>
@@ -52,8 +52,7 @@
 	<div node="rep:format_filters">
 	  <label node="con:format_label" class="main_label">Format</label>
 	  <select node="con:format_select" name="fmt">
-            <option>IFilter</option>
-	    <option>Xapian</option>
+            <option node="rep:filter">IFilter</option>
 	  </select>
         </div>
       </fieldset>

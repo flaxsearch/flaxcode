@@ -11,11 +11,12 @@ import util
 util.setup_sys_path()
 import xappy
 
-_root_dir = os.path.dirname(os.path.abspath(os.path.normpath(__file__)))+'/dbs'
 
 class collection(object):
 
-    _stopwords = ('i', 'a', 'an', 'and', 'the')
+    stopwords = ('i', 'a', 'an', 'and', 'the')
+    
+    root_dir = os.path.dirname(os.path.abspath(os.path.normpath(__file__)))+'/dbs'
 
     def __init__(self, name):
         self.name=name
@@ -46,7 +47,7 @@ class collection(object):
                                            formats = self.formats)
                                            
     def dbname(self):
-        return os.path.join(_root_dir, self.name+'.db')
+        return os.path.join(self.root_dir, self.name+'.db')
             
     def do_indexing(self):
         indexer = Pyro.core.getProxyForURI("PYRONAME://indexer")
@@ -57,7 +58,7 @@ class collection(object):
         if not os.path.exists(dbname):
             conn = xappy.IndexerConnection(dbname)
             conn.add_field_action ('text', xappy.FieldActions.INDEX_FREETEXT, 
-                                   language='en', stop=self._stopwords, noprefix=True)
+                                   language='en', stop=self.stopwords, noprefix=True)
             conn.add_field_action ('text', xappy.FieldActions.STORE_CONTENT)      
             conn.close()
 

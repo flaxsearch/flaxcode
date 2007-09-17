@@ -85,27 +85,10 @@ index_template = tman.create_admin_template("index.html")
 ##### Options Template #####
 
 
-# this should come from elsewhere
-_formats = ("txt", "doc", "html")
+def render_options(template, flax_data):
 
-# these need to come from elsewhere:
-_log_events = ("Create Collection",
-               "Modify Collection",
-               "Delete Collection",
-               "Index Collection",
-               "Filter file",
-               "Add to doc",
-               "Remove from doc",
-               "Add to db",
-               "Remove from db",
-               "Run search",
-               "Format results")
-
-_event_levels = ("None", "Critical", "Error", "Warning", "Info", "Debug", "All")
-
-_default_level = _event_levels[3]
-
-def render_options(template, events=_log_events, levels=_event_levels, formats=_formats):
+    template.main.db_dir.atts["value"] = flax_data.db_dir
+    template.main.flax_dir.atts["value"] = flax_data.flax_dir
 
     def fill_log_events(node, event):
         node.event_label.content = event
@@ -114,23 +97,31 @@ def render_options(template, events=_log_events, levels=_event_levels, formats=_
             inp.atts["name"] = event
             inp.atts["value"] = level
             inp.content = level[0]
-            if level == _default_level:
+            if flax_data.log_settings[event] == level:
                 inp.atts['checked'] = 'on'
             
-        node.event_radio.repeat(fill_input, _event_levels) 
+        node.event_radio.repeat(fill_input, flax_data.log_levels) 
                 
-    template.main.collection_events.repeat(fill_log_events, events)
+    template.main.collection_events.repeat(fill_log_events, flax_data.log_events)
 
     def fill_meanings(span, level):
         span.raw = '<strong>%s</strong>%s' % (level[0], level[1:])
 
-    template.main.level_meaning.repeat(fill_meanings, levels)
+    template.main.level_meaning.repeat(fill_meanings, flax_data.log_levels)
 
     def fill_formats(node, fmt):
+        
+        def fill_filters(node, filter_name):
+            node.atts["value"] = filter_name
+            node.content = filter_name
+            if filter_name == flax_data.filter_settings[fmt]:
+               node.atts["selected"]="selected"
+ 
         node.format_label.content = fmt
         node.format_select.atts['name'] = fmt
+        node.format_select.filter.repeat(fill_filters, flax_data.filters)
 
-    template.main.format_filters.repeat(fill_formats, formats)
+    template.main.format_filters.repeat(fill_formats, flax_data.formats)
 
 #: Template for global options page
 options_template = tman.create_admin_template("options.html", render_options)
@@ -213,7 +204,6 @@ def render_collection_detail(template, collection):
 collection_detail_template = tman.create_admin_template("collection_detail.html", render_collection_detail)
 
 
-
 ###### Search Result Templates ######
 
 def render_searched_collection(node, col):
@@ -230,23 +220,6 @@ admin_search_result_template = tman.create_admin_template("search_result.html", 
 
 #: user template for viewing search results.
 user_search_result_template = tman.create_user_template("search_result.html", render_search_result)
-
-# Some dummy data for the pages that need collection(s)
-import datetime
-import collection
-import random
-COLLECTIONS = collection.collections()
-foo = COLLECTIONS.new_collection("foo", 
-                                 description = "foo description",
-                                 paths = ["/usr/share/doc"],
-                                 formats = ["txt", "doc"],
-                                 indexed = datetime.date.today(),
-                                 queries = random.randrange(100000),
-                                 docs = random.randrange(100000),
-                                 status = 0)
-
-bar = COLLECTIONS.new_collection("bar",
-                                 paths = ['%s/My Documents/'% os.path.expanduser('~')])
 
 def make_html():
     for d in  (  ("index.html", index_template),

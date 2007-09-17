@@ -7,12 +7,14 @@
 """
 Flax web server.
 """
-
-
 import os
 import cherrypy
 import routes
+
+import flax
 import templates
+
+
 class Collections(object):
     """
     Controller for web pages dealing with document collections.
@@ -166,7 +168,7 @@ class Top(object):
     """
     A contoller for the default (end-user) web pages.
     """
-    def __init__(self, collections, search_template, search_result_template):
+    def __init__(self, flax_data, search_template, search_result_template):
         """
         Constructor.
 
@@ -176,8 +178,8 @@ class Top(object):
             - `search_result_template`: template for rendering search results.
         """
 
-        self._collections = collections
-        self._search = SearchForm(collections, search_template, search_result_template)
+        self._flax_data = flax_data
+        self._search = SearchForm(flax_data.collections, search_template, search_result_template)
 
     def search(self, **kwargs):
         """
@@ -197,7 +199,7 @@ class Admin(Top):
     A controller for the administration pages.
     """
 
-    def __init__(self, collections, search_template, search_result_template, options_template, index_template):
+    def __init__(self, flax_data, search_template, search_result_template, options_template, index_template):
         """
         Constructor.
 
@@ -210,13 +212,28 @@ class Admin(Top):
         """
         self._options_template = options_template
         self._index_template = index_template
-        super(Admin, self).__init__(collections, search_template, search_result_template)
+        super(Admin, self).__init__(flax_data, search_template, search_result_template)
 
     def options(self, **kwargs):
         """
         Render the options template.
         """
-        return self._options_template.render()
+        if cherrypy.request.method == "POST":
+
+            print kwargs
+            for arg in ("db_dir", "flax_dir"):
+                if arg in kwargs:
+                    setattr(self._flax_data, arg, kwargs[arg])
+
+            for log_event in self._flax_data.log_events:
+                if log_event in kwargs:
+                    self._flax_data.log_settings[log_event] = kwargs[log_event]
+
+            for format in self._flax_data.formats:
+                if format in kwargs:
+                    self._flax_data.filter_settings[format] = kwargs[format]
+
+        return self._options_template.render(self._flax_data)
 
     def index(self):
         """
@@ -248,17 +265,18 @@ def main():
     Run Flax web server.
     """
     cd = os.path.dirname(os.path.abspath(__file__))
-    collections = templates.COLLECTIONS
 
-    top = Top(collections, templates.user_search_template, templates.user_search_result_template)
+    flax_data = flax.options
 
-    admin = Admin(collections,
+    top = Top(flax_data, templates.user_search_template, templates.user_search_result_template)
+
+    admin = Admin(flax_data,
                   templates.admin_search_template,
                   templates.admin_search_result_template,
                   templates.options_template,
                   templates.index_template)
     
-    collections = Collections(collections,
+    collections = Collections(flax_data.collections,
                               templates.collection_list_template,
                               templates.collection_detail_template)
 
