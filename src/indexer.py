@@ -1,4 +1,5 @@
 from __future__ import with_statement
+import itertools
 import collections
 import os
 import Pyro.core
@@ -49,11 +50,7 @@ class Indexer(Pyro.core.ObjBase):
         _, ext = os.path.splitext(file_name)
         filter = self.find_filter(format_settings[ext[1:]])
         if filter:
-            doc = xappy.UnprocessedDocument()
-            for field, content in filter(file_name):
-                doc.fields.append(xappy.Field(field, content))
-                pdoc = conn.process(doc)
-            conn.add(pdoc)
+            conn.add(xappy.UnprocessedDocument(fields = itertools.starmap(xappy.Field, filter(file_name))))
         else:
             print "filter for %s is not valid" % ext
 
