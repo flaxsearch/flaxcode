@@ -21,34 +21,35 @@ import simple_text_filter
 util.setup_psyco()
 
 class Indexer(Pyro.core.ObjBase):
+    """ A class that performs indexing on demand by remote invocation.
+    """
     
     def __init__(self):
         Pyro.core.ObjBase.__init__(self)
-        self.filter_map = {"Xapian": None,
-                           "Text": simple_text_filter.text_filter}
+        self._filter_map = {"Xapian": None,
+                            "Text": simple_text_filter.text_filter}
         if windows:
-            self.filter_map["IFilter"] =  w32com_ifilter.ifilter_filter
+            self._filter_map["IFilter"] =  w32com_ifilter.ifilter_filter
 
-    def do_indexing(self, file_spec, dbname, format_settings):
-        print "Indexing xapian db: %s,\n with files from filespec %s\n format settings: %s" % (dbname, file_spec, format_settings)
-        self.refresh_xapian_db(dbname, file_spec, format_settings)
+    def do_indexing(self, file_spec, dbname, filter_settings):
+        """
+        Index the database dbname with files given by file_spec
+        using filters given by filter_settings.
+        """
+        print "Indexing xapian db: %s,\n with files from filespec %s\n filter settings: %s" % (dbname, file_spec, filter_settings)
+        conn = xappy.IndexerConnection(dbname)
+        for f in file_spec.files():
+            self._process_file(f, conn, filter_settings)
+        conn.close()
         print "Indexing Finished"
 
-    def refresh_xapian_db(self, dbname, filespec, format_settings):
-        conn = xappy.IndexerConnection(dbname)
-        for f in filespec.files():
-            self.process_file(f, conn, format_settings)
-        conn.close()
-
-
-    def find_filter(self, filter_name):
-        return self.filter_map[filter_name] if filter_name in self.filter_map else None
-
+    def _find_filter(self, filter_name):
+        return self._filter_map[filter_name] if filter_name in self._filter_map else None
     
-    def process_file(self, file_name, conn, format_settings):
+    def _process_file(self, file_name, conn, filter_settings):
         print "processing file: ", file_name
         _, ext = os.path.splitext(file_name)
-        filter = self.find_filter(format_settings[ext[1:]])
+        filter = self._find_filter(filter_settings[ext[1:]])
         if filter:
             conn.add(xappy.UnprocessedDocument(fields = itertools.starmap(xappy.Field, filter(file_name))))
         else:
