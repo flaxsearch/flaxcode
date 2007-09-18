@@ -44,7 +44,7 @@ _default_level = _event_levels[3]
 
 _log_settings = dict( (e, _default_level) for e in _log_events)
 
-_filters = ["IFilter", "Xapian"]
+_filters = ["IFilter", "Xapian", "Text"]
 
 _formats = ("txt", "doc", "html")
 

@@ -1,15 +1,17 @@
 # $Id$
 # dummy - enough structure just to drive the web interface.
 from __future__ import with_statement
+import sys
 import copy
 import os
-import filespec
 import Pyro.core
 
-import sys
+import flax
+import filespec
 import util
 util.setup_sys_path()
 import xappy
+
 
 
 class collection(object):
@@ -51,15 +53,18 @@ class collection(object):
             
     def do_indexing(self):
         indexer = Pyro.core.getProxyForURI("PYRONAME://indexer")
-        indexer.do_indexing(self._filespec, self.dbname())
-                
+        indexer._setOneway("do_indexing")
+        indexer.do_indexing(self._filespec, self.dbname(), flax.options.filter_settings)
+
     def maybe_make_db(self):
         dbname = self.dbname()
         if not os.path.exists(dbname):
             conn = xappy.IndexerConnection(dbname)
-            conn.add_field_action ('text', xappy.FieldActions.INDEX_FREETEXT, 
-                                   language='en', stop=self.stopwords, noprefix=True)
-            conn.add_field_action ('text', xappy.FieldActions.STORE_CONTENT)      
+            conn.add_field_action("filename", xappy.FieldActions.INDEX_EXACT)
+            conn.add_field_action("filename", xappy.FieldActions.STORE_CONTENT)
+            conn.add_field_action('text', xappy.FieldActions.INDEX_FREETEXT, 
+                                  language='en', stop=self.stopwords, noprefix=True)
+            conn.add_field_action('text', xappy.FieldActions.STORE_CONTENT)      
             conn.close()
 
     def search(self, query):
