@@ -2,6 +2,7 @@
 import itertools
 import pythoncom
 import pywintypes
+import itertools
 from win32com.ifilter import ifilter
 from win32com.ifilter.ifiltercon import *
 
@@ -43,11 +44,17 @@ def ifilter_filter(filename, init_flags = _filter_init_flags):
     f = ifilter.LoadIFilter(filename)
     f.Init(init_flags)
 
+    def start_fields():
+        yield ("filename", filename)
+        raise StopIteration
+
     def do_chunk():
         chunk_id, break_type, flags, locale, (propset_guid, prop_id), chunk_source_id, start, len =  f.GetChunk()
         prop_name = prop_id_to_name(prop_id)
         if flags == CHUNK_TEXT:
             return prop_name, text_for_current_chunk(f)
         
-    return gen_until_exception(do_chunk, pythoncom.com_error, lambda e: e[0] == FILTER_E_END_OF_CHUNKS)
+    return itertools.chain(start_fields(),
+                           gen_until_exception(do_chunk, pythoncom.com_error,
+                                               lambda e: e[0] == FILTER_E_END_OF_CHUNKS))
         
