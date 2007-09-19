@@ -30,15 +30,16 @@ class FileSpec(object):
 
     strptime_format = "%d/%m/%y %H:%M:%S"
 
-    def __init__(self, paths=None, exclusions=None, earliest=None, latest=None, oldest=None, youngest=None, formats = None):
+    def update(self, paths=None, exclusions=None, earliest=None,
+               latest=None, oldest=None, youngest=None, formats = None, **kwargs):
 
-            self.paths = [paths] if type(paths) is str else paths
-            self.exclusions = exclusions if exclusions else []
-            self.earliest = earliest
-            self.latest = latest
-            self.oldest = oldest
-            self.youngest = youngest
-            self.formats = ['*.txt'] if formats is None else formats
+        self.paths = [paths] if type(paths) is str else paths
+        self.exclusions = exclusions if exclusions else []
+        self.earliest = earliest
+        self.latest = latest
+        self.oldest = oldest
+        self.youngest = youngest
+        self.formats = ['*.txt'] if formats is None else formats
 
     def files(self):
         """ generates the files defined by this FileSpec """

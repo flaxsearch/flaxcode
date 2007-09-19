@@ -1,6 +1,5 @@
 from __future__ import with_statement
 import itertools
-import collections
 import os
 import Pyro.core
 import Pyro.naming

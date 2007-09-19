@@ -185,7 +185,7 @@ collection_list_template = tman.create_admin_template("collections.html", render
 # new structure, really we want a way of iterating over the already
 # built items to set the checked value.
 
-def render_collection_detail(template, collection, formats):
+def render_collection_detail(template, collection, formats, languages):
     template.title.col_name.content = collection.name
     body = template.main
     body.name.content = collection.name
@@ -199,6 +199,15 @@ def render_collection_detail(template, collection, formats):
             node.format_checkbox.atts['checked'] = 'on' 
 
     body.formats.repeat(fill_format, formats)
+
+    def fill_languages(node, val):
+        node.atts["value"] = val[0]
+        node.content = val[1]
+        if val[0] == collection.language:
+            node.atts['selected'] = "selected"
+
+    body.language_option.repeat(fill_languages, languages)
+    body.stopwords.atts["value"] = " ".join(collection.stopwords)
     
 #: template for viewing a collection.
 collection_detail_template = tman.create_admin_template("collection_detail.html", render_collection_detail)

@@ -21,7 +21,7 @@ class Collections(object):
     Controller for web pages dealing with document collections.
     """
 
-    def __init__(self, collections, formats, list_template, detail_template):
+    def __init__(self, flax_data, list_template, detail_template):
         """
         Collections constructor.
         
@@ -30,8 +30,7 @@ class Collections(object):
             - `list_template`: A template for rendering the set of document collections.
             - `detail_template`: A template for rendering a single collection.
         """
-        self._collections = collections
-        self._formats = formats
+        self._flax_data = flax_data
         self._list_template = list_template
         self._detail_template = detail_template
 
@@ -54,8 +53,8 @@ class Collections(object):
         - or if the HTTP method is not POST.
         """
 
-        if cherrypy.request.method == "POST" and col and col in self._collections:
-            self._collections[col].do_indexing()
+        if cherrypy.request.method == "POST" and col and col in self._flax_data.collections:
+            self._flax_data.collections[col].do_indexing(self._flax_data.filter_settings)
             self._redirect_to_view(col)
         else:
             raise cherrypy.NotFound() 
@@ -73,8 +72,8 @@ class Collections(object):
         POST then 404 is returned.
 
         """
-        if  cherrypy.request.method == "POST" and col and col in self._collections:
-            self._collections[col].update(**kwargs)
+        if  cherrypy.request.method == "POST" and col and col in self._flax_data.collections:
+            self._flax_data.collections[col].update(**kwargs)
             self._redirect_to_view(col)
         else:
             raise cherrypy.NotFound() 
@@ -92,8 +91,8 @@ class Collections(object):
         If col is not provided or there is already a collection named
         `col` or the HTTP method is not POST then a 404 is returned.
         """
-        if cherrypy.request.method == "POST" and col and not col in self._collections:
-            self._collections.new_collection(col, **kwargs)
+        if cherrypy.request.method == "POST" and col and not col in self._flax_data.collections:
+            self._flax_data.collections.new_collection(col, **kwargs)
             self._redirect_to_view(col)
         else:
             raise cherrypy.NotFound()
@@ -109,12 +108,14 @@ class Collections(object):
         if it exists; otherwise return 404.
         """
         if col:
-            if col in self._collections:
-                return self._detail_template.render(self._collections[col], self._formats)
+            if col in self._flax_data.collections:
+                return self._detail_template.render(self._flax_data.collections[col],
+                                                    self._flax_data.formats,
+                                                    self._flax_data.languages)
             else:
                 raise cherrypy.NotFound()
         else:
-            return self._list_template.render(self._collections.itervalues(),
+            return self._list_template.render(self._flax_data.collections.itervalues(),
                                               routes.url_for('/admin/collections'))
 
 class SearchForm(object):
@@ -276,8 +277,7 @@ def main():
                   templates.options_template,
                   templates.index_template)
     
-    collections = Collections(flax_data.collections,
-                              flax_data.formats,
+    collections = Collections(flax_data,
                               templates.collection_list_template,
                               templates.collection_detail_template)
 
