@@ -7,6 +7,8 @@ import os
 import urllib
 import HTMLTemplate
 
+import util
+
 class TemplateManager(object):
     """
     Facilities for making HTMLTemplates for Flax with preconfigured
@@ -191,7 +193,7 @@ def render_collection_detail(template, collection, formats, languages):
     body.name.content = collection.name
     body.description.atts['value'] = collection.description
     body.paths.content = '/n'.join(collection.paths) if type(collection.paths) is list else collection.paths
-
+ 
     def fill_format(node, format):
         node.format_label.content = format
         node.format_checkbox.atts['value'] = format
@@ -199,6 +201,16 @@ def render_collection_detail(template, collection, formats, languages):
             node.format_checkbox.atts['checked'] = 'on' 
 
     body.formats.repeat(fill_format, formats)
+
+    for prop in ("earliest", "latest"):
+        val = getattr(collection, prop)
+        if val:
+            getattr(body, prop).atts["value"] = val.strftime(collection.strptime_format)
+
+    for prop in ("oldest", "youngest"):
+        val = getattr(collection, prop)
+        if val:
+            getattr(body, prop).atts["value"] = util.render_timedelta(val)
 
     def fill_languages(node, val):
         node.atts["value"] = val[0]

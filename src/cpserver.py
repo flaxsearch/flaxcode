@@ -72,6 +72,7 @@ class Collections(object):
         POST then 404 is returned.
 
         """
+        print kwargs
         if  cherrypy.request.method == "POST" and col and col in self._flax_data.collections:
             self._flax_data.collections[col].update(**kwargs)
             self._redirect_to_view(col)
