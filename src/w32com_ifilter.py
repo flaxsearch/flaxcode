@@ -41,6 +41,7 @@ _filter_init_flags = IFILTER_INIT_INDEXING_ONLY | \
                      IFILTER_INIT_SEARCH_LINKS
 
 def ifilter_filter(filename, init_flags = _filter_init_flags):
+    pythoncom.CoInitialize()
     f = ifilter.LoadIFilter(filename)
     f.Init(init_flags)
 
