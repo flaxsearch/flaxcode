@@ -7,7 +7,7 @@ from win32com.ifilter import ifilter
 from win32com.ifilter.ifiltercon import *
 
 
-prop_id_map = { 19 : "Text",
+prop_id_map = { 19 : "text",
                  3 : "HtmlHeading1" }
 
 

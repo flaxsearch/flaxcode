@@ -6,13 +6,13 @@ import os
 import Pyro.core
 
 import filespec
-import indexspec
+import dbspec
 import schedulespec
 import util
 util.setup_sys_path()
 import xappy
 
-class DocCollection(filespec.FileSpec, indexspec.IndexSpec, schedulespec.ScheduleSpec):
+class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec):
     """
     Flax Document Collection.
 
@@ -35,15 +35,14 @@ class DocCollection(filespec.FileSpec, indexspec.IndexSpec, schedulespec.Schedul
     def update(self, description="", **kwargs):
         self.description = description
         filespec.FileSpec.update(self, **kwargs)
-        indexspec.IndexSpec.update(self, **kwargs)
+        dbspec.DBSpec.update(self, **kwargs)
         schedulespec.ScheduleSpec.update(self, **kwargs)
                 
     def do_indexing(self, filter_settings):
         indexer = Pyro.core.getProxyForURI("PYRONAME://indexer")
 #        indexer._setOneway("do_indexing")
-        print "calling indexer"
         indexer.do_indexing(self, self.dbname(), filter_settings)
-        print "called indexer"
+        
 
     def dbname(self):
         return os.path.join(self.db_dir, self.name+'.db')
@@ -54,4 +53,6 @@ class DocCollection(filespec.FileSpec, indexspec.IndexSpec, schedulespec.Schedul
         query = db.query_parse(query.lower())
         print query
         return db.search(query, 0, 10)
+
+            
 
