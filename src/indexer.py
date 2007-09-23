@@ -50,7 +50,8 @@ class Indexer(Pyro.core.ObjBase):
         _, ext = os.path.splitext(file_name)
         filter = self._find_filter(filter_settings[ext[1:]])
         if filter:
-            conn.add(xappy.UnprocessedDocument(fields = itertools.starmap(xappy.Field, filter(file_name))))
+            fields = itertools.starmap(xappy.Field, filter(file_name))
+            conn.add(xappy.UnprocessedDocument(fields = fields))
         else:
             print "filter for %s is not valid" % ext
 
