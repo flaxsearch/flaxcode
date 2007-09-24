@@ -35,3 +35,19 @@ def render_timedelta(td):
     'render a timedelta in the same format as that expected by parse_timedelta'
     return "%s %s %s" % (td.days, td.seconds % 3600, td.seconds % 60)
 
+
+def gen_until_exception(it, ex, test):
+    """ Make an iterator that yields the elements of it, and stops if
+        exception ex matching predicate test is raised other
+        exceptions are passed through
+    """
+    try:
+        for x in it:
+            yield x
+    except ex, e:
+        if test(e):
+            raise StopIteration
+        else:
+            raise
+
+

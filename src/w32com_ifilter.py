@@ -6,8 +6,9 @@ import itertools
 from win32com.ifilter import ifilter
 from win32com.ifilter.ifiltercon import *
 
+import util
 
-prop_id_map = { 19 : "text",
+prop_id_map = { 19 : "content",
                  3 : "HtmlHeading1" }
 
 
@@ -19,22 +20,18 @@ def prop_id_to_name(prop_id):
     else:
         return prop_id
 
-def gen_until_exception(callable, ex, test):
-    while True:
-        try:
-            yield callable()
-        except ex, e:
-            if test(e):
-                raise StopIteration
-            else:
-                raise
 
-def text_for_current_chunk(f):
-    return(''.join( gen_until_exception(f.GetText, 
-                                        pythoncom.com_error, 
-                                        lambda e: e[0] == FILTER_E_NO_MORE_TEXT)))
+def text_for_current_chunk(filt):
+    def get_text():
+        while True:
+            yield filt.GetText()
+
+    return(util.gen_until_exception(get_text(),
+                                    pythoncom.com_error, 
+                                    lambda e: e[0] == FILTER_E_NO_MORE_TEXT))
 
 _filter_init_flags = IFILTER_INIT_INDEXING_ONLY | \
+                     IFILTER_INIT_CANON_PARAGRAPHS | \
                      IFILTER_INIT_APPLY_INDEX_ATTRIBUTES | \
                      IFILTER_INIT_APPLY_CRAWL_ATTRIBUTES| \
                      IFILTER_INIT_APPLY_OTHER_ATTRIBUTES | \
@@ -42,20 +39,64 @@ _filter_init_flags = IFILTER_INIT_INDEXING_ONLY | \
 
 def ifilter_filter(filename, init_flags = _filter_init_flags):
     pythoncom.CoInitialize()
-    f = ifilter.LoadIFilter(filename)
-    f.Init(init_flags)
+    filt, stg = get_ifilter_for_file(filename)
+    init_flags = filt.Init(init_flags)
 
     def start_fields():
-        yield ("filename", filename)
-        raise StopIteration
+        if init_flags == IFILTER_FLAGS_OLE_PROPERTIES and stg:
+           try:
+               pss = stg.QueryInterface(pythoncom.IID_IPropertySetStorage)
+           except pythoncom.com_error, e:
+               yield
+               
+           ps = pss.Open(PSGUID_SUMMARYINFORMATION)
 
-    def do_chunk():
-        chunk_id, break_type, flags, locale, (propset_guid, prop_id), chunk_source_id, start, len =  f.GetChunk()
-        prop_name = prop_id_to_name(prop_id)
-        if flags == CHUNK_TEXT:
-            return prop_name, text_for_current_chunk(f)
+           props_to_read = (PIDSI_TITLE, PIDSI_SUBJECT, PIDSI_AUTHOR,  PIDSI_KEYWORDS, PIDSI_COMMENTS)
+           title, subject, author, keywords, comments = ps.ReadMultiple(props_to_read)
+
+           if title:
+               yield 'title', title
+           if subject:
+               yield 'subject', subject
+           if author:
+               yield 'author', author
+           if keywords:
+               for k in keywords.split():
+                   yield 'keyword', k
+           if comments:
+               yield 'comments', comments
+
+    def do_chunks():
+        while True:
+            chunk_id, break_type, flags, locale, (propset_guid, prop_id), chunk_source_id, start, len =  filt.GetChunk()
+            prop_name = prop_id_to_name(prop_id)
+            if flags == CHUNK_TEXT:
+                for txt in text_for_current_chunk(filt):
+                    yield prop_name, txt
         
     return itertools.chain(start_fields(),
-                           gen_until_exception(do_chunk, pythoncom.com_error,
-                                               lambda e: e[0] == FILTER_E_END_OF_CHUNKS))
+                           util.gen_until_exception(do_chunks(),
+                                                    pythoncom.com_error,
+                                                    lambda e: e[0] == FILTER_E_END_OF_CHUNKS))
         
+
+def get_ifilter_for_file(filename):
+    """
+    Deal with structured storage file if possible. 
+    See http://msdn2.microsoft.com/en-us/library/aa380369.aspx
+    """
+
+    if pythoncom.StgIsStorageFile(filename):
+        storage_init_flags = STGM_READ | STGM_SHARE_DENY_WRITE
+        stg = pythoncom.StgOpenStorage(filename, None, storage_init_flags)
+        try:
+            filt = ifilter.BindIFilterFromStorage(stg)
+        except pythoncom.com_error, e:
+            if e[0] == -2147467662:
+                filt = ifilter.LoadIFilter(filename)
+            else:
+                raise
+    else:
+        filt = ifilter.LoadIFilter(filename)      
+        stg = None
+    return (filt, stg)
