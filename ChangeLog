@@ -1,11 +1,218 @@
+Mon Sep 24 13:44:04 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/dbspec.py: Add "import xappy" line, and make database
+	  directory (and parents) if it doesn't already exist.
+	* ChangeLog: Update.
+
+Mon Sep 24 10:12:10 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/util.py,src/w32com_ifilter.py: Split gen_until_exception out
+	  into util. Changed it to take an iterator (it's more useful that
+	  way).
+
+	  Added code to deal with structured storage, again based on the
+	  w32com filter demo, and emmited blocks for fields for summary
+	  information based where it's available.
+
+Sun Sep 23 05:59:16 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/dbspec.py,src/doc_collection.py,src/indexspec.py,
+	  src/w32com_ifilter.py: Renaming for better correspondence between
+	  name and purpose.
+
+Sun Sep 23 05:58:18 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexer.py: Split a line for better readability.
+
+Sat Sep 22 05:37:24 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/w32com_ifilter.py: Added a call to pythoncom.CoInitialize so
+	  that the filter can run happily in any thread.
+
+Thu Sep 20 12:01:58 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py,src/filespec.py,
+	  src/templates/collection_detail.html,src/templates.py,
+	  src/util.py: Getting the date/time related parts of a filespec to
+	  function, and provided for setting them through the UI.
+
+Wed Sep 19 08:26:20 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates/collection_detail.html: commented out the yui stuff
+	  as it's not currently used.
+
+Wed Sep 19 07:40:31 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/: Refactored to (hopefully) de-spaghetti a bit.
+
+	  Made a start on indexing options for collections.
+
+Tue Sep 18 13:05:31 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexer.py: Addd some docstrings; renamed methods to make
+	  intended public interface clear; renamed a method param to be
+	  consistent with invocation.
+
+Tue Sep 18 12:39:09 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexer.py: Avoided using a list for the fields property of
+	  unprocessed document. fields can be any iterator so we just
+	  starmap xappy.Field over the filter.
+
+Tue Sep 18 11:18:01 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/collection.py,src/flax.py,src/indexer.py: Allowed for passing
+	  format->filter mapping to the indexer.
+
+	  Made the call to the indexer one way.
+
+Tue Sep 18 11:16:55 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/w32com_ifilter.py: added start fields to filter.
+
+Tue Sep 18 06:54:35 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/simple_text_filter.py: Simple filter that breaks text files
+	  into paragraphs.
+
+Mon Sep 17 15:36:55 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py,src/indexer.py,src/util.py: Added psyco
+	  invocation to web server and indexer.
+
+Mon Sep 17 15:18:30 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* README,src/README: Moved README to top level directory.
+
+Mon Sep 17 13:09:40 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py,src/templates.py: Used global formats setting for
+	  rendering of the collection detail templates.
+
+Mon Sep 17 13:02:49 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py: removed a diagnostic print
+
+Mon Sep 17 13:01:53 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/collection.py,src/cpserver.py,src/flax.py,src/indexer.py,
+	  src/templates/options.html,src/templates.py: Pulled most of the
+	  global data into a single objects and modified the global options
+	  rendering and processing to deal with this object.
+
+	  Added initial code for the indexer.
+
+Mon Sep 17 10:51:01 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/util.py: General flax utilities.
+
+	  Added a function to set up sys.path to find xappy.
+
+Mon Sep 17 10:49:43 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/collection.py,src/cpserver.py: Pulled the indexing stuff out
+	  of the collection and put it in a new class intended to be called
+	  remotely.
+
+	  Added the necessary Pyro invocations for the remoting.
+
+Mon Sep 17 10:48:19 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates.py: Added rendering for format/filter options.
+
+Mon Sep 17 10:47:01 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/README: Noted dependency on docutils for auto-generated api
+	  docs.
+
+Mon Sep 17 10:44:32 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates/options.html: Added a section for specifying how a
+	  format maps to a filter.
+
+Thu Sep 13 11:04:22 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/w32com_ifilter.py: refactored to get rid of duplication.
+
+Thu Sep 13 10:28:25 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/w32com_ifilter.py: A simple filter that uses LoadIFilter to
+	  get make a filter for a file and then returns a generator that
+	  yeield annotated chunks of text from the file.
+
+Wed Sep 12 15:43:21 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* LICENSE: Licensing.
+
+Wed Sep 12 15:08:40 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/filterDemo.py: Changed "reduce(operator.add..." to sum - the
+	  former errors with no initial value if the list is empty.
+
+Wed Sep 12 15:05:27 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/filterDemo.py: This is the original version of the
+	  ifilterDemo from the python windows extension (which doesn't work
+	  for me at the moment).
+
+	  Snapshotting the original.
+
+Tue Sep 11 09:38:38 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates.py: Added docstrings.
+
+Mon Sep 10 10:45:47 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/README,src/cpserver.py,src/epydoc.conf: Added restructured
+	  text docstrings to code in cpserver, together with a
+	  configuration file for epydoc to generator api documentation from
+	  these. Added a note to the REDAME about this.
+
+	  Refectored Admin and Top to get rid of some duplication.
+
+	  Pulled the startup stuff into a separate function.
+
+Mon Sep 10 10:43:14 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates/options.html: Changed the help text to include a
+	  warning about potentially generating lots of logging data.
+
+Sun Sep 09 06:03:12 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py: Made indentation consistent.
+
+	  Moved all template references to the start up code, controllers
+	  now take all their templates as initialization arguments.
+
+	  Pulled creation of controllers out of the setup_routes.
+
+Sat Sep 08 07:46:01 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/collection.py,src/cpserver.py,src/static/css/main.css,
+	  src/templates/admin_banner.html,
+	  src/templates/advanced_search.html,
+	  src/templates/collection_detail.html,src/templates/flax.html,
+	  src/templates/options.html,src/templates/search.html,
+	  src/templates.py: Added an advanced search form.
+
+	  Added a section on logging options to the global options page.
+
+Sat Sep 08 04:14:28 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/README: Spelling.
+
+Fri Sep 07 17:13:39 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/README: Some basic information about Flax.
+
 Fri Sep 07 12:55:20 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* src: Add *.pyc to ignores.
 
 Fri Sep 07 07:59:04 UTC 2007  Paul Rudin <paul@rudin.co.uk>
 
-	* src/cpserver.py, src/templates/collections.html,
-	  src/templates/search_result.html, src/templates.py: Sensible
+	* src/cpserver.py,src/templates/collections.html,
+	  src/templates/search_result.html,src/templates.py: Sensible
 	  redirection after actions on collections.
 
 	  Changed some variable names to avoid slight nastiness with extra

@@ -1,6 +1,7 @@
 #$Id:$
 # standard modules
 import os
+import xappy
 
 class DBSpec(object):
     """
@@ -25,6 +26,7 @@ class DBSpec(object):
     def maybe_make_db(self):
         dbname = self.dbname()
         if not os.path.exists(dbname):
+            os.makedirs(dbname)
             conn = xappy.IndexerConnection(dbname)
             conn.add_field_action("filename", xappy.FieldActions.INDEX_EXACT)
             conn.add_field_action("filename", xappy.FieldActions.STORE_CONTENT)
