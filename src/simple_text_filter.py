@@ -12,7 +12,7 @@ def text_filter(filename):
         with open(filename) as f:
             for k, para in itertools.groupby(f, lambda x: "\n" == x):
                 if not k: #get rid of the blank line groups
-                    yield "text", ''.join(para)
+                    yield "content", ''.join(para)
                 
 
     return itertools.chain(start_fields(), get_paragraphs())
