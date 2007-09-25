@@ -1,8 +1,7 @@
 from __future__ import with_statement
 import itertools
 import os
-import Pyro.core
-import Pyro.naming
+
 import filespec
 import util
 util.setup_sys_path()
@@ -19,12 +18,13 @@ import simple_text_filter
 
 util.setup_psyco()
 
-class Indexer(Pyro.core.ObjBase):
-    """ A class that performs indexing on demand by remote invocation.
+class Indexer(object):
+    """ Perform indexing of a xapian database on demand.  The indexing
+        process might be fragile since we're potentially invoking
+        third party filters that may fall over or fail to terminate.
     """
     
     def __init__(self):
-        Pyro.core.ObjBase.__init__(self)
         self._filter_map = {"Xapian": None,
                             "Text": simple_text_filter.text_filter}
         if windows:
@@ -54,21 +54,3 @@ class Indexer(Pyro.core.ObjBase):
             conn.add(xappy.UnprocessedDocument(fields = fields))
         else:
             print "filter for %s is not valid" % ext
-
-def init():
-    daemon = Pyro.core.Daemon()
-    ns = Pyro.naming.NameServerLocator().getNS()
-    daemon.useNameServer(ns)
-    name = 'indexer'
-    try:
-        ns.unregister(name)
-    except Pyro.errors.NamingError:
-        pass
-    try:
-        daemon.connect(Indexer(), name)
-        daemon.requestLoop()
-    finally:
-        daemon.shutdown(True)
-
-if __name__ == "__main__":
-    init()
