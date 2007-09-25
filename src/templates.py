@@ -239,7 +239,8 @@ def render_search_result(template, query, cols, results=[]):
             filename = res.data['filename'][0]
             node.res_link.atts['href']= filename
             node.res_link.content = filename
-        node.res_content.raw = res.summarise('text', hl=('<strong>','</strong>'), maxlen=10000)
+        if 'content' in res.data:
+            node.res_content.raw = res.summarise('content', hl=('<strong>','</strong>'), maxlen=10000)
 
     template.main.results.repeat(fill_results, results)
 
