@@ -4,7 +4,8 @@ import pywintypes
 from win32com.ifilter import ifilter
 from win32com.ifilter.ifiltercon import *
 
-from win32com import storagecon
+from win32com.storagecon import *
+
 
 class FileParser:
     # Property IDs for the Storage Property Set

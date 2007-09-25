@@ -1,4 +1,8 @@
 import doc_collection
+import util
+util.setup_sys_path()
+import xappy
+
 
 class FlaxCollections(object):
 
@@ -23,6 +27,21 @@ class FlaxCollections(object):
         else:
             #error
             pass
+
+    def search(self, query, cols = None):
+        if cols is None:
+            cols = self._collections.keys()
+        
+        if cols:
+            col = self[cols[0]]
+            conn = xappy.SearchConnection(col.dbname())
+            for c in cols[1:]:
+                conn._index.add_database(xapian.Database(self[c].dbname()))
+            query = conn.query_parse(query.lower())
+            return conn.search(query, 0, 10)
+        else:
+            return []
+
 
     def __getitem__(self, key):
         return self._collections.__getitem__(key)

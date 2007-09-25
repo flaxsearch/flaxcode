@@ -1,6 +1,8 @@
 #$Id:$
 # standard modules
 import os
+import util
+util.setup_sys_path()
 import xappy
 
 class DBSpec(object):
@@ -30,9 +32,9 @@ class DBSpec(object):
             conn = xappy.IndexerConnection(dbname)
             conn.add_field_action("filename", xappy.FieldActions.INDEX_EXACT)
             conn.add_field_action("filename", xappy.FieldActions.STORE_CONTENT)
-            conn.add_field_action('text', xappy.FieldActions.INDEX_FREETEXT, 
+            conn.add_field_action('content', xappy.FieldActions.INDEX_FREETEXT, 
                                   language=self.language, stop=self.stopwords, noprefix=True)
-            conn.add_field_action('text', xappy.FieldActions.STORE_CONTENT)      
+            conn.add_field_action('content', xappy.FieldActions.STORE_CONTENT)      
             conn.close()
 
     

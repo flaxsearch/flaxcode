@@ -8,9 +8,6 @@ import Pyro.core
 import filespec
 import dbspec
 import schedulespec
-import util
-util.setup_sys_path()
-import xappy
 
 class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec):
     """
@@ -46,13 +43,6 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
 
     def dbname(self):
         return os.path.join(self.db_dir, self.name+'.db')
-
-
-    def search(self, query):
-        db = xappy.SearchConnection(self.dbname())
-        query = db.query_parse(query.lower())
-        print query
-        return db.search(query, 0, 10)
 
             
 

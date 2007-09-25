@@ -154,14 +154,9 @@ class SearchForm(object):
         structure.
         """
         if col and query:
-            cols = [col] if type(col) is str else col
-            col_results = (self._collections[c].search(query) for c in cols)
-            text = ""
-            for res in col_results:
-                for r in res:
-                    if 'text' in r.data:
-                        text+= r.data['text'][0]
-            return self._result_template.render(query, cols, text)
+            cols = [col] if isinstance(col, str) else col
+            results = self._collections.search(query, cols)
+            return self._result_template.render(query, cols, results)
         else:
             return self._template.render(self._collections, advanced, self._collections._formats)
 

@@ -5,6 +5,9 @@ import os
 
 
 dir = os.path.dirname(os.path.abspath(os.path.normpath(__file__)))
+user = os.path.expanduser('~')
+
+
 db_dir = os.path.normpath(dir+'/dbs') 
 
 
@@ -63,7 +66,7 @@ cols.new_collection("foo",
                     status = 0)
 
 cols.new_collection("bar",
-                    paths = ['%s/My Documents/'% os.path.expanduser('~')])
+                    paths = ['%s/My Documents/'% user])
 
 
 class FlaxOptions(object):

@@ -230,11 +230,18 @@ collection_detail_template = tman.create_admin_template("collection_detail.html"
 def render_searched_collection(node, col):
     node.content = col
 
-def render_search_result(template, query, cols, result=None):
+def render_search_result(template, query, cols, results=[]):
     template.main.query.content = query
     template.main.col.repeat(render_searched_collection, cols)
-    if result:
-        template.main.results.content = result
+    def fill_results(node, res):
+        # res is xapian results object
+        if 'filename' in res.data:
+            filename = res.data['filename'][0]
+            node.res_link.atts['href']= filename
+            node.res_link.content = filename
+        node.res_content.raw = res.summarise('text', hl=('<strong>','</strong>'), maxlen=10000)
+
+    template.main.results.repeat(fill_results, results)
 
 #: administrator template for viewing search results.
 admin_search_result_template = tman.create_admin_template("search_result.html", render_search_result)
