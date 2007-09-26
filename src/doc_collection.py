@@ -8,6 +8,9 @@ import Pyro.core
 import filespec
 import dbspec
 import schedulespec
+import util
+util.setup_sys_path()
+import xappy
 
 class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec):
     """
@@ -44,5 +47,14 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
     def dbname(self):
         return os.path.join(self.db_dir, self.name+'.db')
 
-            
-
+    def source_file_from_id(self, file_id):
+        "return the source file name given a document id."
+        try:
+            # all this does at the moment is check that this file
+            # has been indexed as part of this document collection.
+            conn = xappy.SearchConnection(self.dbname())
+            conn.get_document(file_id)
+            conn.close()
+            return file_id
+        except KeyError:
+            return None

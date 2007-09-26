@@ -191,6 +191,26 @@ class Top(object):
         """
         return self._search.search(advanced=True, **kwargs )
 
+
+    def source(self, col, file_id):
+        """
+        Serve the source file for the document in document collection
+        named by col with file_id id.
+        """
+        # Quite possibly this is a security hole allowing any
+        # documents to be accessed. Need to think carefully about how
+        # we actually ensure that we're just serving from the document
+        # collections.
+        print "col: %s, file_id: %s" % (col, file_id)
+        if col in self._flax_data.collections:
+            filename = self._flax_data.collections[col].source_file_from_id(file_id)
+            if filename:
+                return cherrypy.lib.static.serve_file(filename)
+        # fall through we can't find either the collection or the file named by file_id
+        raise cherrypy.NotFound()
+
+
+
          
 class Admin(Top):
     """
@@ -247,6 +267,7 @@ def setup_routes(top_controller, admin_contoller, collections_controller):
     d = cherrypy.dispatch.RoutesDispatcher()
     d.connect('top', '/', controller = top_controller, action='search')
     d.connect('user_search', '/search', controller = top_controller, action='search')
+    d.connect('source_file', '/source', controller = top_controller, action='source')
 
     d.connect('collections_add', 'admin/collections/add', controller = collections_controller, action='add')
     d.connect('collections', '/admin/collections/:col/:action', controller = collections_controller, action='view')

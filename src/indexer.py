@@ -39,20 +39,21 @@ class Indexer(object):
         print "Indexing xapian db: %s,\n with files from filespec %s\n filter settings: %s" % (dbname, file_spec, filter_settings)
         conn = xappy.IndexerConnection(dbname)
         for f in file_spec.files():
-            self._process_file(f, conn, filter_settings)
+            self._process_file(f, conn, file_spec.name, filter_settings)
         conn.close()
         print "Indexing Finished"
 
     def _find_filter(self, filter_name):
         return self._filter_map[filter_name] if filter_name in self._filter_map else None
     
-    def _process_file(self, file_name, conn, filter_settings):
+    def _process_file(self, file_name, conn, collection_name, filter_settings):
         print "processing file: ", file_name
         _, ext = os.path.splitext(file_name)
         if self.stale(file_name, conn):
             filter = self._find_filter(filter_settings[ext[1:]])
             if filter:
                 fixed_fields = ( ("filename", file_name),
+                                 ("collection", collection_name),
                                  ("mtime", str(time.time())))
                 fields = itertools.starmap(xappy.Field, itertools.chain(fixed_fields, filter(file_name)))
                 doc = xappy.UnprocessedDocument(fields = fields)
