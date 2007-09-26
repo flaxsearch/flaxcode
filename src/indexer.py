@@ -72,4 +72,10 @@ class Indexer(object):
             # file not in the database, so has "changed"
             return True
 
+        # This will error if the mtime field isn't in the document
+        # with appropriate data, but that shouldn't happen because
+        # every document should have mtime data of the correct format.
+        # So let the exception through in order to diagnose the
+        # problem.  We are potentially vunerable to a filter that adds
+        # things with that field, but the restriction is documented.
         return os.path.getmtime(file_name) > float(doc.data['mtime'])
