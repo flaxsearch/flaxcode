@@ -1,6 +1,7 @@
 from __future__ import with_statement
 import itertools
 import os
+import time
 
 import filespec
 import util
@@ -48,9 +49,27 @@ class Indexer(object):
     def _process_file(self, file_name, conn, filter_settings):
         print "processing file: ", file_name
         _, ext = os.path.splitext(file_name)
-        filter = self._find_filter(filter_settings[ext[1:]])
-        if filter:
-            fields = itertools.starmap(xappy.Field, filter(file_name))
-            conn.add(xappy.UnprocessedDocument(fields = fields))
+        if self.stale(file_name, conn):
+            filter = self._find_filter(filter_settings[ext[1:]])
+            if filter:
+                fixed_fields = ( ("filename", file_name),
+                                 ("mtime", str(time.time())))
+                fields = itertools.starmap(xappy.Field, itertools.chain(fixed_fields, filter(file_name)))
+                doc = xappy.UnprocessedDocument(fields = fields)
+                doc.id = file_name
+                conn.replace(doc)
+            else:
+                print "filter for %s is not valid" % ext
         else:
-            print "filter for %s is not valid" % ext
+            print "File: %s has not changed since last indexing" % file_name
+
+    def stale(self, file_name, conn):
+        "Return True if the file named by file_name has changed since we indexed it last"
+
+        try:
+            doc = conn.get_document(file_name)
+        except KeyError:
+            # file not in the database, so has "changed"
+            return True
+
+        return os.path.getmtime(file_name) > float(doc.data['mtime'])
