@@ -235,9 +235,11 @@ def render_search_result(template, query, cols, results=[]):
     template.main.col.repeat(render_searched_collection, cols)
     def fill_results(node, res):
         # res is xapian results object
-        if 'filename' in res.data:
+        if 'filename' in res.data and 'collection' in res.data:
             filename = res.data['filename'][0]
-            node.res_link.atts['href']= filename
+            collection = res.data['collection'][0]
+            url = '/source?col=%s&file_id=%s' % (collection, filename)
+            node.res_link.atts['href']=url
             node.res_link.content = filename
         if 'content' in res.data:
             node.res_content.raw = res.summarise('content', hl=('<strong>','</strong>'))
