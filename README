@@ -59,11 +59,31 @@ then::
 
   python cpserver.py
 
-By default the server will run on port 8090, but you can change that
-by editing cp.conf.
+Which will start the web server. By default the server will run on
+port 8090, but you can change that by editing cp.conf.
 
 Administration functionality is available at
 http://localhost:8090/admin
+
+Indexing of documents is done by a separate indexer, (which can be
+invoked from the web administration interface).
+
+In order to start the indexer first start the pyro name server. See
+the pyro docs for how to do this on your platform. On linux invoke
+pyro-ns. On windows invoke pyro-ns.cmd which is installed in
+<python>\Scripts, where <python> is the installed python directory.
+
+Once the pyro nameserver is started then do::
+
+  python indexserver.py
+
+To test that the indexer is working click on the "index now" button
+from a document collection detail page in the web app and you should
+see some diagnostic information being printed by the indexserver.
+
+(At the moment the web server invokes the indexer synchronously to aid
+debugging, so you might have to wait for a while if you have a lot of
+documents. But in released versions this will be asynchronous.)
 
 
 
