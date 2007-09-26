@@ -5,11 +5,12 @@ License, incorporated herein by reference.
 
 
 
-filterDemo.py
--------------
+w32com_ifilter.py
+-----------------
 
-The file src/filterDemo.py is a modified version of code to which the
-following applies::
+The file src/w32com_ifilter.py conatains some bits of code that are
+modified versions of code from the python for windows extentions to
+which the following applies::
 
   Unless stated in the specfic source file, this work is
   Copyright (c) 1994-2001, Mark Hammond 
