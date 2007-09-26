@@ -153,8 +153,8 @@ class SearchForm(object):
         search. If `advanced` tests true then the form will have more
         structure.
         """
-        if col and query:
-            cols = [col] if isinstance(col, str) else col
+        if query:
+            cols = [col] if isinstance(col, str) else col                  
             results = self._collections.search(query, cols)
             return self._result_template.render(query, cols, results)
         else:

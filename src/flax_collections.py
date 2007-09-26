@@ -2,7 +2,7 @@ import doc_collection
 import util
 util.setup_sys_path()
 import xappy
-
+import xapian  # HACK
 
 class FlaxCollections(object):
 
@@ -42,6 +42,9 @@ class FlaxCollections(object):
         else:
             return []
 
+    @property
+    def collection_names (self):
+        return self._collections.keys()
 
     def __getitem__(self, key):
         return self._collections.__getitem__(key)

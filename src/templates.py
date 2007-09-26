@@ -232,7 +232,11 @@ def render_searched_collection(node, col):
 
 def render_search_result(template, query, cols, results=[]):
     template.main.query.content = query
-    template.main.col.repeat(render_searched_collection, cols)
+    if cols is None:
+        template.main.col.omit()
+    else:
+        template.main.col.repeat(render_searched_collection, cols)
+      
     def fill_results(node, res):
         # res is xapian results object
         if 'filename' in res.data and 'collection' in res.data:
