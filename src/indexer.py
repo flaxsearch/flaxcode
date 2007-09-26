@@ -79,4 +79,4 @@ class Indexer(object):
         # So let the exception through in order to diagnose the
         # problem.  We are potentially vunerable to a filter that adds
         # things with that field, but the restriction is documented.
-        return os.path.getmtime(file_name) > float(doc.data['mtime'])
+        return os.path.getmtime(file_name) > float(doc.data['mtime'][0])
