@@ -21,9 +21,9 @@ Python at at least version 2.5 with the following packages installed:
 - xapian with its python bindings (see http://www.xapian.org),
   currently you need the subversion trunk.
 
-- CherryPy - see http://www.cherrypy.org
+- CherryPy - see http://www.cherrypy.org (cherrypy 3 is needed.)
 
-- routes - see http://routes.groovie.org/
+- routes - see http://routes.groovie.org/ 
 
 - HTMLTemplate - see http://freespace.virgin.net/hamish.sanderson/htmltemplate.html
 
@@ -64,6 +64,16 @@ port 8090, but you can change that by editing cp.conf.
 
 Administration functionality is available at
 http://localhost:8090/admin
+
+The web server will by default read its state from a file called
+flax.flx, and on termination save its state to that file. The files
+can be changed with command line options, invoke with --help for more
+details.
+
+Note that if the input file cannot be read for some reason (e.g. it's
+not present or the data is corrupted) then the system will start with
+some default settings.
+
 
 Indexing of documents is done by a separate indexer, (which can be
 invoked from the web administration interface).
