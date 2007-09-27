@@ -316,7 +316,6 @@ def start_web_server(flax_data):
     """
     Run Flax web server.
     """
-    flax_data = flax.options
 
     top = Top(flax_data, templates.user_search_render, templates.user_search_result_render)
 
