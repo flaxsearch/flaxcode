@@ -277,7 +277,7 @@ def user_search_result_render (*args, **kwargs):
 
 # used internally
 def _advanced_search_options ():
-    return _tman.make_template(tman.dummy_render, "advanced_search.html")
+    return _tman.make_template(_tman.dummy_render, "advanced_search.html")
 
 
 def make_html():
