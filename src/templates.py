@@ -116,7 +116,7 @@ def render_options(template, flax_data):
         def fill_filters(node, filter_name):
             node.atts["value"] = filter_name
             node.content = filter_name
-            if filter_name == flax_data.filters[fmt]:
+            if filter_name == flax_data.filter_settings[fmt]:
                node.atts["selected"]="selected"
  
         node.format_label.content = fmt

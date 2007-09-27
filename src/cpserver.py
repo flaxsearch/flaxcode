@@ -74,9 +74,9 @@ class Collections(FlaxResource):
         """
         
         self._only_post()
-        print col
+
         if col and col in self._flax_data.collections:
-            self._flax_data.collections[col].do_indexing(self._flax_data.filters)
+            self._flax_data.collections[col].do_indexing(self._flax_data.filter_settings)
             self._redirect_to_view(col)
         else:
             self._bad_collection_name(col)
@@ -281,7 +281,7 @@ class Admin(Top):
 
             for format in self._flax_data.formats:
                 if format in kwargs:
-                    self._flax_data.filters[format] = kwargs[format]
+                    self._flax_data.filter_settings[format] = kwargs[format]
 
         return self._options_template.render(self._flax_data)
 
@@ -342,8 +342,8 @@ def startup():
     import persist
     import optparse
     op = optparse.OptionParser()
-    op.add_option('-i', '--input-file', dest='input_file', help = "Flax input data file", default = 'flax.flx')
-    op.add_option('-o', '--output-file', dest='output_file', help= "Flax output data file", default = 'flax.flx')
+    op.add_option('-i', '--input-file', dest='input_file', help = "Flax input data file (default is flax.flx)", default = 'flax.flx')
+    op.add_option('-o', '--output-file', dest='output_file', help= "Flax output data file (default is flax.flx)", default = 'flax.flx')
     (options, args) = op.parse_args()
     flax.options = persist.read_flax(options.input_file)
     try:

@@ -13,7 +13,7 @@ class FlaxOptions(object):
     
     def __init__(self, collections, db_dir, flax_dir, formats, 
                  log_events, log_levels, log_settings, 
-                 filters, languages):
+                 filters, filter_settings, languages):
         
         self.collections = collections
         self.db_dir = db_dir
@@ -23,6 +23,7 @@ class FlaxOptions(object):
         self.log_levels = log_levels
         self.log_settings = log_settings
         self.filters = filters
+        self.filter_settings = filter_settings
         self.languages = languages
 
 
@@ -57,7 +58,7 @@ def make_options():
     
     formats = ("txt", "doc", "html")
 
-    filter_settings = dict((f, filters[0]) for f in formats)
+    filter_settings = dict( (f, filters[0]) for f in formats)
 
     languages = [ ("none",  "None"),
                   ("da",  "Danish"),
@@ -88,6 +89,7 @@ def make_options():
                        log_events, 
                        event_levels, 
                        log_settings,
+                       filters,
                        filter_settings,
                        languages)
 
