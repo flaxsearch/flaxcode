@@ -12,7 +12,7 @@ import cherrypy
 import routes
 
 import flax
-from templates import templates
+import templates
 import util
 util.setup_psyco()
 
@@ -142,14 +142,14 @@ class Collections(FlaxResource):
         """
         if col:
             if col in self._flax_data.collections:
-                return self._detail_template.render(self._flax_data.collections[col],
-                                                    self._flax_data.formats,
-                                                    self._flax_data.languages)
+                return self._detail_template (self._flax_data.collections[col],
+                                              self._flax_data.formats,
+                                              self._flax_data.languages)
             else:
                 raise cherrypy.NotFound()
         else:
-            return self._list_template.render(self._flax_data.collections.itervalues(),
-                                              routes.url_for('/admin/collections'))
+            return self._list_template (self._flax_data.collections.itervalues(),
+                                        routes.url_for('/admin/collections'))
 
 class SearchForm(object):
     """
@@ -188,9 +188,9 @@ class SearchForm(object):
         if query:
             cols = [col] if isinstance(col, str) else col                  
             results = self._collections.search(query, cols)
-            return self._result_template.render(query, cols, results)
+            return self._result_template (query, cols, results)
         else:
-            return self._template.render(self._collections, advanced, self._collections._formats)
+            return self._template (self._collections, advanced, self._collections._formats)
 
 
 
@@ -283,13 +283,13 @@ class Admin(Top):
                 if format in kwargs:
                     self._flax_data.filter_settings[format] = kwargs[format]
 
-        return self._options_template.render(self._flax_data)
+        return self._options_template (self._flax_data)
 
     def index(self):
         """
         Render the index template.
         """
-        return self._index_template.render()
+        return self._index_template ()
 
 
 def setup_routes(top_controller, admin_contoller, collections_controller):
@@ -318,17 +318,17 @@ def start_web_server(flax_data):
     """
     flax_data = flax.options
 
-    top = Top(flax_data, templates.user_search_template, templates.user_search_result_template)
+    top = Top(flax_data, templates.user_search_render, templates.user_search_result_render)
 
     admin = Admin(flax_data,
-                  templates.admin_search_template,
-                  templates.admin_search_result_template,
-                  templates.options_template,
-                  templates.index_template)
+                  templates.admin_search_render,
+                  templates.admin_search_result_render,
+                  templates.options_render,
+                  templates.index_render)
     
     collections = Collections(flax_data,
-                              templates.collection_list_template,
-                              templates.collection_detail_template)
+                              templates.collection_list_render,
+                              templates.collection_detail_render)
 
     d = setup_routes(top, admin, collections)
     

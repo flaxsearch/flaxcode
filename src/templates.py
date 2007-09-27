@@ -27,8 +27,9 @@ class TemplateManager(object):
         """
         self.template_dir = template_dir
         self.html_dir = html_dir
-        self.admin_banner_html = self.make_template(self.dummy_render, admin_banner_file).render()
-        self.user_banner_html = self.make_template(self.dummy_render, user_banner_file).render()
+        self.admin_banner_file = admin_banner_file
+        self.user_banner_file = user_banner_file
+        self._cache = {}
     
     def dummy_render(self, template):
         """
@@ -41,7 +42,20 @@ class TemplateManager(object):
         Make an HTMLTemplate from `file_name` in `template_dir` using `render_fn`.
         
         """
-        return  HTMLTemplate.Template(render_fn, open(os.path.join(self.template_dir, file_name)).read())
+        fpath = os.path.join (self.template_dir, file_name)
+        mtime = os.stat (fpath).st_mtime
+        key = (file_name, render_fn)
+        try:
+            cached = self._cache[key]
+            if cached[1] == mtime:
+                return cached[0]
+
+        except KeyError:
+            pass
+            
+        t = HTMLTemplate.Template(render_fn, open(fpath).read())
+        self._cache[key] = (t, mtime)
+        return t
 
     def create_template(self, file_name,  banner, render_fn = None):
         fn = self.dummy_render if render_fn is None else render_fn
@@ -61,13 +75,15 @@ class TemplateManager(object):
         """
         Make an administrator template.
         """
-        return self.create_template(file_name, self.admin_banner_html, render_fn)
+        admin_banner_html = self.make_template (self.dummy_render, self.admin_banner_file).render()
+        return self.create_template(file_name, admin_banner_html, render_fn)
 
     def create_user_template(self, file_name, render_fn = None):
         """
         Make a user template.
         """
-        return self.create_template(file_name, self.user_banner_html, render_fn)
+        user_banner_html = self.make_template (self.dummy_render, self.user_banner_file).render()
+        return self.create_template(file_name, user_banner_html, render_fn)
 
     def write_html_file(self, filename, template, *args):
         """
@@ -121,7 +137,7 @@ def render_options(template, flax_data):
 def render_search(template, collections, advanced=False, formats=[]):
     template.main.collections.repeat(do_collection, collections.itervalues())
     if advanced:
-        template.main.advanced_holder=_advanced_search_options.body
+        template.main.advanced_holder=_advanced_search_options().body
         def fill_format(node, format):
             node.format_label.content = format
             node.format_checkbox.atts['value'] = format
@@ -225,59 +241,43 @@ def render_search_result(template, query, cols, results=[]):
     template.main.results.repeat(fill_results, results)
 
 
-class AllTemplates (object):
-    """
-    Moved templates here so we can redefine them as properties and make them reload.
-    """
-    def __init__ (self, tman):
-        self.tman = tman
-        
-    #: Template admin index pages.
-    @property
-    def index_template (self):
-        return self.tman.create_admin_template("index.html")
+_tman = TemplateManager ("templates", "html")
 
-    #: Template for global options page
-    @property
-    def options_template (self):
-        return self.tman.create_admin_template("options.html", render_options)
-    
-    #: template for administrator search pages.
-    @property
-    def admin_search_template (self):
-        return self.tman.create_admin_template("search.html", render_search)
+#: Template admin index pages.
+def index_render (*args, **kwargs):
+    return _tman.create_admin_template("index.html").render (*args, **kwargs)
 
-    #: template for user search pages.
-    @property
-    def user_search_template (self):
-        return self.tman.create_user_template("search.html", render_search)
+#: Template for global options page
+def options_render (*args, **kwargs):
+    return _tman.create_admin_template("options.html", render_options).render (*args, **kwargs)
 
-    #: template for collections listing
-    @property
-    def collection_list_template (self):
-        return self.tman.create_admin_template("collections.html", render_collections_list)
+#: template for administrator search pages.
+def admin_search_render (*args, **kwargs):
+    return _tman.create_admin_template("search.html", render_search).render (*args, **kwargs)
 
-    #: template for viewing a collection.
-    @property
-    def collection_detail_template (self):
-        return self.tman.create_admin_template("collection_detail.html", render_collection_detail)
+#: template for user search pages.
+def user_search_render (*args, **kwargs):
+    return _tman.create_user_template("search.html", render_search).render (*args, **kwargs)
 
-    #: administrator template for viewing search results.
-    @property
-    def admin_search_result_template (self):
-        return self.tman.create_admin_template("search_result.html", render_search_result)
+#: template for collections listing
+def collection_list_render (*args, **kwargs):
+    return _tman.create_admin_template("collections.html", render_collections_list).render (*args, **kwargs)
 
-    #: user template for viewing search results.
-    @property
-    def user_search_result_template (self):
-        return self.tman.create_user_template("search_result.html", render_search_result)
+#: template for viewing a collection.
+def collection_detail_render (*args, **kwargs):
+    return _tman.create_admin_template("collection_detail.html", render_collection_detail).render (*args, **kwargs)
 
-    @property
-    def _advanced_search_options (self):
-        return self.tman.make_template(tman.dummy_render, "advanced_search.html")
+#: administrator template for viewing search results.
+def admin_search_result_render (*args, **kwargs):
+    return _tman.create_admin_template("search_result.html", render_search_result).render (*args, **kwargs)
 
+#: user template for viewing search results.
+def user_search_result_render (*args, **kwargs):
+    return _tman.create_user_template("search_result.html", render_search_result).render (*args, **kwargs)
 
-templates = AllTemplates (TemplateManager ("templates", "html"))
+# used internally
+def _advanced_search_options ():
+    return _tman.make_template(tman.dummy_render, "advanced_search.html")
 
 
 def make_html():
