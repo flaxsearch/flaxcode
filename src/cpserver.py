@@ -16,10 +16,28 @@ import templates
 import util
 util.setup_psyco()
 
-class Collections(object):
+class FlaxResource(object):
+    "Abstract class supporting common error handling across all Flax web pages"
+
+    def _only_post(self, message='Only "POST" supported'):
+        "utility for raising 405 when we're expecting a post but get something else"
+        if cherrypy.request.method != "POST":
+            cherrypy.response.headers['Allow'] = "POST"
+            raise cherrypy.HTTPError(405, message)
+
+    def _bad_request(self, message="Bad request"):
+        "method to signal that data we receive cannot be used"
+        raise cherrypy.HTTPError(400, message) 
+        
+    
+
+class Collections(FlaxResource):
     """
     Controller for web pages dealing with document collections.
     """
+
+    def _bad_collection_name(self, name):
+        self._bad_request("%s does not name a collection." % name if name else "No collection name supplied")
 
     def __init__(self, flax_data, list_template, detail_template):
         """
@@ -45,19 +63,23 @@ class Collections(object):
             - `col`: Names the document collection to be indexed.
 
         This method forces an immediate indexing of the document
-        collection named by the parameter `col` when the HTTP method
-        is POST. A 404 is returned if either:
+        collection named by the parameter `col`.
+
+        The HTTP method should be POST
+
+        A 400 is returned if either:
         
         - `col` is ommited; or
         - `col` is present by does not name a collection;
-        - or if the HTTP method is not POST.
         """
-
-        if cherrypy.request.method == "POST" and col and col in self._flax_data.collections:
-            self._flax_data.collections[col].do_indexing(self._flax_data.filter_settings)
+        
+        self._only_post()
+        print col
+        if col and col in self._flax_data.collections:
+            self._flax_data.collections[col].do_indexing(self._flax_data.filters)
             self._redirect_to_view(col)
         else:
-            raise cherrypy.NotFound() 
+            self._bad_collection_name(col)
          
     def update(self, col=None, **kwargs):
         """
@@ -67,17 +89,22 @@ class Collections(object):
             - `col`: The name of the document collection to be updated.
 
         Updates the document collection named by `col` with the
-        remaining keyword arguments by POSTing. If `col` is not
-        supplied, does not name a collection or the HTTP method is not
-        POST then 404 is returned.
+        remaining keyword arguments by POSTing. 
+
+        Only POST should be used, 405 is returned otherwise.
+
+        If `col` is not supplied or does not name a collection then
+        400 is returned.
 
         """
-        print kwargs
-        if  cherrypy.request.method == "POST" and col and col in self._flax_data.collections:
+
+        self._only_post()
+
+        if col and col in self._flax_data.collections:
             self._flax_data.collections[col].update(**kwargs)
             self._redirect_to_view(col)
         else:
-            raise cherrypy.NotFound() 
+            raise self._bad_collection_name(col)
      
     def add(self, col = None, **kwargs):
         """
@@ -89,15 +116,19 @@ class Collections(object):
         Creates a new collection named `col`. The remaining keywords
         args are used to update the new collection.
 
+        Only POST should be used, 405 is returned otherwise.
+
         If col is not provided or there is already a collection named
-        `col` or the HTTP method is not POST then a 404 is returned.
+        `col` then a 400 is returned.
         """
-        if cherrypy.request.method == "POST" and col and not col in self._flax_data.collections:
+        self._only_post('New collections must be created with "POST"' )
+
+        if col and not col in self._flax_data.collections:
             self._flax_data.collections.new_collection(col, **kwargs)
             self._redirect_to_view(col)
         else:
-            message = "Attempt to create a document collection that already exists or that has an invalid name."
-            raise cherrypy.HTTPError(400, message)
+            self._bad_request("Attempt to create a document collection that already exists or that has an invalid name.")
+
 
     def view(self, col=None, **kwargs):
         """
@@ -146,8 +177,8 @@ class SearchForm(object):
             - `col`: the (list of) collection(s) to be searched.
             - `advanced`: the style of search form.
 
-        If `col` and `query` are provided then use `query` to search all
-        the document collections named by `col` and return the
+        If `col` and `query` are provided then use `query` to search
+        all the document collections named by `col` and return the
         results. (In this case the value of `advanced` is ignored.)
 
         Otherwise render a page containing a form to initiate a new
@@ -163,7 +194,7 @@ class SearchForm(object):
 
 
 
-class Top(object):
+class Top(FlaxResource):
     """
     A contoller for the default (end-user) web pages.
     """
@@ -250,7 +281,7 @@ class Admin(Top):
 
             for format in self._flax_data.formats:
                 if format in kwargs:
-                    self._flax_data.filter_settings[format] = kwargs[format]
+                    self._flax_data.filters[format] = kwargs[format]
 
         return self._options_template.render(self._flax_data)
 
@@ -266,12 +297,13 @@ def setup_routes(top_controller, admin_contoller, collections_controller):
     Define the mapping from urls to objects/methods for the CherryPy routes dispatcher.
     """
 
+
     d = cherrypy.dispatch.RoutesDispatcher()
     d.connect('top', '/', controller = top_controller, action='search')
     d.connect('user_search', '/search', controller = top_controller, action='search')
     d.connect('source_file', '/source', controller = top_controller, action='source')
 
-    d.connect('collections_add', 'admin/collections/add', controller = collections_controller, action='add')
+    d.connect('collections_add', 'admin/collections/add', controller = collections_controller, action='add' )
     d.connect('collections', '/admin/collections/:col/:action', controller = collections_controller, action='view')
     d.connect('collections_default', '/admin/collections/', controller = collections_controller, action='view')
 
