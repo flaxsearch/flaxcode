@@ -279,7 +279,7 @@ def setup_routes(top_controller, admin_contoller, collections_controller):
     return d
 
 
-def main():
+def start_web_server(flax_data):
     """
     Run Flax web server.
     """
@@ -305,8 +305,21 @@ def main():
                                                      'tools.staticdir.root': os.path.dirname(os.path.abspath(__file__)),
                                                      'tools.staticdir.dir': 'static'}})
 
+def startup():
+    import persist
+    import optparse
+    op = optparse.OptionParser()
+    op.add_option('-i', '--input-file', dest='input_file', help = "Flax input data file", default = 'flax.flx')
+    op.add_option('-o', '--output-file', dest='output_file', help= "Flax output data file", default = 'flax.flx')
+    (options, args) = op.parse_args()
+    flax.options = persist.read_flax(options.input_file)
+    try:
+        start_web_server(flax.options)
+    finally:
+        persist.store_flax(options.output_file, flax.options)
+
 
 if __name__ == "__main__":
-    main()
+    startup()
 
 
