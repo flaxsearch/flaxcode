@@ -34,7 +34,8 @@ class FileSpec(object):
 
     def update(self, paths=None, earliest=None, latest=None,
                oldest=None, youngest=None, formats = [], **kwargs):
-
+        if paths == None:
+            paths = []
         self.paths = [paths] if isinstance(paths, str) else paths
         self.earliest = earliest
         self.latest = latest
