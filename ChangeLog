@@ -1,8 +1,141 @@
-Wed Sep 26 15:03:11 BST 2007  Tom Mortimer <tom@lemurconsulting.com>
+Thu Sep 27 13:53:32 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
-    * src/flax_collections.py: added collection_names property
-    * src/cpserver.py: search method now treats col = None as "search all"
-    * src/templates.py: template handles col = None
+	* ChangeLog: Update.
+
+Thu Sep 27 11:16:45 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py: changed references to filter_settings to filters
+	  Made a start on consistent error handling by subclassing from a
+	  new class that provide methods for dealing with some error
+	  situations.
+
+Thu Sep 27 10:19:46 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py: Changed the error response for add.
+
+Thu Sep 27 08:51:22 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* README: Added some notes about persistence.
+
+Thu Sep 27 08:41:13 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py: Added command line options to load/save data.
+
+Thu Sep 27 08:40:10 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/persist.py: Very simple persistence mechanism user the
+	  standard shelve/pickle modules.
+
+Thu Sep 27 08:39:19 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/flax.py: Got rid of the globals (except for options) and
+	  moved the intialization of a fresh options object to a function.
+
+Thu Sep 27 08:37:59 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/flax_collections.py: Used the collection update method,
+	  rather than updating it's __dict__. Remove the .lower() prior to
+	  parsing a query string.
+
+Thu Sep 27 08:35:30 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/filespec.py: Ensured that paths is set to a  list when
+	  inititialised as None.
+
+Thu Sep 27 06:02:17 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py: removed unused local in main()
+
+Wed Sep 26 14:08:32 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/flax_collections.py: added collection_names property
+	* src/cpserver.py: search method now treats col = None as "search all"
+	* src/templates.py: template handles col = None
+
+Wed Sep 26 13:19:36 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexer.py: In Indexer.stale: used the first mtime field
+	  rather than the list of them to get the document indexing time.
+
+Wed Sep 26 13:03:17 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* tests,tests/sampledocs,tests/sampledocs/Changes.txt: added a test
+	  document
+
+Wed Sep 26 12:06:28 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates.py: Provided for serving source files for
+	  documents. Documents include a "collection" field, and this
+	  togther with the document id is used to verify that the file is
+	  one that was actually indexed at some point. This provides a form
+	  of security (so that we're not serving arbitrary files, but we
+	  need to think harder about whether this provides a loophole
+	  allowing any files from the server to be downloaded). (this file
+	  inadvertently ommitted from last checkin.)
+
+Wed Sep 26 12:05:13 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py,src/dbspec.py,src/doc_collection.py,
+	  src/indexer.py: Provided for serving source files for documents.
+	  Documents include a "collection" field, and this togther with the
+	  document id is used to verify that the file is one that was
+	  actually indexed at some point. This provides a form of security
+	  (so that we're not serving arbitrary files, but we need to think
+	  harder about whether this provides a loophole allowing any files
+	  from the server to be downloaded).
+
+Wed Sep 26 11:04:33 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates.py: Took out the high maxlen arg to summarize when
+	  rendering search results.
+
+Wed Sep 26 11:03:25 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexer.py: Added a comment about the modification date
+	  testing.
+
+Wed Sep 26 09:58:30 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* README: Added some notes about starting the indexserver.
+
+Wed Sep 26 07:47:46 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/dbspec.py,src/indexer.py: Added fields actions for "standard"
+	  fields at db creation time. Used filename as document id, used
+	  replace rather than add to put documents into the db. Changed the
+	  indexer to check whether a file has changed and only filter when
+	  this is so. Added the indexing time to the document to facilitate
+	  this.
+
+Wed Sep 26 04:49:54 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* LICENSE,src/filterDemo.py: Removed the filterDemo.py (which was
+	  from the windows python extentions distribution). Updated the
+	  LICENSE file to note the some code is based on that file.
+
+Tue Sep 25 06:24:34 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates.py: Checked that there is some 'content' keyed data
+	  before we try to use it.
+
+Tue Sep 25 06:22:11 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexer.py,src/indexserver.py: Split out the remoting stuff
+	  from the indexing stuff for the indexserver.
+
+Tue Sep 25 06:15:53 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/simple_text_filter.py: Changed the field for the main content
+	  to be consistent with the filter spec.
+
+Tue Sep 25 04:45:23 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py,src/dbspec.py,src/doc_collection.py,
+	  src/filterDemo.py,src/flax.py,src/flax_collections.py,
+	  src/templates/search_result.html,src/templates.py: Moved the code
+	  for rendering search resaults out of the web server and into the
+	  template code. Moved the code for invoking the search out of the
+	  web server and into the collections.
 
 Mon Sep 24 13:44:04 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
