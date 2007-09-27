@@ -1,4 +1,4 @@
-#$Id : foo $
+#$Id:$
 
 # Copyright (C) 2007 Lemur Consulting Ltd
 
@@ -200,7 +200,8 @@ class Top(object):
         # Quite possibly this is a security hole allowing any
         # documents to be accessed. Need to think carefully about how
         # we actually ensure that we're just serving from the document
-        # collections.
+        # collections. In any case I guess it makes sense for the
+        # process running the web server to have limited read access.
         print "col: %s, file_id: %s" % (col, file_id)
         if col in self._flax_data.collections:
             filename = self._flax_data.collections[col].source_file_from_id(file_id)
@@ -282,8 +283,6 @@ def main():
     """
     Run Flax web server.
     """
-    cd = os.path.dirname(os.path.abspath(__file__))
-
     flax_data = flax.options
 
     top = Top(flax_data, templates.user_search_template, templates.user_search_result_template)
