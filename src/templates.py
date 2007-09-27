@@ -116,7 +116,7 @@ def render_options(template, flax_data):
         def fill_filters(node, filter_name):
             node.atts["value"] = filter_name
             node.content = filter_name
-            if filter_name == flax_data.filter_settings[fmt]:
+            if filter_name == flax_data.filters[fmt]:
                node.atts["selected"]="selected"
  
         node.format_label.content = fmt
@@ -191,8 +191,10 @@ def render_collection_detail(template, collection, formats, languages):
     template.title.col_name.content = collection.name
     body = template.main
     body.name.content = collection.name
+    print "Paths", collection.paths
+
     body.description.atts['value'] = collection.description
-    body.paths.content = '/n'.join(collection.paths) if type(collection.paths) is list else collection.paths
+    body.paths.content = '/n'.join(collection.paths) if isinstance(collection.paths, list) else collection.paths
  
     def fill_format(node, format):
         node.format_label.content = format
