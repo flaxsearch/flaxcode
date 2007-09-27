@@ -96,7 +96,8 @@ class Collections(object):
             self._flax_data.collections.new_collection(col, **kwargs)
             self._redirect_to_view(col)
         else:
-            raise cherrypy.NotFound()
+            message = "Attempt to create a document collection that already exists or that has an invalid name."
+            raise cherrypy.HTTPError(400, message)
 
     def view(self, col=None, **kwargs):
         """
