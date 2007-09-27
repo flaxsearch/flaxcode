@@ -12,7 +12,7 @@ import cherrypy
 import routes
 
 import flax
-import templates
+from templates import templates
 import util
 util.setup_psyco()
 

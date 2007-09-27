@@ -76,16 +76,7 @@ class TemplateManager(object):
         with open(os.path.join(self.html_dir, filename), 'w') as f:
             f.write(template.render(*args))        
 
-
-tman = TemplateManager("templates", "html")
-
-##### Index Template #####
-
-#: Template admin index pages.
-index_template = tman.create_admin_template("index.html")
-
 ##### Options Template #####
-
 
 def render_options(template, flax_data):
 
@@ -125,12 +116,7 @@ def render_options(template, flax_data):
 
     template.main.format_filters.repeat(fill_formats, flax_data.formats)
 
-#: Template for global options page
-options_template = tman.create_admin_template("options.html", render_options)
-
 ##### Search Templates #####
-
-_advanced_search_options = tman.make_template(tman.dummy_render, "advanced_search.html")
 
 def render_search(template, collections, advanced=False, formats=[]):
     template.main.collections.repeat(do_collection, collections.itervalues())
@@ -150,12 +136,6 @@ def do_collection(node, collection):
     node.col_name.content = collection.name
     node.col_select.atts['value'] = collection.name
 
-#: template for administrator search pages.
-admin_search_template = tman.create_admin_template("search.html", render_search)
-
-#: template for user search pages.
-user_search_template = tman.create_user_template("search.html", render_search)
-
 ##### Collection List Template #####
 
 def render_collections_list(template, collections, base_url):
@@ -174,11 +154,7 @@ def render_collection(node, collection, base_url):
 
     node.delete.atts['href'] = urllib.quote(col_url+'/confirm_delete')
 
-#: template for collections listing
-collection_list_template = tman.create_admin_template("collections.html", render_collections_list)
-
 ###### Collection Detail Template ######
-
 
 # This actually sucks a bit, really we want to make all the checkbox
 # and associated labels nodes at initialization time, and then just
@@ -223,10 +199,6 @@ def render_collection_detail(template, collection, formats, languages):
     body.language_option.repeat(fill_languages, languages)
     body.stopwords.atts["value"] = " ".join(collection.stopwords)
     
-#: template for viewing a collection.
-collection_detail_template = tman.create_admin_template("collection_detail.html", render_collection_detail)
-
-
 ###### Search Result Templates ######
 
 def render_searched_collection(node, col):
@@ -252,11 +224,61 @@ def render_search_result(template, query, cols, results=[]):
 
     template.main.results.repeat(fill_results, results)
 
-#: administrator template for viewing search results.
-admin_search_result_template = tman.create_admin_template("search_result.html", render_search_result)
 
-#: user template for viewing search results.
-user_search_result_template = tman.create_user_template("search_result.html", render_search_result)
+class AllTemplates (object):
+    """
+    Moved templates here so we can redefine them as properties and make them reload.
+    """
+    def __init__ (self, tman):
+        self.tman = tman
+        
+    #: Template admin index pages.
+    @property
+    def index_template (self):
+        return self.tman.create_admin_template("index.html")
+
+    #: Template for global options page
+    @property
+    def options_template (self):
+        return self.tman.create_admin_template("options.html", render_options)
+    
+    #: template for administrator search pages.
+    @property
+    def admin_search_template (self):
+        return self.tman.create_admin_template("search.html", render_search)
+
+    #: template for user search pages.
+    @property
+    def user_search_template (self):
+        return self.tman.create_user_template("search.html", render_search)
+
+    #: template for collections listing
+    @property
+    def collection_list_template (self):
+        return self.tman.create_admin_template("collections.html", render_collections_list)
+
+    #: template for viewing a collection.
+    @property
+    def collection_detail_template (self):
+        return self.tman.create_admin_template("collection_detail.html", render_collection_detail)
+
+    #: administrator template for viewing search results.
+    @property
+    def admin_search_result_template (self):
+        return self.tman.create_admin_template("search_result.html", render_search_result)
+
+    #: user template for viewing search results.
+    @property
+    def user_search_result_template (self):
+        return self.tman.create_user_template("search_result.html", render_search_result)
+
+    @property
+    def _advanced_search_options (self):
+        return self.tman.make_template(tman.dummy_render, "advanced_search.html")
+
+
+templates = AllTemplates (TemplateManager ("templates", "html"))
+
 
 def make_html():
     for d in  (  ("index.html", index_template),
