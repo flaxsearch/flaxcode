@@ -43,7 +43,7 @@ class TemplateManager(object):
         
         """
         fpath = os.path.join (self.template_dir, file_name)
-        mtime = os.stat (fpath).st_mtime
+        mtime = os.path.getmtime(fpath)
         key = (file_name, render_fn)
         try:
             cached = self._cache[key]
