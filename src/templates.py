@@ -280,14 +280,3 @@ def _advanced_search_options ():
     return _tman.make_template(_tman.dummy_render, "advanced_search.html")
 
 
-def make_html():
-    for d in  (  ("index.html", index_template),
-                 ("search.html", admin_search_template, COLLECTIONS), 
-                 ("collections.html", collection_list_template,  COLLECTIONS),
-                 ("foo.html", collection_detail_template, foo),
-                 ("foo_search.html", admin_search_template, "aardvark", [foo, bar])):
-        tman.write_html_file(*d)
-
-if __name__ == "__main__":
-   # make_html()
-   pass
