@@ -31,15 +31,15 @@ class Indexer(object):
         if windows:
             self._filter_map["IFilter"] =  w32com_ifilter.ifilter_filter
 
-    def do_indexing(self, file_spec, dbname, filter_settings):
+    def do_indexing(self, doc_col, filter_settings):
         """
-        Index the database dbname with files given by file_spec
-        using filters given by filter_settings.
+        Index the database for doc_col using filters given by
+        filter_settings.
         """
-        print "Indexing xapian db: %s,\n with files from filespec %s\n filter settings: %s" % (dbname, file_spec, filter_settings)
-        conn = xappy.IndexerConnection(dbname)
-        for f in file_spec.files():
-            self._process_file(f, conn, file_spec.name, filter_settings)
+        print "Indexing xapian db: for document collection:  %s\n with filter settings: %s" % (doc_col, filter_settings)
+        conn = xappy.IndexerConnection(doc_col.dbname())
+        for f in doc_col.files():
+            self._process_file(f, conn, doc_col.name, filter_settings)
         conn.close()
         print "Indexing Finished"
 

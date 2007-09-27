@@ -41,7 +41,7 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
     def do_indexing(self, filter_settings):
         indexer = Pyro.core.getProxyForURI("PYRONAME://indexer")
 #        indexer._setOneway("do_indexing")
-        indexer.do_indexing(self, self.dbname(), filter_settings)
+        indexer.do_indexing(self,  filter_settings)
         
 
     def dbname(self):
