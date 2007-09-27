@@ -15,7 +15,7 @@ class FlaxCollections(object):
         if type(name) == str and not self._collections.has_key(name):
             col = doc_collection.DocCollection(name, self.db_dir)
             self._collections[name] = col
-            col.__dict__.update(kwargs)
+            col.update(**kwargs)
             return col
         else:
             # error
@@ -37,7 +37,7 @@ class FlaxCollections(object):
             conn = xappy.SearchConnection(col.dbname())
             for c in cols[1:]:
                 conn._index.add_database(xapian.Database(self[c].dbname()))
-            query = conn.query_parse(query.lower())
+            query = conn.query_parse(query)
             return conn.search(query, 0, 10)
         else:
             return []
