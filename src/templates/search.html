@@ -5,22 +5,35 @@
 <title node="con:title">Search</title>
 
 <div node="con:body">
-  <form method="GET"  action="./search" >
-    <fieldset>
-      <div>
-	<label class="main_label" for="query">Search String: </label>
-	<input name="query" />
+
+  <div class="banner_search">
+    <img src="/static/img/flax.250trans.png" alt="Flax Logo" />
+  </div>
+  
+  <form method="GET" action="./search" >
+    <fieldset class="search_fields">
+      <div style="text-align:center">
+        <!--label class="main_label" for="query">Search String: </label-->
+        <input name="query" class="search_query"/>
+        <input type="submit" value="search"/>
       </div>
-      <div>
-	<label class="main_label">Collections:</label>
-	<div node="-rep:collections">
-	  <label node="con:col_name">Collection name</label>
-	  <input node="con:col_select" type="checkbox" name="col" value="col name"></input>
-	</div>
+      <div class="search_cols">
+        Search collections:&nbsp;&nbsp;
+        <span node="-rep:collections">
+          <input node="con:col_select" type="checkbox" name="col" value="col name"></input>
+          <label node="con:col_name">Collection name</label>
+        </span>
       </div>
       <div node="-con:advanced_holder">
       </div>
     </fieldset>
-    <input type="submit" />
   </form>
+
+  <script type="text/javascript">
+  function on_load() {
+      document.forms[0].query.focus();
+  }
+  </script>
+
 </div>
+
