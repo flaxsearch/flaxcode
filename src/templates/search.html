@@ -11,22 +11,20 @@
   </div>
   
   <form method="GET" action="./search" >
-    <fieldset class="search_fields">
-      <div style="text-align:center">
-        <!--label class="main_label" for="query">Search String: </label-->
-        <input name="query" class="search_query"/>
-        <input type="submit" value="search"/>
-      </div>
-      <div class="search_cols">
-        Search collections:&nbsp;&nbsp;
-        <span node="-rep:collections">
-          <input node="con:col_select" type="checkbox" name="col" value="col name"></input>
-          <label node="con:col_name">Collection name</label>
-        </span>
-      </div>
-      <div node="-con:advanced_holder">
-      </div>
-    </fieldset>
+    <div style="text-align:center">
+      <!--label class="main_label" for="query">Search String: </label-->
+      <input name="query" class="search_query"/>
+      <input type="submit" value="search"/>
+    </div>
+    <div class="search_cols">
+      Search collections:&nbsp;&nbsp;
+      <span node="-rep:collections">
+        <input node="con:col_select" type="checkbox" name="col" value="col name"></input>
+        <label node="con:col_name">Collection name</label>
+      </span>
+    </div>
+    <div node="-con:advanced_holder">
+    </div>
   </form>
 
   <script type="text/javascript">

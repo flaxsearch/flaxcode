@@ -6,35 +6,29 @@
 <div node="con:body">
 
   <form method="GET"  action="./search" >
-    <fieldset>
-      <div>
-	<label class="main_label" for="query">Search String: </label>
-	<input name="query" node="con:query"/>
-      </div>
-      <div>
-	<label class="main_label">Collections:</label>
-	<div node="-rep:collections">
-	  <label node="con:col_name">Collection name</label>
-	  <input node="con:col_select" type="checkbox" name="col" value="col name"></input>
-	</div>
-      </div>
-      <div node="-con:advanced_holder">
-      </div>
-    </fieldset>
-    <input type="submit" />
+    <div>
+      <img src="/static/img/flax.125trans.png" alt="Flax Logo" style="vertical-align:middle;"/>
+      <input name="query" node="con:query" class="search_query" style="vertical-align:middle;"/>
+      <input type="submit" value="search" style="vertical-align:middle;"/>
+    </div>
+    <div class="search_cols" style="margin-top:10px">
+      Search collections:&nbsp;&nbsp;
+      <span node="-rep:collections">
+        <input node="con:col_select" type="checkbox" name="col" value="col name"></input>
+        <label node="con:col_name">Collection name</label>
+      </span>
+    </div>
+    <div node="-con:advanced_holder">
+    </div>
   </form>
 
-  <p>You searched for: <span node="con:query"></span> in the collection(s): 
-  <ul>
-    <li node="rep:col">Collection name</li>
-  </ul>
-  </p>
-  <p> The results are: </p>
+  <div class="search_info" node="con:info">1 - 10 of foo bar wombat</div>
+
   <!-- the contents of this div will be replaced by the results of --
     -- the search -->
-  <div node="rep:results">
-    <a node="con:res_link">Collection</a>
-    <p node="con:res_content"> </p>
+  <div node="rep:results" class="search_hit">
+    <a node="con:res_link" class="search_hit_link">Collection</a>
+    <div node="con:res_content" class="search_hit_content"> </div>
   </div>
 
 </div>

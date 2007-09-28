@@ -226,11 +226,11 @@ def render_search_result(template, query, collections, cols, results=[]):
     # collections is the list of available collections
     # cols is a list of selected collections
     
-    template.main.query.content = query
-    if cols is None:
-        template.main.col.omit()
-    else:
-        template.main.col.repeat(render_searched_collection, cols)
+#    template.main.query.content = query
+#    if cols is None:
+#        template.main.col.omit()
+#    else:
+#        template.main.col.repeat(render_searched_collection, cols)
       
     def fill_results(node, res):
         # res is xapian results object
