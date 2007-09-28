@@ -32,23 +32,26 @@ class DBSpec(object):
 
             conn = xappy.IndexerConnection(dbname)
 
+            free_text_options = { 'stop' : self.stopwords,
+                                  'spell': True,
+                                  'language' : self.language }
+
             conn.add_field_action("filename", xappy.FieldActions.INDEX_EXACT)
             conn.add_field_action("filename", xappy.FieldActions.STORE_CONTENT)
 
             conn.add_field_action("collection", xappy.FieldActions.INDEX_EXACT)
             conn.add_field_action("collection", xappy.FieldActions.STORE_CONTENT)
 
-            conn.add_field_action("keyword", xappy.FieldActions.INDEX_FREETEXT)
+            conn.add_field_action("keyword", xappy.FieldActions.INDEX_FREETEXT, **free_text_options)
             conn.add_field_action("keyword", xappy.FieldActions.STORE_CONTENT)
 
-            conn.add_field_action("description", xappy.FieldActions.INDEX_FREETEXT)
+            conn.add_field_action("description", xappy.FieldActions.INDEX_FREETEXT, **free_text_options)
             conn.add_field_action("description", xappy.FieldActions.STORE_CONTENT)
 
             conn.add_field_action("mtime", xappy.FieldActions.INDEX_EXACT)
             conn.add_field_action("mtime", xappy.FieldActions.STORE_CONTENT)
 
-            conn.add_field_action('content', xappy.FieldActions.INDEX_FREETEXT, 
-                                  language=self.language, stop=self.stopwords, noprefix=True)
+            conn.add_field_action('content', xappy.FieldActions.INDEX_FREETEXT, **free_text_options)
             conn.add_field_action('content', xappy.FieldActions.STORE_CONTENT)      
             conn.close()
 
