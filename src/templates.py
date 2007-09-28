@@ -135,7 +135,7 @@ def render_options(template, flax_data):
 ##### Search Templates #####
 
 def render_search(template, collections, advanced=False, formats=[]):
-    template.main.collections.repeat(do_collection, collections.itervalues())
+    template.main.collections.repeat (render_search_collection, collections.itervalues())
     if advanced:
         template.main.advanced_holder=_advanced_search_options().body
         def fill_format(node, format):
@@ -148,9 +148,11 @@ def render_search(template, collections, advanced=False, formats=[]):
         template.main.advanced_holder.raw = ""
 
 
-def do_collection(node, collection):
+def render_search_collection (node, collection, selected=None):
     node.col_name.content = collection.name
     node.col_select.atts['value'] = collection.name
+    if selected and collection.name in selected:
+        node.col_select.atts['checked'] = 'true'
 
 ##### Collection List Template #####
 
@@ -220,7 +222,10 @@ def render_collection_detail(template, collection, formats, languages):
 def render_searched_collection(node, col):
     node.content = col
 
-def render_search_result(template, query, cols, results=[]):
+def render_search_result(template, query, collections, cols, results=[]):
+    # collections is the list of available collections
+    # cols is a list of selected collections
+    
     template.main.query.content = query
     if cols is None:
         template.main.col.omit()
@@ -239,6 +244,9 @@ def render_search_result(template, query, cols, results=[]):
             node.res_content.raw = res.summarise('content', hl=('<strong>','</strong>'))
 
     template.main.results.repeat(fill_results, results)
+
+    template.main.query.atts['value'] = query
+    template.main.collections.repeat (render_search_collection, collections.itervalues(), cols)
 
 
 _tman = TemplateManager ("templates", "html")

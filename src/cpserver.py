@@ -188,7 +188,7 @@ class SearchForm(object):
         if query:
             cols = [col] if isinstance(col, str) else col                  
             results = self._collections.search(query, cols)
-            return self._result_template (query, cols, results)
+            return self._result_template (query, self._collections, cols, results)
         else:
             return self._template (self._collections, advanced, self._collections._formats)
 

@@ -4,6 +4,26 @@
 <title node="con:title">Search result</title>
 
 <div node="con:body">
+
+  <form method="GET"  action="./search" >
+    <fieldset>
+      <div>
+	<label class="main_label" for="query">Search String: </label>
+	<input name="query" node="con:query"/>
+      </div>
+      <div>
+	<label class="main_label">Collections:</label>
+	<div node="-rep:collections">
+	  <label node="con:col_name">Collection name</label>
+	  <input node="con:col_select" type="checkbox" name="col" value="col name"></input>
+	</div>
+      </div>
+      <div node="-con:advanced_holder">
+      </div>
+    </fieldset>
+    <input type="submit" />
+  </form>
+
   <p>You searched for: <span node="con:query"></span> in the collection(s): 
   <ul>
     <li node="rep:col">Collection name</li>
