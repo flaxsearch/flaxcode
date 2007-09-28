@@ -34,14 +34,27 @@ class Indexer(object):
     def do_indexing(self, doc_col, filter_settings):
         """
         Index the database for doc_col using filters given by
-        filter_settings.
+        filter_settings. The filename is used as the document id, and
+        this is used to remove documents in the database that no
+        longer have an associated file.
         """
-        print "Indexing xapian db: for document collection:  %s\n with filter settings: %s" % (doc_col, filter_settings)
+        print "Indexing xapian db: for document collection:  %s\n with filter settings: %s" % (doc_col.name, filter_settings)
         conn = xappy.IndexerConnection(doc_col.dbname())
+
+        docs_found = dict((id, False) for id in conn.iterids())
+        
         for f in doc_col.files():
             self._process_file(f, conn, doc_col.name, filter_settings)
+            docs_found[f]=True
+
+        for id, found in docs_found.iteritems():
+            if not found:
+                print "removing %s from %s" % (id, doc_col.name)
+                conn.delete(id)
+
         conn.close()
         print "Indexing Finished"
+
 
     def _find_filter(self, filter_name):
         return self._filter_map[filter_name] if filter_name in self._filter_map else None
