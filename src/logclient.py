@@ -13,6 +13,7 @@ class LogClient(object):
     """ gets logging configuration from the logconfserver"""
 
     def __init__(self):
+        self.stopped=False
         self.logconf = Pyro.core.getProxyForURI("PYRONAME://logconf")
         self.port = self.logconf.register()
         if not self.port:
@@ -22,10 +23,16 @@ class LogClient(object):
         time.sleep(1)
         self.logconf.notify_listeners([self.port])
 
-    def __del__(self):
+
+    def stop(self):
         self.logconf.unregister(self.port)
         logging.config.stopListening()
         self.listener.join()
+        
+    def __del__(self):
+        if not self.stopped:
+            self.stop()
+
 
 
 
