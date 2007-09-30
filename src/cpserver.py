@@ -340,16 +340,18 @@ def start_web_server(flax_data):
 def startup():
     import persist
     import optparse
+    import logclient
     op = optparse.OptionParser()
     op.add_option('-i', '--input-file', dest='input_file', help = "Flax input data file (default is flax.flx)", default = 'flax.flx')
     op.add_option('-o', '--output-file', dest='output_file', help= "Flax output data file (default is flax.flx)", default = 'flax.flx')
     (options, args) = op.parse_args()
     flax.options = persist.read_flax(options.input_file)
     try:
+        logclient=logclient.LogClient()
         start_web_server(flax.options)
     finally:
         persist.store_flax(options.output_file, flax.options)
-
+        del(logclient)
 
 if __name__ == "__main__":
     startup()
