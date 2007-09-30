@@ -1,3 +1,119 @@
+Sun Sep 30 18:36:50 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* ChangeLog: Update
+	* utils/log2cl.py: Cope with various different date formats in
+	  existing changelog entries.
+
+Sun Sep 30 16:45:54 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexserver.py: Added a sleep() to given the
+	  logging configuration time to propogate before we try to use it.
+
+Sun Sep 30 16:13:29 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py: use logconf client
+
+Sun Sep 30 16:12:20 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexer.py,src/indexserver/indexserver.py: use
+	  pyroserver stuff and fix up sys.path
+
+Sun Sep 30 16:11:20 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/pyroserver.py: utilities for starting pyro servers.
+
+Sun Sep 30 16:10:39 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/logconfserver/filewatch.py,src/logconfserver/logconf.py,
+	  src/logconfserver/logconfserver.py: logconf server, first pass
+
+Sun Sep 30 16:09:01 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/logclient.py: Standardise logging configuration.
+
+Sun Sep 30 13:19:23 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/logconfserver/filewatch.py,src/logconfserver/flaxlog.conf,
+	  src/logconfserver/logconf.py: snapshot logconfserver work in
+	  progress
+
+Sun Sep 30 13:17:22 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexer.py,src/indexserver/indexer.py,
+	  src/indexserver/indexserver.py,src/indexserver.py: moved files to
+	  appropriate directory.
+
+Sun Sep 30 13:16:19 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver,src/logconfserver: New directories for helper
+	  programs.
+
+Sun Sep 30 13:15:25 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexer.py,src/indexserver.py: Allowed for passing in the
+	  logger object to the indexer.
+
+Sun Sep 30 13:13:22 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/persist.py: tidy up whitespace
+
+Fri Sep 28 14:27:11 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/css/main.css,src/templates/search.html,
+	  src/templates/search_result.html,src/templates.py: Changes to
+	  search results page
+
+Fri Sep 28 12:29:47 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/css/main.css,src/templates/flax.html,
+	  src/templates/search.html,src/templates/user_banner.html:
+	  Redesigned search page
+
+Fri Sep 28 09:25:28 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/dbspec.py: Consistent options for all the free text fields.
+
+Fri Sep 28 08:42:42 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/cpserver.py,src/templates/flax.html,
+	  src/templates/search_result.html,src/templates.py: Brought search
+	  form into search results, and modified rendering code to support.
+
+Fri Sep 28 05:49:46 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexer.py: Implemented removal of documents from the
+	  database if they no longer have a corresponding file.
+
+Thu Sep 27 18:55:31 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates.py: used os.path.getmtime rather than os.stat stuff
+
+Thu Sep 27 18:44:25 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates.py: removed obsolete code for making static web
+	  pages from the templates.
+
+Thu Sep 27 18:42:52 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates.py: corrected tman -> _tman
+
+Thu Sep 27 18:39:52 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py: removed assigment to parameter in
+	  start_web_server
+
+Thu Sep 27 14:45:48 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/cpserver.py,src/templates.py: Implemented template
+	  reloading/caching by passing around render functions rather than
+	  template objects.
+
+Thu Sep 27 14:24:33 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/doc_collection.py,src/indexer.py: Removed dbname arg from
+	  do_indexing since this is obtainable from the document collection
+	  in any case.
+
 Thu Sep 27 13:56:42 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* utils/log2cl.py: Add script for updating the ChangeLog.

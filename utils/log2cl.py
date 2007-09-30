@@ -164,11 +164,11 @@ class LogEntries(object):
 
     def append(self, entry, keepcl=False):
         entry.finalise()
-	if len(entry.pathgroups) < 1:
+        if len(entry.pathgroups) < 1:
             return
         if not keepcl and len(entry.pathgroups) == 1 and \
            entry.pathgroups[0][0] == ['ChangeLog']:
-	    return
+            return
         self.entries.append(entry)
 
     def __str__(self):
@@ -177,10 +177,12 @@ class LogEntries(object):
     def extend(self, oldlog, use_old=False):
         if len(self.entries) == 0:
             self.entries.extend(oldlog.entries)
+        if len(self.entries) == 0:
+            return
         i = 0
         if use_old:
             # If an entry is in both the old and the new logs, use the old one
-            while len(self.entries) > 0 and \
+            while len(self.entries) > 0 and len(oldlog.entries) > 0 and \
                   self.entries[-1].date <= oldlog.entries[0].date:
                 del self.entries[-1]
         else:
@@ -196,7 +198,7 @@ class LogGetter(object):
 
     """
     def __init__(self, authors):
-    	self.authors = authors
+        self.authors = authors
 
     def get_log(self, toppath, path_prefix, olddate=None):
         raise NotImplementedError
@@ -287,7 +289,8 @@ class SvnXmlHandler(ContentHandler):
                         inpathlist = 'maybe'
                         for path in paths_found:
                             self.current.add_path(path)
-                            del self.paths[path]
+                            if path in self.paths:
+                                del self.paths[path]
                         self.current.add_msg(remnant.lstrip(),
                                              addspace=True)
                         msg = ''
@@ -390,6 +393,23 @@ class SvnLogGetter(LogGetter):
         finally:
             os.chdir(origdir)
 
+def parse_time_followed_by_author(input, format):
+    try:
+        strptime(input, format)
+        raise ValueError('Missing author')
+    except ValueError, e:
+        if str(e).startswith('unconverted data remains: '):
+            excess_len = len(str(e)) - len('unconverted data remains: ')
+        else:
+            raise
+    timetuple = strptime(input[:-excess_len], format)
+    date = datetime(*timetuple[0:6])
+    tzname = input[:-excess_len][20:-7]
+
+    author = input[-excess_len:].strip()
+    return date, tzname, author
+
+
 class ChangeLogGetter(LogGetter):
     """A class which gets log entries from a ChangeLog file.
 
@@ -413,19 +433,20 @@ class ChangeLogGetter(LogGetter):
                         log.append(entry, keepcl=True)
                     entry = LogEntry()
                     in_paths = False
+
                     try:
-                        strptime(line, "%a %b %d %H:%M:%S %Z %Y")
-                        raise ValueError('Missing author')
-                    except ValueError, e:
-                        if str(e).startswith('unconverted data remains: '):
-                            excess = len(str(e)) - len('unconverted data remains: ')
-                        else: raise
-                    timetuple = strptime(line[:-excess], "%a %b %d %H:%M:%S %Z %Y")
-                    entry.date = datetime(*timetuple[0:6])
-                    tzname = line[:-excess][20:-5]
+                        date, tzname, author = parse_time_followed_by_author(line, "%a %b %d %H:%M:%S %Z %Y ")
+                    except ValueError:
+                        try:
+                            date, tzname, author = parse_time_followed_by_author(line, "%a %b %d %H:%M:%S %Y ")
+                            tzname = 'UTC'
+                        except ValueError:
+                            date, tzname, author = parse_time_followed_by_author(line, "%Y-%m-%d %H:%M ")
+                            tzname = 'UTC'
+
+                    entry.date = date
                     entry.tzname = tzname
-                    entry.author = line[-excess:].strip()
-                    entry.author = self.authors.get(entry.author, entry.author)
+                    entry.author = self.authors.get(author, author)
                 else:
                     rawline = line.rstrip()
                     if rawline.startswith('\t'):
@@ -497,6 +518,8 @@ if __name__ == '__main__':
         'paul.x.rudin': 'Paul Rudin <paul@rudin.co.uk>',
         'boulton.rj': 'Richard Boulton <richard@lemurconsulting.com>',
         'banoffi': 'Tom Mortimer <tom@lemurconsulting.com>',
+        'rbolton': 'Richard Boulton <richard@lemurconsulting.com>',
+        'alex.bowley': 'Alex Bowley',
     }
     path_prefix = ''
 
