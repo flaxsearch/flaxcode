@@ -17,6 +17,3 @@ def read_flax(filename):
         options = flax.make_options()
     d.close()
     return options
-
-
-
