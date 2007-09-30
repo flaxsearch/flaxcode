@@ -185,7 +185,6 @@ def render_collection_detail(template, collection, formats, languages):
     template.title.col_name.content = collection.name
     body = template.main
     body.name.content = collection.name
-    print "Paths", collection.paths
 
     body.description.atts['value'] = collection.description
     body.paths.content = '/n'.join(collection.paths) if isinstance(collection.paths, list) else collection.paths
