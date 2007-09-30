@@ -3,7 +3,8 @@ import itertools
 import os
 import time
 
-import filespec
+import sys
+sys.path.append('..')
 import util
 util.setup_sys_path()
 

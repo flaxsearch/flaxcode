@@ -3,9 +3,9 @@
 import logging
 
 import Pyro.core
-import Pyro.naming
 
 import indexer
+import pyroserver
 
 class IndexServer(Pyro.core.ObjBase):
 
@@ -21,22 +21,9 @@ class IndexServer(Pyro.core.ObjBase):
 
 
 def init():
-    import log
-    log_stopper=log.setup_logging(port=8092)
-    daemon = Pyro.core.Daemon()
-    ns = Pyro.naming.NameServerLocator().getNS()
-    daemon.useNameServer(ns)
-    name = 'indexer'
-    try:
-        ns.unregister(name)
-    except Pyro.errors.NamingError:
-        pass
-    try:
-        daemon.connect(IndexServer(indexer.Indexer(log=logging.getLogger("indexer"))), name)
-        daemon.requestLoop()
-    finally:
-        log_stopper()
-        daemon.shutdown(True)
+    import logclient
+    logc = logclient.LogClient()
+    pyroserver.run_server("indexer", IndexServer(indexer.Indexer(log=logging.getLogger("indexer"))))
 
 if __name__ == "__main__":
     init()
