@@ -1,5 +1,6 @@
 """ Exposes the indexer to remote invocation via pyro
 """
+import logging
 
 import Pyro.core
 import Pyro.naming
@@ -20,6 +21,8 @@ class IndexServer(Pyro.core.ObjBase):
 
 
 def init():
+    import log
+    log_stopper=log.setup_logging(port=8092)
     daemon = Pyro.core.Daemon()
     ns = Pyro.naming.NameServerLocator().getNS()
     daemon.useNameServer(ns)
@@ -29,9 +32,10 @@ def init():
     except Pyro.errors.NamingError:
         pass
     try:
-        daemon.connect(IndexServer(indexer.Indexer()), name)
+        daemon.connect(IndexServer(indexer.Indexer(log=logging.getLogger("indexer"))), name)
         daemon.requestLoop()
     finally:
+        log_stopper()
         daemon.shutdown(True)
 
 if __name__ == "__main__":

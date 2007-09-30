@@ -25,7 +25,8 @@ class Indexer(object):
         third party filters that may fall over or fail to terminate.
     """
     
-    def __init__(self):
+    def __init__(self, log):
+        self.log = log
         self._filter_map = {"Xapian": None,
                             "Text": simple_text_filter.text_filter}
         if windows:
@@ -38,7 +39,7 @@ class Indexer(object):
         this is used to remove documents in the database that no
         longer have an associated file.
         """
-        print "Indexing xapian db: for document collection:  %s\n with filter settings: %s" % (doc_col.name, filter_settings)
+        self.log.info("Indexing document collection: %s with filter settings: %s" % (doc_col.name, filter_settings))
         conn = xappy.IndexerConnection(doc_col.dbname())
 
         docs_found = dict((id, False) for id in conn.iterids())
@@ -49,18 +50,18 @@ class Indexer(object):
 
         for id, found in docs_found.iteritems():
             if not found:
-                print "removing %s from %s" % (id, doc_col.name)
+                self.log.info("removing %s from %s" % (id, doc_col.name))
                 conn.delete(id)
 
         conn.close()
-        print "Indexing Finished"
+        self.log.info("Indexing of %s finished" % doc_col.name)
 
 
     def _find_filter(self, filter_name):
         return self._filter_map[filter_name] if filter_name in self._filter_map else None
     
     def _process_file(self, file_name, conn, collection_name, filter_settings):
-        print "processing file: ", file_name
+        self.log.info("Indexing collection %s: processing file: %s" % (collection_name, file_name))
         _, ext = os.path.splitext(file_name)
         if self.stale(file_name, conn):
             filter = self._find_filter(filter_settings[ext[1:]])
@@ -73,9 +74,9 @@ class Indexer(object):
                 doc.id = file_name
                 conn.replace(doc)
             else:
-                print "filter for %s is not valid" % ext
+                self.log.warn("Filter for %s is not valid." % ext)
         else:
-            print "File: %s has not changed since last indexing" % file_name
+            self.log.info("File: %s has not changed since last indexing" % file_name)
 
     def stale(self, file_name, conn):
         "Return True if the file named by file_name has changed since we indexed it last"
