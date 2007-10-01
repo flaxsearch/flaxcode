@@ -13,6 +13,7 @@ import routes
 
 import flax
 import templates
+import persist
 import util
 util.setup_psyco()
 
@@ -28,8 +29,10 @@ class FlaxResource(object):
     def _bad_request(self, message="Bad request"):
         "method to signal that data we receive cannot be used"
         raise cherrypy.HTTPError(400, message) 
+
+    def _signal_data_changed(self):
+        persist.data_changed.set()
         
-    
 
 class Collections(FlaxResource):
     """
@@ -102,6 +105,7 @@ class Collections(FlaxResource):
 
         if col and col in self._flax_data.collections:
             self._flax_data.collections[col].update(**kwargs)
+            self._signal_data_changed()
             self._redirect_to_view(col)
         else:
             raise self._bad_collection_name(col)
@@ -125,6 +129,7 @@ class Collections(FlaxResource):
 
         if col and not col in self._flax_data.collections:
             self._flax_data.collections.new_collection(col, **kwargs)
+            self._signal_data_changed()
             self._redirect_to_view(col)
         else:
             self._bad_request("Attempt to create a document collection that already exists or that has an invalid name.")
@@ -335,7 +340,6 @@ def start_web_server(flax_data):
                                                      'tools.staticdir.dir': 'static'}})
 
 def startup():
-    import persist
     import optparse
     import logclient
     op = optparse.OptionParser()
@@ -348,8 +352,11 @@ def startup():
         ll.start()
         log_query = logclient.LogQuery()
         log_query.update_log_config()
+        ds = persist.DataSaver(options.output_file)
+        ds.start()
         start_web_server(flax.options)
         ll.join()
+        ds.join()
     finally:
         persist.store_flax(options.output_file, flax.options)
 
