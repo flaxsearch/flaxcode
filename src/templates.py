@@ -222,16 +222,10 @@ def render_collection_detail(template, collection, formats, languages):
 def render_searched_collection(node, col):
     node.content = col
 
-def render_search_result(template, query, collections, cols, results=[]):
+def render_search_result (template, query, collections, selcols, results, tophit, maxhits):
     # collections is the list of available collections
-    # cols is a list of selected collections
+    # selcols is a list of selected collections
     
-#    template.main.query.content = query
-#    if cols is None:
-#        template.main.col.omit()
-#    else:
-#        template.main.col.repeat(render_searched_collection, cols)
-      
     def fill_results(node, res):
         # res is xapian results object
         if 'filename' in res.data and 'collection' in res.data:
@@ -239,49 +233,75 @@ def render_search_result(template, query, collections, cols, results=[]):
             collection = res.data['collection'][0]
             url = '/source?col=%s&file_id=%s' % (collection, filename)
             node.res_link.atts['href']=url
-            node.res_link.content = filename
+            node.res_link.content = '%d. %s' % (res.rank + 1, filename)
+            
         if 'content' in res.data:
             node.res_content.raw = res.summarise('content', hl=('<strong>','</strong>'))
 
-    template.main.results.repeat(fill_results, results)
-
     template.main.query.atts['value'] = query
-    template.main.collections.repeat (render_search_collection, collections.itervalues(), cols)
+    template.main.collections.repeat (render_search_collection, collections.itervalues(), selcols)
 
+    if results.startrank < results.endrank:
+        template.main.results.repeat(fill_results, results)
+        template.main.info.content = '%s to %s of %s%d matching documents' % (
+            results.startrank + 1, results.endrank, 
+            '' if results.estimate_is_exact else 'about ', 
+            results.matches_human_readable_estimate) 
+    
+        q = urllib.quote_plus (query)
+        if results.startrank:
+            template.main.nav.first_page.atts['href'] = '?query=%s' % q
+            template.main.nav.prev_page.atts['href'] = '?query=%s&tophit=%d' % (q, 
+                results.startrank - maxhits)
+        else:
+            template.main.nav.first_page.atts['class'] = 'link_disabled'
+            template.main.nav.prev_page.atts['class'] = 'link_disabled'
+
+        if results.more_matches:
+            template.main.nav.next_page.atts['href'] = '?query=%s&tophit=%d' % (q, 
+                results.startrank + maxhits)
+        else:
+            template.main.nav.next_page.atts['class'] = 'link_disabled'
+
+    else:
+        # no search results
+        template.main.info.content = 'No matching documents found'
+        template.main.nav.omit()
+        
 
 _tman = TemplateManager ("templates", "html")
 
 #: Template admin index pages.
-def index_render (*args, **kwargs):
-    return _tman.create_admin_template("index.html").render (*args, **kwargs)
+def index_render (*args):
+    return _tman.create_admin_template("index.html").render (*args)
 
 #: Template for global options page
-def options_render (*args, **kwargs):
-    return _tman.create_admin_template("options.html", render_options).render (*args, **kwargs)
+def options_render (*args):
+    return _tman.create_admin_template("options.html", render_options).render (*args)
 
 #: template for administrator search pages.
-def admin_search_render (*args, **kwargs):
-    return _tman.create_admin_template("search.html", render_search).render (*args, **kwargs)
+def admin_search_render (*args):
+    return _tman.create_admin_template("search.html", render_search).render (*args)
 
 #: template for user search pages.
-def user_search_render (*args, **kwargs):
-    return _tman.create_user_template("search.html", render_search).render (*args, **kwargs)
+def user_search_render (*args):
+    return _tman.create_user_template("search.html", render_search).render (*args)
 
 #: template for collections listing
-def collection_list_render (*args, **kwargs):
-    return _tman.create_admin_template("collections.html", render_collections_list).render (*args, **kwargs)
+def collection_list_render (*args):
+    return _tman.create_admin_template("collections.html", render_collections_list).render (*args)
 
 #: template for viewing a collection.
-def collection_detail_render (*args, **kwargs):
-    return _tman.create_admin_template("collection_detail.html", render_collection_detail).render (*args, **kwargs)
+def collection_detail_render (*args):
+    return _tman.create_admin_template("collection_detail.html", render_collection_detail).render (*args)
 
 #: administrator template for viewing search results.
-def admin_search_result_render (*args, **kwargs):
-    return _tman.create_admin_template("search_result.html", render_search_result).render (*args, **kwargs)
+def admin_search_result_render (*args):
+    return _tman.create_admin_template("search_result.html", render_search_result).render (*args)
 
 #: user template for viewing search results.
-def user_search_result_render (*args, **kwargs):
-    return _tman.create_user_template("search_result.html", render_search_result).render (*args, **kwargs)
+def user_search_result_render (*args):
+    return _tman.create_user_template("search_result.html", render_search_result).render (*args)
 
 # used internally
 def _advanced_search_options ():

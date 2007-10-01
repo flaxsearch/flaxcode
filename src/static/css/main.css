@@ -83,6 +83,15 @@ form {
     margin: 0px;
 }
 
+div.info {
+  float: right;
+  font-size: 75%;
+  border: 1px solid;
+  height: auto;
+  width: 250px;
+  padding: 3px;
+}
+
 .search_query {
     width: 500px;
 }
@@ -119,12 +128,25 @@ form {
     margin-top: 3px;
 }
 
-div.info {
-  float: right;
-  font-size: 75%;
-  border: 1px solid;
-  height: auto;
-  width: 250px;
-  padding: 3px;
+.search_nav {
+    width: 100%;
+    text-align: center;
+    margin-top: 24px;
+    margin-bottom: 30px;
+    background-color: #F4F8FF;
+    border-bottom: 1px solid #D0D4F0;
+    padding: 2px;
+    font-size: 10pt;
 }
 
+.search_nav_link { 
+    text-decoration: none; color: darkblue; 
+}
+
+.search_nav_link:hover {
+    color: darkred; 
+}
+
+.link_disabled {
+    color: gray;
+}

@@ -173,7 +173,7 @@ class SearchForm(object):
         self._template = search_template
         self._result_template = result_template
 
-    def search(self, query = None, col = None, advanced = False):
+    def search(self, query = None, col = None, advanced = False, tophit = 0, maxhits = 10):
         """
         Search document collections.
 
@@ -190,10 +190,13 @@ class SearchForm(object):
         search. If `advanced` tests true then the form will have more
         structure.
         """
+        tophit = int (tophit)
+        maxhits = int (maxhits)
         if query:
-            cols = [col] if isinstance(col, str) else col                  
-            results = self._collections.search(query, cols)
-            return self._result_template (query, self._collections, cols, results)
+            cols = [col] if isinstance(col, str) else col
+            results = self._collections.search(query, cols, tophit, maxhits)
+            return self._result_template (query, self._collections, cols, 
+                results, tophit, maxhits)
         else:
             return self._template (self._collections, advanced, self._collections._formats)
 
@@ -362,5 +365,3 @@ def startup():
 
 if __name__ == "__main__":
     startup()
-
-

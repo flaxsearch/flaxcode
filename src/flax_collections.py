@@ -28,7 +28,7 @@ class FlaxCollections(object):
             #error
             pass
 
-    def search(self, query, cols = None):
+    def search(self, query, cols = None, tophit = 0, maxhits = 10):
         if cols is None:
             cols = self._collections.keys()
         
@@ -38,7 +38,7 @@ class FlaxCollections(object):
             for c in cols[1:]:
                 conn._index.add_database(xapian.Database(self[c].dbname()))
             query = conn.query_parse(query)
-            return conn.search(query, 0, 10)
+            return conn.search (query, tophit, tophit + maxhits)
         else:
             return []
 
