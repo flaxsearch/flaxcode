@@ -7,6 +7,7 @@
 import logging
 import logging.config
 import StringIO
+import threading
 import time
 
 from Pyro.EventService.Clients import Subscriber
@@ -24,6 +25,15 @@ class LogSubscriber(Subscriber):
 
     def event(self, ev):
         update_log_config_from_string(ev.msg)
+
+class LogListener(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.setDaemon(1)
+    def run(self):
+        Pyro.core.initServer()
+        listener = LogSubscriber()
+        listener.listen()
 
 class LogQuery(object):
     """ placeholder for remote queries to the logconfserver"""

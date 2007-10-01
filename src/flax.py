@@ -1,10 +1,12 @@
 from __future__ import with_statement
 # standard python library imports
 import datetime
+import logging
 import random
 import os
 import ConfigParser
 
+import logclient
 
 class FlaxOptions(object):
     """
@@ -12,19 +14,40 @@ class FlaxOptions(object):
     """
     
     def __init__(self, collections, db_dir, flax_dir, formats, 
-                 log_events, log_levels, log_settings, 
-                 filters, filter_settings, languages):
+                 logger_names, filters, filter_settings, languages):
         
         self.collections = collections
         self.db_dir = db_dir
         self.flax_dir = flax_dir
         self.formats = formats
-        self.log_events = log_events
-        self.log_levels = log_levels
-        self.log_settings = log_settings
+        self.logger_names = logger_names
         self.filters = filters
         self.filter_settings = filter_settings
         self.languages = languages
+
+    def _set_log_settings(self, vals):
+        new_levels = {}
+        for name in self.logger_names:
+            if name in vals:
+                new_levels[name] = vals[name]
+        if "default" in vals:
+            new_levels[""] =  vals["default"]
+
+        lq = logclient.LogQuery()
+        lq.set_levels(new_levels)
+
+    def _get_log_settings(self):
+        # is .level part of the public api for logger objects?
+        return dict((name, logging.getLevelName(logging.getLogger(name).level)) for name in self.logger_names)
+
+    log_settings = property(fset = _set_log_settings, fget = _get_log_settings, doc = """
+    A dictionary mapping log event names to log levels.  It is
+    permitted for the dictionary to contain names that do not name a
+    log event, such will be  silently ignored.""")
+
+    @property
+    def log_levels(self):
+        return map(logging.getLevelName,  [0,10,20,30,40,50])
 
 
 def make_options():
@@ -36,28 +59,22 @@ def make_options():
     db_dir = os.path.normpath(dir+'/dbs') 
 
 
-    log_events = ("Create Collection",
-                  "Modify Collection",
-                  "Delete Collection",
-                  "Index Collection",
-                  "Filter file",
-                  "Add to doc",
-                  "Remove from doc",
-                  "Add to db",
-                  "Remove from db",
-                  "Run search",
-                  "Format results")
+    logger_names = ("",
+                    "collections",
+                    "indexing",
+                    "filtering",
+                    "filtering.ifilter",
+                    "filtering.simpletext",
+                    "searching")
 
-    event_levels = ("None", "Critical", "Error", "Warning", "Info", "Debug", "All")
 
-    default_level = event_levels[3]
-
-    log_settings = dict( (e, default_level) for e in log_events)
 
     filters = ["IFilter", "Xapian", "Text"]
     
-    formats = ("txt", "doc", "html")
+    formats = ["txt", "doc", "html", "pdf", "xsl", "ppt"]
+    formats.sort()
 
+    
     filter_settings = dict( (f, filters[0]) for f in formats)
 
     languages = [ ("none",  "None"),
@@ -86,9 +103,7 @@ def make_options():
                        db_dir, 
                        dir, 
                        formats, 
-                       log_events, 
-                       event_levels, 
-                       log_settings,
+                       logger_names,
                        filters,
                        filter_settings,
                        languages)

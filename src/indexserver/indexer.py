@@ -1,5 +1,6 @@
 from __future__ import with_statement
 import itertools
+import logging
 import os
 import time
 
@@ -26,8 +27,8 @@ class Indexer(object):
         third party filters that may fall over or fail to terminate.
     """
     
-    def __init__(self, log):
-        self.log = log
+    def __init__(self):
+        self.log = logging.getLogger('indexing')
         self._filter_map = {"Xapian": None,
                             "Text": simple_text_filter.text_filter}
         if windows:

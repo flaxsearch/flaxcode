@@ -234,7 +234,6 @@ class Top(FlaxResource):
         # we actually ensure that we're just serving from the document
         # collections. In any case I guess it makes sense for the
         # process running the web server to have limited read access.
-        print "col: %s, file_id: %s" % (col, file_id)
         if col in self._flax_data.collections:
             filename = self._flax_data.collections[col].source_file_from_id(file_id)
             if filename:
@@ -275,9 +274,7 @@ class Admin(Top):
                 if arg in kwargs:
                     setattr(self._flax_data, arg, kwargs[arg])
 
-            for log_event in self._flax_data.log_events:
-                if log_event in kwargs:
-                    self._flax_data.log_settings[log_event] = kwargs[log_event]
+            self._flax_data.log_settings = kwargs
 
             for format in self._flax_data.formats:
                 if format in kwargs:
@@ -347,7 +344,7 @@ def startup():
     (options, args) = op.parse_args()
     flax.options = persist.read_flax(options.input_file)
     try:
-        log_sub = logclient.LogSubscriber()
+        logclient.LogListener().start()
         log_query = logclient.LogQuery()
         log_query.update_log_config()
         start_web_server(flax.options)
