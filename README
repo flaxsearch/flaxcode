@@ -78,14 +78,27 @@ some default settings.
 Indexing of documents is done by a separate indexer, (which can be
 invoked from the web administration interface).
 
-In order to start the indexer first start the pyro name server. See
-the pyro docs for how to do this on your platform. On linux invoke
-pyro-ns. On windows invoke pyro-ns.cmd which is installed in
-<python>\Scripts, where <python> is the installed python directory.
+Flax uses pyro to communicate between different processes. The pyro
+name service and event service must be started. See the pyro docs for
+how to do this on your platform. On linux invoke pyro-ns and
+pyro-es. On windows invoke pyro-ns.cmd and pyro-es.cmd which are
+installed in <python>\Scripts, where <python> is the installed python
+directory.
 
-Once the pyro nameserver is started then do::
+Then start the log configuration server:
 
+  cd logconfserver
+  python logconfserver.py
+
+and the indexserver:
+
+  cd indexserver
   python indexserver.py
+
+
+(At realease time these will all be started automatically, if need be,
+when the web server starts up, but for the time being it's convenient
+to keep the invocations separate.)
 
 To test that the indexer is working click on the "index now" button
 from a document collection detail page in the web app and you should
