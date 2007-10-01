@@ -347,11 +347,12 @@ def startup():
     (options, args) = op.parse_args()
     flax.options = persist.read_flax(options.input_file)
     try:
-        logclient=logclient.LogClient()
+        log_sub = logclient.LogSubscriber()
+        log_query = logclient.LogQuery()
+        log_query.update_log_config()
         start_web_server(flax.options)
     finally:
         persist.store_flax(options.output_file, flax.options)
-        del(logclient)
 
 if __name__ == "__main__":
     startup()

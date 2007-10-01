@@ -6,32 +6,36 @@
 """
 import logging
 import logging.config
+import StringIO
 import time
+
+from Pyro.EventService.Clients import Subscriber
 import Pyro.core
 
-class LogClient(object):
-    """ gets logging configuration from the logconfserver"""
+def update_log_config_from_string(s):
+    logging.config.fileConfig(StringIO.StringIO(s))
+
+class LogSubscriber(Subscriber):
+    """ Receives logging configuration from the publisher"""
+    
+    def __init__(self):
+        Subscriber.__init__(self)
+        self.subscribe("LogConf")
+
+    def event(self, ev):
+        update_log_config_from_string(ev.msg)
+
+class LogQuery(object):
+    """ placeholder for remote queries to the logconfserver"""
 
     def __init__(self):
-        self.stopped=False
         self.logconf = Pyro.core.getProxyForURI("PYRONAME://logconf")
-        self.port = self.logconf.register()
-        if not self.port:
-            print "Can't start logconf client, server won't register us"
-        self.listener = logging.config.listen(self.port)
-        self.listener.start()
-        time.sleep(1)
-        self.logconf.notify_listeners([self.port])
 
+    def update_log_config(self):
+        update_log_config_from_string(self.logconf.get_config())
 
-    def stop(self):
-        self.logconf.unregister(self.port)
-        logging.config.stopListening()
-        self.listener.join()
-        
-    def __del__(self):
-        if not self.stopped:
-            self.stop()
+    def set_levels(self, levels):
+        self.logconf.set_levels(levels)
 
 
 
