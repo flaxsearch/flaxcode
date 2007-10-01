@@ -28,16 +28,18 @@ class LogConf(object):
         logger_levels is a sequence of (logger, level) pairs,
         where logger is a string naming a logger and level is a number
         """
-        self.parser.read(self.logconf_file)
+        self.parser.read(self.filename)
         changed = False
-        for logger, level in logger_levels:
-            sec_name = 'logger_%s' % logger
-            current_level = int(sec_name, 'level')
+        for logger, level in logger_levels.iteritems():
+            if logger == "":
+                logger = "root"
+            sec_name = 'logger_%s' % logger.replace('.','_')
+            current_level = self.parser.get(sec_name, 'level')
             if level != current_level:
-                self.parser.set(secname, 'level', level)
+                self.parser.set(sec_name, 'level', level)
                 changed = True
         if changed:
-            with open(self.logconf_file, 'w') as f:
+            with open(self.filename, 'w') as f:
                 self.parser.write(f)
 
 
