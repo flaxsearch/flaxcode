@@ -344,10 +344,12 @@ def startup():
     (options, args) = op.parse_args()
     flax.options = persist.read_flax(options.input_file)
     try:
-        logclient.LogListener().start()
+        ll = logclient.LogListener()
+        ll.start()
         log_query = logclient.LogQuery()
         log_query.update_log_config()
         start_web_server(flax.options)
+        ll.join()
     finally:
         persist.store_flax(options.output_file, flax.options)
 
