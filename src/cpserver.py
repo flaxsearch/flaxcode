@@ -344,7 +344,6 @@ def start_web_server(flax_data):
 
 def startup():
     import optparse
-    import threading
     import logclient
     op = optparse.OptionParser()
     op.add_option('-i', '--input-file', dest='input_file', help = "Flax input data file (default is flax.flx)", default = 'flax.flx')
@@ -362,3 +361,4 @@ def startup():
 
 if __name__ == "__main__":
     startup()
+    
