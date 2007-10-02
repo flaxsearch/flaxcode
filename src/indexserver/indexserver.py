@@ -5,14 +5,13 @@ import time
 import Pyro.core
 
 import indexer
-import pyroserver
 import util
 
 def init():
     import logclient
     log_listener = logclient.LogListener()
     logclient.LogQuery().update_log_config()
-    pyroserver.run_server("indexer", indexer.Indexer(), util.join_all_threads)
+    util.run_server("indexer", indexer.Indexer(), util.join_all_threads)
 
 
 

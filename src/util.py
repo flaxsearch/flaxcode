@@ -5,6 +5,7 @@ A variety of utilities for Flax.
 import os
 import sys
 import datetime
+import threading
 import re
 
 def setup_sys_path():
@@ -50,4 +51,35 @@ def gen_until_exception(it, ex, test):
         else:
             raise
 
+def join_all_threads():
+    for thread in threading.enumerate():
+        if thread != threading.currentThread():
+            thread.join()
 
+
+import Pyro.core
+import Pyro.naming
+
+def run_server(name, server, shutdown_actions=None):
+    remoting_server = Pyro.core.ObjBase()
+    remoting_server.delegateTo(server)
+    Pyro.core.initServer()
+    daemon = Pyro.core.Daemon()
+    ns = Pyro.naming.NameServerLocator().getNS()
+    daemon.useNameServer(ns)
+    try:
+        ns.unregister(name)
+    except Pyro.errors.NamingError:
+        pass
+
+    daemon.connect(remoting_server, name)
+
+    try:
+        while 1:
+            daemon.handleRequests(3)
+    except KeyboardInterrupt:
+        print "Finishing"
+        if shutdown_actions:
+            shutdown_actions()
+    finally:
+        daemon.shutdown(True)
