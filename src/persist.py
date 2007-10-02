@@ -3,6 +3,7 @@ import shelve
 import threading
 import time
 import flax
+import util
 
 def store_flax(filename, options):
     d = shelve.open(filename) 
@@ -23,22 +24,16 @@ def read_flax(filename):
 data_changed = threading.Event()
 data_changed.clear()
 
-class DataSaver(threading.Thread):
+class DataSaver(util.StoppingThread):
     """ thread to periodically save data """
-    def __init__(self, filename, delay=5):
-        threading.Thread.__init__(self)
-        self.delay=delay
+
+    def __init__(self, filename, **kwargs):
         self.filename=filename
-        self.stop = threading.Event()
-        self.stop.clear()
+        util.StoppingThread.__init__(self, **kwargs)
 
-    def run(self):
-        while not self.stop.isSet():
-            if data_changed.isSet():
-                store_flax(self.filename, flax.options)
-                data_changed.clear()
-            time.sleep(self.delay)
 
-    def join(self, timeout=None):
-        self.stop.set()
-        threading.Thread.join(self, timeout)
+    def action(self):
+        if data_changed.isSet():
+            store_flax(self.filename, flax.options)
+            data_changed.clear()
+

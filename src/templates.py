@@ -216,6 +216,20 @@ def render_collection_detail(template, collection, formats, languages):
 
     body.language_option.repeat(fill_languages, languages)
     body.stopwords.atts["value"] = " ".join(collection.stopwords)
+
+
+    def render_spec(spec):
+        sep = ', '
+        if isinstance(spec, str):
+            return spec
+        return sep.join(map(str, spec))
+
+    body.mins.atts['value'] = render_spec(collection.mins)
+    body.hours.atts['value'] = render_spec(collection.hours)
+    body.monthdays.atts['value'] = render_spec(collection.monthdays)
+    body.weekdays.atts['value'] = render_spec(collection.weekdays)
+    body.months.atts['value'] = render_spec(collection.months)
+
     
 ###### Search Result Templates ######
 

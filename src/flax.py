@@ -49,15 +49,12 @@ class FlaxOptions(object):
     def log_levels(self):
         return map(logging.getLevelName,  [0,10,20,30,40,50])
 
-
 def make_options():
     #dir = os.path.dirname(os.path.abspath(os.path.normpath(__file__)))
     dir = os.getcwd()
     user = os.path.expanduser('~')
 
-
     db_dir = os.path.normpath(dir+'/dbs') 
-
 
     logger_names = ("",
                     "collections",
@@ -67,13 +64,10 @@ def make_options():
                     "filtering.simpletext",
                     "searching")
 
-
-
     filters = ["IFilter", "Xapian", "Text"]
     
     formats = ["txt", "doc", "html", "pdf", "xsl", "ppt"]
     formats.sort()
-
     
     filter_settings = dict( (f, filters[0]) for f in formats)
 

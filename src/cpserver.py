@@ -345,6 +345,7 @@ def start_web_server(flax_data):
 def startup():
     import optparse
     import logclient
+    import scheduler
     op = optparse.OptionParser()
     op.add_option('-i', '--input-file', dest='input_file', help = "Flax input data file (default is flax.flx)", default = 'flax.flx')
     op.add_option('-o', '--output-file', dest='output_file', help= "Flax output data file (default is flax.flx)", default = 'flax.flx')
@@ -353,6 +354,7 @@ def startup():
     try:
         logclient.LogListener().start()
         logclient.LogQuery().update_log_config()
+        scheduler.ScheduleIndexing(delay=60).start()
         persist.DataSaver(options.output_file).start()
         start_web_server(flax.options)
         util.join_all_threads()

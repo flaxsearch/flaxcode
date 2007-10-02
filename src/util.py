@@ -5,6 +5,7 @@ A variety of utilities for Flax.
 import os
 import sys
 import datetime
+import time
 import threading
 import re
 
@@ -83,3 +84,23 @@ def run_server(name, server, shutdown_actions=None):
             shutdown_actions()
     finally:
         daemon.shutdown(True)
+
+class StoppingThread(threading.Thread):
+
+    def __init__(self,  delay=5):
+        threading.Thread.__init__(self)
+        self.delay=delay
+        self.stop = threading.Event()
+        self.stop.clear()
+
+    def run(self):
+        while not self.stop.isSet():
+            self.action()
+            time.sleep(self.delay)
+
+    def join(self, timeout=None):
+        self.stop.set()
+        threading.Thread.join(self, timeout)
+
+    def action(self):
+        print "Subclasses should override this"
