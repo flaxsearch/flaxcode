@@ -41,7 +41,7 @@ class Indexer(object):
         this is used to remove documents in the database that no
         longer have an associated file.
         """
-        self.log.info("Indexing document collection: %s with filter settings: %s" % (doc_col.name, filter_settings))
+        self.log.info("Indexing collection: %s with filter settings: %s" % (doc_col.name, filter_settings))
         conn = xappy.IndexerConnection(doc_col.dbname())
 
         docs_found = dict((id, False) for id in conn.iterids())
@@ -52,7 +52,7 @@ class Indexer(object):
 
         for id, found in docs_found.iteritems():
             if not found:
-                self.log.info("removing %s from %s" % (id, doc_col.name))
+                self.log.info("Removing %s from %s" % (id, doc_col.name))
                 conn.delete(id)
 
         conn.close()
@@ -68,6 +68,7 @@ class Indexer(object):
         if self.stale(file_name, conn):
             filter = self._find_filter(filter_settings[ext[1:]])
             if filter:
+                log.info("Filtering file %s using filter %s" % (file_name, filter))
                 fixed_fields = ( ("filename", file_name),
                                  ("collection", collection_name),
                                  ("mtime", str(time.time())))
@@ -76,9 +77,9 @@ class Indexer(object):
                 doc.id = file_name
                 conn.replace(doc)
             else:
-                self.log.warn("Filter for %s is not valid." % ext)
+                self.log.warn("Filter for %s is not valid, not filtering file: %s" % (ext, file_name)
         else:
-            self.log.info("File: %s has not changed since last indexing" % file_name)
+            self.log.info("File: %s has not changed since last indexing, not filtering" % file_name)
 
     def stale(self, file_name, conn):
         "Return True if the file named by file_name has changed since we indexed it last"

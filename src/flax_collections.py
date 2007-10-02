@@ -1,8 +1,9 @@
+import logging
 import doc_collection
+import search
 import util
 util.setup_sys_path()
-import xappy
-import xapian  # HACK
+
 
 class FlaxCollections(object):
 
@@ -10,35 +11,32 @@ class FlaxCollections(object):
         self._collections = {}
         self.db_dir = db_dir
         self._formats = ["txt", "html", "doc"]
+        self.log = logging.getLogger("collection")
 
     def new_collection(self, name, **kwargs):
         if type(name) == str and not self._collections.has_key(name):
+            self.log.info("Creating new collection: %s" % name)
             col = doc_collection.DocCollection(name, self.db_dir)
             self._collections[name] = col
             col.update(**kwargs)
             return col
         else:
-            # error
-            pass
+            self.log.error("Failed attempt to create collection: %s" % name)
 
     def remove_collection(self, name):
         if type(name) == str and self._collections.has_key(name):
+            self.log.info("Deleting collection %s" % name)
             del self._collections[name]
         else:
-            #error
-            pass
+            self.log.error("Failed attempt to delete collection %s" % name)
 
     def search(self, query, cols = None, tophit = 0, maxhits = 10):
         if cols is None:
             cols = self._collections.keys()
-        
+            
         if cols:
-            col = self[cols[0]]
-            conn = xappy.SearchConnection(col.dbname())
-            for c in cols[1:]:
-                conn._index.add_database(xapian.Database(self[c].dbname()))
-            query = conn.query_parse(query)
-            return conn.search (query, tophit, tophit + maxhits)
+            dbs_to_search = [self._collections[col].dbname() for col in cols]
+            return search.search(dbs_to_search, query, tophit, maxhits)
         else:
             return []
 
