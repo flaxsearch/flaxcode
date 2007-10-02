@@ -10,13 +10,13 @@ class LogConfPub(Pyro.EventService.Clients.Publisher):
     def __init__(self, filename):
         Pyro.EventService.Clients.Publisher.__init__(self)
         self.filename = filename
-        self.stop = threading.Event()
-        self.stop.clear()
-        self.filewatch=filewatch.FileWatcher(self.stop, self.filename, self.publish_new_file)
+        self.stopper = threading.Event()
+        self.stopper.clear()
+        self.filewatch=filewatch.FileWatcher(self.stopper, self.filename, self.publish_new_file)
         self.filewatch.start()
 
-    def __del__(self):
-        self.stop.set()
+    def stop(self):
+        self.stopper.set()
         self.filewatch.join()
 
     def publish_new_file(self):

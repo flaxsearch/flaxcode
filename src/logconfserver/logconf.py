@@ -20,8 +20,6 @@ class LogConf(object):
     def get_config(self):
         with open(self.filename) as f:
             return f.read()
-
-
     
     def set_levels(self, logger_levels):
         """

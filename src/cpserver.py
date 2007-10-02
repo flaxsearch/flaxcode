@@ -344,6 +344,7 @@ def start_web_server(flax_data):
 
 def startup():
     import optparse
+    import threading
     import logclient
     op = optparse.OptionParser()
     op.add_option('-i', '--input-file', dest='input_file', help = "Flax input data file (default is flax.flx)", default = 'flax.flx')
@@ -351,15 +352,11 @@ def startup():
     (options, args) = op.parse_args()
     flax.options = persist.read_flax(options.input_file)
     try:
-        ll = logclient.LogListener()
-        ll.start()
-        log_query = logclient.LogQuery()
-        log_query.update_log_config()
-        ds = persist.DataSaver(options.output_file)
-        ds.start()
+        logclient.LogListener().start()
+        logclient.LogQuery().update_log_config()
+        persist.DataSaver(options.output_file).start()
         start_web_server(flax.options)
-        ll.join()
-        ds.join()
+        util.join_all_threads()
     finally:
         persist.store_flax(options.output_file, flax.options)
 

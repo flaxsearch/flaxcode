@@ -20,7 +20,7 @@ class FileWatcher(threading.Thread):
 
         while True:
             if self.stop.isSet():
-                return
+                break
             new_mtime = os.path.getmtime(self.filename)
             if new_mtime > self.mtime:
                 self.mtime = new_mtime
