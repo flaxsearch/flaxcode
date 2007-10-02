@@ -9,10 +9,9 @@ import util
 
 def init():
     import logclient
-    log_listener = logclient.LogListener()
+    logclient.LogListener().start()
     logclient.LogQuery().update_log_config()
     util.run_server("indexer", indexer.Indexer(), util.join_all_threads)
-
 
 
 if __name__ == "__main__":
