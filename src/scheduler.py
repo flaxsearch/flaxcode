@@ -11,6 +11,9 @@ import flax
 
 class ScheduleIndexing(util.StoppingThread):
 
+    def __init__(self, delay=60, **kwargs):
+        util.StoppingThread.__init__(self, delay=60, **kwargs)
+
     def action(self):
         now = datetime.datetime.today()
         for collection in flax.options.collections.itervalues():

@@ -354,9 +354,10 @@ def startup():
     try:
         logclient.LogListener().start()
         logclient.LogQuery().update_log_config()
-        scheduler.ScheduleIndexing(delay=60).start()
+        scheduler.ScheduleIndexing().start()
         persist.DataSaver(options.output_file).start()
         start_web_server(flax.options)
+        print "Flax web server shutting down, this might take a minute or two..."
         util.join_all_threads()
     finally:
         persist.store_flax(options.output_file, flax.options)
