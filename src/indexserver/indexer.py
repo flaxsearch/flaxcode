@@ -77,7 +77,7 @@ class Indexer(object):
                 doc.id = file_name
                 conn.replace(doc)
             else:
-                self.log.warn("Filter for %s is not valid, not filtering file: %s" % (ext, file_name)
+                self.log.warn("Filter for %s is not valid, not filtering file: %s" % (ext, file_name))
         else:
             self.log.info("File: %s has not changed since last indexing, not filtering" % file_name)
 
