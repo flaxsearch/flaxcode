@@ -1,3 +1,134 @@
+Tue Oct 02 12:19:06 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py,src/scheduler.py: Made 60 seconds the default
+	  delay for ScheduleIndexing.
+
+Tue Oct 02 12:17:54 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/schedulespec.py: (This file inadvertently ommited form last
+	  commit.) Implemented a simple scheduling scheme and web page
+	  changes necessary to drive it. Minor refactoring to facilitate
+	  code reuse. (NB, delete your flax.flx file after updating.)
+
+Tue Oct 02 12:04:06 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py,src/doc_collection.py,src/flax.py,src/persist.py,
+	  src/scheduler.py,src/templates/collection_detail.html,
+	  src/templates.py,src/util.py: Implemented a simple scheduling
+	  scheme and web page changes necessary to drive it. Minor
+	  refactoring to facilitate code reuse. (NB, delete your flax.flx
+	  file after updating.)
+
+Tue Oct 02 09:45:43 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/flax_collections.py: Took the logger out of the class
+	  definition to avoid interfering with pickling.
+
+Tue Oct 02 09:03:33 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py: Removed unnecessary import
+
+Tue Oct 02 08:32:21 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/logconfserver/flaxlog.conf: workaround for Mac Python 2.5
+
+Tue Oct 02 08:21:08 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexer.py: corrected editing error
+
+Tue Oct 02 08:11:40 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/img/flax.125trans.png: smaller logo
+
+Tue Oct 02 05:38:21 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/flax_collections.py,src/indexserver/indexer.py,src/search.py:
+	  Added some logging calls. Moved the xappy/xapian search
+	  invocation out of the document collections.
+
+Tue Oct 02 05:02:14 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/logconfserver/flaxlog.conf: Some renaming. Made a different
+	  handler for the indexerlog
+
+Tue Oct 02 04:44:10 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexserver.py: start the logconf listener
+
+Tue Oct 02 04:20:37 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexserver.py,
+	  src/logconfserver/logconfserver.py,src/pyroserver.py,src/util.py:
+	  Moved run_server to util.py and got rid of pyroserver.py
+
+Tue Oct 02 04:09:39 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py,src/indexserver/indexserver.py,
+	  src/logconfserver/filewatch.py,
+	  src/logconfserver/logchangepublish.py,
+	  src/logconfserver/logconf.py,src/logconfserver/logconfserver.py,
+	  src/pyroserver.py: Changes to ensure that everything shuts down
+	  cleanly on KeyboardInterrupt. Tidied up common bits of code.
+
+Mon Oct 01 14:44:04 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/cpserver.py,src/flax_collections.py,src/static/css/main.css,
+	  src/templates/search_result.html,src/templates.py: added page
+	  navigation to search results
+
+Mon Oct 01 14:11:24 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py,src/persist.py: Added a mechanism to poll for
+	  data change and dump the persitent data if need be.
+
+Mon Oct 01 13:35:37 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py,src/indexserver/indexserver.py,src/logclient.py:
+	  Provide a mechanism for terminating listeners for the logconf
+	  events.
+
+Mon Oct 01 12:19:09 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py,src/flax.py,src/indexserver/indexer.py,
+	  src/indexserver/indexserver.py,src/logclient.py,src/templates.py:
+	  Added a listener to control the subscriber for log configuration
+	  changes and used that in the web server and indexserver. Mad the
+	  log configuration property changes via the web app work with the
+	  client/server log configuration stuff.
+
+Mon Oct 01 12:14:04 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/logconfserver/logconf.py: typos and correct processing of
+	  data.
+
+Mon Oct 01 12:12:57 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/logconfserver/logchangepublish.py: Start the filewatcher in
+	  __init__
+
+Mon Oct 01 12:12:21 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/logconfserver/flaxlog.conf: Added sections for loggers we
+	  plan to use.
+
+Mon Oct 01 09:51:09 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/logconfserver/flaxlog.conf: Python 2.5 on Mac doesn't trim
+	  space from [loggers] keys values, so it has been removed
+
+Mon Oct 01 06:18:01 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* README: Updated startup notes.
+
+Mon Oct 01 06:03:18 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py,src/indexserver/indexserver.py,src/logclient.py,
+	  src/logconfserver/flaxlog.conf,
+	  src/logconfserver/logchangepublish.py,
+	  src/logconfserver/logconf.py,src/logconfserver/logconfserver.py,
+	  src/pyroserver.py: Used the pyro eventing mechanism to publish
+	  changes in the log configuration.
+
 Sun Sep 30 18:36:50 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* ChangeLog: Update
