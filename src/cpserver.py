@@ -11,8 +11,6 @@ import setuppaths
 
 import os
 import cherrypy
-import routes
-
 import flax
 import templates
 import persist
@@ -59,6 +57,25 @@ class Collections(FlaxResource):
 
     def _redirect_to_view(self, col):
         raise cherrypy.HTTPRedirect('/admin/collections/' + col + '/view' )
+
+    
+    @cherrypy.expose
+    def default(self, col_id=None, action=None, **kwargs):
+        
+        if col_id and action:
+            if action == 'do_indexing':
+                return self.do_indexing(col_id, **kwargs)
+            elif action == 'update':
+                return self.update(col_id, **kwargs)
+            elif action == 'add':
+                return self.add(col_id, **kwargs)
+            elif action == 'view':
+                return self.view(col_id, **kwargs)
+        elif col_id:
+            return self.view(col_id)
+        else:
+            return self.view()
+        
 
     def do_indexing(self, col=None, **kwargs):
         """
@@ -156,7 +173,7 @@ class Collections(FlaxResource):
                 raise cherrypy.NotFound()
         else:
             return self._list_template (self._flax_data.collections.itervalues(),
-                                        routes.url_for('/admin/collections'))
+                                        '/admin/collections')
 
 class SearchForm(object):
     """
@@ -202,8 +219,6 @@ class SearchForm(object):
         else:
             return self._template (self._collections, advanced, self._collections._formats)
 
-
-
 class Top(FlaxResource):
     """
     A contoller for the default (end-user) web pages.
@@ -221,19 +236,25 @@ class Top(FlaxResource):
         self._flax_data = flax_data
         self._search = SearchForm(flax_data.collections, search_template, search_result_template)
 
+    @cherrypy.expose
+    def index(self):
+        return self.search()
+
+    @cherrypy.expose
     def search(self, **kwargs):
         """
         Do a basic (i.e. advanced = False) search. See `SearchForm.search`.
         """
         return self._search.search(advanced=False, **kwargs )
 
+    @cherrypy.expose
     def advanced_search(self, **kwargs):
         """
         Do an advanced (i.e. advanced = True) search. See `SearchForm.search`.
         """
         return self._search.search(advanced=True, **kwargs )
 
-
+    @cherrypy.expose
     def source(self, col, file_id):
         """
         Serve the source file for the document in document collection
@@ -274,6 +295,7 @@ class Admin(Top):
         self._index_template = index_template
         super(Admin, self).__init__(flax_data, search_template, search_result_template)
 
+    @cherrypy.expose
     def options(self, **kwargs):
         """
         Render the options template.
@@ -292,6 +314,7 @@ class Admin(Top):
 
         return self._options_template (self._flax_data)
 
+    @cherrypy.expose
     def index(self):
         """
         Render the index template.
@@ -299,50 +322,30 @@ class Admin(Top):
         return self._index_template ()
 
 
-def setup_routes(top_controller, admin_contoller, collections_controller):
-    """
-    Define the mapping from urls to objects/methods for the CherryPy routes dispatcher.
-    """
-
-
-    d = cherrypy.dispatch.RoutesDispatcher()
-    d.connect('top', '/', controller = top_controller, action='search')
-    d.connect('user_search', '/search', controller = top_controller, action='search')
-    d.connect('source_file', '/source', controller = top_controller, action='source')
-
-    d.connect('collections_add', 'admin/collections/add', controller = collections_controller, action='add' )
-    d.connect('collections', '/admin/collections/:col/:action', controller = collections_controller, action='view')
-    d.connect('collections_default', '/admin/collections/', controller = collections_controller, action='view')
-
-    d.connect('admin', '/admin/:action', action='index', controller=admin_contoller )
-
-    return d
-
-
 def start_web_server(flax_data):
     """
     Run Flax web server.
     """
 
-    top = Top(flax_data, templates.user_search_render, templates.user_search_result_render)
+
+    collections = Collections(flax_data,
+                              templates.collection_list_render,
+                              templates.collection_detail_render)
+
 
     admin = Admin(flax_data,
                   templates.admin_search_render,
                   templates.admin_search_result_render,
                   templates.options_render,
                   templates.index_render)
-    
-    collections = Collections(flax_data,
-                              templates.collection_list_render,
-                              templates.collection_detail_render)
 
-    d = setup_routes(top, admin, collections)
-    
-    cherrypy.config.update('cp.conf')
-    cherrypy.quickstart(None, config = { '/': { 'request.dispatch': d},
-                                         '/static': {'tools.staticdir.on': True,
-                                                     'tools.staticdir.root': os.path.dirname(os.path.abspath(__file__)),
-                                                     'tools.staticdir.dir': 'static'}})
+    top = Top(flax_data, templates.user_search_render, templates.user_search_result_render)
+
+    cherrypy.Application.root=top
+    cherrypy.Application.root.admin = admin
+    cherrypy.Application.root.admin.collections = collections
+    cherrypy.quickstart(top, config = 'cp.conf')
+
 
 def startup():
     import optparse
