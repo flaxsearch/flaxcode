@@ -1,3 +1,28 @@
+Wed Oct 03 09:42:49 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* ChangeLog: Update.
+	* src/flax.py: Add a missing comma.
+
+Wed Oct 03 07:41:09 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/tw2server.py: Removing this file as it's not used, we can
+	  resurrect it later if there's any reason to.
+
+Wed Oct 03 06:14:10 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py,src/flax.py,src/indexserver/indexer.py,
+	  src/indexserver/indexserver.py,src/logclient.py,
+	  src/logconfserver/,src/persist.py,src/scheduler.py,
+	  src/schedulespec.py,src/util.py: Refactoring to simplify thread
+	  usage. Added some logging calls. Added a new logger name. Delete
+	  flax.flx to see the new logger in the web app (should find
+	  another way of dealing with this).
+
+Tue Oct 02 15:19:39 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* ChangeLog,src,src/indexserver,src/logconfserver: Update ChangeLog
+	  and add svn:ignores for various generated files.
+
 Tue Oct 02 12:19:06 UTC 2007  Paul Rudin <paul@rudin.co.uk>
 
 	* src/cpserver.py,src/scheduler.py: Made 60 seconds the default
