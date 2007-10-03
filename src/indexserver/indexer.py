@@ -60,6 +60,8 @@ class Indexer(object):
             self.log.info("Indexing of %s finished" % doc_col.name)
         except Exception, e:
             self.log.error("Unhandled error in do_indexing: %s" % str(e))
+            import traceback
+            traceback.print_exc()
 
     def _find_filter(self, filter_name):
         return self._filter_map[filter_name] if filter_name in self._filter_map else None
@@ -70,10 +72,12 @@ class Indexer(object):
         if self.stale(file_name, conn):
             filter = self._find_filter(filter_settings[ext[1:]])
             if filter:
-                log.info("Filtering file %s using filter %s" % (file_name, filter))
+                self.log.info("Filtering file %s using filter %s" % (file_name, filter))
                 fixed_fields = ( ("filename", file_name),
                                  ("collection", collection_name),
-                                 ("mtime", str(time.time())))
+                                 ("mtime", str (os.path.getmtime (file_name))),
+                                 ("size", str (os.path.getsize (file_name))),
+                               )
                 fields = itertools.starmap(xappy.Field, itertools.chain(fixed_fields, filter(file_name)))
                 doc = xappy.UnprocessedDocument(fields = fields)
                 doc.id = file_name
