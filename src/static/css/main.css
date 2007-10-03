@@ -17,8 +17,9 @@ body {
 }
 
 .banner {
-   height: 110px;
-   text-align: center;
+   height: 50px;
+   text-align: left;
+   border: 0px solid pink;
 }
 
 .banner img {
@@ -31,25 +32,23 @@ body {
 }
 
 .navlist {
-  vertical-align: middle;
+  height: 20px;
+  border-bottom: 1px solid #D0D4F0;
+  margin: 0;
 }
 
-.navlist li {
-  list-style-type: none;
-  display: inline;
-  float: left;
-  width: 100px;
-  margin:0;
+.navlist span {
+  margin: 0px 25px 0px 0px;
   padding:0;
 }
 
-.navlist li span {
-  display: block;
+.navlist a {
+    text-decoration: none;
+    color: darkblue;
 }
 
-.navlist li a:hover {
-  color: #aaa;
-  background-color: #fff;
+.navlist a:hover {
+  color: darkred;
 }
 
 a.delete_button img {
