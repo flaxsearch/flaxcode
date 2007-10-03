@@ -8,8 +8,7 @@ import Pyro.core
 import filespec
 import dbspec
 import schedulespec
-import util
-util.setup_sys_path()
+import setuppaths
 import xappy
 
 class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec):

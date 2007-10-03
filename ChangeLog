@@ -1,3 +1,41 @@
+Wed Oct 03 17:42:35 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/flax_collections.py,src/dbspec.py,src/doc_collection.py: Use
+	  "import setuppaths" instead of util.setup_sys_path() - neater,
+	  and ensures the path is only modified once.
+	* src/cpserver.py: Import "setuppaths" to get paths setup for third
+	  party modules if they're only locally installed.
+	* src/setuppaths.py: New module which simply calls
+	  util.setup_sys_path() when it's imported.  This is convenient
+	  because it will only call it the first time it's imported, so we
+	  don't end up repeatedly modifying sys.path.
+	* src/util.py: Add "lib" to sys.path as well as "libs/xappy",
+	  since this is where the new utils/install_dependencies.py script
+	  puts them.
+ 	* ChangeLog: Update.
+
+Wed Oct 03 16:00:42 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* utils/install_dependencies.py: Add script which downloads the
+	  dependencies and installs them locally to libs/
+
+Wed Oct 03 15:06:11 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/css/main.css,src/templates/admin_banner.html: added
+	  flax logo to admin banner
+
+Wed Oct 03 13:05:04 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/css/main.css,src/templates/admin_banner.html: tidied
+	  admin stuff a bit
+
+Wed Oct 03 12:03:49 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/dbspec.py,src/indexserver/indexer.py,src/static/css/main.css,
+	  src/templates/search_result.html,src/templates.py: added file
+	  size to index metadata, and changed modification time to actual
+	  value. Added to search results template.
+
 Wed Oct 03 09:42:49 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* ChangeLog: Update.

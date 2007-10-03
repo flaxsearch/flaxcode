@@ -10,8 +10,9 @@ import threading
 import re
 
 def setup_sys_path():
-    "modify sys.path to in order to find libraries"
-    sys.path =  [os.path.normpath(os.path.join(__file__, '..', '..','libs', 'xappy'))]+sys.path
+    "Modify sys.path in order to find libraries"
+    sys.path.insert(0, os.path.normpath(os.path.join(__file__, '..', '..', 'libs', 'xappy')))
+    sys.path.insert(0, os.path.normpath(os.path.join(__file__, '..', '..', 'libs')))
 
 def setup_psyco():
     "If psyco is available ensure that it is used"

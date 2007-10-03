@@ -1,8 +1,7 @@
 import logging
 import doc_collection
 import search
-import util
-util.setup_sys_path()
+import setuppaths
 
 log = logging.getLogger("collection")
 

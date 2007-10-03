@@ -1,8 +1,7 @@
 #$Id:$
 # standard modules
 import os
-import util
-util.setup_sys_path()
+import setuppaths
 import xappy
 
 class DBSpec(object):

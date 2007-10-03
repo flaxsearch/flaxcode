@@ -7,6 +7,8 @@
 """
 Flax web server.
 """
+import setuppaths
+
 import os
 import cherrypy
 import routes
