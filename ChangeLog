@@ -1,3 +1,8 @@
+Wed Oct 03 18:29:13 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/indexserver/indexer.py: Convert a util.setup_sys_path that I
+	  missed.
+
 Wed Oct 03 17:42:35 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* src/flax_collections.py,src/dbspec.py,src/doc_collection.py: Use
