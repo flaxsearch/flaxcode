@@ -31,7 +31,6 @@ class ScheduleSpec(object):
                months = _empty,
                **kwargs):
 
-        print "updating scedulespec ", mins, hours, monthdays, weekdays, months
         self.mins = self.parse_string_spec(mins)
         self.hours = self.parse_string_spec(hours)
         self.monthdays = self.parse_string_spec(monthdays)

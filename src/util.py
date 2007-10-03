@@ -52,16 +52,10 @@ def gen_until_exception(it, ex, test):
         else:
             raise
 
-def join_all_threads():
-    for thread in threading.enumerate():
-        if thread != threading.currentThread():
-            thread.join()
-
-
 import Pyro.core
 import Pyro.naming
 
-def run_server(name, server, shutdown_actions=None):
+def run_server(name, server):
     remoting_server = Pyro.core.ObjBase()
     remoting_server.delegateTo(server)
     Pyro.core.initServer()
@@ -74,33 +68,23 @@ def run_server(name, server, shutdown_actions=None):
         pass
 
     daemon.connect(remoting_server, name)
-
     try:
-        while 1:
-            daemon.handleRequests(3)
-    except KeyboardInterrupt:
-        print "Finishing"
-        if shutdown_actions:
-            shutdown_actions()
+        daemon.requestLoop()
     finally:
         daemon.shutdown(True)
 
-class StoppingThread(threading.Thread):
+class DelayThread(threading.Thread):
+    """ A thread that runs it's action method periodically """
 
-    def __init__(self,  delay=5):
-        threading.Thread.__init__(self)
-        self.delay=delay
-        self.stop = threading.Event()
-        self.stop.clear()
+    def __init__(self, delay=1, **kwargs):
+        threading.Thread.__init__(self, **kwargs)
+        self.setDaemon(True)
+        self.delay = delay
 
     def run(self):
-        while not self.stop.isSet():
+        while 1:
             self.action()
             time.sleep(self.delay)
 
-    def join(self, timeout=None):
-        self.stop.set()
-        threading.Thread.join(self, timeout)
-
     def action(self):
-        print "Subclasses should override this"
+        print "Subclasses should override action"

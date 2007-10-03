@@ -62,7 +62,8 @@ def make_options():
                     "filtering",
                     "filtering.ifilter",
                     "filtering.simpletext",
-                    "searching")
+                    "searching"
+                    "scheduling")
 
     filters = ["IFilter", "Xapian", "Text"]
     

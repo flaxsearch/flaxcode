@@ -41,23 +41,25 @@ class Indexer(object):
         this is used to remove documents in the database that no
         longer have an associated file.
         """
-        self.log.info("Indexing collection: %s with filter settings: %s" % (doc_col.name, filter_settings))
-        conn = xappy.IndexerConnection(doc_col.dbname())
+        try:
+            self.log.info("Indexing collection: %s with filter settings: %s" % (doc_col.name, filter_settings))
+            conn = xappy.IndexerConnection(doc_col.dbname())
 
-        docs_found = dict((id, False) for id in conn.iterids())
-        
-        for f in doc_col.files():
-            self._process_file(f, conn, doc_col.name, filter_settings)
-            docs_found[f]=True
+            docs_found = dict((id, False) for id in conn.iterids())
 
-        for id, found in docs_found.iteritems():
-            if not found:
-                self.log.info("Removing %s from %s" % (id, doc_col.name))
-                conn.delete(id)
+            for f in doc_col.files():
+                self._process_file(f, conn, doc_col.name, filter_settings)
+                docs_found[f]=True
 
-        conn.close()
-        self.log.info("Indexing of %s finished" % doc_col.name)
+            for id, found in docs_found.iteritems():
+                if not found:
+                    self.log.info("Removing %s from %s" % (id, doc_col.name))
+                    conn.delete(id)
 
+            conn.close()
+            self.log.info("Indexing of %s finished" % doc_col.name)
+        except Exception, e:
+            self.log.error("Unhandled error in do_indexing: %s" % str(e))
 
     def _find_filter(self, filter_name):
         return self._filter_map[filter_name] if filter_name in self._filter_map else None

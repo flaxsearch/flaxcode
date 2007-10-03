@@ -19,32 +19,23 @@ def update_log_config_from_string(s):
 class LogSubscriber(Subscriber):
     """ Receives logging configuration from the publisher"""
     
-    def __init__(self, stop):
+    def __init__(self):
         Subscriber.__init__(self)
         self.subscribe("LogConf")
-        self.stop=stop
 
     def event(self, ev):
-        if self.stop.isSet():
-            self.abort()
-        elif ev:
-            update_log_config_from_string(ev.msg)
+        update_log_config_from_string(ev.msg)
 
 class LogListener(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
-        self.stopper = threading.Event()
-        self.stopper.clear()
-        self.listener=LogSubscriber(self.stopper)
+        self.setDaemon(True)
+        self.listener=LogSubscriber()
 
     def run(self):
         Pyro.core.initServer()
         self.listener.listen()
 
-    def join(self, timeout = None):
-        self.stopper.set()
-        self.listener.event(None)
-        threading.Thread.join(self, timeout)
 
 
 

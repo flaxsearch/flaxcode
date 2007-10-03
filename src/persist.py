@@ -24,16 +24,16 @@ def read_flax(filename):
 data_changed = threading.Event()
 data_changed.clear()
 
-class DataSaver(util.StoppingThread):
+class DataSaver(util.DelayThread):
     """ thread to periodically save data """
 
     def __init__(self, filename, **kwargs):
         self.filename=filename
-        util.StoppingThread.__init__(self, **kwargs)
-
+        util.DelayThread.__init__(self, **kwargs)
 
     def action(self):
         if data_changed.isSet():
             store_flax(self.filename, flax.options)
             data_changed.clear()
+
 

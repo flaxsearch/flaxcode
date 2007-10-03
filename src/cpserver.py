@@ -357,8 +357,7 @@ def startup():
         scheduler.ScheduleIndexing().start()
         persist.DataSaver(options.output_file).start()
         start_web_server(flax.options)
-        print "Flax web server shutting down, this might take a minute or two..."
-        util.join_all_threads()
+        print "Flax web server shutting down..."
     finally:
         persist.store_flax(options.output_file, flax.options)
 

@@ -7,11 +7,8 @@ import util
 
 def init():
     filename = 'flaxlog.conf'
-
     lcp = logchangepublish.LogConfPub(filename)
-
-    svr = logconf.LogConf(filename)
-    util.run_server("logconf", svr, lcp.stop)
+    util.run_server("logconf", logconf.LogConf(filename))
     
 
 if __name__ == "__main__":
