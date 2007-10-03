@@ -147,6 +147,18 @@ div.info {
     color: darkred; 
 }
 
+.search_hit_meta {
+    font-size: 9pt;
+    font-style: italic;
+    margin-top: 4px;
+    color: gray;
+}
+
+.search_hit_meta_item {
+    color: black;
+    margin-right: 5px;
+}
+
 .link_disabled {
     color: gray;
 }

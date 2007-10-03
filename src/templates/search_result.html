@@ -27,8 +27,12 @@
   <!-- the contents of this div will be replaced by the results of --
     -- the search -->
   <div node="rep:results" class="search_hit">
-    <a node="con:res_link" class="search_hit_link">Collection</a>
-    <div node="con:res_content" class="search_hit_content"> </div>
+    <a node="con:res_link" class="search_hit_link"></a>
+    <div node="con:res_content" class="search_hit_content"></div>
+    <div class="search_hit_meta">
+      Size: <span node="con:res_size" class="search_hit_meta_item"></span>
+      Last modified: <span node="con:res_mtime" class="search_hit_meta_item"></span>
+    </div>
   </div>
   
   <div node="con:nav" class="search_nav">

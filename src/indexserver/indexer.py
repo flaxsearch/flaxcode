@@ -44,7 +44,8 @@ class Indexer(object):
         try:
             self.log.info("Indexing collection: %s with filter settings: %s" % (doc_col.name, filter_settings))
             conn = xappy.IndexerConnection(doc_col.dbname())
-
+            print '--', conn._field_mappings
+            
             docs_found = dict((id, False) for id in conn.iterids())
 
             for f in doc_col.files():

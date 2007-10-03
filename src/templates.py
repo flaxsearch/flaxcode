@@ -6,6 +6,7 @@ from __future__ import with_statement
 import os
 import urllib
 import HTMLTemplate
+import time
 
 import util
 
@@ -251,7 +252,12 @@ def render_search_result (template, query, collections, selcols, results, tophit
             
         if 'content' in res.data:
             node.res_content.raw = res.summarise('content', hl=('<strong>','</strong>'))
-
+        
+        size = res.data.get ('size')
+        node.res_size.content = format_size (size[0]) if size else 'unknown'
+        mtime = res.data.get ('mtime')
+        node.res_mtime.content = format_date (mtime[0]) if mtime else 'unknown'
+            
     template.main.query.atts['value'] = query
     template.main.collections.repeat (render_search_collection, collections.itervalues(), selcols)
 
@@ -275,13 +281,39 @@ def render_search_result (template, query, collections, selcols, results, tophit
             template.main.nav.next_page.atts['href'] = '?query=%s&tophit=%d' % (q, 
                 results.startrank + maxhits)
         else:
-            template.main.nav.next_page.atts['class'] = 'link_disabled'
-
+            template.main.nav.next_page.atts['class'] = 'link_disabled'            
     else:
         # no search results
         template.main.info.content = 'No matching documents found'
         template.main.nav.omit()
-        
+
+KB1 = 1024.0
+MB1 = KB1 * KB1
+GB1 = MB1 * KB1
+TB1 = GB1 * KB1
+
+def format_size (data):
+    """
+    Return a nicely-formatted string for size data.
+    """
+    data = int (data)
+    if data < KB1:
+        return '%dB' % data
+    elif data < MB1:
+        return '%.2fK' % data / KB1
+    elif data < GB1:
+        return '%.2fM' % data / MB1
+    elif data < TB1:
+        return '%.2fG' % data / GB1
+    else:        
+        return '%.2fT' % data / TB1
+
+def format_date (data):
+    """
+    Return a nicely-formatted string for date data.
+    """
+    data = float (data)
+    return time.asctime (time.localtime (data))
 
 _tman = TemplateManager ("templates", "html")
 
