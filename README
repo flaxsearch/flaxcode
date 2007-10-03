@@ -23,10 +23,7 @@ Python at at least version 2.5 with the following packages installed:
 
 - CherryPy - see http://www.cherrypy.org (cherrypy 3 is needed.)
 
-- routes - see http://routes.groovie.org/ 
-
 - HTMLTemplate - see http://freespace.virgin.net/hamish.sanderson/htmltemplate.html
-
 
 Note also that xappy (formerly secore), is grabbed as an external when
 you check out Flax from subversion, so if you're reading this file you
