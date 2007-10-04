@@ -300,13 +300,13 @@ def format_size (data):
     if data < KB1:
         return '%dB' % data
     elif data < MB1:
-        return '%.2fK' % data / KB1
+        return '%.2fK' % (data / KB1)
     elif data < GB1:
-        return '%.2fM' % data / MB1
+        return '%.2fM' % (data / MB1)
     elif data < TB1:
-        return '%.2fG' % data / GB1
+        return '%.2fG' % (data / GB1)
     else:        
-        return '%.2fT' % data / TB1
+        return '%.2fT' % (data / TB1)
 
 def format_date (data):
     """
