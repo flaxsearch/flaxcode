@@ -128,7 +128,8 @@ class Collections(FlaxResource):
             self._redirect_to_view(col)
         else:
             raise self._bad_collection_name(col)
-     
+
+    @cherrypy.expose
     def add(self, col = None, **kwargs):
         """
         Create a new document collection.
