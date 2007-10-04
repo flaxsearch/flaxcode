@@ -109,6 +109,6 @@ def get_ifilter_for_file(filename):
             else:
                 raise
     else:
-        filt = load_filter(filename)      
+        filt = load_ifilter(filename)      
         stg = None
     return (filt, stg)

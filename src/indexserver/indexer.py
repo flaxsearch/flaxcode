@@ -99,7 +99,7 @@ class Indexer(object):
                                  ("size", str (os.path.getsize (file_name))),
                                )
                 try:
-                    filtered_blocks = itertools.ifilter(self._accpet_block, filter(file_name))
+                    filtered_blocks = itertools.ifilter(self._accept_block, filter(file_name))
                     fields = itertools.starmap(xappy.Field, itertools.chain(fixed_fields, filtered_blocks))
                     doc = xappy.UnprocessedDocument(fields = fields)
                     doc.id = file_name
