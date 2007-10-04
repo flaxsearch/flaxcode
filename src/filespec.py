@@ -6,7 +6,7 @@ import fnmatch
 import util
 
 class FileSpec(object):
-    """Filespaec: define a set of files and then do things with them.
+    """Filespec: define a set of files and then do things with them.
 
     Paths - a set of absolute paths. If a path is a directory then in
     stands for all the files (recursively) contained within it.
@@ -46,6 +46,13 @@ class FileSpec(object):
         """ generates the files defined by this FileSpec """
         for p in self.paths:
             for root, dirs, files in os.walk(p):
+                # Perhaps we want to warn here if any dirs are
+                # symlinks. os.walk will not traverse them. Don't do
+                # anything right now because we're targetting windows
+                # initially and therefore won't be hitting symlinks.
+                # Note that a symlink to a file will be included
+                # (assuming the file passes the other criteria for
+                # inclusion.)
                 for f in files:
                     fname = os.path.join(root, f)
                     if self.included(fname):
