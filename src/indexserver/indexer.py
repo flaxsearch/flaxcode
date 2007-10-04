@@ -79,7 +79,11 @@ class Indexer(object):
                                  ("mtime", str (os.path.getmtime (file_name))),
                                  ("size", str (os.path.getsize (file_name))),
                                )
-                fields = itertools.starmap(xappy.Field, itertools.chain(fixed_fields, filter(file_name)))
+                try:
+                    fields = itertools.starmap(xappy.Field, itertools.chain(fixed_fields, filter(file_name)))
+                except:
+                    self.log.error("Filtering file: %s with filter: %s raised an exception, skipping" %(file_name, filter))
+                    return
                 doc = xappy.UnprocessedDocument(fields = fields)
                 doc.id = file_name
                 conn.replace(doc)
