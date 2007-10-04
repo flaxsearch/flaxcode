@@ -27,8 +27,7 @@ class FileSpec(object):
 
     Note that Oldest and Youngest are relative to some event
     (anything that involves computing the set of files for the
-    FileSpec) whereas Earliest and Latest are absolute dates.
-"""
+    FileSpec) whereas Earliest and Latest are absolute dates. """
 
     strptime_format = "%d/%m/%y %H:%M:%S"
 
@@ -96,7 +95,6 @@ class FileSpec(object):
         else:
             raise ValueError("Value must be None, a string or a datetime.timedelta")
 
-
     def _process_datetime(self, date):
         if not date:
             return None
@@ -109,10 +107,6 @@ class FileSpec(object):
             return date
         else:
             raise ValueError("Value must be None, a string, or a datetime.datetime")
-
-                
-
-
     
     def included(self, f):
         """ is the file name by f included in this spec? """
