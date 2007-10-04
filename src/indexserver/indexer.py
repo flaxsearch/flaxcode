@@ -28,7 +28,6 @@ class Indexer(object):
     """
     
     def __init__(self):
-        self.log = logging.getLogger('indexing')
         self._filter_map = {"Xapian": None,
                             "Text": simple_text_filter.text_filter}
         if windows:
@@ -42,9 +41,16 @@ class Indexer(object):
         longer have an associated file.
         """
         try:
+            self.log = logging.getLogger('indexing')
             self.log.info("Indexing collection: %s with filter settings: %s" % (doc_col.name, filter_settings))
+
+            # This will error is the directory containing the
+            # databases has disappeared, but that's probably a good
+            # thing - the document collection is supposed to know
+            # where it's database is - if it's asking for indexing of
+            # a non-existent database, then it's the collection's
+            # problem not the indexer's.
             conn = xappy.IndexerConnection(doc_col.dbname())
-            print '--', conn._field_mappings
             
             docs_found = dict((id, False) for id in conn.iterids())
 
@@ -56,16 +62,29 @@ class Indexer(object):
                 if not found:
                     self.log.info("Removing %s from %s" % (id, doc_col.name))
                     conn.delete(id)
-
-            conn.close()
             self.log.info("Indexing of %s finished" % doc_col.name)
+        except xappy.DatabaseLockError, e:
+            self.log.error("Attempt to index locked database: %s, ignoring" % doc_col.dbname())
         except Exception, e:
             self.log.error("Unhandled error in do_indexing: %s" % str(e))
             import traceback
             traceback.print_exc()
+        finally:
+            conn.close()
 
     def _find_filter(self, filter_name):
         return self._filter_map[filter_name] if filter_name in self._filter_map else None
+
+    def _accept_block(field_name, content):
+        """ decide whether a block is acceptable for storing in a document.
+        Blocks are rejected if their field name is one that Flax reserves for its internal use.
+        """
+        if field_name in ("filename", "collection", "mtime", "size"):
+            self.log.error("Filters are not permitted to add content to the field: %s, rejecting block" % field_name)
+            return False
+        else:
+            return True
+        
     
     def _process_file(self, file_name, conn, collection_name, filter_settings):
         self.log.info("Indexing collection %s: processing file: %s" % (collection_name, file_name))
@@ -80,13 +99,15 @@ class Indexer(object):
                                  ("size", str (os.path.getsize (file_name))),
                                )
                 try:
-                    fields = itertools.starmap(xappy.Field, itertools.chain(fixed_fields, filter(file_name)))
-                except:
-                    self.log.error("Filtering file: %s with filter: %s raised an exception, skipping" %(file_name, filter))
+                    filtered_blocks = itertools.ifilter(self._accpet_block, filter(file_name))
+                    fields = itertools.starmap(xappy.Field, itertools.chain(fixed_fields, filtered_blocks))
+                    doc = xappy.UnprocessedDocument(fields = fields)
+                    doc.id = file_name
+                    conn.replace(doc)
+                except Exception, e:
+                    self.log.error("Filtering file: %s with filter: %s raised exception %s, skipping"
+                                   % (file_name, filter, e))
                     return
-                doc = xappy.UnprocessedDocument(fields = fields)
-                doc.id = file_name
-                conn.replace(doc)
             else:
                 self.log.warn("Filter for %s is not valid, not filtering file: %s" % (ext, file_name))
         else:
@@ -107,4 +128,4 @@ class Indexer(object):
         # So let the exception through in order to diagnose the
         # problem.  We are potentially vunerable to a filter that adds
         # things with that field, but the restriction is documented.
-        return os.path.getmtime(file_name) > float(doc.data['mtime'][0])
+        return os.path.getmtime(file_name) != float(doc.data['mtime'][0])
