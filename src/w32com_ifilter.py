@@ -50,7 +50,7 @@ def ifilter_filter(filename, init_flags = _filter_init_flags):
            try:
                pss = stg.QueryInterface(pythoncom.IID_IPropertySetStorage)
                ps = pss.Open(PSGUID_SUMMARYINFORMATION)
-               props_to_read = (PIDSI_TITLE, PIDSI_SUBJECT, PIDSI_AUTHOR,  PIDSI_KEYWORDS, PIDSI_COMMENTS)
+               props_to_read = (PIDSI_TITLE, PIDSI_SUBJECT, PIDSI_AUTHOR, PIDSI_KEYWORDS, PIDSI_COMMENTS)
                title, subject, author, keywords, comments = ps.ReadMultiple(props_to_read)
                if title:
                    yield 'title', title
@@ -69,7 +69,7 @@ def ifilter_filter(filename, init_flags = _filter_init_flags):
 
     def do_chunks():
         while True:
-            chunk_id, break_type, flags, locale, (propset_guid, prop_id), chunk_source_id, start, len =  filt.GetChunk()
+            chunk_id, break_type, flags, locale, (propset_guid, prop_id), chunk_source_id, start, len = filt.GetChunk()
             prop_name = prop_id_to_name(prop_id)
             if flags == CHUNK_TEXT:
                 for txt in text_for_current_chunk(filt):
@@ -109,6 +109,6 @@ def get_ifilter_for_file(filename):
             else:
                 raise
     else:
-        filt = load_ifilter(filename)      
+        filt = load_ifilter(filename)
         stg = None
     return (filt, stg)

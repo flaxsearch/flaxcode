@@ -58,7 +58,7 @@ class TemplateManager(object):
         self._cache[key] = (t, mtime)
         return t
 
-    def create_template(self, file_name,  banner, render_fn = None):
+    def create_template(self, file_name, banner, render_fn = None):
         fn = self.dummy_render if render_fn is None else render_fn
         common_template = self.make_template(fn, "flax.html")
         common_template.banner.raw = banner
@@ -91,7 +91,7 @@ class TemplateManager(object):
         Render a template as html to a file.
         """
         with open(os.path.join(self.html_dir, filename), 'w') as f:
-            f.write(template.render(*args))        
+            f.write(template.render(*args))
 
 ##### Options Template #####
 
@@ -281,7 +281,7 @@ def render_search_result (template, query, collections, selcols, results, tophit
             template.main.nav.next_page.atts['href'] = '?query=%s&tophit=%d' % (q, 
                 results.startrank + maxhits)
         else:
-            template.main.nav.next_page.atts['class'] = 'link_disabled'            
+            template.main.nav.next_page.atts['class'] = 'link_disabled'
     else:
         # no search results
         template.main.info.content = 'No matching documents found'
@@ -305,7 +305,7 @@ def format_size (data):
         return '%.2fM' % (data / MB1)
     elif data < TB1:
         return '%.2fG' % (data / GB1)
-    else:        
+    else:
         return '%.2fT' % (data / TB1)
 
 def format_date (data):

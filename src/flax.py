@@ -31,7 +31,7 @@ class FlaxOptions(object):
             if name in vals:
                 new_levels[name] = vals[name]
         if "default" in vals:
-            new_levels[""] =  vals["default"]
+            new_levels[""] = vals["default"]
 
         lq = logclient.LogQuery()
         lq.set_levels(new_levels)
@@ -43,11 +43,11 @@ class FlaxOptions(object):
     log_settings = property(fset = _set_log_settings, fget = _get_log_settings, doc = """
     A dictionary mapping log event names to log levels.  It is
     permitted for the dictionary to contain names that do not name a
-    log event, such will be  silently ignored.""")
+    log event, such will be silently ignored.""")
 
     @property
     def log_levels(self):
-        return map(logging.getLevelName,  [0,10,20,30,40,50])
+        return map(logging.getLevelName, [0,10,20,30,40,50])
 
 def make_options():
     #dir = os.path.dirname(os.path.abspath(os.path.normpath(__file__)))
@@ -72,8 +72,8 @@ def make_options():
     
     filter_settings = dict( (f, filters[0]) for f in formats)
 
-    languages = [ ("none",  "None"),
-                  ("da",  "Danish"),
+    languages = [ ("none", "None"),
+                  ("da", "Danish"),
                   ("nl", "Dutch"),
                   ("en", "English"),
                   ("lovins", "English (lovins)"),

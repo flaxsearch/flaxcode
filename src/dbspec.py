@@ -54,7 +54,7 @@ class DBSpec(object):
             conn.add_field_action("size", xappy.FieldActions.STORE_CONTENT)
 
             conn.add_field_action('content', xappy.FieldActions.INDEX_FREETEXT, **free_text_options)
-            conn.add_field_action('content', xappy.FieldActions.STORE_CONTENT)      
+            conn.add_field_action('content', xappy.FieldActions.STORE_CONTENT)
             conn.close()
 
     

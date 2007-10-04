@@ -21,7 +21,7 @@ class ScheduleSpec(object):
         stripped = spec.strip()
         if (stripped == self._wildcard) or (stripped == self._empty):
             return stripped
-        return [int(x)  for x in  stripped.split(',')]
+        return [int(x) for x in stripped.split(',')]
     
     def update(self,
                mins = _empty,
