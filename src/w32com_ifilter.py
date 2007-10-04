@@ -5,8 +5,11 @@ import pywintypes
 import itertools
 from win32com.ifilter import ifilter
 from win32com.ifilter.ifiltercon import *
-
+from win32com.storagecon import *
 import util
+import logging
+
+log = logging.getLogger("filter.ifilter")
 
 prop_id_map = { 19 : "content",
                  3 : "HtmlHeading1" }
@@ -46,25 +49,23 @@ def ifilter_filter(filename, init_flags = _filter_init_flags):
         if init_flags == IFILTER_FLAGS_OLE_PROPERTIES and stg:
            try:
                pss = stg.QueryInterface(pythoncom.IID_IPropertySetStorage)
+               ps = pss.Open(PSGUID_SUMMARYINFORMATION)
+               props_to_read = (PIDSI_TITLE, PIDSI_SUBJECT, PIDSI_AUTHOR,  PIDSI_KEYWORDS, PIDSI_COMMENTS)
+               title, subject, author, keywords, comments = ps.ReadMultiple(props_to_read)
+               if title:
+                   yield 'title', title
+               if subject:
+                   yield 'subject', subject
+               if author:
+                   yield 'author', author
+               if keywords:
+                   for k in keywords.split():
+                       yield 'keyword', k
+               if comments:
+                   yield 'comments', comments
            except pythoncom.com_error, e:
-               yield
+               pass
                
-           ps = pss.Open(PSGUID_SUMMARYINFORMATION)
-
-           props_to_read = (PIDSI_TITLE, PIDSI_SUBJECT, PIDSI_AUTHOR,  PIDSI_KEYWORDS, PIDSI_COMMENTS)
-           title, subject, author, keywords, comments = ps.ReadMultiple(props_to_read)
-
-           if title:
-               yield 'title', title
-           if subject:
-               yield 'subject', subject
-           if author:
-               yield 'author', author
-           if keywords:
-               for k in keywords.split():
-                   yield 'keyword', k
-           if comments:
-               yield 'comments', comments
 
     def do_chunks():
         while True:
@@ -79,6 +80,17 @@ def ifilter_filter(filename, init_flags = _filter_init_flags):
                                                     pythoncom.com_error,
                                                     lambda e: e[0] == FILTER_E_END_OF_CHUNKS))
         
+def load_ifilter(filename):
+    try:
+        return ifilter.LoadIFilter(filename)
+    except pythoncom.com_error, e:
+        if e[0] == FILTER_E_UNKNOWNFORMAT:
+            log.warning("File %s is not a recognized format" % filename)
+        else:
+            log.warning("File %s cannot be processed" % filename)
+        raise
+        
+    
 
 def get_ifilter_for_file(filename):
     """
@@ -92,11 +104,11 @@ def get_ifilter_for_file(filename):
         try:
             filt = ifilter.BindIFilterFromStorage(stg)
         except pythoncom.com_error, e:
-            if e[0] == -2147467662:
-                filt = ifilter.LoadIFilter(filename)
+            if e[0] == -2147467262:
+                filt = load_ifilter(filename)
             else:
                 raise
     else:
-        filt = ifilter.LoadIFilter(filename)      
+        filt = load_filter(filename)      
         stg = None
     return (filt, stg)
