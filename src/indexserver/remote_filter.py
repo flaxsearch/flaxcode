@@ -25,7 +25,7 @@ class RemoteFilterRunner(object):
 
     def maybe_start_server(self):
         if not self.server:
-            self.server = subprocess.Popen(['python', '-u', 'filterrunner.py', self.filter_name],
+            self.server = subprocess.Popen(['python', 'filterrunner.py', self.filter_name],
                                            stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             self.io = util.IO(instream = self.server.stdout, outstream = self.server.stdin)
 

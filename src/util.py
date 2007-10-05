@@ -110,3 +110,4 @@ class IO(object):
 
     def send(self, obj):
         pickle.dump(obj, self.outstream, self.pickle_protocol)
+        self.outstream.flush()
