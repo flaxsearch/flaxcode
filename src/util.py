@@ -90,9 +90,6 @@ class DelayThread(threading.Thread):
     def action(self):
         print "Subclasses should override action"
 
-
-import struct
-import StringIO
 import cPickle as pickle
 
 class IO(object):
@@ -102,8 +99,6 @@ class IO(object):
     Simple communication based on file like objects for sending and
     recieving data and using pickle to serialize python objects.
     """
-
-    fmt = 'L'
 
     def __init__(self, instream = sys.stdin, outstream = sys.stdout, pickle_protocol = -1):
         self.instream = instream
