@@ -109,14 +109,9 @@ class IO(object):
         self.instream = instream
         self.outstream = outstream
         self.pickle_protocol = pickle_protocol
-        self.fmt_size = struct.calcsize(self.fmt)
     
     def receive(self):
-        size = struct.unpack(self.fmt, self.instream.read(self.fmt_size))[0]
-        pickled_obj = self.instream.read(size)
-        return pickle.load(StringIO.StringIO(pickled_obj))
+        return pickle.load(self.instream)
 
     def send(self, obj):
-        pickled_obj = pickle.dumps(obj, self.pickle_protocol)
-        self.outstream.write(struct.pack(self.fmt, len(pickled_obj)))
-        self.outstream.write(pickled_obj)
+        pickle.dump(obj, self.outstream, self.pickle_protocol)
