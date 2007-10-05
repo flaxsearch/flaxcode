@@ -31,6 +31,7 @@
 
 class MyHtmlParser : public HtmlParser {
     public:
+	bool fixed_charset;
 	bool in_script_tag;
 	bool in_style_tag;
 	bool pending_space;
@@ -40,7 +41,9 @@ class MyHtmlParser : public HtmlParser {
 	void opening_tag(const string &tag, const map<string,string> &p);
 	void closing_tag(const string &tag);
 	void parse_html(const string &text);
+	void parse_html(const string &text, const string &charset_);
 	MyHtmlParser() :
+		fixed_charset(false),
 		in_script_tag(false),
 		in_style_tag(false),
 		pending_space(false),
