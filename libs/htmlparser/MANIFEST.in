@@ -1,0 +1,4 @@
+include MANIFEST.in
+include setup.py
+include src/*.h
+include src/xapian/*.h
