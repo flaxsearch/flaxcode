@@ -63,6 +63,12 @@ python_dependencies = (
      '',
      (),
     ),
+    ('Xappy search engine interface',
+     'libs://xappy',
+     '',
+     '',
+     (),
+    ),
 )
 
 # List of the non-pure-python dependencies.
@@ -179,6 +185,46 @@ def install_archive(archivedir, install_dir):
 
     return True
 
+def get_archive_from_url(name, url, archivename, expected_hash):
+    """Download and unpack an archive from the specified URL.
+
+    Returns the directory the archive was unpacked into, or None if
+    the archive couldn't be downloaded
+
+    """
+    if url.startswith('libs://'):
+        libsdir = os.path.join(get_script_dir(), '..', 'libs')
+        archivedir = os.path.join(libsdir, url[7:])
+    else:
+        print("Checking for %s" % name)
+
+        # Get the path that the package should be downloaded to
+        filepath = os.path.join(package_dir, archivename)
+
+        # Check if the package is already downloaded (and has correct SHA key).
+        if os.path.exists(filepath):
+            calculated_hash = calc_sha_hash(filepath)
+            if expected_hash != calculated_hash:
+                print("Package of %s at '%s' has wrong hash - discarding" % (name, archivename))
+                print("(Got %s, expected %s)" % (calculated_hash, expected_hash))
+                os.unlink(filepath)
+
+        # Download the package if needed.
+        if not os.path.exists(filepath):
+            print("Downloading %s from %s" % (name, url))
+            download_file(url, filepath)
+            calculated_hash = calc_sha_hash(filepath)
+            if expected_hash != calculated_hash:
+                print("Package of %s at '%s' has wrong hash - cannot continue" % (name, archivename))
+                print("(Got %s, expected %s)" % (calculated_hash, expected_hash))
+                os.unlink(filepath)
+                return None
+
+        print("Unpacking %s" % name)
+        archivedir = unpack_archive(filepath, temp_dir)
+
+    return archivedir
+
 def install_pure_deps(dependencies, temp_dir):
     """Download and install the pure python dependencies.
 
@@ -186,35 +232,9 @@ def install_pure_deps(dependencies, temp_dir):
     package_dir = get_package_dir()
     install_dir = get_install_dir()
     for name, url, archivename, expected_hash, movedirs in dependencies:
-        if url.startswith('libs://'):
-            libsdir = os.path.join(get_script_dir(), '..', 'libs')
-            archivedir = os.path.join(libsdir, url[7:])
-        else:
-            print("Checking for %s" % name)
-
-            # Get the path that the package should be downloaded to
-            filepath = os.path.join(package_dir, archivename)
-
-            # Check if the package is already downloaded (and has correct SHA key).
-            if os.path.exists(filepath):
-                calculated_hash = calc_sha_hash(filepath)
-                if expected_hash != calculated_hash:
-                    print("Package of %s at '%s' has wrong hash - discarding" % (name, archivename))
-                    print("(Got %s, expected %s)" % (calculated_hash, expected_hash))
-                    os.unlink(filepath)
-
-            # Download the package if needed.
-            if not os.path.exists(filepath):
-                print("Downloading %s from %s" % (name, url))
-                download_file(url, filepath)
-                calculated_hash = calc_sha_hash(filepath)
-                if expected_hash != calculated_hash:
-                    print("Package of %s at '%s' has wrong hash - cannot continue" % (name, archivename))
-                    print("(Got %s, expected %s)" % (calculated_hash, expected_hash))
-                    return False
-
-            print("Unpacking %s" % name)
-            archivedir = unpack_archive(filepath, temp_dir)
+        archivedir = get_archive_from_url(name, url, archivename, expected_hash)
+        if archivedir is None:
+            return False
 
         print("Installing %s" % name)
         if not install_archive(archivedir, install_dir):
