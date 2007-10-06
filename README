@@ -32,6 +32,19 @@ be separated completely from Flax so will need independent
 installation. See http://xappy.googlecode.com.
 
 
+You can get most of the dependencies installed automatically simply by
+running:
+
+   python utils/install_dependencies.py
+
+This will install the dependencies locally (to a directory localinst, which
+flax looks for when it starts up), so you won't need root or administrator
+privileges.
+
+Currently, you will still need to install xapian and its python bindings
+manually.
+
+
 Platforms.
 ----------
 
