@@ -33,7 +33,7 @@ import tarfile
 import tempfile
 import urllib2
 
-# List of the pure-python packages which are dependencies.
+# List of the python packages which are dependencies.
 # FIXME - xappy should be in this list (but doesn't yet have package scripts
 # written).
 #
@@ -44,7 +44,7 @@ import urllib2
 #  - SHA1 sum of package
 #  - Directories that needs to be moved to install dir after running setup.py
 #    (relative to install dir)  (with unix-style slashes, and globs)
-pure_python_dependencies = (
+python_dependencies = (
     ('HTMLTemplate templating system',
      'http://flaxcode.googlecode.com/files/HTMLTemplate-1.4.2.tar.gz',
      'HTMLTemplate.tar.gz',
@@ -57,11 +57,25 @@ pure_python_dependencies = (
      '8aae47ff892b42761c21ca552222f8f251dbc1b2',
      (),
     ),
+    ('HtmlToText text extractor',
+     'libs://htmltotext',
+     '',
+     '',
+     (),
+    ),
 )
-pure_python_dependencies = pure_python_dependencies[0:]
 
 # List of the non-pure-python dependencies.
 # FIXME - none yet, but Xapian should be one.
+
+def get_script_dir():
+    """Get the path of the directory containing this script.
+
+    """
+    global scriptdir
+    if 'scriptdir' not in globals():
+        scriptdir = os.path.dirname(os.path.abspath(__file__))
+    return scriptdir
 
 def get_package_dir():
     """Get the path to store the downloaded packages in.
@@ -69,8 +83,7 @@ def get_package_dir():
     This is a standard location relative to this script.
 
     """
-    scriptdir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.abspath(os.path.join(scriptdir, '..', 'deps'))
+    return os.path.abspath(os.path.join(get_script_dir(), '..', 'deps'))
 
 def get_install_dir():
     """Get the path to install the dependencies in.
@@ -78,8 +91,7 @@ def get_install_dir():
     This is a standard location relative to this script.
 
     """
-    scriptdir = os.path.dirname(os.path.abspath(__file__))
-    return os.path.abspath(os.path.join(scriptdir, '..', 'libs'))
+    return os.path.abspath(os.path.join(get_script_dir(), '..', 'localinst'))
 
 def calc_sha_hash(filepath):
     """Calculate the SHA1 hash of the file at the given path.
@@ -174,31 +186,35 @@ def install_pure_deps(dependencies, temp_dir):
     package_dir = get_package_dir()
     install_dir = get_install_dir()
     for name, url, archivename, expected_hash, movedirs in dependencies:
-        print("Checking for %s" % name)
+        if url.startswith('libs://'):
+            libsdir = os.path.join(get_script_dir(), '..', 'libs')
+            archivedir = os.path.join(libsdir, url[7:])
+        else:
+            print("Checking for %s" % name)
 
-        # Get the path that the package should be downloaded to
-        filepath = os.path.join(package_dir, archivename)
+            # Get the path that the package should be downloaded to
+            filepath = os.path.join(package_dir, archivename)
 
-        # Check if the package is already downloaded (and has correct SHA key).
-        if os.path.exists(filepath):
-            calculated_hash = calc_sha_hash(filepath)
-            if expected_hash != calculated_hash:
-                print("Package of %s at '%s' has wrong hash - discarding" % (name, archivename))
-                print("(Got %s, expected %s)" % (calculated_hash, expected_hash))
-                os.unlink(filepath)
+            # Check if the package is already downloaded (and has correct SHA key).
+            if os.path.exists(filepath):
+                calculated_hash = calc_sha_hash(filepath)
+                if expected_hash != calculated_hash:
+                    print("Package of %s at '%s' has wrong hash - discarding" % (name, archivename))
+                    print("(Got %s, expected %s)" % (calculated_hash, expected_hash))
+                    os.unlink(filepath)
 
-        # Download the package if needed.
-        if not os.path.exists(filepath):
-            print("Downloading %s from %s" % (name, url))
-            download_file(url, filepath)
-            calculated_hash = calc_sha_hash(filepath)
-            if expected_hash != calculated_hash:
-                print("Package of %s at '%s' has wrong hash - cannot continue" % (name, archivename))
-                print("(Got %s, expected %s)" % (calculated_hash, expected_hash))
-                return False
+            # Download the package if needed.
+            if not os.path.exists(filepath):
+                print("Downloading %s from %s" % (name, url))
+                download_file(url, filepath)
+                calculated_hash = calc_sha_hash(filepath)
+                if expected_hash != calculated_hash:
+                    print("Package of %s at '%s' has wrong hash - cannot continue" % (name, archivename))
+                    print("(Got %s, expected %s)" % (calculated_hash, expected_hash))
+                    return False
 
-        print("Unpacking %s" % name)
-        archivedir = unpack_archive(filepath, temp_dir)
+            print("Unpacking %s" % name)
+            archivedir = unpack_archive(filepath, temp_dir)
 
         print("Installing %s" % name)
         if not install_archive(archivedir, install_dir):
@@ -221,7 +237,7 @@ if __name__ == '__main__':
     install_dir = get_install_dir()
     temp_dir = tempfile.mkdtemp(prefix='flax')
     try:
-        if not install_pure_deps(pure_python_dependencies, temp_dir):
+        if not install_pure_deps(python_dependencies, temp_dir):
             sys.exit(1)
 
         sys.exit(0)
