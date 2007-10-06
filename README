@@ -14,36 +14,44 @@ http://flaxcode.googlecode.com.
 Dependencies:
 -------------
 
-You need the following:
+Flax depends on Python 2.5, available from http://www.python.org/
 
-Python at at least version 2.5 with the following packages installed:
-
-- xapian with its python bindings (see http://www.xapian.org),
-  currently you need the subversion trunk.
-
-- CherryPy - see http://www.cherrypy.org (cherrypy 3 is needed.)
-
-- HTMLTemplate - see http://freespace.virgin.net/hamish.sanderson/htmltemplate.html
-
-Note also that xappy (formerly secore), is grabbed as an external when
-you check out Flax from subversion, so if you're reading this file you
-presumably already have it, but at some point in the future this might
-be separated completely from Flax so will need independent
-installation. See http://xappy.googlecode.com.
-
-
-You can get most of the dependencies installed automatically simply by
-running:
+Flax also depends on several Python modules which are not part of the
+standard distribution.  The easiest way to install these dependencies is
+simply to run:
 
    python utils/install_dependencies.py
 
-This will install the dependencies locally (to a directory localinst, which
-flax looks for when it starts up), so you won't need root or administrator
-privileges.
+This will install the dependencies locally (to a directory "localinst",
+which flax looks for when it starts up), so you won't need root or
+administrator privileges.
 
-Currently, you will still need to install xapian and its python bindings
-manually.
+Flax also depends on Xapian and its python bindings, which you currently
+need to install manually (see http://www.xapian.org - you will need to use
+a recent snapshot).
 
+
+If you want to install the dependencies manually, you will need the
+following pacakges:
+
+- xapian with its python bindings (see http://www.xapian.org),
+  currently you need a recent snapshot (release 1.0.3 does not contain all
+  the needed features - hopefully 1.0.4 will be suitable).
+
+- CherryPy - see http://www.cherrypy.org (cherrypy 3 is needed).
+
+- HTMLTemplate - see http://freespace.virgin.net/hamish.sanderson/htmltemplate.html
+
+- Xappy - see http://xappy.org/
+
+  Note that Xappy is grabbed as an external when you check out Flax from
+  Subversion, so if you're reading this file you probably already have it.
+  However, if you don't use the install_dependencies.py file, you will need
+  to install xappy somewhere on the Python path.
+
+- htmltotext - This is included in the flax distribution (in
+  libs/htmltotext), but if you don't use the install_dependencies.py file,
+  you will need to install htmltotext somewhere on the Python path.
 
 Platforms.
 ----------
