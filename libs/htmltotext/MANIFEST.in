@@ -1,5 +1,6 @@
 include MANIFEST.in
 include README
+include ChangeLog
 include setup.py
 include eggsetup.py
 include src/*.h

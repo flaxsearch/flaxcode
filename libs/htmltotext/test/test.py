@@ -24,6 +24,15 @@ import htmltotext
 
 class TestHtmlToText(unittest.TestCase):
 
+    def test_extract_body(self):
+        """Test extracting the body text.
+
+        """
+        html = '<html><body><p>Hello  World</p></body></html>'
+        self.assertEqual(htmltotext.extract(html).title, u'')
+        self.assertEqual(htmltotext.extract(html).description, u'')
+        self.assertEqual(htmltotext.extract(html).content, u'Hello World')
+
     def test_default_charset(self):
         """Test a conversion supplying a string, which should use the default
         character set.
@@ -63,7 +72,7 @@ class TestHtmlToText(unittest.TestCase):
         """
         html = '<meta name="description" content="desc"/><title>foo</title><body>body</body>'
         self.assertEqual(htmltotext.extract(html).title, u'foo')
-        self.assertEqual(htmltotext.extract(html).sample, u'desc')
+        self.assertEqual(htmltotext.extract(html).description, u'desc')
         self.assertEqual(htmltotext.extract(html).keywords, u'')
         self.assertEqual(htmltotext.extract(html).indexing_allowed, True)
         self.assertEqual(htmltotext.extract(html).badly_encoded, False)
@@ -74,7 +83,7 @@ class TestHtmlToText(unittest.TestCase):
         """
         html = '<meta name="robots" content="noindex"/><title>foo</title><body>body</body>'
         self.assertEqual(htmltotext.extract(html).title, u'')
-        self.assertEqual(htmltotext.extract(html).sample, u'')
+        self.assertEqual(htmltotext.extract(html).description, u'')
         self.assertEqual(htmltotext.extract(html).keywords, u'')
         self.assertEqual(htmltotext.extract(html).indexing_allowed, False)
 

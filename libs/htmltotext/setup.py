@@ -109,7 +109,7 @@ that library).
 
 
 setup(name = "htmltotext",
-      version = "0.5",
+      version = "0.6",
       author = "Richard Boulton",
       author_email = "richard@lemurconsulting.com",
       maintainer = "Richard Boulton",

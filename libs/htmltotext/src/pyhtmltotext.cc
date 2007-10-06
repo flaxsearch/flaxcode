@@ -28,7 +28,8 @@ typedef struct {
     PyObject *indexing_allowed;
     PyObject *badly_encoded;
     PyObject *title;
-    PyObject *sample;
+    PyObject *content;
+    PyObject *description;
     PyObject *keywords;
 } ParsedPage;
 
@@ -38,7 +39,8 @@ ParsedPage_dealloc(ParsedPage * self)
     Py_XDECREF(self->indexing_allowed);
     Py_XDECREF(self->badly_encoded);
     Py_XDECREF(self->title);
-    Py_XDECREF(self->sample);
+    Py_XDECREF(self->content);
+    Py_XDECREF(self->description);
     Py_XDECREF(self->keywords);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -73,9 +75,12 @@ static PyMemberDef ParsedPage_members[] = {
     {"title", T_OBJECT_EX,
 	offsetof(ParsedPage, title), 0,
 	"The title of the document."},
-    {"sample", T_OBJECT_EX,
-	offsetof(ParsedPage, sample), 0,
+    {"content", T_OBJECT_EX,
+	offsetof(ParsedPage, content), 0,
 	"Text from the document body."},
+    {"description", T_OBJECT_EX,
+	offsetof(ParsedPage, description), 0,
+	"Description for the document (based on meta tags)."},
     {"keywords", T_OBJECT_EX,
 	offsetof(ParsedPage, keywords), 0,
 	"Keywords for the document (based on meta tags)."},
@@ -89,12 +94,12 @@ ParsedPage_str(ParsedPage * parsedpage)
     PyObject * args = NULL;
     PyObject * format = NULL;
     PyObject * empty = NULL;
-    const char * formatstr = "ParsedPage(title=%r, sample=%r, keywords=%r)";
+    const char * formatstr = "ParsedPage(title=%r, content=%r, description=%r, keywords=%r)";
     
     format = PyUnicode_Decode(formatstr, strlen(formatstr), "utf-8", NULL);
     if (format == NULL) goto fail;
 
-    args = PyTuple_New(3);
+    args = PyTuple_New(4);
     if (args == NULL) goto fail;
 
     Py_UNICODE emptystring[0];
@@ -109,20 +114,28 @@ ParsedPage_str(ParsedPage * parsedpage)
 	PyTuple_SET_ITEM(args, 0, parsedpage->title);
     }
 
-    if (parsedpage->sample == NULL) {
+    if (parsedpage->content == NULL) {
 	Py_INCREF(empty);
 	PyTuple_SET_ITEM(args, 1, empty);
     } else {
-	Py_INCREF(parsedpage->sample);
-	PyTuple_SET_ITEM(args, 1, parsedpage->sample);
+	Py_INCREF(parsedpage->content);
+	PyTuple_SET_ITEM(args, 1, parsedpage->content);
+    }
+
+    if (parsedpage->description == NULL) {
+	Py_INCREF(empty);
+	PyTuple_SET_ITEM(args, 2, empty);
+    } else {
+	Py_INCREF(parsedpage->description);
+	PyTuple_SET_ITEM(args, 2, parsedpage->description);
     }
 
     if (parsedpage->keywords == NULL) {
 	Py_INCREF(empty);
-	PyTuple_SET_ITEM(args, 2, empty);
+	PyTuple_SET_ITEM(args, 3, empty);
     } else {
 	Py_INCREF(parsedpage->keywords);
-	PyTuple_SET_ITEM(args, 2, parsedpage->keywords);
+	PyTuple_SET_ITEM(args, 3, parsedpage->keywords);
     }
 
     result = PyUnicode_Format(format, args);
@@ -267,11 +280,17 @@ extract(PyObject *self, PyObject *args)
 					      &(result->badly_encoded));
     if (result->title == NULL) goto fail;
 
-    Py_XDECREF(result->sample);
-    result->sample = PyUnicode_Decode(parser.sample.data(),
-				      parser.sample.size(),
-				      "UTF-8", "replace");
-    if (result->sample == NULL) goto fail;
+    Py_XDECREF(result->content);
+    result->content = PyUnicode_Decode(parser.dump.data(),
+				       parser.dump.size(),
+				       "UTF-8", "replace");
+    if (result->content == NULL) goto fail;
+
+    Py_XDECREF(result->description);
+    result->description = PyUnicode_Decode(parser.sample.data(),
+					   parser.sample.size(),
+					   "UTF-8", "replace");
+    if (result->description == NULL) goto fail;
 
     Py_XDECREF(result->keywords);
     result->keywords = PyUnicode_Decode(parser.keywords.data(),
