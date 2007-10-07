@@ -99,6 +99,7 @@ def render_options(template, flax_data):
 
     template.main.db_dir.atts["value"] = flax_data.db_dir
     template.main.flax_dir.atts["value"] = flax_data.flax_dir
+    log_settings = flax_data.log_settings
 
     def fill_log_events(node, event):
         # the empty string can be used to name the root logger
@@ -108,12 +109,12 @@ def render_options(template, flax_data):
             inp.atts["name"] = event
             inp.atts["value"] = level
             inp.content = level[0]
-            if flax_data.log_settings[event] == level:
+            if log_settings[event] == level:
                 inp.atts['checked'] = 'on'
             
         node.event_radio.repeat(fill_input, flax_data.log_levels) 
                 
-    template.main.collection_events.repeat(fill_log_events, sorted(flax_data.log_settings))
+    template.main.collection_events.repeat(fill_log_events, sorted(log_settings))
 
     def fill_meanings(span, level):
         span.raw = '<strong>%s</strong>%s' % (level[0], level[1:])
