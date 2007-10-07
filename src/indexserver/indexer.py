@@ -20,7 +20,7 @@ except ImportError:
     windows = False
 
 import simple_text_filter
-import htmltotext_filter
+#import htmltotext_filter
 
 util.setup_psyco()
 
@@ -37,7 +37,7 @@ class Indexer(object):
     """
     
     def __init__(self):
-        self._filter_map = {"Xapian": htmltotext_filter.html_filter,
+        self._filter_map = {"Xapian": "", #htmltotext_filter.html_filter,
                             "Text": simple_text_filter.text_filter}
         if windows:
             self._filter_map["IFilter"] =  w32com_ifilter.ifilter_filter
@@ -100,6 +100,7 @@ class Indexer(object):
     def _process_file(self, file_name, conn, collection_name, filter_settings):
         self.log.info("Indexing collection %s: processing file: %s" % (collection_name, file_name))
         _, ext = os.path.splitext(file_name)
+        ext=ext.lower()
         if self.stale(file_name, conn):
             filter = self._find_filter(filter_settings[ext[1:]])
             if filter:
