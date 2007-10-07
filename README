@@ -4,12 +4,12 @@ Flax
 Flax is web based search system.
 
 At the moment we are at the prototyping stage. Feel free to
-experiment, but the software is not even close to being ready for
-production use.
+experiment, but the software is not ready for production use.
 
 Full documentation will be produced at some point. In the mean time
 you have this file, the source, and whatever you can find on
 http://flaxcode.googlecode.com.
+
 
 Dependencies:
 -------------
@@ -78,53 +78,33 @@ then::
   python cpserver.py
 
 Which will start the web server. By default the server will run on
-port 8090, but you can change that by editing cp.conf.
+port 8090, but you can change that by editing cp.conf. The server can
+be terminated
+
+Note that flax may start some other processes. These should all die
+when the main
 
 Administration functionality is available at
 http://localhost:8090/admin
 
+In the shipped state use login and password "admin" to access these
+pages. This however depends on the cherrypy configuration mechanism
+and if you change the file cp.conf then this may not work.
+
 The web server will by default read its state from a file called
 flax.flx, and on termination save its state to that file. The files
 can be changed with command line options, invoke with --help for more
-details.
+details. The format of this file is not guaranteed to be compatible
+across different versions of Flax, so on updating from svn you might
+need to delete any such files.
 
-Note that if the input file cannot be read for some reason (e.g. it's
-not present or the data is corrupted) then the system will start with
-some default settings.
-
-
-Indexing of documents is done by a separate indexer, (which can be
-invoked from the web administration interface).
-
-Flax uses pyro to communicate between different processes. The pyro
-name service and event service must be started. See the pyro docs for
-how to do this on your platform. On linux invoke pyro-ns and
-pyro-es. On windows invoke pyro-ns.cmd and pyro-es.cmd which are
-installed in <python>\Scripts, where <python> is the installed python
-directory.
-
-Then start the log configuration server:
-
-  cd logconfserver
-  python logconfserver.py
-
-and the indexserver:
-
-  cd indexserver
-  python indexserver.py
-
-
-(At realease time these will all be started automatically, if need be,
-when the web server starts up, but for the time being it's convenient
-to keep the invocations separate.)
+If the state file cannot be read for some reason (e.g. it's not
+present or the data is corrupted) then the system will start with some
+default settings.
 
 To test that the indexer is working click on the "index now" button
 from a document collection detail page in the web app and you should
 see some diagnostic information being printed by the indexserver.
-
-(At the moment the web server invokes the indexer synchronously to aid
-debugging, so you might have to wait for a while if you have a lot of
-documents. But in released versions this will be asynchronous.)
 
 
 
