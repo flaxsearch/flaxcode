@@ -170,8 +170,8 @@ def install_archive(archivedir, install_dir):
     subp = subprocess.Popen(setupcmd, env=env,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
-    rc = subp.wait()
     subout, suberr = subp.communicate()
+    rc = subp.wait()
     if rc != 0:
         if subout:
             print subout
