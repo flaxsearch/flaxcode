@@ -26,13 +26,14 @@ This will install the dependencies locally (to a directory "localinst",
 which flax looks for when it starts up), so you won't need root or
 administrator privileges.
 
-Flax also depends on Xapian and its python bindings, which you currently
-need to install manually (see http://www.xapian.org - you will need to use
-a recent snapshot).
-
+Flax also depends on Xapian and its python bindings; as well as the
+processing module, which you currently need to install manually. See
+http://www.xapian.org (you will need to use a recent snapshot) and
+http://cheeseshop.python.org/pypi/processing (currently we use the
+0.34 release).
 
 If you want to install the dependencies manually, you will need the
-following pacakges:
+following packages:
 
 - xapian with its python bindings (see http://www.xapian.org),
   currently you need a recent snapshot (release 1.0.3 does not contain all
@@ -79,10 +80,11 @@ then::
 
 Which will start the web server. By default the server will run on
 port 8090, but you can change that by editing cp.conf. The server can
-be terminated
+be terminated by raising KeyboardInterupt (normally hitting
+Control-C).
 
-Note that flax may start some other processes. These should all die
-when the main
+Note that Flax may start some other processes. These should all die
+when the main process finishes.
 
 Administration functionality is available at
 http://localhost:8090/admin
@@ -126,8 +128,8 @@ The docstrings can be used to generate some api documentation. Use::
    epydoc -v --config epydoc.conf
 
 and then look in the html subdirectory. Epydoc at at least version 3
-is needed, and since the doctrings are in restructured text format you
-also need docutils installed.
+is needed, and since the docstrings are in restructured text format
+you also need docutils installed.
 
 
 
