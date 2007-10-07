@@ -4,6 +4,8 @@ import logging
 import os
 import time
 
+import processing
+
 import sys
 sys.path.append('..')
 import setuppaths
@@ -40,7 +42,7 @@ class Indexer(object):
         if windows:
             self._filter_map["IFilter"] =  w32com_ifilter.ifilter_filter
 
-    def do_indexing(self, doc_col, filter_settings):
+    def do_indexing(self, col_name, dbname, filter_settings, files):
         """
         Index the database for doc_col using filters given by
         filter_settings. The filename is used as the document id, and
@@ -49,7 +51,7 @@ class Indexer(object):
         """
         try:
             self.log = logging.getLogger('indexing')
-            self.log.info("Indexing collection: %s with filter settings: %s" % (doc_col.name, filter_settings))
+            self.log.info("Indexing collection: %s with filter settings: %s" % (col_name, filter_settings))
 
             # This will error is the directory containing the
             # databases has disappeared, but that's probably a good
@@ -57,21 +59,21 @@ class Indexer(object):
             # where it's database is - if it's asking for indexing of
             # a non-existent database, then it's the collection's
             # problem not the indexer's.
-            conn = xappy.IndexerConnection(doc_col.dbname())
+            conn = xappy.IndexerConnection(dbname)
             
             docs_found = dict((id, False) for id in conn.iterids())
 
-            for f in doc_col.files():
-                self._process_file(f, conn, doc_col.name, filter_settings)
+            for f in files:
+                self._process_file(f, conn, col_name, filter_settings)
                 docs_found[f]=True
 
             for id, found in docs_found.iteritems():
                 if not found:
-                    self.log.info("Removing %s from %s" % (id, doc_col.name))
+                    self.log.info("Removing %s from %s" % (id, col_name))
                     conn.delete(id)
-            self.log.info("Indexing of %s finished" % doc_col.name)
-        except xappy.DatabaseLockError, e:
-            self.log.error("Attempt to index locked database: %s, ignoring" % doc_col.dbname())
+            self.log.info("Indexing of %s finished" % col_name)
+        except xappy.XapianDatabaseLockError, e:
+            self.log.error("Attempt to index locked database: %s, ignoring" % dbname)
         except Exception, e:
             self.log.error("Unhandled error in do_indexing: %s" % str(e))
             import traceback
@@ -113,6 +115,7 @@ class Indexer(object):
                     doc = xappy.UnprocessedDocument(fields = fields)
                     doc.id = file_name
                     conn.replace(doc)
+                    self.log.info("Added (or replaced) doc %s to collection %s with text from source file %s" % (doc.id, collection_name, file_name))
                 except Exception, e:
                     self.log.error("Filtering file: %s with filter: %s raised exception %s, skipping"
                                    % (file_name, filter, e))
@@ -137,4 +140,33 @@ class Indexer(object):
         # So let the exception through in order to diagnose the
         # problem.  We are potentially vunerable to a filter that adds
         # things with that field, but the restriction is documented.
-        return os.path.getmtime(file_name) != float(doc.data['mtime'][0])
+        try:
+            rv =  os.path.getmtime(file_name) != float(doc.data['mtime'][0])
+        except KeyError:
+            self.log.error("Existing document %s has no mtime field" % doc.id)
+            return True
+        return rv
+
+def index_server_loop(inp, loginp):
+    import logclient
+    logclient.LogListener(loginp)
+    logclient.LogConf().update_log_config()
+    indexer = Indexer()
+    while 1:
+        args=inp.recv()
+        indexer.do_indexing(*args)
+
+class IndexServer(object):
+    def __init__(self):       
+        self.logconfio = processing.Pipe()
+        self.indexingio = processing.Pipe()
+        server=processing.Process(target = index_server_loop, args=(self.indexingio[1], self.logconfio[1]))
+        server.setDaemon(True)
+        server.start()
+
+    def do_indexing(self, col, filter_settings):
+        self.indexingio[0].send((col.name, col.dbname(), filter_settings, list(col.files())))
+
+    @property
+    def logconf_input(self):
+        return self.logconfio[0]

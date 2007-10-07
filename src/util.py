@@ -53,27 +53,6 @@ def gen_until_exception(it, ex, test):
         else:
             raise
 
-import Pyro.core
-import Pyro.naming
-
-def run_server(name, server):
-    remoting_server = Pyro.core.ObjBase()
-    remoting_server.delegateTo(server)
-    Pyro.core.initServer()
-    daemon = Pyro.core.Daemon()
-    ns = Pyro.naming.NameServerLocator().getNS()
-    daemon.useNameServer(ns)
-    try:
-        ns.unregister(name)
-    except Pyro.errors.NamingError:
-        pass
-
-    daemon.connect(remoting_server, name)
-    try:
-        daemon.requestLoop()
-    finally:
-        daemon.shutdown(True)
-
 class DelayThread(threading.Thread):
     """ A thread that runs it's action method periodically """
 
@@ -97,7 +76,7 @@ class FileWatcher(DelayThread):
     """
     
     def __init__(self, filename, change_action,  **kwargs):
-        util.DelayThread.__init__(self, **kwargs)
+        DelayThread.__init__(self, **kwargs)
         self.filename = filename
         self.mtime = os.path.getmtime(filename)
         self.change_action = change_action

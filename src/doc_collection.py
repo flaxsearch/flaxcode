@@ -3,7 +3,6 @@ from __future__ import with_statement
 import sys
 import copy
 import os
-import Pyro.core
 
 import filespec
 import dbspec
@@ -36,12 +35,6 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
         filespec.FileSpec.update(self, **kwargs)
         dbspec.DBSpec.update(self, **kwargs)
         schedulespec.ScheduleSpec.update(self, **kwargs)
-                
-    def do_indexing(self, filter_settings):
-        indexer = Pyro.core.getProxyForURI("PYRONAME://indexer")
-        indexer._setOneway("do_indexing")
-        indexer.do_indexing(self,  filter_settings)
-        
 
     def dbname(self):
         return os.path.join(self.db_dir, self.name+'.db')

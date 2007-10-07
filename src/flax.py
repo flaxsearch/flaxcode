@@ -32,7 +32,7 @@ class FlaxOptions(object):
         if "default" in vals:
             new_levels[""] = vals["default"]
 
-        lq = logclient.LogQuery()
+        lq = logclient.LogConf()
         lq.set_levels(new_levels)
 
     def _get_log_settings(self):

@@ -42,7 +42,7 @@ class Collections(FlaxResource):
     def _bad_collection_name(self, name):
         self._bad_request("%s does not name a collection." % name if name else "No collection name supplied")
 
-    def __init__(self, flax_data, list_template, detail_template):
+    def __init__(self, flax_data, list_template, detail_template, index_server):
         """
         Collections constructor.
         
@@ -54,6 +54,7 @@ class Collections(FlaxResource):
         self._flax_data = flax_data
         self._list_template = list_template
         self._detail_template = detail_template
+        self._index_server = index_server
 
     def _redirect_to_view(self, col):
         raise cherrypy.HTTPRedirect('/admin/collections/' + col + '/view' )
@@ -98,7 +99,7 @@ class Collections(FlaxResource):
         self._only_post()
 
         if col and col in self._flax_data.collections:
-            self._flax_data.collections[col].do_indexing(self._flax_data.filter_settings)
+            self._index_server.do_indexing(self._flax_data.collections[col], self._flax_data.filter_settings)
             self._redirect_to_view(col)
         else:
             self._bad_collection_name(col)
@@ -323,7 +324,7 @@ class Admin(Top):
         return self._index_template ()
 
 
-def start_web_server(flax_data):
+def start_web_server(flax_data, index_server):
     """
     Run Flax web server.
     """
@@ -331,7 +332,8 @@ def start_web_server(flax_data):
 
     collections = Collections(flax_data,
                               templates.collection_list_render,
-                              templates.collection_detail_render)
+                              templates.collection_detail_render,
+                              index_server)
 
 
     admin = Admin(flax_data,
@@ -352,17 +354,24 @@ def startup():
     import optparse
     import logclient
     import scheduler
+    import sys
+    sys.path.append('indexserver')
+    import indexer
+    import processing
     op = optparse.OptionParser()
     op.add_option('-i', '--input-file', dest='input_file', help = "Flax input data file (default is flax.flx)", default = 'flax.flx')
     op.add_option('-o', '--output-file', dest='output_file', help= "Flax output data file (default is flax.flx)", default = 'flax.flx')
     (options, args) = op.parse_args()
     flax.options = persist.read_flax(options.input_file)
     try:
-        logclient.LogListener().start()
-        logclient.LogQuery().update_log_config()
-        scheduler.ScheduleIndexing().start()
+        webserver_logconfio = processing.Pipe()
+        index_server = indexer.IndexServer()
+        logclient.LogConfPub('flaxlog.conf', [webserver_logconfio[0], index_server.logconf_input])
+        logclient.LogListener(webserver_logconfio[1]).start()
+        logclient.LogConf().update_log_config()
+        scheduler.ScheduleIndexing(index_server).start()
         persist.DataSaver(options.output_file).start()
-        start_web_server(flax.options)
+        start_web_server(flax.options, index_server)
         print "Flax web server shutting down..."
     finally:
         persist.store_flax(options.output_file, flax.options)
