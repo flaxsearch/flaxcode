@@ -11,8 +11,7 @@ import logclient
 class FlaxOptions(object):
     """
     global options for Flax
-    """
-    
+    """    
     def __init__(self, collections, db_dir, flax_dir, formats, 
                  logger_names, filters, filter_settings, languages):
         
@@ -88,8 +87,6 @@ def make_options():
                   ("es", "Spanish"),
                   ("sv", "Swedish")]
               
-              
-
     import flax_collections
 
     cols = flax_collections.FlaxCollections(db_dir)
