@@ -33,6 +33,7 @@ import sys
 import tarfile
 import tempfile
 import urllib2
+import zipfile
 
 # List of the python packages which are dependencies.
 # FIXME - xappy should be in this list (but doesn't yet have package scripts
@@ -56,6 +57,12 @@ python_dependencies = (
      'http://flaxcode.googlecode.com/files/CherryPy-3.0.2.tar.gz',
      'CherryPy.tar.gz',
      '8aae47ff892b42761c21ca552222f8f251dbc1b2',
+     (),
+    ),
+    ('Processing process control module',
+     'http://flaxcode.googlecode.com/files/processing-0.34.zip',
+     'processing.zip',
+     'b877cd0b444330df5229f8e8abf4bc3cc4d846f6',
      (),
     ),
     ('HtmlToText text extractor',
@@ -134,8 +141,8 @@ def download_file(url, destpath):
         if os.path.exists(tmpname):
             os.unlink(tmpname)
 
-def unpack_archive(filename, tempdir):
-    """Unpack the archive at filename.
+def unpack_tar_archive(filename, tempdir):
+    """Unpack the tar archive at filename.
 
     Puts the contents in a directory with basename tempdir.
 
@@ -154,6 +161,47 @@ def unpack_archive(filename, tempdir):
         return os.path.join(tempdir, dirname)
     finally:
         tf.close()
+
+def unpack_zip_archive(filename, tempdir):
+    """Unpack the zip archive at filename.
+
+    Puts the contents in a directory with basename tempdir.
+
+    """
+    zf = zipfile.ZipFile(filename, mode="r")
+    try:
+        dirname = None
+        for membername in zf.namelist():
+            topdir = membername.split('/', 1)[0]
+            if dirname is None:
+                dirname = topdir
+            else:
+                if dirname != topdir:
+                    raise ValueError('Archive has multiple toplevel directories: %s and %s' % (topdir, dirname))
+            data = zf.read(membername)
+            outfile = os.path.join(tempdir, membername)
+            outdir = os.path.dirname(outfile)
+            if not os.path.exists(outdir):
+                os.makedirs(outdir)
+            outfd = file(outfile, "wb")
+            try:
+                outfd.write(data)
+            finally:
+                outfd.close()
+        return os.path.join(tempdir, dirname)
+    finally:
+        zf.close()
+
+def unpack_archive(filename, tempdir):
+    """Unpack the archive at filename.
+
+    Puts the contents in a directory with basename tempdir.
+
+    """
+    if filename.lower().endswith('.zip'):
+        return unpack_zip_archive(filename, tempdir)
+    else:
+        return unpack_tar_archive(filename, tempdir)
 
 def install_archive(archivedir, install_dir):
     """Install the unpacked archive in install_dir.
