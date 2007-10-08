@@ -23,6 +23,7 @@ adds to its search path at startup, so root privileges are not needed.
 """
 __docformat__ = "restructuredtext en"
 
+import copy
 import glob
 import os
 import sha
@@ -165,8 +166,8 @@ def install_archive(archivedir, install_dir):
     setupcmd.append('--install-headers=%s' % install_dir)
     setupcmd.append('--install-scripts=%s' % install_dir)
     setupcmd.append('--install-data=%s' % install_dir)
-    env = {'PYTHONPATH': ':'.join(sys.path + [install_dir]),
-           'PATH': os.environ.get('PATH', '')}
+    env = copy.copy(os.environ)
+    env['PYTHONPATH'] = ':'.join(sys.path + [install_dir])
     os.chdir(archivedir)
     subp = subprocess.Popen(setupcmd, env=env,
                             stdout=subprocess.PIPE,
