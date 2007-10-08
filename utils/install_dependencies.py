@@ -11,7 +11,7 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -86,7 +86,7 @@ def get_script_dir():
 
 def get_package_dir():
     """Get the path to store the downloaded packages in.
-    
+
     This is a standard location relative to this script.
 
     """
@@ -94,7 +94,7 @@ def get_package_dir():
 
 def get_install_dir():
     """Get the path to install the dependencies in.
-     
+
     This is a standard location relative to this script.
 
     """
@@ -136,7 +136,7 @@ def download_file(url, destpath):
 
 def unpack_archive(filename, tempdir):
     """Unpack the archive at filename.
-    
+
     Puts the contents in a directory with basename tempdir.
 
     """
@@ -253,7 +253,22 @@ def install_pure_deps(dependencies, temp_dir):
 
         print("")
     return True
-        
+
+def make_file_writable(filename):
+    if os.name == 'nt':
+        import win32api, win32con
+        x = win32api.GetFileAttributes(filename)
+        x &= ~win32con.FILE_ATTRIBUTE_READONLY
+        win32api.SetFileAttributes(filename, x)
+    else:
+        os.chmod(filename, 700)
+
+def make_tree_writable(root):
+    for dirpath, dirnames, filenames in os.walk(root):
+        for filename in filenames:
+            filepath = os.path.join(dirpath, filename)
+            make_file_writable(filepath)
+
 if __name__ == '__main__':
     package_dir = get_package_dir()
     install_dir = get_install_dir()
@@ -264,5 +279,6 @@ if __name__ == '__main__':
 
         sys.exit(0)
     finally:
+        make_tree_writable(temp_dir)
         shutil.rmtree(temp_dir)
 
