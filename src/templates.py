@@ -121,19 +121,6 @@ def render_options(template, flax_data):
 
     template.main.level_meaning.repeat(fill_meanings, flax_data.log_levels)
 
-    def fill_formats(node, fmt):
-        
-        def fill_filters(node, filter_name):
-            node.atts["value"] = filter_name
-            node.content = filter_name
-            if filter_name == flax_data.filter_settings[fmt]:
-               node.atts["selected"]="selected"
- 
-        node.format_label.content = fmt
-        node.format_select.atts['name'] = fmt
-        node.format_select.filter.repeat(fill_filters, flax_data.filters)
-
-    template.main.format_filters.repeat(fill_formats, flax_data.formats)
 
 ##### Search Templates #####
 
