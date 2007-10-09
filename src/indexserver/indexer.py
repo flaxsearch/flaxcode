@@ -49,9 +49,14 @@ class Indexer(object):
         this is used to remove documents in the database that no
         longer have an associated file.
         """
+        conn = None
         try:
             self.log = logging.getLogger('indexing')
             self.log.info("Indexing collection: %s with filter settings: %s" % (col_name, filter_settings))
+
+            if not os.path.exists(dbname):
+                self.log.error("Xapian database for collection %s not present - not indexing" % col_name)
+                return
 
             # This will error is the directory containing the
             # databases has disappeared, but that's probably a good
@@ -79,7 +84,8 @@ class Indexer(object):
             import traceback
             traceback.print_exc()
         finally:
-            conn.close()
+            if conn:
+                conn.close()
 
     def _find_filter(self, filter_name):
         return self._filter_map[filter_name] if filter_name in self._filter_map else None
