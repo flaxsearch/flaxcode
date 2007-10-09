@@ -310,10 +310,6 @@ class Admin(Top):
 
             self._flax_data.log_settings = kwargs
 
-            for format in self._flax_data.formats:
-                if format in kwargs:
-                    self._flax_data.filter_settings[format] = kwargs[format]
-
         return self._options_template (self._flax_data)
 
     @cherrypy.expose
