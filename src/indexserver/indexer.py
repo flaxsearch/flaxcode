@@ -40,7 +40,7 @@ class Indexer(object):
         self._filter_map = {"Xapian": "", #htmltotext_filter.html_filter,
                             "Text": simple_text_filter.text_filter}
         if windows:
-            self._filter_map["IFilter"] =  w32com_ifilter.ifilter_filter
+            self._filter_map["IFilter"] =  w32com_ifilter.remote_ifilter
 
     def do_indexing(self, col_name, dbname, filter_settings, files):
         """

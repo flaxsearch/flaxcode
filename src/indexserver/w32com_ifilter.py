@@ -112,3 +112,9 @@ def get_ifilter_for_file(filename):
         filt = load_ifilter(filename)
         stg = None
     return (filt, stg)
+
+
+
+# A filter than runs ifilter in a separate process. See remote_filter.
+import remote_filter
+remote_ifilter = remote_filter.RemoteFilterRunner(ifilter_filter)
