@@ -36,11 +36,13 @@ class Indexer(object):
 
     """
     
-    def __init__(self):
+    def __init__(self, status):
         self._filter_map = {"Xapian": "", #htmltotext_filter.html_filter,
                             "Text": simple_text_filter.text_filter}
         if windows:
             self._filter_map["IFilter"] =  w32com_ifilter.remote_ifilter
+
+        self.status = status
 
     def do_indexing(self, col_name, dbname, filter_settings, files):
         """
@@ -49,14 +51,14 @@ class Indexer(object):
         this is used to remove documents in the database that no
         longer have an associated file.
         """
+        if col_name not in self.status:
+            self.status[col_name] = dict()
+        self.status[col_name]['number_of_files'] = 0
+        self.status[col_name]['currently_indexing']=True
         conn = None
         try:
             self.log = logging.getLogger('indexing')
             self.log.info("Indexing collection: %s with filter settings: %s" % (col_name, filter_settings))
-
-            if not os.path.exists(dbname):
-                self.log.error("Xapian database for collection %s not present - not indexing" % col_name)
-                return
 
             # This will error is the directory containing the
             # databases has disappeared, but that's probably a good
@@ -69,7 +71,7 @@ class Indexer(object):
             docs_found = dict((id, False) for id in conn.iterids())
 
             for f in files:
-                self._process_file(f, conn, col_name, filter_settings)
+                self._process_file(f, conn, col_name, filter_settings, self.status[col_name])
                 docs_found[f]=True
 
             for id, found in docs_found.iteritems():
@@ -103,7 +105,10 @@ class Indexer(object):
             return True
         
     
-    def _process_file(self, file_name, conn, collection_name, filter_settings):
+    def _process_file(self, file_name, conn, collection_name, filter_settings, status):
+        """ Extract text from a file, make a xapian document and add
+        it to the database.
+        """
         self.log.info("Indexing collection %s: processing file: %s" % (collection_name, file_name))
         _, ext = os.path.splitext(file_name)
         ext=ext.lower()
@@ -112,6 +117,7 @@ class Indexer(object):
             if filter:
                 self.log.info("Filtering file %s using filter %s" % (file_name, filter))
                 fixed_fields = ( ("filename", file_name),
+                                 ("basename", os.path.basename(file_name))
                                  ("collection", collection_name),
                                  ("mtime", str (os.path.getmtime (file_name))),
                                  ("size", str (os.path.getsize (file_name))),
@@ -123,14 +129,17 @@ class Indexer(object):
                     doc.id = file_name
                     conn.replace(doc)
                     self.log.info("Added (or replaced) doc %s to collection %s with text from source file %s" % (doc.id, collection_name, file_name))
+                    return True
                 except Exception, e:
                     self.log.error("Filtering file: %s with filter: %s raised exception %s, skipping"
                                    % (file_name, filter, e))
-                    return
+                    return False
             else:
                 self.log.warn("Filter for %s is not valid, not filtering file: %s" % (ext, file_name))
+                return False
         else:
             self.log.info("File: %s has not changed since last indexing, not filtering" % file_name)
+            return True
 
     def stale(self, file_name, conn):
         "Return True if the file named by file_name has changed since we indexed it last"
@@ -154,20 +163,26 @@ class Indexer(object):
             return True
         return rv
 
-def index_server_loop(inp, loginp):
+
+def index_server_loop(inp, loginp, status):
     import logclient
     logclient.LogListener(loginp)
     logclient.LogConf().update_log_config()
-    indexer = Indexer()
+    indexer = Indexer(status)
     while 1:
         args=inp.recv()
         indexer.do_indexing(*args)
 
 class IndexServer(object):
+    """ Manages the indexing of Flax databases in a child process and
+    provides information about the state of collection indexing. 
+    """
     def __init__(self):       
         self.logconfio = processing.Pipe()
         self.indexingio = processing.Pipe()
-        server=processing.Process(target = index_server_loop, args=(self.indexingio[1], self.logconfio[1]))
+        self.syncman = processing.Manager()
+        self.status_dict = self.syncman.dict()
+        server=processing.Process(target = index_server_loop, args=(self.indexingio[1], self.logconfio[1], self.status_dict))
         server.setDaemon(True)
         server.start()
 
@@ -177,3 +192,28 @@ class IndexServer(object):
     @property
     def logconf_input(self):
         return self.logconfio[0]
+
+    def get_status(self):
+        """
+        Returns the status ofcollection with name `col_name`. This is
+        a dictionary keyed on collection names. There may be no entry
+        for a collection indicating that the indexer knows nothing
+        about that collection. Otherwise the value is a dictionary
+        with keys and values as follows:
+
+        currently_indexing: A boolean indicating whether the
+        collection is currently being indexed.
+
+        number_of_documents: The number of documents in the collection.
+
+        number_of_files: The number of source files for documents in
+        the collection.  If currently_indexing is true this is the
+        number of files that we have tried to index so far. If the
+        currently_indexing is False it is the total considered at the
+        last indexing run. Note the number_of_files can exceed
+        number_of_documents, since (e.g.) corrupt files might not be
+        added to the database.
+
+        """
+        return self.status_dict
+        

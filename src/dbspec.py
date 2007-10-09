@@ -38,6 +38,9 @@ class DBSpec(object):
             conn.add_field_action("filename", xappy.FieldActions.INDEX_EXACT)
             conn.add_field_action("filename", xappy.FieldActions.STORE_CONTENT)
 
+            conn.add_field_action("basename", xappy.FieldActions.INDEX_FREETEXT, **free_text_options)
+            conn.add_field_action("basename", xappy.FieldActions.STORE_CONTENT)
+
             conn.add_field_action("collection", xappy.FieldActions.INDEX_EXACT)
             conn.add_field_action("collection", xappy.FieldActions.STORE_CONTENT)
 
