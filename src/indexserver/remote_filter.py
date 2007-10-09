@@ -42,7 +42,7 @@ class RemoteFilterRunner(object):
     A filter that runs another filter in a subprocess, with a timeout.
     """
 
-    def __init__(self, filter, timeout=5):
+    def __init__(self, filter, timeout=30):
         self.filter = filter
         self.timeout = timeout
         self.server=None
