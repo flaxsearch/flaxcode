@@ -97,7 +97,6 @@ class TemplateManager(object):
 
 def render_options(template, flax_data):
 
-    template.main.db_dir.atts["value"] = flax_data.db_dir
     template.main.flax_dir.atts["value"] = flax_data.flax_dir
     log_settings = flax_data.log_settings
 

@@ -6,17 +6,19 @@ import random
 import os
 import ConfigParser
 
+
+import flax_collections
 import logclient
 
 class FlaxOptions(object):
     """
     global options for Flax
     """    
-    def __init__(self, collections, db_dir, flax_dir, formats, 
+    def __init__(self, flax_dir, formats, 
                  logger_names, filters, filter_settings, languages):
         
-        self.collections = collections
-        self.db_dir = db_dir
+        self.db_dir = os.path.join(flax_dir, "dbs")
+        self.collections = flax_collections.FlaxCollections(self.db_dir)
         self.flax_dir = flax_dir
         self.formats = formats
         self.logger_names = logger_names
@@ -52,9 +54,6 @@ def make_options():
     #dir = os.path.dirname(os.path.abspath(os.path.normpath(__file__)))
     dir = os.getcwd()
     user = os.path.expanduser('~')
-
-    db_dir = os.path.normpath(dir+'/dbs') 
-
     logger_names = ("",
                     "collections",
                     "indexing",
@@ -85,13 +84,7 @@ def make_options():
                   ("es", "Spanish"),
                   ("sv", "Swedish")]
               
-    import flax_collections
-
-    cols = flax_collections.FlaxCollections(db_dir)
-
-    return FlaxOptions(cols, 
-                       db_dir, 
-                       dir, 
+    return FlaxOptions(dir, 
                        formats, 
                        logger_names,
                        filters,
