@@ -102,7 +102,8 @@ ParsedPage_str(ParsedPage * parsedpage)
     args = PyTuple_New(4);
     if (args == NULL) goto fail;
 
-    Py_UNICODE emptystring[0];
+    // Don't use a zero size array here, because MSVC complains about it.
+    Py_UNICODE emptystring[1];
     empty = PyUnicode_FromUnicode(emptystring, 0);
     if (empty == NULL) goto fail;
 
