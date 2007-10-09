@@ -76,7 +76,6 @@ class Collections(FlaxResource):
             return self.view(col_id)
         else:
             return self.view()
-        
 
     def do_indexing(self, col=None, **kwargs):
         """
@@ -273,9 +272,6 @@ class Top(FlaxResource):
                 return cherrypy.lib.static.serve_file(filename)
         # fall through we can't find either the collection or the file named by file_id
         raise cherrypy.NotFound()
-
-
-
          
 class Admin(Top):
     """
@@ -324,14 +320,11 @@ def start_web_server(flax_data, index_server):
     """
     Run Flax web server.
     """
-
-
     collections = Collections(flax_data,
                               templates.collection_list_render,
                               templates.collection_detail_render,
                               index_server)
-
-
+    
     admin = Admin(flax_data,
                   templates.admin_search_render,
                   templates.admin_search_result_render,
@@ -344,7 +337,6 @@ def start_web_server(flax_data, index_server):
     cherrypy.Application.root.admin = admin
     cherrypy.Application.root.admin.collections = collections
     cherrypy.quickstart(top, config = 'cp.conf')
-
 
 def startup():
     import optparse
