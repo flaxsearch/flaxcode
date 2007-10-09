@@ -35,13 +35,15 @@
           severity levels very large amounts of information can be
           generated for some categories.</p>
           
-          <p>The letters stand for the following words:
+          <p>The order of the levels is as follows:
           <span node="rep:level_meaning"></span>
           </p>
         </div>
         <div node="rep:collection_events">
           <label node="con:event_label" class="main_label">Event</label>
-          <input node="rep:event_radio" type="radio" value="level">Level</input>
+          <select node="con:event_select">
+            <option node="rep:event_option">Level</option>
+          </select>
         </div> 
       </fieldset>
       <input type="submit"></input>

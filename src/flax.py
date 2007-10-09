@@ -59,8 +59,6 @@ def make_options():
                     "collections",
                     "indexing",
                     "filtering",
-                    "filtering.ifilter",
-                    "filtering.simpletext",
                     "searching",
                     "scheduling")
 
