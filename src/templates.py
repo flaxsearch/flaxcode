@@ -147,8 +147,8 @@ def render_search_collection (node, collection, selected=None):
 ##### Collection List Template #####
 
 def render_collections_list(template, collections, base_url):
-    template.main.add_form.atts['action'] = base_url + '/add/'
-    template.main.add_form.collection.repeat(render_collection, collections, base_url)
+    template.main.atts['action'] = base_url + '/add/'
+    template.main.collection.repeat(render_collection, collections, base_url)
 
 def render_collection(node, collection, base_url):
     col_url = base_url + '/' + collection.name + '/view'
@@ -172,52 +172,62 @@ def render_collection(node, collection, base_url):
 # built items to set the checked value.
 
 def render_collection_detail(template, collection, formats, languages):
-    template.title.col_name.content = collection.name
+    if collection:
+        template.title.col_name.content = collection.name
     body = template.main
-    body.name.content = collection.name
-
-    body.description.atts['value'] = collection.description
-    body.paths.content = '/n'.join(collection.paths) if isinstance(collection.paths, list) else collection.paths
+    body.main_form.atts['action'] = 'update' if collection else 'new' 
+    form = body.main_form
+    
+    if collection:
+        form.name.content = collection.name
+        form.description.atts['value'] = collection.description
+        form.paths.content = '/n'.join(collection.paths) if isinstance(collection.paths, list) else collection.paths
+        form.col.raw=""
  
     def fill_format(node, format):
         node.format_label.content = format
         node.format_checkbox.atts['value'] = format
-        if format in collection.formats:
-            node.format_checkbox.atts['checked'] = 'on' 
+        if collection:
+            if format in collection.formats:
+                node.format_checkbox.atts['checked'] = 'on' 
 
-    body.formats.repeat(fill_format, formats)
+    form.formats.repeat(fill_format, formats)
 
-    for prop in ("earliest", "latest"):
-        val = getattr(collection, prop)
-        if val:
-            getattr(body, prop).atts["value"] = val.strftime(collection.strptime_format)
+    if collection:
+        for prop in ("earliest", "latest"):
+            val = getattr(collection, prop)
+            if val:
+                getattr(form, prop).atts["value"] = val.strftime(collection.strptime_format)
 
-    for prop in ("oldest", "youngest"):
-        val = getattr(collection, prop)
-        if val:
-            getattr(body, prop).atts["value"] = util.render_timedelta(val)
+    if collection:
+        for prop in ("oldest", "youngest"):
+            val = getattr(collection, prop)
+            if val:
+                getattr(form, prop).atts["value"] = util.render_timedelta(val)
 
     def fill_languages(node, val):
         node.atts["value"] = val[0]
         node.content = val[1]
-        if val[0] == collection.language:
+        if collection and val[0] == collection.language:
             node.atts['selected'] = "selected"
 
-    body.language_option.repeat(fill_languages, languages)
-    body.stopwords.atts["value"] = " ".join(collection.stopwords)
+    form.language_option.repeat(fill_languages, languages)
+    if collection:
+        form.stopwords.atts["value"] = " ".join(collection.stopwords)
 
 
-    def render_spec(spec):
-        sep = ', '
-        if isinstance(spec, str):
-            return spec
-        return sep.join(map(str, spec))
-
-    body.mins.atts['value'] = render_spec(collection.mins)
-    body.hours.atts['value'] = render_spec(collection.hours)
-    body.monthdays.atts['value'] = render_spec(collection.monthdays)
-    body.weekdays.atts['value'] = render_spec(collection.weekdays)
-    body.months.atts['value'] = render_spec(collection.months)
+    if collection:
+        def render_spec(spec):
+            sep = ', '
+            if isinstance(spec, str):
+                return spec
+            return sep.join(map(str, spec))
+    
+        form.mins.atts['value'] = render_spec(collection.mins)
+        form.hours.atts['value'] = render_spec(collection.hours)
+        form.monthdays.atts['value'] = render_spec(collection.monthdays)
+        form.weekdays.atts['value'] = render_spec(collection.weekdays)
+        form.months.atts['value'] = render_spec(collection.months)
 
     
 ###### Search Result Templates ######

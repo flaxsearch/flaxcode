@@ -20,15 +20,19 @@
     <input type="submit" value="Index Now" />
   </form>
   <!-- the form is for updating the collections -->
-  <form action="update" method="POST">
+  <form node="con:main_form" action="update" method="POST">
     <fieldset>
-      <legend>Document Collection: <span node="con:name"> </span></legend>
+      <legend>Document Collection: <span node="con:name"></span></legend>
       <div class="info">
 	<dl>
 	<dt>Description</dt>
 	<dd>The description will be visible to end users.</dd>
 	</dl>
       </div>
+      <div node="-con:col">
+        <label class="main_label" for ="col">Name:</label>
+        <input type="text" name="col"></input>
+       </div>
       <div>
 	<label class="main_label" for="description">
 	  Description:

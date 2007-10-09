@@ -62,14 +62,11 @@ class Collections(FlaxResource):
     
     @cherrypy.expose
     def default(self, col_id=None, action=None, **kwargs):
-        
         if col_id and action:
             if action == 'do_indexing':
                 return self.do_indexing(col_id, **kwargs)
             elif action == 'update':
                 return self.update(col_id, **kwargs)
-            elif action == 'add':
-                return self.add(col_id, **kwargs)
             elif action == 'view':
                 return self.view(col_id, **kwargs)
         elif col_id:
@@ -130,31 +127,17 @@ class Collections(FlaxResource):
             raise self._bad_collection_name(col)
 
     @cherrypy.expose
-    def add(self, col = None, **kwargs):
-        """
-        Create a new document collection.
-
-        :Parameters:
-            - `col`: The name for the new collection.
-
-        Creates a new collection named `col`. The remaining keywords
-        args are used to update the new collection.
-
-        Only POST should be used, 405 is returned otherwise.
-
-        If col is not provided or there is already a collection named
-        `col` then a 400 is returned.
-        """
-        self._only_post('New collections must be created with "POST"' )
-
-        if col and not col in self._flax_data.collections:
-            self._flax_data.collections.new_collection(col, **kwargs)
-            self._signal_data_changed()
-            self._redirect_to_view(col)
+    def new(self, col=None, **kwargs):
+        if cherrypy.request.method == "POST":
+            if col and col not in self._flax_data.collections:
+                print "making collection", col
+                self._flax_data.collections.new_collection(col, **kwargs)
+                self._signal_data_changed()
+                self._redirect_to_view(col)
         else:
-            self._bad_request("Attempt to create a document collection that already exists or that has an invalid name.")
+            return self._detail_template(None, self._flax_data.formats, self._flax_data.languages)
 
-
+    @cherrypy.expose
     def view(self, col=None, **kwargs):
         """
         View a document collection.
