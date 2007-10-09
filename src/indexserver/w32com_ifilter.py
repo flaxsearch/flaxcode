@@ -2,18 +2,18 @@
 import itertools
 import pythoncom
 import pywintypes
-import itertools
 from win32com.ifilter import ifilter
 from win32com.ifilter.ifiltercon import *
 from win32com.storagecon import *
+import sys
+sys.path.append('..')
 import util
 import logging
 
-log = logging.getLogger("filter.ifilter")
+log = logging.getLogger("filtering.ifilter")
 
 prop_id_map = { 19 : "content",
                  3 : "HtmlHeading1" }
-
 
 def prop_id_to_name(prop_id):
     if type(prop_id) is str:
@@ -22,7 +22,6 @@ def prop_id_to_name(prop_id):
         return prop_id_map[prop_id]
     else:
         return prop_id
-
 
 def text_for_current_chunk(filt):
     def get_text():
@@ -112,8 +111,6 @@ def get_ifilter_for_file(filename):
         filt = load_ifilter(filename)
         stg = None
     return (filt, stg)
-
-
 
 # A filter than runs ifilter in a separate process. See remote_filter.
 import remote_filter
