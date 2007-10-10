@@ -16,9 +16,9 @@
 """Configuration and settings for document collections.
 
 """
+from __future__ import with_statement
 __docformat__ = "restructuredtext en"
 
-from __future__ import with_statement
 import sys
 import copy
 import os
