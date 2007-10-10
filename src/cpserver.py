@@ -1,14 +1,26 @@
-#$Id:$
-
+#!/usr/bin/env python
+#
 # Copyright (C) 2007 Lemur Consulting Ltd
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""Flax web interface, using the cherrypy webserver.
 
-# This software may be used and distributed according to the terms
-# of the GNU General Public License, incorporated herein by reference.
 """
-Flax web server.
-"""
+__docformat__ = "restructuredtext en"
+
 import setuppaths
-
 import os
 import cherrypy
 import flax
@@ -28,11 +40,11 @@ class FlaxResource(object):
 
     def _bad_request(self, message="Bad request"):
         "method to signal that data we receive cannot be used"
-        raise cherrypy.HTTPError(400, message) 
+        raise cherrypy.HTTPError(400, message)
 
     def _signal_data_changed(self):
         persist.data_changed.set()
-        
+
 
 class Collections(FlaxResource):
     """
@@ -45,7 +57,7 @@ class Collections(FlaxResource):
     def __init__(self, flax_data, list_template, detail_template, index_server):
         """
         Collections constructor.
-        
+
         :Parameters:
             - `collections`: The set of document collections.
             - `list_template`: A template for rendering the set of document collections.
@@ -59,7 +71,6 @@ class Collections(FlaxResource):
     def _redirect_to_view(self, col):
         raise cherrypy.HTTPRedirect('/admin/collections/' + col + '/view' )
 
-    
     @cherrypy.expose
     def default(self, col_id=None, action=None, **kwargs):
         if col_id and action:
@@ -77,7 +88,7 @@ class Collections(FlaxResource):
     def do_indexing(self, col=None, **kwargs):
         """
         (Re)-index a document collection.
-        
+
         :Parameters:
             - `col`: Names the document collection to be indexed.
 
@@ -87,11 +98,11 @@ class Collections(FlaxResource):
         The HTTP method should be POST
 
         A 400 is returned if either:
-        
+
         - `col` is ommited; or
         - `col` is present by does not name a collection;
         """
-        
+
         self._only_post()
 
         if col and col in self._flax_data.collections:
@@ -99,7 +110,7 @@ class Collections(FlaxResource):
             self._redirect_to_view(col)
         else:
             self._bad_collection_name(col)
-         
+
     def update(self, col=None, **kwargs):
         """
         Update the attributes of a document collection.
@@ -108,7 +119,7 @@ class Collections(FlaxResource):
             - `col`: The name of the document collection to be updated.
 
         Updates the document collection named by `col` with the
-        remaining keyword arguments by POSTing. 
+        remaining keyword arguments by POSTing.
 
         Only POST should be used, 405 is returned otherwise.
 
@@ -198,7 +209,7 @@ class SearchForm(object):
         if query:
             cols = [col] if isinstance(col, str) else col
             results = self._collections.search(query, cols, tophit, maxhits)
-            return self._result_template (query, self._collections, cols, 
+            return self._result_template (query, self._collections, cols,
                 results, tophit, maxhits)
         else:
             return self._template (self._collections, advanced, self._collections._formats)
@@ -255,7 +266,7 @@ class Top(FlaxResource):
                 return cherrypy.lib.static.serve_file(filename)
         # fall through we can't find either the collection or the file named by file_id
         raise cherrypy.NotFound()
-         
+
 class Admin(Top):
     """
     A controller for the administration pages.
@@ -307,7 +318,7 @@ def start_web_server(flax_data, index_server):
                               templates.collection_list_render,
                               templates.collection_detail_render,
                               index_server)
-    
+
     admin = Admin(flax_data,
                   templates.admin_search_render,
                   templates.admin_search_result_render,
@@ -349,4 +360,3 @@ def startup():
 
 if __name__ == "__main__":
     startup()
-    

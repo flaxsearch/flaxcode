@@ -1,8 +1,27 @@
+# Copyright (C) 2007 Lemur Consulting Ltd
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""File specification - how to define a set of files.
+
+"""
+__docformat__ = "restructuredtext en"
+
 import os
 import stat
 import datetime
 import fnmatch
-
 import util
 
 class FileSpec(object):
@@ -15,6 +34,7 @@ class FileSpec(object):
 
     oldest:timedelta - a duration, when an operation is performed
     anything modified more than this amount of time ago is excluded.
+
     """
 
     strptime_format = "%d/%m/%y %H:%M:%S"
@@ -27,7 +47,7 @@ class FileSpec(object):
         self.formats = [formats] if isinstance(formats, str) else formats
 
     def files(self):
-        """ generates the files defined by this FileSpec """
+        """Returns an iterator over the files defined by this FileSpec."""
         for p in self.paths:
             for root, dirs, files in os.walk(p):
                 # Perhaps we want to warn here if any dirs are
@@ -74,5 +94,3 @@ class FileSpec(object):
 
         age = datetime.datetime.now() - mtime
         return self.oldest < age if self.oldest else True
-
-               

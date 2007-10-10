@@ -1,4 +1,23 @@
-# $Id$
+# Copyright (C) 2007 Lemur Consulting Ltd
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""Configuration and settings for document collections.
+
+"""
+__docformat__ = "restructuredtext en"
+
 from __future__ import with_statement
 import sys
 import copy
@@ -11,12 +30,11 @@ import setuppaths
 import xappy
 
 class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec):
-    """
-    Flax Document Collection.
+    """Representation of a collection of documents.
 
-    A collection is a FileSpec, an IndexingSpec and a ScheulingSpec.
+    A collection consists of a FileSpec, a DBSpec and a ScheulingSpec, together
+    with some properties describing the collection.
 
-    In addition it has properties describing the collection.
     """
 
     def __init__(self, name, db_dir, *args, **kwargs):
@@ -28,7 +46,6 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
         self.status = "unindexed"
         self.update(*args, **kwargs)
         self.maybe_make_db()
-        
 
     def update(self, description="", **kwargs):
         self.description = description

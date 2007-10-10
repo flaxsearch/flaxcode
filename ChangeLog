@@ -1,3 +1,15 @@
+Wed Oct 10 16:09:15 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/cpserver.py,src/filespec.py,src/dbspec.py,src/doc_collection.py:
+	  Add standard license and copyright header, and tidy up some code
+	  comments and whitespace.  Remove "$ID:" markers.  Tidy up code to
+	  follow PEP8 better (remove whitespace around = when specifying
+	  default arguments to functions, and change multiline
+	  documentation comments to start with """Single line of text...
+	  and to end with a blank line before the closing """).
+	  Change DBSpec.update() to accept any sequence or iterator for its
+	  stopwords argument.
+
 Wed Oct 10 16:07:42 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* utils/install_dependencies.py,utils/log2cl.py: Tidy up a couple
