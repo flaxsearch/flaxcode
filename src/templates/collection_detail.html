@@ -70,7 +70,14 @@
       </div>
       <div>
 	<label class="main_label">Age:</label>
-        <input node="con:oldest" name="oldest"></input>
+        <select name="oldest">
+          <option node="con:none" value="">Unset</option>
+          <option node="con:one_day" value="1 0 0">One Day</option>
+          <option node="con:one_week" value="7 0 0">One Week</option>
+          <option node="con:one_month" value="30 0 0">One Month</option>
+          <option node="con:six_months" value="182 0 0">Six Months</option>
+          <option node="con:one_year" value="365 0 0">One Year</option>
+        </select>
       </div>
     </fieldset>
 

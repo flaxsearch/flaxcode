@@ -6,6 +6,7 @@ from __future__ import with_statement
 import os
 import urllib
 import HTMLTemplate
+import datetime
 import time
 
 import util
@@ -200,10 +201,15 @@ def render_collection_detail(template, collection, formats, languages):
 
     form.formats.repeat(fill_format, formats)
 
+    oldest_lookup = {None: form.none,
+                     datetime.timedelta(1): form.one_day,
+                     datetime.timedelta(7): form.one_week,
+                     datetime.timedelta(30): form.one_month,
+                     datetime.timedelta(182): form.six_months,
+                     datetime.timedelta(365): form.one_year}
+    if collection:
+        oldest_lookup[collection.oldest].atts['selected']='selected'
 
-
-    if collection and collection.oldest:
-        form.atts["value"] = util.render_timedelta(collection.oldest)
 
     def fill_languages(node, val):
         node.atts["value"] = val[0]
