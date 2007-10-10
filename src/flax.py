@@ -63,7 +63,7 @@ def make_options():
 
     filters = ["IFilter", "Xapian", "Text"]
     
-    formats = ["txt", "doc", "html", "pdf", "xsl", "ppt"]
+    formats = ["txt", "doc", "rtf", "html", "pdf", "xsl", "ppt"]
     formats.sort()
     
     filter_settings = dict( (f, filters[0]) for f in formats)
