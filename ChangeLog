@@ -1,3 +1,9 @@
+Wed Oct 10 23:04:12 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/templates/flax.html: Change character encoding to utf-8: this
+	  is the character set that output from xappy will be in, so we
+	  might as well use it for display.
+
 Wed Oct 10 16:28:11 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* src/doc_collection.py: Move future import before __docformat__.
