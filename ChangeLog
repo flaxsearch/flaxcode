@@ -1,3 +1,368 @@
+Wed Oct 10 16:07:42 BST 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* utils/install_dependencies.py,utils/log2cl.py: Tidy up a couple
+	  of comments.
+
+Wed Oct 10 10:36:51 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates/collection_detail.html,src/templates.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=13 Made the UI
+	  for the oldest property a dropdown.
+
+Wed Oct 10 08:41:12 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/flax.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=12 Added rtf
+	  to list of formats.
+
+Wed Oct 10 08:38:08 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/filespec.py,src/templates/collection_detail.html,
+	  src/templates/search.html,src/templates.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=13 Removed all
+	  the date related stuff from filespecs except for the "oldest"
+	  property. FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=9 Added a
+	  definition list to search forms giving collection names and
+	  descriptions.
+
+Wed Oct 10 08:06:56 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/flaxlog.conf: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=26 Added
+	  searching to the the keys attribute of the loggers section.
+
+Tue Oct 09 17:35:16 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* libs/htmltotext/ChangeLog,libs/htmltotext/src/pyhtmltotext.cc:
+	  src/pyhtmltotext.cc: Don't use a zero size array - MSVC doesn't
+	  like it.
+
+Tue Oct 09 14:08:00 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py,src/templates/collection_detail.html,
+	  src/templates/collections.html,src/templates.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=10 Removed the
+	  form on the collection listing page, added a new link for
+	  creating a collection. Changed the detail form to cope with
+	  updating or creation.
+
+Tue Oct 09 10:10:49 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/dbspec.py,src/indexserver/indexer.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=18 Added a
+	  "basename" field to hold the base filename, and arranged for the
+	  indexer to add content to this. Also added a managed dictionary
+	  to communicate the state of indexing between the indexer and web
+	  server as per
+	  http://code.google.com/p/flaxcode/issues/detail?id=7 ( not yet
+	  complete).
+
+Tue Oct 09 09:51:52 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/flax.py,src/templates/options.html,src/templates.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=23 Got rid of
+	  the separate database directory and hard coded the database
+	  directory to be a "dbs" subdir of whatever the flax directory is.
+
+Tue Oct 09 09:43:16 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/flax.py,src/templates/options.html,src/templates.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=24 Got rid of
+	  the sub-loggers for individual filters from the UI, changed radio
+	  buttons to checkboxes.
+
+Tue Oct 09 09:40:20 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py: whitespace tidying.
+
+Tue Oct 09 09:23:41 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py: removed the code to process filter settings
+	  since the form no longer contains such elements.
+
+Tue Oct 09 04:54:06 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexer.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=1 Checked for
+	  existence of collection database. If it's not there log an error
+	  and return. Ensure that we only try to close the db connection if
+	  it's already been opened.
+
+Tue Oct 09 04:39:43 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/w32com_ifilter.py: Removed duplicate import.
+	  Corrected the name of the logger so that it properly fits within
+	  logging heirarchy. Whitespace tidying. Put parent directory on
+	  sys.path.
+
+Tue Oct 09 04:17:23 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexer.py,src/indexserver/w32com_ifilter.py:
+	  Created an filter to run ifilters in a subprocess and used it in
+	  favour of the in process version.
+
+Tue Oct 09 04:15:41 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/remote_filter.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=5 Changed the
+	  default timeout for the subprocess to 30.
+
+Mon Oct 08 19:13:42 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates/options.html,src/templates.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=3 Removed the
+	  UI options to modify filter settings. Note that persistent data
+	  with other filters set now have no user accessible way of
+	  changing the filters, so flax.flx probably needs to be deleted.
+
+Mon Oct 08 08:58:52 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* utils/install_dependencies.py: Add processing to set of packages
+	  installed automatically.
+
+Mon Oct 08 08:44:51 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* utils/install_dependencies.py: Make the temporary directory tree
+	  writable before deleting it.
+
+Mon Oct 08 08:17:46 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* utils/install_dependencies.py: Actually, just pass through all of
+	  the environment variables, only modifying those which we want to.
+
+Mon Oct 08 08:13:43 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* utils/install_dependencies.py: Pass through the PATH environment
+	  variable.
+
+Mon Oct 08 07:37:26 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/filterrunner.py,src/indexserver/remote_filter.py:
+	  changed remote filter to use processing module and added a
+	  timeout/kill mechanism. deleted filterrunner.py and brought the
+	  server end into remote_filter.
+
+Sun Oct 07 19:50:05 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* utils/install_dependencies.py: Move "communicate" call to after
+	  wait, when running subprocess. Helps on windows.
+
+Sun Oct 07 16:45:49 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexer.py: commented out htmltotext filter stuff
+	  pending getting it going on windows. Downcase filename extension
+	  prior to looking up filter.
+
+Sun Oct 07 15:06:33 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* README: Added notes about processing dependency. Finished a
+	  couple of incomplete sentences. Typos.
+
+Sun Oct 07 12:29:41 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* README: updated to reflect current sources.
+
+Sun Oct 07 12:21:30 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py,src/doc_collection.py,src/flax.py,
+	  src/flaxlog.conf,src/indexserver/indexer.py,
+	  src/indexserver/indexserver.py,src/logclient.py,
+	  src/logconfserver,src/scheduler.py,src/util.py: Removed all the
+	  depenencies on Pyro (but added a dependency on processing).
+	  Brought all the functionality from the logconf server inside the
+	  web server. Used processing module for separate processes (only
+	  the indexserver at the moment). Arranged for the web server to
+	  start the indexserver process.
+
+Sun Oct 07 11:16:49 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/logconfserver/filewatch.py,src/util.py: moved implementation
+	  of FileWatcher to util
+
+Sun Oct 07 07:52:29 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/flax.py: tidying whitespace.
+
+Sun Oct 07 07:35:57 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates.py: Factored log_settings call out of the loops in
+	  options template.
+
+Sat Oct 06 16:32:29 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/indexserver/htmltotext_filter.py,src/indexserver/indexer.py:
+	  Add a very basic HTML filter.
+
+Sat Oct 06 14:31:01 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* README: Update note on dependencies, and suggest using
+	  utils/install_dependencies.py to get them.
+
+Sat Oct 06 12:10:43 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* utils/install_dependencies.py: Add rules to install xappy to
+	  localinst.
+
+Sat Oct 06 09:26:20 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* README: Add a note on using utils/install_dependencies.py
+
+Sat Oct 06 09:22:06 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/util.py,utils/install_dependencies.py: Add support for
+	  installing libs stored under the "libs" directory, and add a line
+	  to install htmltotext in this way.  Put locally installed libs in
+	  localinst, and change the path correspondingly.
+
+Sat Oct 06 08:57:38 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* libs/htmltotext/ChangeLog,libs/htmltotext/setup.py: setup.py:
+	  Make download URL point directly to the package to download.
+
+Sat Oct 06 08:55:17 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* libs/htmltotext/ChangeLog,libs/htmltotext/MANIFEST.in,
+	  libs/htmltotext/eggsetup.py,libs/htmltotext/setup.py,
+	  libs/htmltotext/src/pyhtmltotext.cc,libs/htmltotext/test/test.py:
+	  src/pyhtmltotext.cc,test/test.py: Fix a bug where we were
+	  ignoring the content of the document, and only reporting the
+	  content of meta-description fields.  Rename the "sample" output
+	  field to "description", and add a "content" output field.
+	  setup.py: Update for release 0.6 MANIFEST.in,ChangeLog: Add a
+	  ChangeLog to keep track of changes.
+
+Fri Oct 05 17:57:35 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* libs/htmltotext,libs/htmltotext/MANIFEST.in,
+	  libs/htmltotext/README,libs/htmltotext/eggsetup.py,
+	  libs/htmltotext/setup.py,libs/htmltotext/src/config.h,
+	  libs/htmltotext/test,libs/htmltotext/test/__init__.py: Finish
+	  packaging for 0.5
+
+Fri Oct 05 15:02:20 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* libs/htmlparser,libs/htmltotext,libs/htmltotext/src,
+	  libs/htmltotext/src/config.h,libs/htmltotext/src/pyhtmltotext.cc:
+	  Rename htmlparser module.
+
+Fri Oct 05 15:01:27 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* libs/htmlparser,libs/htmlparser/MANIFEST.in,
+	  libs/htmlparser/setup.py,libs/htmlparser/src/config.h,
+	  libs/htmlparser/src/pyhtmltotext.cc,libs/htmlparser/test,
+	  libs/htmlparser/test/test.py: Basic python module around html
+	  parser for extracting text.
+
+Fri Oct 05 14:36:50 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* libs/htmlparser/src/myhtmlparse.cc,
+	  libs/htmlparser/src/myhtmlparse.h: Add a method allowing the
+	  character set to be fixed (which will cause any character set
+	  information in the document to be ignored).
+
+Fri Oct 05 09:52:54 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/remote_filter.py,src/util.py: Removed -u on
+	  invocation of python subprocess and added .flush() after data
+	  sends.
+
+Fri Oct 05 09:32:58 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/util.py: removed redundant imports
+
+Fri Oct 05 09:12:20 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/util.py: removed redundant data size sending in IO.
+
+Fri Oct 05 08:41:28 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/remote-filter.py,
+	  src/indexserver/remote_filter.py: Changed to python friendly file
+	  name.
+
+Fri Oct 05 08:39:38 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/filterrunner.py,src/indexserver/remote-filter.py,
+	  src/util.py: Snapshotting work in progress. Simple utility to
+	  make a filter that runs a filter in a subprocess.
+
+Thu Oct 04 14:40:48 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* libs/htmlparser/src/unicode.h,libs/htmlparser/src/xapian,
+	  libs/htmlparser/src/xapian/unicode.h,
+	  libs/htmlparser/src/xapian/visibility.h,
+	  libs/htmlparser/src/xapian.h: Move xapian header files to a
+	  subdirectory called xapian, and add a stub "xapian.h" file which
+	  includes the neccessary header files.
+
+Thu Oct 04 14:11:42 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* libs/htmlparser/src/namedentities.h,
+	  libs/htmlparser/src/safeerrno.h,libs/htmlparser/src/strcasecmp.h,
+	  libs/htmlparser/src/unicode.h,libs/htmlparser/src/utf8convert.cc,
+	  libs/htmlparser/src/utf8convert.h,
+	  libs/htmlparser/src/utf8itor.cc: More files needed from Xapian,
+	  unedited.
+
+Thu Oct 04 13:51:27 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* libs/: Add htmlparser source files, exactly as lifted from Xapian
+	  HEAD.
+
+Thu Oct 04 13:39:05 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/filespec.py: Added some comments about symlinks and the files
+	  that the filespec yields.
+
+Thu Oct 04 12:54:28 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/filespec.py: Tidied up some whitespace.
+
+Thu Oct 04 12:53:03 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/simple_text_filter.py,
+	  src/indexserver/w32com_ifilter.py: additions inadvertently
+	  ommitted from last check in.
+
+Thu Oct 04 12:51:10 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/simple_text_filter.py,src/w32com_ifilter.py: Moved filter
+	  implementations to the indexserver directory since they're
+	  invoked from there.
+
+Thu Oct 04 12:17:45 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/dbspec.py,src/flax.py,src/schedulespec.py,src/templates.py,
+	  src/w32com_ifilter.py: Whitespace fixes.
+
+Thu Oct 04 09:52:57 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexer.py,src/w32com_ifilter.py: typos
+
+Thu Oct 04 09:48:54 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexer.py: Better exception handling. More
+	  logging. Changed the stale test to be != rather than testing
+	  whether the mtime is newer that than that last time we indexed.
+
+Thu Oct 04 08:23:58 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates.py: Added brackets in format_size.
+
+Thu Oct 04 06:18:22 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexer.py: Skip files when a filter raises an
+	  exception (and log).
+
+Thu Oct 04 06:17:23 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/w32com_ifilter.py: Better error handling
+
+Thu Oct 04 05:24:57 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py: Added cherrypy.expose to Collections.add
+
 Wed Oct 03 18:42:57 BST 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* src/indexserver/indexer.py: import setuppaths after adding .. to

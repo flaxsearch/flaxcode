@@ -36,8 +36,6 @@ import urllib2
 import zipfile
 
 # List of the python packages which are dependencies.
-# FIXME - xappy should be in this list (but doesn't yet have package scripts
-# written).
 #
 # The values are, in order:
 #  - Descriptive name of dependency

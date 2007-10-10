@@ -21,6 +21,7 @@ Any existing ChangeLog is preserved; only entries which are newer than those in
 the existing ChangeLog are created.
 
 """
+__docformat__ = "restructuredtext en"
 
 import os
 from xml.sax.handler import ContentHandler
