@@ -113,7 +113,9 @@ def render_options(template, flax_data):
                 inp.atts['selected'] = 'selected'
             
         node.event_select.event_option.repeat(fill_input, flax_data.log_levels) 
-                
+
+    print flax_data.log_levels
+    print log_settings
     template.main.collection_events.repeat(fill_log_events, sorted(log_settings))
 
     def fill_meanings(span, level):
@@ -125,7 +127,9 @@ def render_options(template, flax_data):
 ##### Search Templates #####
 
 def render_search(template, collections, advanced=False, formats=[]):
-    template.main.collections.repeat (render_search_collection, collections.itervalues())
+    cols = list(collections.itervalues())
+    template.main.collections.repeat(render_search_collection, cols)
+    template.main.col_descriptions.name_and_desc.repeat(render_collection_descriptions, cols)
     if advanced:
         template.main.advanced_holder=_advanced_search_options().body
         def fill_format(node, format):
@@ -137,6 +141,9 @@ def render_search(template, collections, advanced=False, formats=[]):
     else:
         template.main.advanced_holder.raw = ""
 
+def render_collection_descriptions(node, collection):
+    node.name.content = collection.name
+    node.description.content = collection.description
 
 def render_search_collection (node, collection, selected=None):
     node.col_name.content = collection.name
@@ -193,17 +200,10 @@ def render_collection_detail(template, collection, formats, languages):
 
     form.formats.repeat(fill_format, formats)
 
-    if collection:
-        for prop in ("earliest", "latest"):
-            val = getattr(collection, prop)
-            if val:
-                getattr(form, prop).atts["value"] = val.strftime(collection.strptime_format)
 
-    if collection:
-        for prop in ("oldest", "youngest"):
-            val = getattr(collection, prop)
-            if val:
-                getattr(form, prop).atts["value"] = util.render_timedelta(val)
+
+    if collection and collection.oldest:
+        form.atts["value"] = util.render_timedelta(collection.oldest)
 
     def fill_languages(node, val):
         node.atts["value"] = val[0]
