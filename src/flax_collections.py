@@ -1,11 +1,35 @@
+# Copyright (C) 2007 Lemur Consulting Ltd
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""Manage the list of all collections known to flax.
+
+"""
+__docformat__ = "restructuredtext en"
+
 import logging
 import doc_collection
 import search
-import setuppaths
 
 log = logging.getLogger("collection")
 
-class FlaxCollections(object):
+class CollectionList(object):
+    """A list of collections.
+
+    The collections are indexed by 
+
+    """
 
     def __init__(self, db_dir):
         self._collections = {}
@@ -29,10 +53,10 @@ class FlaxCollections(object):
         else:
             log.error("Failed attempt to delete collection %s" % name)
 
-    def search(self, query, cols = None, tophit = 0, maxhits = 10):
+    def search(self, query, cols=None, tophit=0, maxhits=10):
         if cols is None:
             cols = self._collections.keys()
-            
+
         if cols:
             dbs_to_search = [self._collections[col].dbname() for col in cols]
             return search.search(dbs_to_search, query, tophit, maxhits)
@@ -63,5 +87,3 @@ class FlaxCollections(object):
 
     def itervalues(self):
         return self._collections.itervalues()
-
-        
