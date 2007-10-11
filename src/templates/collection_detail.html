@@ -5,6 +5,7 @@
 
 <div node = "-con:heads">
 
+<script type="text/javascript" src="/static/js/mapping.js"></script>
 <!--   <script type="text/javascript" src="/static/js/yui/build/yahoo/yahoo.js"></script> -->
 <!--   <script type="text/javascript" src="/static/js/yui/build/dom/dom.js"></script> -->
 <!--   <script type="text/javascript" src="/static/js/yui/build/event/event.js"></script> -->
@@ -57,9 +58,15 @@
 	  excluded.</dd>
 	</dl>
       </div>
-      <div>
-	<label class="main_label" for="paths">Paths:</label>
-	<textarea node="con:paths" name = "paths" rows="5"></textarea>
+      <div node="-rep:mappings">
+        <div>
+	  <label class="main_label" for="path">Path:</label>
+	  <input node="con:path" name="path"></input>
+        </div>
+        <div>
+          <label class="main_label" for="mapping">Mapping:</label>
+          <input node="con:mapping" name="mapping"></input>
+        </div>
       </div>
       <div>
 	<label class="main_label">Formats:</label>

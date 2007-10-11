@@ -187,8 +187,16 @@ def render_collection_detail(template, collection, formats, languages):
     if collection:
         form.name.content = collection.name
         form.description.atts['value'] = collection.description
-        form.paths.content = '/n'.join(collection.paths) if isinstance(collection.paths, list) else collection.paths
         form.col.raw=""
+
+    
+    def fill_mapping(node, path):
+        node.path.atts['value']=path
+        if collection and path in collection.mappings:
+            node.mapping.atts['value'] = collection.mappings[path]
+
+    form.mappings.repeat(fill_mapping, [""]+ (collection.paths if collection else []))
+
  
     def fill_format(node, format):
         node.format_label.content = format
@@ -239,10 +247,13 @@ def render_collection_detail(template, collection, formats, languages):
 def render_searched_collection(node, col):
     node.content = col
 
-def render_search_result (template, query, collections, selcols, results, tophit, maxhits):
+def render_search_result (template, query, col_id, doc_id, collections, selcols, results, tophit, maxhits):
     # collections is the list of available collections
     # selcols is a list of selected collections
-    
+    if query:
+        q_or_ids = "?query=%s" % urllib.quote_plus (query)
+    else:
+        q_or_ids = "?doc_id=%s&col_id=%s" % (urllib.quote_plus(doc_id), urllib.quote_plus(col_id))
     def fill_results(node, res):
         # res is xapian results object
         if 'filename' in res.data and 'collection' in res.data:
@@ -251,8 +262,7 @@ def render_search_result (template, query, collections, selcols, results, tophit
             url = '/source?col=%s&file_id=%s' % (collection, filename)
             node.res_link.atts['href']=url
             node.res_link.content = '%d. %s' % (res.rank + 1, filename)
-
-            node.sim_link.atts['href']='./similar?col=%s&doc_id=%s' % (collection, filename)
+            node.sim_link.atts['href']='./search?doc_id=%s&col_id=%s' % (filename, collection)
             
         if 'content' in res.data:
             node.res_content.raw = res.summarise('content', hl=('<strong>','</strong>'))
@@ -261,8 +271,8 @@ def render_search_result (template, query, collections, selcols, results, tophit
         node.res_size.content = format_size (size[0]) if size else 'unknown'
         mtime = res.data.get ('mtime')
         node.res_mtime.content = format_date (mtime[0]) if mtime else 'unknown'
-
-    template.main.query.atts['value'] = query
+    if isinstance(query, str):
+        template.main.query.atts['value'] = query
     template.main.collections.repeat (render_search_collection, collections.itervalues(), selcols)
 
     if results.startrank < results.endrank:
@@ -272,17 +282,17 @@ def render_search_result (template, query, collections, selcols, results, tophit
             '' if results.estimate_is_exact else 'about ', 
             results.matches_human_readable_estimate) 
     
-        q = urllib.quote_plus (query)
+
         if results.startrank:
-            template.main.nav.first_page.atts['href'] = '?query=%s' % q
-            template.main.nav.prev_page.atts['href'] = '?query=%s&tophit=%d' % (q, 
+            template.main.nav.first_page.atts['href'] = q_or_ids
+            template.main.nav.prev_page.atts['href'] = '%s&tophit=%d' % (q_or_ids, 
                 results.startrank - maxhits)
         else:
             template.main.nav.first_page.atts['class'] = 'link_disabled'
             template.main.nav.prev_page.atts['class'] = 'link_disabled'
 
         if results.more_matches:
-            template.main.nav.next_page.atts['href'] = '?query=%s&tophit=%d' % (q, 
+            template.main.nav.next_page.atts['href'] = '%s&tophit=%d' % (q_or_ids,
                 results.startrank + maxhits)
         else:
             template.main.nav.next_page.atts['class'] = 'link_disabled'

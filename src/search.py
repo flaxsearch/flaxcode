@@ -10,19 +10,22 @@ import xapian
 # property.
 
 
-def search(dbs, query, tophit = 0, maxhits = 10):
-    log = logging.getLogger("searching")
-    log.info("Search databases %s with query %s" % (dbs, query))
+def conn_for_dbs(dbs):
     conn = xappy.SearchConnection(dbs[0])
     for d in dbs[1:]:
         conn._index.add_database(xapian.Database(d))
-    query = conn.query_parse(query)
+    return conn
+
+def search(dbs, query, tophit = 0, maxhits = 10):
+    log = logging.getLogger("searching")
+    conn = conn_for_dbs(dbs)
+    if isinstance(query, str):
+        query = conn.query_parse(query)
+    log.info("Search databases %s with query %s" % (dbs, query))
     return conn.search (query, tophit, tophit + maxhits)
 
-def sim_query(collections, col, doc_id):
-    conn = xappy.SearchConnection(collections[col].dbname())
-    return unparse(conn.query_similar([doc_id]))
+def sim_query(collections, dbs, col_id, doc_id, tophit=0, maxhits=10):
+    conn = xappy.SearchConnection(collections[col_id].dbname())
+    query =  conn.query_similar([doc_id])
+    return search(dbs, query, tophit, maxhits)
 
-# FIXME: make this do the right thing
-def unparse(q):
-    return "Well, this is not what you want is it? :/"

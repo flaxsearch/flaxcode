@@ -9,7 +9,7 @@ import ConfigParser
 import collection_list
 import logclient
 
-current_version = 1
+current_version = 2
 
 class FlaxOptions(object):
     """

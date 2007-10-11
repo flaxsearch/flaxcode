@@ -23,11 +23,14 @@ import sys
 import copy
 import os
 
+
+import util
 import filespec
 import dbspec
 import schedulespec
 import setuppaths
 import xappy
+
 
 class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec):
     """Representation of a collection of documents.
@@ -43,6 +46,7 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
         self.indexed = "unknown"
         self.docs = "unknown"
         self.queries = 0
+        self.mappings = {}
         self.status = "unindexed"
         self.update(*args, **kwargs)
         self.maybe_make_db()
@@ -52,6 +56,18 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
         filespec.FileSpec.update(self, **kwargs)
         dbspec.DBSpec.update(self, **kwargs)
         schedulespec.ScheduleSpec.update(self, **kwargs)
+        self.update_mappings(**kwargs)
+
+
+    def update_mappings(self, path=None, mapping=None, **kwargs):
+        
+        # This relies on the ordering of the form elements, I'm not
+        # sure if it's safe to do so, although it seems to work fine.
+        if (path == None or mapping == None):
+            return
+        self.paths = util.listify(path)
+        mappings = util.listify(mapping)
+        self.mappings = dict(zip(self.paths, mappings))
 
     def dbname(self):
         return os.path.join(self.db_dir, self.name+'.db')

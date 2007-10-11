@@ -53,12 +53,16 @@ class CollectionList(object):
         else:
             log.error("Failed attempt to delete collection %s" % name)
 
-    def search(self, query, cols=None, tophit=0, maxhits=10):
+    def search(self, query=None, col_id=None, doc_id=None, cols=None, tophit=0, maxhits=10):
+        """either query or doc_id and doc_id should be
+         passed, the latter idicates a similarity search for the
+         document identified by col_id and doc_id."""
         if cols is None:
             cols = self._collections.keys()
-
-        if cols:
-            dbs_to_search = [self._collections[col].dbname() for col in cols]
+        dbs_to_search = [self._collections[col].dbname() for col in cols]
+        if doc_id and col_id:
+            return search.sim_query(self._collections, dbs_to_search, col_id, doc_id, tophit, maxhits)
+        elif query:
             return search.search(dbs_to_search, query, tophit, maxhits)
         else:
             return []

@@ -145,6 +145,9 @@ class Collections(FlaxResource):
                 self._flax_data.collections.new_collection(col, **kwargs)
                 self._signal_data_changed()
                 self._redirect_to_view(col)
+            else:
+                self._bad_request("A collection name must be provided for new collections")
+            
         else:
             return self._detail_template(None, self._flax_data.formats, self._flax_data.languages)
 
@@ -187,19 +190,17 @@ class SearchForm(object):
         self._template = search_template
         self._result_template = result_template
 
-
-    def similar(self, col, doc_id):
-        query = search.sim_query(self._collections, col, doc_id)
-        return self.search(query)
-
-    def search(self, query = None, col = None, advanced = False, tophit = 0, maxhits = 10):
+    def search(self, query = None, col = None, col_id= None, doc_id=None, advanced = False, tophit = 0, maxhits = 10):
         """
         Search document collections.
 
         :Parameters:
             - `query`: the search query
             - `col`: the (list of) collection(s) to be searched.
+            - `doc_id`: A document to generate a search query 
             - `advanced`: the style of search form.
+
+        One of `query` or (`col_id` and `doc_id`) should be provided
 
         If `col` and `query` are provided then use `query` to search
         all the document collections named by `col` and return the
@@ -209,13 +210,15 @@ class SearchForm(object):
         search. If `advanced` tests true then the form will have more
         structure.
         """
+
+        assert not (query and doc_id)
         tophit = int (tophit)
         maxhits = int (maxhits)
-        if query:
-            cols = [col] if isinstance(col, str) else col
-            results = self._collections.search(query, cols, tophit, maxhits)
-            return self._result_template (query, self._collections, cols,
-                results, tophit, maxhits)
+        if query or (col_id and doc_id):
+            cols = util.listify(col) if col else None
+            results = self._collections.search(query, col_id=col_id, doc_id=doc_id, cols=cols, tophit=tophit, maxhits=maxhits)
+            return self._result_template (query, col_id, doc_id, self._collections, cols,
+                                          results, tophit, maxhits)
         else:
             return self._template (self._collections, advanced, self._collections._formats)
 
@@ -239,13 +242,6 @@ class Top(FlaxResource):
     @cherrypy.expose
     def index(self):
         return self.search()
-
-    @cherrypy.expose
-    def similar(self, **kwargs):
-        try:
-            return self._search.similar(kwargs['col'], kwargs['doc_id'])
-        except KeyError:
-            raise cherrypy.NotFound()
 
     @cherrypy.expose
     def search(self, **kwargs):
