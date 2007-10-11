@@ -9,6 +9,10 @@ import time
 import threading
 import re
 
+def listify(obj):
+    return obj if isinstance(obj, list) else [obj]
+
+
 def setup_sys_path():
     "Modify sys.path in order to find libraries"
     sys.path.insert(0, os.path.normpath(os.path.join(__file__, '..', '..', 'libs', 'xappy')))
