@@ -76,8 +76,6 @@ def make_options():
                   ("da", "Danish"),
                   ("nl", "Dutch"),
                   ("en", "English"),
-                  ("lovins", "English (lovins)"),
-                  ("porter", "English (porter)"),
                   ("fi", "Finnish"),
                   ("fr", "French"),
                   ("de", "German"),
