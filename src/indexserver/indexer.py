@@ -117,7 +117,7 @@ class Indexer(object):
             if filter:
                 self.log.info("Filtering file %s using filter %s" % (file_name, filter))
                 fixed_fields = ( ("filename", file_name),
-                                 ("basename", os.path.basename(file_name))
+                                 ("basename", os.path.basename(file_name)),
                                  ("collection", collection_name),
                                  ("mtime", str (os.path.getmtime (file_name))),
                                  ("size", str (os.path.getsize (file_name))),
