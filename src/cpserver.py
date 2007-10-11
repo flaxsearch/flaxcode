@@ -141,7 +141,6 @@ class Collections(FlaxResource):
     def new(self, col=None, **kwargs):
         if cherrypy.request.method == "POST":
             if col and col not in self._flax_data.collections:
-                print "making collection", col
                 self._flax_data.collections.new_collection(col, **kwargs)
                 self._signal_data_changed()
                 self._redirect_to_view(col)
