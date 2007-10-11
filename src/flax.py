@@ -6,7 +6,7 @@ import random
 import os
 import ConfigParser
 
-import flax_collections
+import collection_list
 import logclient
 
 current_version = 1
@@ -20,7 +20,7 @@ class FlaxOptions(object):
 
         self.version = version
         self.db_dir = os.path.join(flax_dir, "dbs")
-        self.collections = flax_collections.CollectionList(self.db_dir)
+        self.collections = collection_list.CollectionList(self.db_dir)
         self.flax_dir = flax_dir
         self.formats = formats
         self.logger_names = logger_names
