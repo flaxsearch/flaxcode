@@ -115,8 +115,6 @@ def render_options(template, flax_data):
             
         node.event_select.event_option.repeat(fill_input, flax_data.log_levels) 
 
-    print flax_data.log_levels
-    print log_settings
     template.main.collection_events.repeat(fill_log_events, sorted(log_settings))
 
     def fill_meanings(span, level):
