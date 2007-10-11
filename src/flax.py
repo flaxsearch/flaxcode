@@ -6,17 +6,19 @@ import random
 import os
 import ConfigParser
 
-
 import flax_collections
 import logclient
+
+current_version = 1
 
 class FlaxOptions(object):
     """
     global options for Flax
     """    
-    def __init__(self, flax_dir, formats, 
+    def __init__(self, version, flax_dir, formats, 
                  logger_names, filters, filter_settings, languages):
-        
+
+        self.version = version
         self.db_dir = os.path.join(flax_dir, "dbs")
         self.collections = flax_collections.FlaxCollections(self.db_dir)
         self.flax_dir = flax_dir
@@ -65,8 +67,10 @@ def make_options():
     
     formats = ["txt", "doc", "rtf", "html", "pdf", "xsl", "ppt"]
     formats.sort()
+
+    default_filter = filters[0] if os.name == 'nt' else filters[2]
     
-    filter_settings = dict( (f, filters[0]) for f in formats)
+    filter_settings = dict( (f, default_filter) for f in formats)
 
     languages = [ ("none", "None"),
                   ("da", "Danish"),
@@ -84,7 +88,8 @@ def make_options():
                   ("es", "Spanish"),
                   ("sv", "Swedish")]
               
-    return FlaxOptions(dir, 
+    return FlaxOptions(current_version,
+                       dir, 
                        formats, 
                        logger_names,
                        filters,

@@ -27,6 +27,7 @@ import flax
 import templates
 import persist
 import util
+import search
 util.setup_psyco()
 
 class FlaxResource(object):
@@ -186,6 +187,11 @@ class SearchForm(object):
         self._template = search_template
         self._result_template = result_template
 
+
+    def similar(self, col, doc_id):
+        query = search.sim_query(self._collections, col, doc_id)
+        return self.search(query)
+
     def search(self, query = None, col = None, advanced = False, tophit = 0, maxhits = 10):
         """
         Search document collections.
@@ -233,6 +239,13 @@ class Top(FlaxResource):
     @cherrypy.expose
     def index(self):
         return self.search()
+
+    @cherrypy.expose
+    def similar(self, **kwargs):
+        try:
+            return self._search.similar(kwargs['col'], kwargs['doc_id'])
+        except KeyError:
+            raise cherrypy.NotFound()
 
     @cherrypy.expose
     def search(self, **kwargs):
@@ -343,13 +356,13 @@ def startup():
     op.add_option('-i', '--input-file', dest='input_file', help = "Flax input data file (default is flax.flx)", default = 'flax.flx')
     op.add_option('-o', '--output-file', dest='output_file', help= "Flax output data file (default is flax.flx)", default = 'flax.flx')
     (options, args) = op.parse_args()
-    flax.options = persist.read_flax(options.input_file)
     try:
         webserver_logconfio = processing.Pipe()
         index_server = indexer.IndexServer()
         logclient.LogConfPub('flaxlog.conf', [webserver_logconfio[0], index_server.logconf_input])
         logclient.LogListener(webserver_logconfio[1]).start()
         logclient.LogConf().update_log_config()
+        flax.options = persist.read_flax(options.input_file)
         scheduler.ScheduleIndexing(index_server).start()
         persist.DataSaver(options.output_file).start()
         start_web_server(flax.options, index_server)

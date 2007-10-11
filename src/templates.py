@@ -253,6 +253,8 @@ def render_search_result (template, query, collections, selcols, results, tophit
             url = '/source?col=%s&file_id=%s' % (collection, filename)
             node.res_link.atts['href']=url
             node.res_link.content = '%d. %s' % (res.rank + 1, filename)
+
+            node.sim_link.atts['href']='./similar?col=%s&doc_id=%s' % (collection, filename)
             
         if 'content' in res.data:
             node.res_content.raw = res.summarise('content', hl=('<strong>','</strong>'))
@@ -261,7 +263,7 @@ def render_search_result (template, query, collections, selcols, results, tophit
         node.res_size.content = format_size (size[0]) if size else 'unknown'
         mtime = res.data.get ('mtime')
         node.res_mtime.content = format_date (mtime[0]) if mtime else 'unknown'
-            
+
     template.main.query.atts['value'] = query
     template.main.collections.repeat (render_search_collection, collections.itervalues(), selcols)
 
