@@ -18,6 +18,8 @@
 """
 __docformat__ = "restructuredtext en"
 
+import types
+
 import setuppaths
 import os
 import xappy
