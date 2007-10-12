@@ -76,12 +76,11 @@ then::
 
 then::
 
-  python cpserver.py
+  python start.py
 
-Which will start the web server. By default the server will run on
-port 8090, but you can change that by editing cp.conf. The server can
-be terminated by raising KeyboardInterupt (normally hitting
-Control-C).
+Which will start the main Flax process. By default the web server will run
+on port 8090, but you can change that by editing cp.conf. The server can be
+terminated by raising KeyboardInterupt (normally hitting Control-C).
 
 Note that Flax may start some other processes. These should all die
 when the main process finishes.
