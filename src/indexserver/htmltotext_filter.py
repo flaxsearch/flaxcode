@@ -5,7 +5,6 @@ def html_filter(filename):
     with open(filename) as f:
         html = f.read()
         p = htmltotext.extract(html)
-        print "html content %s"
         yield "title", p.title
         yield "content", p.content
         yield "description", p.description
