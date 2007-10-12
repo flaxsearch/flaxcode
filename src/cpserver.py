@@ -315,3 +315,9 @@ def start_web_server(flax_data, index_server):
     cherrypy.Application.root.admin = admin
     cherrypy.Application.root.admin.collections = collections
     cherrypy.quickstart(top, config = 'cp.conf')
+
+def stop_web_server():
+    """Stop the flax web server.
+
+    """
+    cherrypy.server.stop()

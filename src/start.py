@@ -121,7 +121,7 @@ class FlaxMain():
             self._thread = threading.Thread(None, self._do_start, 'Flax-Main', ())
             self._thread.start()
 
-    def stop():
+    def stop(self):
         """Stop any running Flax threads and processes.
 
         This method returns immediately.  The server may take some time to
@@ -131,7 +131,7 @@ class FlaxMain():
         it's been restarted since the previous call).
 
         """
-        cherrypy.server.stop()
+        cpserver.stop_web_server()
 
     def join():
         """Block until all the Flax threads and processes have finished.
