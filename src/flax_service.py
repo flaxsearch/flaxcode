@@ -18,24 +18,26 @@
 """
 __docformat__ = "restructuredtext en"
 
-import win32serviceutil
+import regutil
+import servicemanager
+import win32api
+import win32con
 import win32service
+import win32serviceutil
 import win32event
 import win32evtlogutil
 
-import regutil
-import win32api
-import win32con
-import servicemanager
+import os
+import threading
 
-# We need to a lot of messing about with paths, as when running as a service
+# We need to do a lot of messing about with paths, as when running as a service
 # it's not clear what our actual path is. The path to the executable is set in
 # the Registry by the installation script.
 
 REGKEY_BASE = "SOFTWARE\\Lemur Consulting Ltd\\Flax\\"
 
 # Add a suitable path for finding our various modules, otherwise the service
-# won't start properly
+# won't start properly.
 import sys
 try:
     regpath = win32api.RegQueryValue(regutil.GetRootKey(),
@@ -44,7 +46,7 @@ except:
     regpath = ""
 sys.path.insert(0,regpath)
 
-# Fix stdout and stderr and other paths
+# Work out the top path for all logs and settings used by Flax.
 try:
     mainpath = win32api.RegQueryValue(regutil.GetRootKey(),
                                       REGKEY_BASE + "Path")
@@ -54,9 +56,8 @@ except:
 # TODO - fix up any other paths
 
 # Prevent buffer overflows by redirecting stdout & stderr to a file
-stdoutpath =  "%s\\%s" % (mainpath, './flax_stdout.log')
-stderrpath =  "%s\\%s" % (mainpath, './flax_stderr.log')
-
+stdoutpath = os.path.join(mainpath, 'flax_stdout.log')
+stderrpath = os.path.join(mainpath, 'flax_stderr.log')
 
 # The "processing" module attempts to set a signal handler (by calling
 # signal.signal).  However, this is not possible when we're installing as a
@@ -109,27 +110,40 @@ class FlaxService(win32serviceutil.ServiceFramework):
         sys.stderr = open(stderrpath, 'a')
         sys.stdout = open(stdoutpath, 'a')
 
-        # Start flax, non-blocking
-        self._flax_main.start(blocking = False)
+        try:
+            try:
+                # Start flax, non-blocking
+                self._flax_main.start(blocking = False)
 
-        # Wait for message telling us to stop.
-        win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
+                # Wait for message telling us to stop.
+                win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
 
-        # Tell Flax to stop, and wait for it to stop.
-        self._flax_main.stop()
-        self._flax_main.join()
+                # Tell Flax to stop, and wait for it to stop.
+                self._flax_main.stop()
+                self._flax_main.join()
+            except:
+                import traceback
+                traceback.print_exc()
+        finally:
+            # and write a 'stopped' event to the event log.
+            win32evtlogutil.ReportEvent(self._svc_name_,
+                                        servicemanager.PYS_SERVICE_STOPPED,
+                                        0, # category
+                                        servicemanager.EVENTLOG_INFORMATION_TYPE,
+                                        (self._svc_name_, ''))
 
-        # and write a 'stopped' event to the event log.
-        win32evtlogutil.ReportEvent(self._svc_name_,
-                                    servicemanager.PYS_SERVICE_STOPPED,
-                                    0, # category
-                                    servicemanager.EVENTLOG_INFORMATION_TYPE,
-                                    (self._svc_name_, ''))
+def ctrlHandler(ctrlType):
+    """A windows control message handler.
 
+    This is needed to prevent the service exiting when the user who started it
+    exits.
+
+    """
+    return True
 
 if __name__ == '__main__':
     import processing
     processing.freezeSupport()
-    # Note that this code will not be run in the 'frozen' exe-file!!!
 
+    win32api.SetConsolCtrlHandler(ctrlHandler, True)
     win32serviceutil.HandleCommandLine(FlaxService)
