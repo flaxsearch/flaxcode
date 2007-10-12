@@ -17,6 +17,7 @@
 
 
 <div node="-con:body">
+  <script node="con:script" language='javascript'></script>
   <form action='./do_indexing' method="POST">
     <input type="submit" value="Index Now" />
   </form>
@@ -65,16 +66,10 @@
 	  excluded.</dd>
 	</dl>
       </div>
-      <div node="-rep:mappings">
-        <div>
-	  <label class="main_label" for="path">Path:</label>
-	  <input node="con:path" name="path"></input>
-        </div>
-        <div>
-          <label class="main_label" for="mapping">Mapping:</label>
-          <input node="con:mapping" name="mapping"></input>
-        </div>
+      <!-- mappings div is used by the javacript - it should remain here.-->
+      <div id="mappings">
       </div>
+      <button onClick="add_blank_mapping()" type="button">+</button>
       <div>
 	<label class="main_label">Formats:</label>
 	<div node="-rep:formats">

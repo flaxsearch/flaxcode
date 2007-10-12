@@ -171,6 +171,18 @@ def render_collection(node, collection, base_url):
 
 ###### Collection Detail Template ######
 
+
+def script_for_mappings(col):
+
+    if col:
+        maps =  '\n'.join(['   add_mapping("%s", "%s");' % (p, col.mappings[p]) for p in col.paths])
+    else:
+        maps = ""
+    maps += '\n   add_mapping("", "");'
+
+    return "\nvar make_mappings = function(){\n %s \n}\n window.onload=make_mappings\n" % maps
+
+
 # This actually sucks a bit, really we want to make all the checkbox
 # and associated labels nodes at initialization time, and then just
 # set the checked attributes at render time, but the public api for
@@ -179,6 +191,7 @@ def render_collection(node, collection, base_url):
 # built items to set the checked value.
 
 def render_collection_detail(template, collection, formats, languages):
+    template.main.script.raw = script_for_mappings(collection)
     if collection:
         template.title.col_name.content = collection.name
     body = template.main
@@ -189,16 +202,7 @@ def render_collection_detail(template, collection, formats, languages):
         form.name.content = collection.name
         form.description.atts['value'] = collection.description
         form.col.raw=""
-
     
-    def fill_mapping(node, path):
-        node.path.atts['value']=path
-        if collection and path in collection.mappings:
-            node.mapping.atts['value'] = collection.mappings[path]
-
-    form.mappings.repeat(fill_mapping, [""]+ (collection.paths if collection else []))
-
- 
     def fill_format(node, format):
         node.format_label.content = format
         node.format_checkbox.atts['value'] = format
