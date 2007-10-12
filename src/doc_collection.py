@@ -76,7 +76,7 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
         self.mappings = dict(filter (lambda (x, y): x !='', pairs))
         self.paths = filter(None, self.paths)
 
-    def url_for_doc(self, doc_id, flax_serve=True):
+    def url_for_doc(self, doc_id):
         """ Use the mappings attribute of the collection to give the
         url for the document.  If there is no mapping specified then
         provide a url to serve from Flax if flax_serve is True,
@@ -98,7 +98,7 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
         if mapped:
             return mapped+doc_id[len(path[0]):]
         else:
-            return self.flax_url_string % (self.name, doc_id) if flax_serve else ""
+            return ""
         
     def dbname(self):
         return os.path.join(self.db_dir, self.name+'.db')
