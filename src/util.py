@@ -15,8 +15,7 @@ def listify(obj):
 
 def setup_sys_path():
     "Modify sys.path in order to find libraries"
-    sys.path.insert(0, os.path.normpath(os.path.join(__file__, '..', '..', 'libs', 'xappy')))
-    sys.path.insert(0, os.path.normpath(os.path.join(__file__, '..', '..', 'localinst')))
+    sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'localinst')))
 
 def setup_psyco():
     "If psyco is available ensure that it is used"
