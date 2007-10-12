@@ -128,6 +128,7 @@ class FlaxService(win32serviceutil.ServiceFramework):
 
 
 if __name__ == '__main__':
+    import processing
     processing.freezeSupport()
     # Note that this code will not be run in the 'frozen' exe-file!!!
 
