@@ -19,9 +19,9 @@
 __docformat__ = "restructuredtext en"
 
 import types
+import os
 
 import setuppaths
-import os
 import xappy
 
 class DBSpec(object):

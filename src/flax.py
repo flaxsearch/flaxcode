@@ -1,10 +1,25 @@
-from __future__ import with_statement
-# standard python library imports
-import datetime
+# Copyright (C) 2007 Lemur Consulting Ltd
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""Global options for flax.
+
+"""
+__docformat__ = "restructuredtext en"
+
 import logging
-import random
 import os
-import ConfigParser
 
 import collection_list
 import logclient
@@ -12,8 +27,8 @@ import logclient
 current_version = 2
 
 class FlaxOptions(object):
-    """
-    global options for Flax
+    """Global options for Flax.
+
     """    
     def __init__(self, version, flax_dir, formats, 
                  logger_names, filters, filter_settings, languages):
@@ -41,16 +56,23 @@ class FlaxOptions(object):
 
     def _get_log_settings(self):
         # is .level part of the public api for logger objects?
+        # FIXME - check
         return dict((name, logging.getLevelName(logging.getLogger(name).level)) for name in self.logger_names)
 
-    log_settings = property(fset = _set_log_settings, fget = _get_log_settings, doc = """
-    A dictionary mapping log event names to log levels.  It is
-    permitted for the dictionary to contain names that do not name a
-    log event, such will be silently ignored.""")
+    log_settings = property(fset=_set_log_settings, fget=_get_log_settings, doc=
+        """A dictionary mapping log event names to log levels.
+    
+        It is permitted for the dictionary to contain names that do not name a log
+        event, such will be silently ignored.
+    
+        """)
 
     @property
     def log_levels(self):
-        return map(logging.getLevelName, [0,10,20,30,40,50])
+        """The list of supported logging levels.
+
+        """
+        return ('NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
 
 def make_options():
     #dir = os.path.dirname(os.path.abspath(os.path.normpath(__file__)))
@@ -96,4 +118,3 @@ def make_options():
 
 # placeholder for global options object
 options = None
-
