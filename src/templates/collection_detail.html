@@ -49,8 +49,15 @@
 	included in this document collection.</p>
 	<dl>
 	  <dt>Paths</dt>
-	  <dd>The directories specified here will be (recursively) searched
+	  <dd>Each directory specified here will be (recursively) searched
 	  for files. Individual files may also be specified here.</dd>
+          <dt>Mappings</dt>
+          <dd>This is used to generate a url for documents found below
+          the corresponding path in the search results pages. The
+          generated url replaces the path prefix of a filename with
+          the corresponding mapping. Empty mappings will result in a
+          url to serve the file directly from Flax, this is not
+          recommended for production use.
 	  <dt>Formats</dt>
 	  <dd>Files of the selected formats will be included.</dd>
 	  <dt>Age</dt>

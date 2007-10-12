@@ -260,10 +260,11 @@ def render_search_result (template, query, col_id, doc_id, collections, selcols,
         if 'filename' in res.data and 'collection' in res.data:
             filename = res.data['filename'][0]
             collection = res.data['collection'][0]
-            url = '/source?col=%s&file_id=%s' % (collection, filename)
-            node.res_link.atts['href']=url
-            node.res_link.content = '%d. %s' % (res.rank + 1, filename)
-            node.sim_link.atts['href']='./search?doc_id=%s&col_id=%s' % (filename, collection)
+            title = res.data['title'][0] if 'title' in res.data else filename
+            url = collections[collection].url_for_doc(filename)
+            node.res_link.atts['href'] = url
+            node.res_link.content = '%d. %s' % (res.rank + 1, title)
+            node.sim_link.atts['href'] = './search?doc_id=%s&col_id=%s' % (filename, collection)
             
         if 'content' in res.data:
             node.res_content.raw = res.summarise('content', hl=('<strong>','</strong>'))

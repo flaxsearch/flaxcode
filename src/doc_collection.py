@@ -22,7 +22,7 @@ __docformat__ = "restructuredtext en"
 import sys
 import copy
 import os
-
+import logging
 
 import util
 import filespec
@@ -32,6 +32,7 @@ import setuppaths
 import xappy
 
 
+
 class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec):
     """Representation of a collection of documents.
 
@@ -39,6 +40,9 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
     with some properties describing the collection.
 
     """
+
+    log = logging.getLogger('collections')
+    flax_url_string = '/source?col=%s&file_id=%s'
 
     def __init__(self, name, db_dir, *args, **kwargs):
         self.name = name
@@ -58,7 +62,6 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
         schedulespec.ScheduleSpec.update(self, **kwargs)
         self.update_mappings(**kwargs)
 
-
     def update_mappings(self, path=None, mapping=None, **kwargs):
         
         # This relies on the ordering of the form elements, I'm not
@@ -67,8 +70,36 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
             return
         self.paths = util.listify(path)
         mappings = util.listify(mapping)
-        self.mappings = dict(zip(self.paths, mappings))
 
+        # be careful with the order here
+        pairs = zip(self.paths, mappings)
+        self.mappings = dict(filter (lambda (x, y): x !='', pairs))
+        self.paths = filter(None, self.paths)
+
+    def url_for_doc(self, doc_id, flax_serve=True):
+        """ Use the mappings attribute of the collection to give the
+        url for the document.  If there is no mapping specified then
+        provide a url to serve from Flax if flax_serve is True,
+        otherwise just return the empty string.
+        """
+        #Possibly a file lives below two separate paths, in which case
+        #we're just taking the first mapping here. To really address
+        #this we'd need to save the path for the source file in the
+        #document. It's unlikely to be a big issue tho'.
+
+        path = [ p for p in self.paths if os.path.commonprefix([doc_id, p]) == p]
+        if len(path) > 1:
+            self.log.warning('Doc: %s has more than one path, using first' % doc_id)
+        if len(path) == 0:
+            self.log.error('Doc: %s has no path. Maybe the collection needs indexing' % doc_id)
+            return ""
+        print self.mappings
+        mapped = self.mappings[path[0]]
+        if mapped:
+            return mapped+doc_id[len(path[0]):]
+        else:
+            return self.flax_url_string % (self.name, doc_id) if flax_serve else ""
+        
     def dbname(self):
         return os.path.join(self.db_dir, self.name+'.db')
 
