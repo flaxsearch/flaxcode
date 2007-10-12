@@ -9,6 +9,7 @@ import HTMLTemplate
 import datetime
 import time
 
+import uistrings
 import util
 
 class TemplateManager(object):
@@ -109,7 +110,7 @@ def render_options(template, flax_data):
 
         def fill_input(inp, level):
             inp.atts["value"] = level
-            inp.content = level.capitalize()
+            inp.content = uistrings.log_level(level)
             if log_settings[event] == level:
                 inp.atts['selected'] = 'selected'
             
@@ -118,7 +119,7 @@ def render_options(template, flax_data):
     template.main.collection_events.repeat(fill_log_events, sorted(log_settings))
 
     def fill_meanings(span, level):
-        span.raw = level.capitalize()
+        span.raw = uistrings.log_level(level)
 
     template.main.level_meaning.repeat(fill_meanings, flax_data.log_levels)
 
