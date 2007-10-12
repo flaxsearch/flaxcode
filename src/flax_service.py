@@ -58,6 +58,20 @@ stdoutpath =  "%s\\%s" % (mainpath, './flax_stdout.log')
 stderrpath =  "%s\\%s" % (mainpath, './flax_stderr.log')
 
 
+# The "processing" module attempts to set a signal handler (by calling
+# signal.signal).  However, this is not possible when we're installing as a
+# service, since signal.signal only works in the main thread, and we are run in
+# a subthread by the service handling code.  Therefore, we install a dummy
+# signal handler to avoid an exception being thrown.
+# Signals are pretty unused on windows anyway, so hopefully this won't cause a
+# problem.  If it does cause a problem, we'll have to work out a way to set a
+# signal handler (perhaps, by running the whole of Flax in a sub-process).
+def _dummy_signal(*args, **kwargs):
+    pass
+import signal
+signal.signal = _dummy_signal
+
+
 # Import start module, which implements starting and stopping Flax.
 import start
 
