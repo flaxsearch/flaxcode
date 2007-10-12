@@ -22,6 +22,8 @@ import os
 import stat
 import datetime
 import fnmatch
+import logging
+
 import util
 
 class FileSpec(object):
@@ -48,6 +50,9 @@ class FileSpec(object):
 
     def files(self):
         """Returns an iterator over the files defined by this FileSpec."""
+
+        logger_indexing = logging.getLogger('indexing')
+
         for p in self.paths:
             for root, dirs, files in os.walk(p):
                 # Perhaps we want to warn here if any dirs are
@@ -59,7 +64,8 @@ class FileSpec(object):
                 # inclusion.)
                 for f in files:
                     fname = os.path.join(root, f)
-                    if self.included(fname):
+                    logger_indexing.debug("Walked to file %s" % fname)
+                    if self.included(fname, logger_indexing):
                         yield fname
 
     def _get_oldest(self):
@@ -82,15 +88,21 @@ class FileSpec(object):
         else:
             raise ValueError("Value must be None, a string or a datetime.timedelta")
 
-    def included(self, f):
-        """ is the file name by f included in this spec? """
+    def included(self, fname, logger_indexing):
+        """ is the file name by fname included in this spec? """
 
         # is this file one of the permitted formats?
-        if not any ((fnmatch.fnmatch(f, '*.'+e) for e in self.formats)):
+        if not any ((fnmatch.fnmatch(fname, '*.'+e) for e in self.formats)):
+            logger_indexing.debug("File %s is not included in format list" % fname)
             return False
 
         # format is ok, are we with the permitted range of dates.
-        mtime = datetime.datetime.fromtimestamp(os.path.getmtime(f))
+        mtime = datetime.datetime.fromtimestamp(os.path.getmtime(fname))
 
         age = datetime.datetime.now() - mtime
-        return self.oldest < age if self.oldest else True
+        if self.oldest and self.oldest >= age:
+            logger_indexing.debug("File %s is too old" % fname)
+            return False
+
+        logger_indexing.debug("File %s is included" % fname)
+        return True
