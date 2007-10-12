@@ -27,8 +27,6 @@ log = logging.getLogger("collection")
 class CollectionList(object):
     """A list of collections.
 
-    The collections are indexed by 
-
     """
 
     def __init__(self, db_dir):
@@ -54,9 +52,13 @@ class CollectionList(object):
             log.error("Failed attempt to delete collection %s" % name)
 
     def search(self, query=None, col_id=None, doc_id=None, cols=None, tophit=0, maxhits=10):
-        """either query or doc_id and doc_id should be
-         passed, the latter idicates a similarity search for the
-         document identified by col_id and doc_id."""
+        """Perform a search.
+        
+        Either query or (col_id and doc_id) should be passed, the latter
+        idicates a similarity search for the document identified by col_id and
+        doc_id.
+        
+        """
         if cols is None:
             cols = self._collections.keys()
         dbs_to_search = [self._collections[col].dbname() for col in cols]
