@@ -18,7 +18,7 @@ def read_flax(filename):
         if options.version != flax.current_version:
             log=logging.getLogger().warn("The version of %s is incompatible, reverting to default settings" % filename)
             options = flax.make_options()
-    except KeyError:
+    except KeyError, AttributeError:
         log=logging.getLogger().warn("There was a problem reading %s, reverting to default settings" % filename)
         options = flax.make_options()
     d.close()
