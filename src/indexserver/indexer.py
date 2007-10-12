@@ -4,11 +4,12 @@ import logging
 import os
 import time
 
+import setuppaths
+
 import processing
 
 import sys
 sys.path.append('..')
-import setuppaths
 import util
 
 import xappy
