@@ -123,6 +123,14 @@ div.info {
     color: darkred; 
 }
 
+.search_sim_link { 
+    text-decoration: none; color: darkblue; 
+}
+
+.search_sim_link:hover {
+    color: darkred; 
+}
+
 .search_hit_content {
     margin-top: 3px;
 }
