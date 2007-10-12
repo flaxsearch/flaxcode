@@ -347,7 +347,7 @@ def options_render (*args):
 
 #: template for administrator search pages.
 def admin_search_render (*args):
-    return _tman.create_admin_template("search.html", render_search).render (*args)
+    return _tman.create_admin_template("search_admin.html", render_search).render (*args)
 
 #: template for user search pages.
 def user_search_render (*args):
@@ -363,7 +363,7 @@ def collection_detail_render (*args):
 
 #: administrator template for viewing search results.
 def admin_search_result_render (*args):
-    return _tman.create_admin_template("search_result.html", render_search_result).render (*args)
+    return _tman.create_admin_template("search_result_admin.html", render_search_result).render (*args)
 
 #: user template for viewing search results.
 def user_search_result_render (*args):
