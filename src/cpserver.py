@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or modify
@@ -21,14 +19,10 @@
 __docformat__ = "restructuredtext en"
 
 import setuppaths
-import os
 import cherrypy
-import flax
 import templates
 import persist
 import util
-import search
-util.setup_psyco()
 
 class FlaxResource(object):
     "Abstract class supporting common error handling across all Flax web pages"
@@ -321,32 +315,3 @@ def start_web_server(flax_data, index_server):
     cherrypy.Application.root.admin = admin
     cherrypy.Application.root.admin.collections = collections
     cherrypy.quickstart(top, config = 'cp.conf')
-
-def startup():
-    import optparse
-    import logclient
-    import scheduler
-    import sys
-    sys.path.append('indexserver')
-    import indexer
-    import processing
-    op = optparse.OptionParser()
-    op.add_option('-i', '--input-file', dest='input_file', help = "Flax input data file (default is flax.flx)", default = 'flax.flx')
-    op.add_option('-o', '--output-file', dest='output_file', help= "Flax output data file (default is flax.flx)", default = 'flax.flx')
-    (options, args) = op.parse_args()
-    try:
-        webserver_logconfio = processing.Pipe()
-        index_server = indexer.IndexServer()
-        logclient.LogConfPub('flaxlog.conf', [webserver_logconfio[0], index_server.logconf_input])
-        logclient.LogListener(webserver_logconfio[1]).start()
-        logclient.LogConf().update_log_config()
-        flax.options = persist.read_flax(options.input_file)
-        scheduler.ScheduleIndexing(index_server).start()
-        persist.DataSaver(options.output_file).start()
-        start_web_server(flax.options, index_server)
-        print "Flax web server shutting down..."
-    finally:
-        persist.store_flax(options.output_file, flax.options)
-
-if __name__ == "__main__":
-    startup()
