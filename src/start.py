@@ -22,6 +22,7 @@ __docformat__ = "restructuredtext en"
 
 import setuppaths
 import optparse
+import threading
 
 import processing
 
@@ -125,6 +126,9 @@ class FlaxMain():
 
         This method returns immediately.  The server may take some time to
         finish.
+
+        Calling it repeatedly is safe, and will have no further effect (unless
+        it's been restarted since the previous call).
 
         """
         cherrypy.server.stop()
