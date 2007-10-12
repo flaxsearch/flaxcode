@@ -63,7 +63,6 @@ class DBSpec(object):
         """
         raise NotImplementedError, "Subclasses must implement dbname"
 
-
     def maybe_make_db(self):
         dbname = self.dbname()
         if not os.path.exists(dbname):
@@ -71,31 +70,80 @@ class DBSpec(object):
 
             conn = xappy.IndexerConnection(dbname)
 
+            add_internal_field_actions(conn, self.stopwords, self.language)
+
             free_text_options = { 'stop' : self.stopwords,
                                   'spell': True,
                                   'language' : self.language }
 
-            conn.add_field_action("filename", xappy.FieldActions.INDEX_EXACT)
-            conn.add_field_action("filename", xappy.FieldActions.STORE_CONTENT)
+            conn.add_field_action('title', xappy.FieldActions.INDEX_FREETEXT,
+                                  **free_text_options)
+            conn.add_field_action('title', xappy.FieldActions.STORE_CONTENT)
 
-            conn.add_field_action("basename", xappy.FieldActions.INDEX_FREETEXT, **free_text_options)
-            conn.add_field_action("basename", xappy.FieldActions.STORE_CONTENT)
+            conn.add_field_action('content', xappy.FieldActions.INDEX_FREETEXT,
+                                  **free_text_options)
+            conn.add_field_action('content', xappy.FieldActions.STORE_CONTENT)
 
-            conn.add_field_action("collection", xappy.FieldActions.INDEX_EXACT)
-            conn.add_field_action("collection", xappy.FieldActions.STORE_CONTENT)
-
-            conn.add_field_action("keyword", xappy.FieldActions.INDEX_FREETEXT, **free_text_options)
-            conn.add_field_action("keyword", xappy.FieldActions.STORE_CONTENT)
-
-            conn.add_field_action("description", xappy.FieldActions.INDEX_FREETEXT, **free_text_options)
+            conn.add_field_action("description", xappy.FieldActions.INDEX_FREETEXT,
+                                  **free_text_options)
             conn.add_field_action("description", xappy.FieldActions.STORE_CONTENT)
 
-            conn.add_field_action("mtime", xappy.FieldActions.INDEX_EXACT)
-            conn.add_field_action("mtime", xappy.FieldActions.STORE_CONTENT)
+            conn.add_field_action("keyword", xappy.FieldActions.INDEX_FREETEXT,
+                                  **free_text_options)
+            conn.add_field_action("keyword", xappy.FieldActions.STORE_CONTENT)
 
-            conn.add_field_action("size", xappy.FieldActions.INDEX_EXACT)
-            conn.add_field_action("size", xappy.FieldActions.STORE_CONTENT)
-
-            conn.add_field_action('content', xappy.FieldActions.INDEX_FREETEXT, **free_text_options)
-            conn.add_field_action('content', xappy.FieldActions.STORE_CONTENT)
             conn.close()
+
+
+def internal_fields():
+    """Get a list of the fields which are for internal use only.
+
+    Such fields must not be returned by filters.
+
+    """
+    return ('filename', 'uri', 'nametext', 'mtime', 'size', 'collection', )
+
+def add_internal_field_actions(conn, stopwords, language):
+    """Add field actions for the internal fields.
+
+    The fields for which actions are set up here MUST be the same as those
+    returned by internal_fields().
+
+    """
+    free_text_options = {
+        'stop' : stopwords,
+        'spell': True,
+        'language' : language,
+    }
+
+    # The source file (on the local system) that corresponds to this file.
+    conn.add_field_action("filename", xappy.FieldActions.INDEX_EXACT)
+    conn.add_field_action("filename", xappy.FieldActions.STORE_CONTENT)
+
+    # The URI that a document corresponds to.
+    # (Not currently used, but we define it now so that we won't need
+    # to reorganise the fields later to add it.  Having it defined
+    # but not used should have virtually no cost.)
+    conn.add_field_action("uri", xappy.FieldActions.INDEX_EXACT)
+    conn.add_field_action("uri", xappy.FieldActions.STORE_CONTENT)
+
+    # Text extracted from the filepath.
+    # This is used to allow the filename to have some influence on the
+    # search results.
+    conn.add_field_action("nametext", xappy.FieldActions.INDEX_FREETEXT,
+                          **free_text_options)
+
+    # The time that a document was last modified.
+    # This is stored in seconds since the epoch (ie, time.gmtime(0))
+    conn.add_field_action("mtime", xappy.FieldActions.INDEX_EXACT)
+    conn.add_field_action("mtime", xappy.FieldActions.STORE_CONTENT)
+
+    # The size is just used for display.
+    conn.add_field_action("size", xappy.FieldActions.STORE_CONTENT)
+
+    # The collection that a document belongs to.
+    # We may be able to replace this by a "virtual" field at some
+    # point, because it will be the same for all documents in a given
+    # collection.
+    conn.add_field_action("collection", xappy.FieldActions.INDEX_EXACT)
+    conn.add_field_action("collection", xappy.FieldActions.STORE_CONTENT)

@@ -24,7 +24,7 @@ import os
 import collection_list
 import logclient
 
-current_version = 2
+current_version = 3
 
 class FlaxOptions(object):
     """Global options for Flax.
@@ -93,6 +93,8 @@ def make_options():
     default_filter = filters[0] if os.name == 'nt' else filters[2]
     
     filter_settings = dict( (f, default_filter) for f in formats)
+    if os.name != 'nt':
+        filter_settings['html'] = 'Xapian'
 
     languages = [ ("none", "None"),
                   ("da", "Danish"),
