@@ -118,7 +118,7 @@ class FlaxMain():
             finally:
                 self._do_cleanup()
         else:
-            self._thread = threading.Thread(None, cherrypy.server.start, 'Flax-Main', ())
+            self._thread = threading.Thread(None, self._do_start, 'Flax-Main', ())
             self._thread.start()
 
     def stop():
