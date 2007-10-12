@@ -145,5 +145,5 @@ if __name__ == '__main__':
     import processing
     processing.freezeSupport()
 
-    win32api.SetConsolCtrlHandler(ctrlHandler, True)
+    win32api.SetConsoleCtrlHandler(ctrlHandler, True)
     win32serviceutil.HandleCommandLine(FlaxService)
