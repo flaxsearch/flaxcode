@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-#
 # Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or modify
@@ -20,7 +18,6 @@
 """
 __docformat__ = "restructuredtext en"
 
-
 import win32serviceutil
 import win32service
 import win32event
@@ -29,42 +26,40 @@ import win32evtlogutil
 import regutil
 import win32api
 import win32con
+import servicemanager
 
-#  We need to a lot of messing about with paths, as when running as a service it's not clear what our actual path is. The path to the executable is set in the Registry by the
-# installation script.
+# We need to a lot of messing about with paths, as when running as a service
+# it's not clear what our actual path is. The path to the executable is set in
+# the Registry by the installation script.
 
-# Add a suitable path for finding our various modules, otherwise the service won't start properly
+REGKEY_BASE = "SOFTWARE\\Lemur Consulting Ltd\\Flax\\"
+
+# Add a suitable path for finding our various modules, otherwise the service
+# won't start properly
 import sys
 try:
-    regpath = win32api.RegQueryValue( regutil.GetRootKey(), "SOFTWARE\\Lemur Consulting Ltd\\Flax\\ModulePath")
+    regpath = win32api.RegQueryValue(regutil.GetRootKey(),
+                                     REGKEY_BASE + "ModulePath")
 except:
     regpath = ""
 sys.path.insert(0,regpath)
 
-import setuppaths
-import optparse
-import processing
-import cpserver
-import flax
-from indexserver import indexer
-import logclient
-import persist
-import scheduler
-import util
-
-util.setup_psyco()
-
 # Fix stdout and stderr and other paths
 try:
-    mainpath = win32api.RegQueryValue( regutil.GetRootKey(), "SOFTWARE\\Lemur Consulting Ltd\\Flax\\Path")
+    mainpath = win32api.RegQueryValue(regutil.GetRootKey(),
+                                      REGKEY_BASE + "Path")
 except:
     mainpath = "c:\\"
 
 # TODO - fix up any other paths
 
 # Prevent buffer overflows by redirecting stdout & stderr to a file
-stdoutpath =  "%s\\%s" %(mainpath, './flax_stdout.log')        
-stderrpath =  "%s\\%s" %(mainpath, './flax_stderr.log')        
+stdoutpath =  "%s\\%s" % (mainpath, './flax_stdout.log')
+stderrpath =  "%s\\%s" % (mainpath, './flax_stderr.log')
+
+
+# Import start module, which implements starting and stopping Flax.
+import start
 
 
 class FlaxService(win32serviceutil.ServiceFramework):
@@ -76,61 +71,39 @@ class FlaxService(win32serviceutil.ServiceFramework):
     def __init__(self, args):
         win32serviceutil.ServiceFramework.__init__(self, args)
         self.hWaitStop = win32event.CreateEvent(None, 0, 0, None)
-        
-        # settings file has a fixed name
-        options.input_file = 'flax.flx'
-	options.output_file = 'flax.flx'
+
+        settings_path = os.path.join(mainpath, 'flax.flx')
+        self._options = start.StartupOptions(input_file = settings_path,
+                                             output_file = settings_path)
+        self._flax_main = start.FlaxMain(self._options)
 
 
     def SvcStop(self):
-
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
-        # Stop flax
-        cherrypy.server.stop()
-
         win32event.SetEvent(self.hWaitStop)
 
     def SvcDoRun(self):
-
-        import servicemanager
-
         # Write a 'started' event to the event log...
-
         win32evtlogutil.ReportEvent(self._svc_name_,
-
                                     servicemanager.PYS_SERVICE_STARTED,
-
                                     0, # category
-
                                     servicemanager.EVENTLOG_INFORMATION_TYPE,
-
                                     (self._svc_name_, ''))
 
-        # Redirect stdout and stderr to avoid buffer overflows and to allow debugging while acting as a service      
-        sys.stderr = open(stderrpath,'a')
-        sys.stdout = open(stdoutpath,'a')
+        # Redirect stdout and stderr to avoid buffer overflows and to allow
+        # debugging while acting as a service
+        sys.stderr = open(stderrpath, 'a')
+        sys.stdout = open(stdoutpath, 'a')
 
         # Start flax, non-blocking
-	#try:
-	
-	
-	
-	webserver_logconfio = processing.Pipe()
-	index_server = indexer.IndexServer()
-	logclient.LogConfPub('flaxlog.conf', [webserver_logconfio[0], index_server.logconf_input])
-	logclient.LogListener(webserver_logconfio[1]).start()
-	logclient.LogConf().update_log_config()
-	flax.options = persist.read_flax(options.input_file)
-	scheduler.ScheduleIndexing(index_server).start()
-	persist.DataSaver(options.output_file).start()
-	cpserver.start_web_server(flax.options, index_server)
-		
-	
-        # wait for being stopped...
+        self._flax_main.start(blocking = False)
+
+        # Wait for message telling us to stop.
         win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
 
-	# write settings 
-	persist.store_flax(options.output_file, flax.options)
+        # Tell Flax to stop, and wait for it to stop.
+        self._flax_main.stop()
+        self._flax_main.join()
 
         # and write a 'stopped' event to the event log.
         win32evtlogutil.ReportEvent(self._svc_name_,
@@ -145,4 +118,3 @@ if __name__ == '__main__':
     # Note that this code will not be run in the 'frozen' exe-file!!!
 
     win32serviceutil.HandleCommandLine(FlaxService)
-
