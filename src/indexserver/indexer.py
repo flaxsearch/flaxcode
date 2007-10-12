@@ -169,7 +169,7 @@ def index_server_loop(inp, loginp, status):
     logclient.LogListener(loginp)
     logclient.LogConf().update_log_config()
     indexer = Indexer(status)
-    while 1:
+    while True:
         args=inp.recv()
         indexer.do_indexing(*args)
 
@@ -182,7 +182,10 @@ class IndexServer(object):
         self.indexingio = processing.Pipe()
         self.syncman = processing.Manager()
         self.status_dict = self.syncman.dict()
-        server=processing.Process(target = index_server_loop, args=(self.indexingio[1], self.logconfio[1], self.status_dict))
+        server = processing.Process(target=index_server_loop,
+                                    args=(self.indexingio[1],
+                                          self.logconfio[1],
+                                          self.status_dict))
         server.setDaemon(True)
         server.start()
 
@@ -195,7 +198,7 @@ class IndexServer(object):
 
     def get_status(self):
         """
-        Returns the status ofcollection with name `col_name`. This is
+        Returns the status of collection with name `col_name`. This is
         a dictionary keyed on collection names. There may be no entry
         for a collection indicating that the indexer knows nothing
         about that collection. Otherwise the value is a dictionary
