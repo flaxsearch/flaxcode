@@ -167,6 +167,9 @@ def ctrlHandler(ctrlType):
     This is needed to prevent the service exiting when the user who started it
     exits.
 
+    FIXME - we should probably handle ctrlType = CTRL_SHUTDOWN_EVENT
+    differently.
+
     """
     return True
 
