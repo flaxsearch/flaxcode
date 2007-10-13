@@ -69,6 +69,7 @@ except:
         newdir = os.path.dirname(exedir)
         if newdir == exedir:
             break
+        exedir = newdir
         exepath = os.path.join(exedir, 'Python.exe')
         if os.path.exists(exepath):
             break
