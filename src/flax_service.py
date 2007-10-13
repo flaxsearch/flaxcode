@@ -28,6 +28,7 @@ import win32event
 import win32evtlogutil
 
 import os
+import sys
 import threading
 
 # We need to do a lot of messing about with paths, as when running as a service
@@ -52,6 +53,28 @@ try:
                                       REGKEY_BASE + "Path")
 except:
     mainpath = "c:\\"
+
+# We have to set sys.executable to a normal Python interpreter.  It won't point
+# to one because we will have been run by PythonService.exe (and sys.executable
+# will be the path to that executable).  However, the "processing" extension
+# module uses sys.executable to emulate a fork, and needs it to be the correct
+# python interpreter.  We'll try to read it from a registry entry, and try
+# making it up otherwise.
+try:
+    exepath = win32api.RegQueryValue(regutil.GetRootKey(),
+                                     REGKEY_BASE + "PythonExePath")
+except:
+    exedir = sys.executable
+    while True:
+        newdir = os.path.dirname(exedir)
+        if newdir == exedir:
+            break
+        exepath = os.path.join(exedir, 'Python.exe')
+        if os.path.exists(exepath):
+            break
+    if not os.path.exists(exepath):
+        raise ValueError("Cannot determine python executable")
+sys.executable = exepath
 
 # TODO - fix up any other paths
 
@@ -112,18 +135,23 @@ class FlaxService(win32serviceutil.ServiceFramework):
 
         try:
             try:
-                # Start flax, non-blocking
-                self._flax_main.start(blocking = False)
+                try:
+                    # Start flax, non-blocking
+                    self._flax_main.start(blocking = False)
 
-                # Wait for message telling us to stop.
-                win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
-
-                # Tell Flax to stop, and wait for it to stop.
-                self._flax_main.stop()
-                self._flax_main.join()
-            except:
-                import traceback
-                traceback.print_exc()
+                    # Wait for message telling us to stop.
+                    win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
+                except:
+                    import traceback
+                    traceback.print_exc()
+            finally:
+                try:
+                    # Tell Flax to stop, and wait for it to stop.
+                    self._flax_main.stop()
+                    self._flax_main.join()
+                except:
+                    import traceback
+                    traceback.print_exc()
         finally:
             # and write a 'stopped' event to the event log.
             win32evtlogutil.ReportEvent(self._svc_name_,
