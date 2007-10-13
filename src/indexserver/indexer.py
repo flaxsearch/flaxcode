@@ -28,7 +28,7 @@ util.setup_psyco()
 
 class Indexer(object):
     """Perform indexing of a xapian database on demand.
-    
+
     The indexing process might be fragile since we're potentially invoking
     third party filters that may fall over or fail to terminate.  However,
     we attempt to mitigate this by calling filters which are known to have
@@ -37,7 +37,7 @@ class Indexer(object):
     FIXME - running filters in subprocesses is not yet implemented.
 
     """
-    
+
     def __init__(self, status):
         self._filter_map = {"Xapian": htmltotext_filter.html_filter,
                             "Text": simple_text_filter.text_filter}
@@ -48,7 +48,7 @@ class Indexer(object):
 
     def do_indexing(self, col_name, dbname, filter_settings, files):
         """Perform an indexing pass.
-        
+
         Index the database for col_name using filters given by filter_settings.
         The filename is used as the document id, and this is used to remove
         documents in the database that no longer have an associated file.
@@ -74,7 +74,7 @@ class Indexer(object):
             # give a better error message.
             conn = xappy.IndexerConnection(dbname)
             status['number_of_documents'] = conn.get_doccount()
-            
+
             docs_found = dict((id, False) for id in conn.iterids())
 
             for f in files:
@@ -116,8 +116,7 @@ class Indexer(object):
             return False
         else:
             return True
-        
-    
+
     def _process_file(self, file_name, conn, collection_name, filter_settings, status):
         """ Extract text from a file, make a xapian document and add
         it to the database.
@@ -191,9 +190,9 @@ def index_server_loop(inp, loginp, status):
 
 class IndexServer(object):
     """ Manages the indexing of Flax databases in a child process and
-    provides information about the state of collection indexing. 
+    provides information about the state of collection indexing.
     """
-    def __init__(self):       
+    def __init__(self):
         self.logconfio = processing.Pipe()
         self.indexingio = processing.Pipe()
         self.syncman = processing.Manager()
@@ -218,7 +217,7 @@ class IndexServer(object):
 
     def get_status(self):
         """Returns the status of the indexing.
-        
+
         This is a dictionary keyed on collection names. There may be no entry
         for a collection indicating that the indexer knows nothing about that
         collection. Otherwise the value is a dictionary with keys and values as
@@ -238,4 +237,4 @@ class IndexServer(object):
 
         """
         return self.status_dict
-        
+
