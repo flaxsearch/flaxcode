@@ -199,6 +199,7 @@ class IndexServer(object):
         self.syncman = processing.Manager()
         self.status_dict = self.syncman.dict()
         server = processing.Process(target=index_server_loop,
+                                    name="IndexServer",
                                     args=(self.indexingio[1],
                                           self.logconfio[1],
                                           self.status_dict))
