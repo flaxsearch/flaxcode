@@ -23,6 +23,7 @@ __docformat__ = "restructuredtext en"
 import setuppaths
 import optparse
 import threading
+import traceback
 
 import processing
 
@@ -80,11 +81,17 @@ class FlaxMain():
     def __init__(self, options):
         self.options = options
         self._thread = None
+        self._need_cleanup = False
 
     def _do_start(self):
         """Internal method to actually start all the required processes.
 
+        This blocks until the stop() method is called.
+
         """
+        if self._need_cleanup:
+            self._do_cleanup()
+        self._need_cleanup = True
         webserver_logconfio = processing.Pipe()
         index_server = indexer.IndexServer()
         logclient.LogConfPub('flaxlog.conf', [webserver_logconfio[0], index_server.logconf_input])
@@ -98,8 +105,30 @@ class FlaxMain():
     def _do_cleanup(self):
         """Internal method to perform all necessary cleanup when shutting down.
 
+        May safely be called when no cleanup is necessary.
+
         """
+        if not self._need_cleanup:
+            return
+        self._need_cleanup = False
         persist.store_flax(self.options.output_file, flax.options)
+
+    def _do_start_in_thread(self):
+        """Method used to start in a separate thread.
+
+        Calls start, and if there's an unhandled exception calls cleanup, and
+        handles the exception by printing it to stdout.
+
+        """
+        try:
+            self._do_start()
+        except Exception:
+            traceback.print_exc()
+            self._do_cleanup()
+        except:
+            traceback.print_exc()
+            self._do_cleanup()
+            raise
 
     def start(self, blocking=True):
         """Start all the Flax threads and processes.
@@ -109,8 +138,8 @@ class FlaxMain():
 
         """
         if self._thread is not None:
-            self.join()
             self.stop()
+            self.join()
 
         if blocking:
             try:
@@ -118,7 +147,7 @@ class FlaxMain():
             finally:
                 self._do_cleanup()
         else:
-            self._thread = threading.Thread(None, self._do_start, 'Flax-Main', ())
+            self._thread = threading.Thread(None, self._do_start_in_thread, 'Flax-Main', ())
             self._thread.start()
 
     def stop(self):
@@ -133,7 +162,7 @@ class FlaxMain():
         """
         cpserver.stop_web_server()
 
-    def join():
+    def join(self):
         """Block until all the Flax threads and processes have finished.
 
         """
