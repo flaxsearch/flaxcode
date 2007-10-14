@@ -176,7 +176,9 @@ def render_collection(node, collection, base_url):
 def script_for_mappings(col):
 
     if col:
-        maps =  '\n'.join(['   add_mapping("%s", "%s");' % (p, col.mappings[p]) for p in col.paths])
+        print col.paths
+        maps =  '\n'.join([('   add_mapping("%s", "%s");' % (p, col.mappings[p])).encode('string-escape')
+                           for p in col.paths])
     else:
         maps = ""
     maps += '\n   add_mapping("", "");'
