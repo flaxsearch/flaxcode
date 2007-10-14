@@ -257,7 +257,6 @@ def render_search_result (template, results, collections, selcols):
     # collections is the list of available collections
     # selcols is a list of selected collections
 
-    print template.structure()
     query = results.query
     if isinstance(query, types.StringType):
         q_or_ids = "?query=%s" % urllib.quote_plus (query)
