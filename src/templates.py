@@ -176,13 +176,11 @@ def render_collection(node, collection, base_url):
 def script_for_mappings(col):
 
     if col:
-        print col.paths
         maps =  '\n'.join([('   add_mapping("%s", "%s");' % (p, col.mappings[p])).encode('string-escape')
                            for p in col.paths])
     else:
         maps = ""
     maps += '\n   add_mapping("", "");'
-
     return "\nvar make_mappings = function(){\n %s \n}\n window.onload=make_mappings\n" % maps
 
 
