@@ -69,11 +69,11 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
             return
         self.paths = util.listify(path)
         mappings = util.listify(mapping)
-
         # be careful with the order here
         pairs = zip(self.paths, mappings)
         self.mappings = dict(filter (lambda (x, y): x !='', pairs))
         self.paths = filter(None, self.paths)
+        print self.paths, self.mappings
 
     def url_for_doc(self, doc_id):
         """ Use the mappings attribute of the collection to give the
