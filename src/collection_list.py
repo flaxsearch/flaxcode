@@ -41,8 +41,8 @@ class CollectionList(object):
             log.info("Creating new collection: %s" % name)
             col = doc_collection.DocCollection(name, self.db_dir)
             self._collections[name] = col
-            if formats not in kwargs:
-                kwargs[formats] = self.formats
+            if 'formats' not in kwargs:
+                kwargs['formats'] = self.formats
             col.update(**kwargs)
             return col
         else:
