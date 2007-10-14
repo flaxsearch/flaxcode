@@ -19,22 +19,22 @@ class TemplateManager(object):
     banner sections from files on disk.
     """
 
-    def __init__(self, template_dir, html_dir, admin_banner_file="admin_banner.html", user_banner_file="user_banner.html"):
+    def __init__(self, template_dir,
+                 admin_banner_file="admin_banner.html",
+                 user_banner_file="user_banner.html"):
         """
         Constructor
 
         :Parameters:
            - `template_dir`: The directory for loading template files.
-           - `html_dir`: The directory for writing html files.
            - `user_banner_file`: The name of the file to use as the banner for user templates.
            - `admin_banner_file`: The name of the file to use as the banner for admin templates.
         """
         self.template_dir = template_dir
-        self.html_dir = html_dir
         self.admin_banner_file = admin_banner_file
         self.user_banner_file = user_banner_file
         self._cache = {}
-    
+
     def dummy_render(self, template):
         """
         A renderer that does nothing.
@@ -44,7 +44,7 @@ class TemplateManager(object):
     def make_template(self, render_fn, file_name):
         """
         Make an HTMLTemplate from `file_name` in `template_dir` using `render_fn`.
-        
+
         """
         fpath = os.path.join (self.template_dir, file_name)
         mtime = os.path.getmtime(fpath)
@@ -56,7 +56,7 @@ class TemplateManager(object):
 
         except KeyError:
             pass
-            
+
         t = HTMLTemplate.Template(render_fn, open(fpath).read())
         self._cache[key] = (t, mtime)
         return t
@@ -89,13 +89,6 @@ class TemplateManager(object):
         user_banner_html = self.make_template (self.dummy_render, self.user_banner_file).render()
         return self.create_template(file_name, user_banner_html, render_fn)
 
-    def write_html_file(self, filename, template, *args):
-        """
-        Render a template as html to a file.
-        """
-        with open(os.path.join(self.html_dir, filename), 'w') as f:
-            f.write(template.render(*args))
-
 ##### Options Template #####
 
 def render_options(template, flax_data):
@@ -114,8 +107,8 @@ def render_options(template, flax_data):
             inp.content = uistrings.log_level(level)
             if log_settings[event] == level:
                 inp.atts['selected'] = 'selected'
-            
-        node.event_select.event_option.repeat(fill_input, flax_data.log_levels) 
+
+        node.event_select.event_option.repeat(fill_input, flax_data.log_levels)
 
     template.main.collection_events.repeat(fill_log_events, sorted(log_settings))
 
@@ -136,8 +129,8 @@ def render_search(template, collections, advanced=False, formats=[]):
         def fill_format(node, format):
             node.format_label.content = format
             node.format_checkbox.atts['value'] = format
-            node.format_checkbox.atts['checked'] = 'on' 
-            
+            node.format_checkbox.atts['checked'] = 'on'
+
         template.main.advanced_holder.formats.repeat(fill_format, formats)
     else:
         template.main.advanced_holder.raw = ""
@@ -196,20 +189,20 @@ def render_collection_detail(template, collection, formats, languages):
     if collection:
         template.title.col_name.content = collection.name
     body = template.main
-    body.main_form.atts['action'] = 'update' if collection else 'new' 
+    body.main_form.atts['action'] = 'update' if collection else 'new'
     form = body.main_form
-    
+
     if collection:
         form.name.content = collection.name
         form.description.atts['value'] = collection.description
         form.col.raw=""
-    
+
     def fill_format(node, format):
         node.format_label.content = format
         node.format_checkbox.atts['value'] = format
         if collection:
             if format in collection.formats:
-                node.format_checkbox.atts['checked'] = 'on' 
+                node.format_checkbox.atts['checked'] = 'on'
 
     form.formats.repeat(fill_format, formats)
 
@@ -240,14 +233,14 @@ def render_collection_detail(template, collection, formats, languages):
             if isinstance(spec, str):
                 return spec
             return sep.join(map(str, spec))
-    
+
         form.mins.atts['value'] = render_spec(collection.mins)
         form.hours.atts['value'] = render_spec(collection.hours)
         form.monthdays.atts['value'] = render_spec(collection.monthdays)
         form.weekdays.atts['value'] = render_spec(collection.weekdays)
         form.months.atts['value'] = render_spec(collection.months)
 
-    
+
 ###### Search Result Templates ######
 
 def render_searched_collection(node, col):
@@ -286,10 +279,10 @@ def render_search_result (template, results, collections, selcols):
             node.res_link.atts['href'] = collections[collection].url_for_doc(filename)
             node.res_link.content = '%d. %s' % (res.rank + 1, title)
             node.sim_link.atts['href'] = './search?doc_id=%s&col_id=%s' % (filename, collection)
-            
+
         if 'content' in res.data:
             node.res_content.raw = res.summarise('content', hl=('<strong>','</strong>'))
-        
+
         size = res.data.get ('size')
         node.res_size.content = format_size (size[0]) if size else 'unknown'
         mtime = res.data.get ('mtime')
@@ -301,14 +294,13 @@ def render_search_result (template, results, collections, selcols):
     if xr.startrank < xr.endrank:
         template.main.results.repeat(fill_results, results.xap_results)
         template.main.info.content = '%s to %s of %s%d matching documents' % (
-            xr.startrank + 1, xr.endrank, 
-            '' if xr.estimate_is_exact else 'about ', 
-            xr.matches_human_readable_estimate) 
-    
+            xr.startrank + 1, xr.endrank,
+            '' if xr.estimate_is_exact else 'about ',
+            xr.matches_human_readable_estimate)
 
         if xr.startrank:
             template.main.nav.first_page.atts['href'] = q_or_ids
-            template.main.nav.prev_page.atts['href'] = '%s&tophit=%d' % (q_or_ids, 
+            template.main.nav.prev_page.atts['href'] = '%s&tophit=%d' % (q_or_ids,
                 xr.startrank - results.maxhits)
         else:
             template.main.nav.first_page.atts['class'] = 'link_disabled'
@@ -352,7 +344,7 @@ def format_date (data):
     data = float (data)
     return time.asctime (time.localtime (data))
 
-_tman = TemplateManager ("templates", "html")
+_tman = TemplateManager("templates")
 
 #: Template admin index pages.
 def index_render (*args):
@@ -389,5 +381,3 @@ def user_search_result_render (*args):
 # used internally
 def _advanced_search_options ():
     return _tman.make_template(_tman.dummy_render, "advanced_search.html")
-
-
