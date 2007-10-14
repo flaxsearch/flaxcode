@@ -210,9 +210,9 @@ class SearchForm(object):
         maxhits = int (maxhits)
         if query or (col_id and doc_id):
             cols = util.listify(col) if col else None
-            results = self._collections.search(query, col_id=col_id, doc_id=doc_id, cols=cols, tophit=tophit, maxhits=maxhits)
-            return self._result_template (query, col_id, doc_id, self._collections, cols,
-                                          results, tophit, maxhits)
+            results = self._collections.search(query, col_id=col_id, doc_id=doc_id, cols=cols,
+                                               tophit=tophit, maxhits=maxhits)
+            return self._result_template (results, self._collections, cols)
         else:
             return self._template (self._collections, advanced, self._collections._formats)
 

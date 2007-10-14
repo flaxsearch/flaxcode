@@ -19,6 +19,8 @@
 __docformat__ = "restructuredtext en"
 
 import logging
+import types
+
 import doc_collection
 import search
 
@@ -29,23 +31,25 @@ class CollectionList(object):
 
     """
 
-    def __init__(self, db_dir):
+    def __init__(self, db_dir, formats):
         self._collections = {}
         self.db_dir = db_dir
-        self._formats = ["txt", "html", "doc"]
+        self.formats = formats
 
     def new_collection(self, name, **kwargs):
-        if type(name) == str and not self._collections.has_key(name):
+        if isinstance(name, types.StringType) and not self._collections.has_key(name):
             log.info("Creating new collection: %s" % name)
             col = doc_collection.DocCollection(name, self.db_dir)
             self._collections[name] = col
+            if formats not in kwargs:
+                kwargs[formats] = self.formats
             col.update(**kwargs)
             return col
         else:
             log.error("Failed attempt to create collection: %s" % name)
 
     def remove_collection(self, name):
-        if type(name) == str and self._collections.has_key(name):
+        if isinstance(name, types.StringType) and self._collections.has_key(name):
             log.info("Deleting collection %s" % name)
             del self._collections[name]
         else:
@@ -63,12 +67,12 @@ class CollectionList(object):
             cols = self._collections.keys()
         dbs_to_search = [self._collections[col].dbname() for col in cols]
         if doc_id and col_id:
-            return search.sim_query(self._collections, dbs_to_search, col_id, doc_id, tophit, maxhits)
-        elif query:
-            return search.search(dbs_to_search, query, tophit, maxhits)
+            query = (self._collections[col_id], doc_id)
+        if query:
+            return search.search(query, dbs_to_search, tophit, maxhits)
         else:
-            return []
-
+            return None
+        
     @property
     def collection_names (self):
         return self._collections.keys()

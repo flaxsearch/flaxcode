@@ -8,6 +8,7 @@ import urllib
 import HTMLTemplate
 import datetime
 import time
+import types
 
 import uistrings
 import util
@@ -252,21 +253,38 @@ def render_collection_detail(template, collection, formats, languages):
 def render_searched_collection(node, col):
     node.content = col
 
-def render_search_result (template, query, col_id, doc_id, collections, selcols, results, tophit, maxhits):
+def render_search_result (template, results, collections, selcols):
     # collections is the list of available collections
     # selcols is a list of selected collections
-    if query:
+
+    print template.structure()
+    query = results.query
+    if isinstance(query, types.StringType):
         q_or_ids = "?query=%s" % urllib.quote_plus (query)
+        template.main.query.atts['value'] = query
     else:
-        q_or_ids = "?doc_id=%s&col_id=%s" % (urllib.quote_plus(doc_id), urllib.quote_plus(col_id))
+        q_or_ids = "?doc_id=%s&col_id=%s" % (urllib.quote_plus(query[1]), urllib.quote_plus(query[0].name))
+
+    if results.is_results_corrected:
+        template.main.corrected.raw = \
+             "The original query returned no results, the spell corrected query: <em>%s</em> was used instead." % \
+             results.spell_corrected_query
+    elif (results.spell_corrected_query and
+          (not (results.spell_corrected_query == results.query))):
+         template.main.corrected.raw = "Did you mean <a href=./?%s>%s</a>?" % (
+         urllib.quote_plus(results.spell_corrected_query),
+         results.spell_corrected_query)
+    else:
+        template.main.corrected.raw = ""
+
+
     def fill_results(node, res):
         # res is xapian results object
         if 'filename' in res.data and 'collection' in res.data:
             filename = res.data['filename'][0]
             collection = res.data['collection'][0]
             title = res.data['title'][0].encode('utf-8') if 'title' in res.data else filename
-            url = collections[collection].url_for_doc(filename)
-            node.res_link.atts['href'] = url
+            node.res_link.atts['href'] = collections[collection].url_for_doc(filename)
             node.res_link.content = '%d. %s' % (res.rank + 1, title)
             node.sim_link.atts['href'] = './search?doc_id=%s&col_id=%s' % (filename, collection)
             
@@ -277,29 +295,29 @@ def render_search_result (template, query, col_id, doc_id, collections, selcols,
         node.res_size.content = format_size (size[0]) if size else 'unknown'
         mtime = res.data.get ('mtime')
         node.res_mtime.content = format_date (mtime[0]) if mtime else 'unknown'
-    if isinstance(query, str):
-        template.main.query.atts['value'] = query
+
     template.main.collections.repeat (render_search_collection, collections.itervalues(), selcols)
 
-    if results.startrank < results.endrank:
-        template.main.results.repeat(fill_results, results)
+    xr = results.xap_results
+    if xr.startrank < xr.endrank:
+        template.main.results.repeat(fill_results, results.xap_results)
         template.main.info.content = '%s to %s of %s%d matching documents' % (
-            results.startrank + 1, results.endrank, 
-            '' if results.estimate_is_exact else 'about ', 
-            results.matches_human_readable_estimate) 
+            xr.startrank + 1, xr.endrank, 
+            '' if xr.estimate_is_exact else 'about ', 
+            xr.matches_human_readable_estimate) 
     
 
-        if results.startrank:
+        if xr.startrank:
             template.main.nav.first_page.atts['href'] = q_or_ids
             template.main.nav.prev_page.atts['href'] = '%s&tophit=%d' % (q_or_ids, 
-                results.startrank - maxhits)
+                xr.startrank - results.maxhits)
         else:
             template.main.nav.first_page.atts['class'] = 'link_disabled'
             template.main.nav.prev_page.atts['class'] = 'link_disabled'
 
-        if results.more_matches:
+        if xr.more_matches:
             template.main.nav.next_page.atts['href'] = '%s&tophit=%d' % (q_or_ids,
-                results.startrank + maxhits)
+                xr.startrank + results.maxhits)
         else:
             template.main.nav.next_page.atts['class'] = 'link_disabled'
     else:
@@ -363,11 +381,11 @@ def collection_detail_render (*args):
 
 #: administrator template for viewing search results.
 def admin_search_result_render (*args):
-    return _tman.create_admin_template("search_result_admin.html", render_search_result).render (*args)
+    return _tman.create_admin_template("search_result.html", render_search_result).render (*args)
 
 #: user template for viewing search results.
 def user_search_result_render (*args):
-    return _tman.create_user_template("search_result.html", render_search_result).render (*args)
+    return _tman.create_user_template("search_result_admin.html", render_search_result).render (*args)
 
 # used internally
 def _advanced_search_options ():

@@ -35,9 +35,9 @@ class FlaxOptions(object):
 
         self.version = version
         self.db_dir = os.path.join(flax_dir, "dbs")
-        self.collections = collection_list.CollectionList(self.db_dir)
         self.flax_dir = flax_dir
         self.formats = formats
+        self.collections = collection_list.CollectionList(self.db_dir, self.formats)
         self.logger_names = logger_names
         self.filters = filters
         self.filter_settings = filter_settings

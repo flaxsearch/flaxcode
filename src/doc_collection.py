@@ -42,7 +42,6 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
     """
 
     log = logging.getLogger('collections')
-    flax_url_string = '/source?col=%s&file_id=%s'
 
     def __init__(self, name, db_dir, *args, **kwargs):
         self.name = name
@@ -92,13 +91,12 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
             self.log.warning('Doc: %s has more than one path, using first' % doc_id)
         if len(path) == 0:
             self.log.error('Doc: %s has no path. Maybe the collection needs indexing' % doc_id)
-            return ""
-        print self.mappings
+            return "/"
         mapped = self.mappings[path[0]]
         if mapped:
-            return mapped+doc_id[len(path[0]):]
+            return mapped+"/"+doc_id[len(path[0]):]
         else:
-            return ""
+            return "/"
         
     def dbname(self):
         return os.path.join(self.db_dir, self.name+'.db')
