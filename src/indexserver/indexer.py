@@ -143,7 +143,8 @@ class Indexer(object):
                     doc.id = file_name
                     conn.replace(doc)
                     status['number_of_documents'] = conn.get_doccount()
-                    self.log.info("Added (or replaced) doc %s to collection %s with text from source file %s" % (doc.id, collection_name, file_name))
+                    self.log.info("Added (or replaced) doc %s to collection %s with text from source file %s" %
+                                  (doc.id, collection_name, file_name))
                     return True
                 except Exception, e:
                     self.log.error("Filtering file: %s with filter: %s raised exception %s, skipping"
