@@ -34,6 +34,7 @@ import logclient
 import persist
 import scheduler
 import util
+import os
 
 util.setup_psyco()
 
@@ -78,10 +79,11 @@ class FlaxMain():
 
     """
 
-    def __init__(self, options):
+    def __init__(self, options, path):
         self.options = options
         self._thread = None
         self._need_cleanup = False
+	self.path = path
 
     def _do_start(self):
         """Internal method to actually start all the required processes.
@@ -93,15 +95,17 @@ class FlaxMain():
             self._do_cleanup()
         self._need_cleanup = True
         webserver_logconfio = processing.Pipe()
-        index_server = indexer.IndexServer()
-        logclient.LogConfPub('flaxlog.conf', [webserver_logconfio[0], index_server.logconf_input])
+        index_server = indexer.IndexServer(self.path)
+	logconfpath = os.path.join(self.path, 'flaxlog.conf')
+	newlogconf = logclient.LogConf(logconfpath)
+        logclient.LogConfPub(logconfpath, [webserver_logconfio[0], index_server.logconf_input])
         logclient.LogListener(webserver_logconfio[1]).start()
-        logclient.LogConf().update_log_config()
+        newlogconf.update_log_config()
         flax.options = persist.read_flax(self.options.input_file)
         scheduler.ScheduleIndexing(index_server).start()
         persist.DataSaver(self.options.output_file).start()
         cpserver.start_web_server(flax.options, index_server,
-                                  'cp.conf')
+                                  self.path, 'cp.conf')
 
     def _do_cleanup(self):
         """Internal method to perform all necessary cleanup when shutting down.
