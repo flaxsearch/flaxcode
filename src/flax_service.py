@@ -136,8 +136,8 @@ class FlaxService(win32serviceutil.ServiceFramework):
 
         # Redirect stdout and stderr to avoid buffer overflows and to allow
         # debugging while acting as a service
-        sys.stderr = open(stderrpath, 'a')
-        sys.stdout = open(stdoutpath, 'a')
+        sys.stderr = open(stderrpath, 'w')
+        sys.stdout = open(stdoutpath, 'w')
 
         try:
             try:
