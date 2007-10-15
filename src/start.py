@@ -118,7 +118,7 @@ class FlaxMain():
             self._do_cleanup()
         self._need_cleanup = True
 
-        flax.options = persist.read_flax(flaxpaths.flaxstate_path)
+        flax.options = persist.read_flax(flaxpaths.paths.flaxstate_path)
 
         webserver_logconfio = processing.Pipe()
         index_server = indexer.IndexServer()
@@ -127,7 +127,7 @@ class FlaxMain():
         logclient.LogListener(webserver_logconfio[1]).start()
         logclient.LogConf(flaxpaths.paths.logconf_path).update_log_config()
         scheduler.ScheduleIndexing(index_server).start()
-        persist.DataSaver(flaxpaths.flaxstate_path).start()
+        persist.DataSaver(flaxpaths.paths.flaxstate_path).start()
         cpserver.start_web_server(flax.options, index_server,
                                   flaxpaths.paths.cpconf_path)
 
@@ -140,7 +140,7 @@ class FlaxMain():
         if not self._need_cleanup:
             return
         self._need_cleanup = False
-        persist.store_flax(flaxpaths.flaxstate_path, flax.options)
+        persist.store_flax(flaxpaths.paths.flaxstate_path, flax.options)
 
     def _do_start_in_thread(self):
         """Method used to start in a separate thread.
