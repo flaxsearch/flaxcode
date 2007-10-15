@@ -129,7 +129,8 @@ class FlaxMain():
         scheduler.ScheduleIndexing(index_server).start()
         persist.DataSaver(flaxpaths.paths.flaxstate_path).start()
         cpserver.start_web_server(flax.options, index_server,
-                                  flaxpaths.paths.cpconf_path)
+                                  flaxpaths.paths.cpconf_path,
+                                  flaxpaths.paths.templates_path)
 
     def _do_cleanup(self):
         """Internal method to perform all necessary cleanup when shutting down.

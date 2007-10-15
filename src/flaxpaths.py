@@ -107,6 +107,13 @@ class FlaxPaths(object):
         return os.path.join(self.conf_dir, 'cp.conf')
 
     @property
+    def templates_path(self):
+        """The path of the template directory.
+
+        """
+        return os.path.join(self.src_dir, 'templates')
+
+    @property
     def flaxstate_path(self):
         """The path of the main file holding the current flax state.
 
