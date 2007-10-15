@@ -36,3 +36,14 @@ def log_level(level):
         'ERROR': 'Error',
         'CRITICAL': 'Critical',
     }[level]
+
+def msg(name):
+    """Get a message for display.
+
+    If the name of the message is not known, this raises an exception.
+
+    """
+    return {
+        "auto_spell_corrected_msg": "The original query returned no results, the spell corrected query <em>%s</em> was used instead.",
+        "spell_suggestion_msg": "Did you mean <a href=\"%(uri)s\">%(corrected)s</a>?",
+    }[name]
