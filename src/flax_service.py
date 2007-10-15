@@ -39,20 +39,21 @@ REGKEY_BASE = "SOFTWARE\\Lemur Consulting Ltd\\Flax\\"
 
 # Add a suitable path for finding our various modules, otherwise the service
 # won't start properly.
-import sys
 try:
-    regpath = win32api.RegQueryValue(regutil.GetRootKey(),
-                                     REGKEY_BASE + "ModulePath")
+    modulepath = win32api.RegQueryValue(regutil.GetRootKey(),
+                                     REGKEY_BASE + "\\ModulePath")
 except:
-    regpath = ""
-sys.path.insert(0,regpath)
+    modulepath = "c:\Program Files\Flax"
+sys.path.insert(0,modulepath)
 
 # Work out the top path for all logs and settings used by Flax.
 try:
     mainpath = win32api.RegQueryValue(regutil.GetRootKey(),
-                                      REGKEY_BASE + "Path")
+                                      REGKEY_BASE + "\\Path")
 except:
-    mainpath = "c:\\"
+    mainpath = "c:\Program Files\Flax"
+    
+
 
 # We have to set sys.executable to a normal Python interpreter.  It won't point
 # to one because we will have been run by PythonService.exe (and sys.executable
@@ -61,8 +62,11 @@ except:
 # python interpreter.  We'll try to read it from a registry entry, and try
 # making it up otherwise.
 try:
-    exepath = win32api.RegQueryValue(regutil.GetRootKey(),
-                                     REGKEY_BASE + "PythonExePath")
+    exedir = win32api.RegQueryValue(regutil.GetRootKey(),
+                                     regutil.BuildDefaultPythonKey())
+    exepath = os.path.join(exedir, 'Python.exe')
+    if not os.path.exists(exepath):
+        raise ValueError("Python installation not complete")
 except:
     exedir = sys.executable
     while True:
@@ -114,7 +118,7 @@ class FlaxService(win32serviceutil.ServiceFramework):
         settings_path = os.path.join(mainpath, 'flax.flx')
         self._options = start.StartupOptions(input_file = settings_path,
                                              output_file = settings_path)
-        self._flax_main = start.FlaxMain(self._options)
+        self._flax_main = start.FlaxMain(self._options, modulepath)
 
 
     def SvcStop(self):
