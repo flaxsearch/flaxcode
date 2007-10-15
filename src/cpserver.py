@@ -214,7 +214,7 @@ class SearchForm(object):
                                                tophit=tophit, maxhits=maxhits)
             return self._result_template (results, self._collections, cols)
         else:
-            return self._template (self._collections, advanced, self._collections._formats)
+            return self._template (self._collections, advanced, self._collections.formats)
 
 class Top(FlaxResource):
     """
