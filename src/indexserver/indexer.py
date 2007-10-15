@@ -5,15 +5,13 @@ import os
 import time
 
 import setuppaths
-
 import processing
+import xappy
 
 import sys
 sys.path.append('..')
-import util
-
-import xappy
 import dbspec
+import util
 
 try:
     import w32com_ifilter
@@ -127,7 +125,7 @@ class Indexer(object):
         if self.stale(file_name, conn):
             filter = self._find_filter(filter_settings[ext[1:]])
             if filter:
-                self.log.info("Filtering file %s using filter %s" % (file_name, filter))
+                self.log.debug("Filtering file %s using filter %s" % (file_name, filter))
                 fixed_fields = ( ("filename", file_name),
                                  ("nametext", os.path.basename(file_name)),
                                  ("collection", collection_name),
@@ -143,7 +141,7 @@ class Indexer(object):
                     doc.id = file_name
                     conn.replace(doc)
                     status['number_of_documents'] = conn.get_doccount()
-                    self.log.info("Added (or replaced) doc %s to collection %s with text from source file %s" %
+                    self.log.debug("Added (or replaced) doc %s to collection %s with text from source file %s" %
                                   (doc.id, collection_name, file_name))
                     return True
                 except Exception, e:
@@ -154,7 +152,7 @@ class Indexer(object):
                 self.log.warn("Filter for %s is not valid, not filtering file: %s" % (ext, file_name))
                 return False
         else:
-            self.log.info("File: %s has not changed since last indexing, not filtering" % file_name)
+            self.log.debug("File: %s has not changed since last indexing, not filtering" % file_name)
             return True
 
     def stale(self, file_name, conn):
@@ -180,13 +178,13 @@ class Indexer(object):
         return rv
 
 
-def index_server_loop(inp, loginp, status):
+def index_server_loop(indexingio, logconfio, logconf_path, status):
     import logclient
-    logclient.LogListener(loginp)
-    logclient.LogConf().update_log_config()
+    logclient.LogListener(logconfio)
+    logclient.LogConf(logconf_path).update_log_config()
     indexer = Indexer(status)
     while True:
-        args=inp.recv()
+        args=indexingio.recv()
         indexer.do_indexing(*args)
 
 class IndexServer(object):
@@ -202,6 +200,7 @@ class IndexServer(object):
                                     name="IndexServer",
                                     args=(self.indexingio[1],
                                           self.logconfio[1],
+                                          'flaxlog.conf',
                                           self.status_dict))
         server.setDaemon(True)
         server.start()
@@ -238,4 +237,3 @@ class IndexServer(object):
 
         """
         return self.status_dict
-
