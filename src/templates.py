@@ -9,6 +9,7 @@ import HTMLTemplate
 import datetime
 import time
 import types
+import cherrypy
 
 import uistrings
 import util
@@ -79,7 +80,7 @@ class TemplateManager(object):
         """
         Make an administrator template.
         """
-        admin_banner_html = self.make_template (self.dummy_render, self.admin_banner_file).render()
+        admin_banner_html = self.make_template (render_admin_banner, self.admin_banner_file).render()
         return self.create_template(file_name, admin_banner_html, render_fn)
 
     def create_user_template(self, file_name, render_fn = None):
@@ -88,6 +89,27 @@ class TemplateManager(object):
         """
         user_banner_html = self.make_template (self.dummy_render, self.user_banner_file).render()
         return self.create_template(file_name, user_banner_html, render_fn)
+
+##### Admin banner #####
+
+# FIXME - this belongs somewhere else?
+_admin_navlist = (('Collections', '/admin/collections'), 
+                  ('Search', '/admin/search'),
+                  ('Advanced Search', '/admin/advanced_search'),
+                  ('Options', '/admin/options'))
+
+def render_admin_banner (t):
+    def render_tab (t, tab):
+        if cherrypy.request.path_info == tab[1]:
+            t.navlabel.content = tab[0]
+            t.navlink.omit()
+        else:
+            t.navlink.content = tab[0]
+            t.navlink.atts['href'] = tab[1]
+            t.navlabel.omit()
+        
+    t.navitem.repeat (render_tab, _admin_navlist)
+
 
 ##### Options Template #####
 
