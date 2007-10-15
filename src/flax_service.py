@@ -41,19 +41,17 @@ REGKEY_BASE = "SOFTWARE\\Lemur Consulting Ltd\\Flax\\"
 # won't start properly.
 try:
     modulepath = win32api.RegQueryValue(regutil.GetRootKey(),
-                                     REGKEY_BASE + "\\ModulePath")
+                                        REGKEY_BASE + "ModulePath")
 except:
-    modulepath = "c:\Program Files\Flax"
+    modulepath = r"c:\Program Files\Flax"
 sys.path.insert(0,modulepath)
 
 # Work out the top path for all logs and settings used by Flax.
 try:
     mainpath = win32api.RegQueryValue(regutil.GetRootKey(),
-                                      REGKEY_BASE + "\\Path")
+                                      REGKEY_BASE + "Path")
 except:
-    mainpath = "c:\Program Files\Flax"
-    
-
+    mainpath = r"c:\Program Files\Flax"
 
 # We have to set sys.executable to a normal Python interpreter.  It won't point
 # to one because we will have been run by PythonService.exe (and sys.executable
@@ -62,9 +60,13 @@ except:
 # python interpreter.  We'll try to read it from a registry entry, and try
 # making it up otherwise.
 try:
-    exedir = win32api.RegQueryValue(regutil.GetRootKey(),
-                                     regutil.BuildDefaultPythonKey())
-    exepath = os.path.join(exedir, 'Python.exe')
+    try:
+        exepath = win32api.RegQueryValue(regutil.GetRootKey(),
+                                         REGKEY_BASE + "PythonExePath")
+    except:
+        exedir = win32api.RegQueryValue(regutil.GetRootKey(),
+                                        regutil.BuildDefaultPythonKey())
+        exepath = os.path.join(exedir, 'Python.exe')
     if not os.path.exists(exepath):
         raise ValueError("Python installation not complete")
 except:
