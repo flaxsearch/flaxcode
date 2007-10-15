@@ -168,7 +168,7 @@ class IndexServer(object):
     """ Manages the indexing of Flax databases in a child process and
     provides information about the state of collection indexing.
     """
-    def __init__(self):
+    def __init__(self,path):
         self.logconfio = processing.Pipe()
         self.indexingio = processing.Pipe()
         self.syncman = processing.Manager()
@@ -177,7 +177,7 @@ class IndexServer(object):
                                     name="IndexServer",
                                     args=(self.indexingio[1],
                                           self.logconfio[1],
-                                          'flaxlog.conf'))
+                                          os.path.join(path,'flaxlog.conf')))
         server.setDaemon(True)
         server.start()
 
