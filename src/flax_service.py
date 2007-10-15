@@ -37,21 +37,21 @@ import threading
 
 REGKEY_BASE = "SOFTWARE\\Lemur Consulting Ltd\\Flax\\"
 
-# Add a suitable path for finding our various modules, otherwise the service
-# won't start properly.
+# Get the path to the installed application from the Registry 
 try:
-    modulepath = win32api.RegQueryValue(regutil.GetRootKey(),
-                                        REGKEY_BASE + "ModulePath")
+    runtimepath = win32api.RegQueryValue(regutil.GetRootKey(),
+                                        REGKEY_BASE + "RuntimePath")
 except:
-    modulepath = r"c:\Program Files\Flax"
-sys.path.insert(0,modulepath)
+    runtimepath = r"c:\Program Files\Flax"
+# We need to do the following so we can load any further modules
+sys.path.insert(0,runtimepath)
 
-# Work out the top path for all logs and settings used by Flax.
+# Get the path to the data folder from the Registry
 try:
-    mainpath = win32api.RegQueryValue(regutil.GetRootKey(),
-                                      REGKEY_BASE + "Path")
+    datapath = win32api.RegQueryValue(regutil.GetRootKey(),
+                                      REGKEY_BASE + "DataPath")
 except:
-    mainpath = r"c:\Program Files\Flax"
+    datapath = r"c:\Program Files\Flax"
 
 # We have to set sys.executable to a normal Python interpreter.  It won't point
 # to one because we will have been run by PythonService.exe (and sys.executable
@@ -86,8 +86,8 @@ sys.executable = exepath
 # TODO - fix up any other paths
 
 # Prevent buffer overflows by redirecting stdout & stderr to a file
-stdoutpath = os.path.join(mainpath, 'flax_stdout.log')
-stderrpath = os.path.join(mainpath, 'flax_stderr.log')
+stdoutpath = os.path.join(datapath, 'flax_stdout.log')
+stderrpath = os.path.join(datapath, 'flax_stderr.log')
 
 # The "processing" module attempts to set a signal handler (by calling
 # signal.signal).  However, this is not possible when we're installing as a
@@ -117,10 +117,9 @@ class FlaxService(win32serviceutil.ServiceFramework):
         win32serviceutil.ServiceFramework.__init__(self, args)
         self.hWaitStop = win32event.CreateEvent(None, 0, 0, None)
 
-        settings_path = os.path.join(mainpath, 'flax.flx')
-        self._options = start.StartupOptions(input_file = settings_path,
-                                             output_file = settings_path)
-        self._flax_main = start.FlaxMain(self._options, modulepath)
+        self._options = start.StartupOptions(main_dir = runtimepath,
+                                             dbs_dir = datapath)
+        self._flax_main = start.FlaxMain(self._options)
 
 
     def SvcStop(self):
