@@ -47,19 +47,20 @@ class Results (object):
 
         self.do_search(conn)
 
-        if (self.xap_results.estimate_is_exact and
-            self.xap_results.matches_estimated == 0 and
+        self.is_results_corrected = False
+        if (self.xap_results.matches_upper_bound == 0 and
             self.spell_corrected_query):
 
             self.xap_query = conn.query_parse(self.spell_corrected_query)
             self.do_search(conn)
-            self.is_results_corrected = True
-        else:
-            self.is_results_corrected = False
+            if self.xap_results.matches_upper_bound != 0:
+                self.is_results_corrected = True
+            else:
+                self.spell_corrected_query = None
 
     def do_search(self, conn):        
         self.log.info("Search databases %s with query %s" % (self.dbs, self.xap_query))
-        self.xap_results = conn.search (self.xap_query, self.tophit, self.tophit + self.maxhits)
+        self.xap_results = conn.search(self.xap_query, self.tophit, self.tophit + self.maxhits)
 
     def conn_for_dbs(self, dbs):
         conn = xappy.SearchConnection(dbs[0])
