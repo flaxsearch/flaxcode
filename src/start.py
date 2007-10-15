@@ -100,7 +100,8 @@ class FlaxMain():
         flax.options = persist.read_flax(self.options.input_file)
         scheduler.ScheduleIndexing(index_server).start()
         persist.DataSaver(self.options.output_file).start()
-        cpserver.start_web_server(flax.options, index_server)
+        cpserver.start_web_server(flax.options, index_server,
+                                  'cp.conf')
 
     def _do_cleanup(self):
         """Internal method to perform all necessary cleanup when shutting down.
