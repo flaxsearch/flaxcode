@@ -26,32 +26,32 @@
     <fieldset>
       <legend>Document Collection: <span node="con:name"></span></legend>
       <div class="info">
-	<dl>
-	<dt>Description</dt>
-	<dd>The description will be visible to end users.</dd>
-	</dl>
+    <dl>
+    <dt>Description</dt>
+    <dd>The description will be visible to end users.</dd>
+    </dl>
       </div>
       <div node="-con:col">
         <label class="main_label" for ="col">Name:</label>
         <input type="text" name="col"></input>
        </div>
       <div>
-	<label class="main_label" for="description">
-	  Description:
-	</label>
-	<input type="text" node="con:description" name="description"></input>
+    <label class="main_label" for="description">
+      Description:
+    </label>
+    <input type="text" node="con:description" name="description"></input>
       </div>
     </fieldset>
 
     <fieldset>
       <legend>Files Specification</legend>
       <div class="info">
-	<p>The options in this section determine which files will be
-	included in this document collection.</p>
-	<dl>
-	  <dt>Paths</dt>
-	  <dd>Each directory specified here will be (recursively) searched
-	  for files. Individual files may also be specified here.</dd>
+    <p>The options in this section determine which files will be
+    included in this document collection.</p>
+    <dl>
+      <dt>Paths</dt>
+      <dd>Each directory specified here will be (recursively) searched
+      for files. Individual files may also be specified here.</dd>
           <dt>Mappings</dt>
           <dd>This is used to generate a url for documents found below
           the corresponding path in the search results pages. The
@@ -59,26 +59,27 @@
           the corresponding mapping. Empty mappings will result in a
           url to serve the file directly from Flax, this is not
           recommended for production use.
-	  <dt>Formats</dt>
-	  <dd>Files of the selected formats will be included.</dd>
-	  <dt>Age</dt>
-	  <dd>Files older than this at the time of indexing will be
-	  excluded.</dd>
-	</dl>
+      <dt>Formats</dt>
+      <dd>Files of the selected formats will be included.</dd>
+      <dt>Age</dt>
+      <dd>Files older than this at the time of indexing will be
+      excluded.</dd>
+    </dl>
       </div>
       <!-- mappings div is used by the javacript - it should remain here.-->
       <div id="mappings">
       </div>
       <button onClick="add_blank_mapping()" type="button">+</button>
-      <div>
-	<label class="main_label">Formats:</label>
-	<div node="-rep:formats">
-	  <label node="con:format_label">Fmt</label>
-	  <input node="con:format_checkbox" type="checkbox" name="formats" value="format_name"></input>
-	</div>
+      <div style="margin-top:10px">
+        <label class="main_label">Formats:</label>
+        <div node="rep:formats">
+          <input node="con:format_checkbox" type="checkbox" name="formats" value="format_name"></input>
+          <label node="con:format_label">Fmt</label>
+        </div>
+        <label class="main_label" node="sep:formats">&nbsp;</label>
       </div>
-      <div>
-	<label class="main_label">Age:</label>
+      <div style="margin-top:10px">
+    <label class="main_label">Age:</label>
         <select name="oldest">
           <option node="con:none" value="">Unset</option>
           <option node="con:one_day" value="1 0 0">One Day</option>
@@ -93,8 +94,8 @@
     <fieldset>
       <legend>Indexing Options</legend>
       <div class="info">
-	These options control the way this document collection is
-	indexed. 
+    These options control the way this document collection is
+    indexed. 
       </div>
       <div>
         <label class="main_label" for="language">Language:</label>
@@ -111,16 +112,16 @@
     <fieldset>
       <legend>Scheduling</legend>
       <div class="info">
-	These options determine when indexing of this collection takes
-	place. The collection will be scheduled every minute that
-	matches the specification (in practice it would probably be a
-	bad idea to allow such, but the specification allows it). In
-	order for a specification to match each part of it must
-	match. The wildcard "*" matches everything. The empty string
-	matches nothing. (Therefore an empty string anywhere ensures no
-	automatic indexing.) Otherwise a comma delimited list of
-	integers is expected. The sensible ranges for each field are
-	as follows:
+    These options determine when indexing of this collection takes
+    place. The collection will be scheduled every minute that
+    matches the specification (in practice it would probably be a
+    bad idea to allow such, but the specification allows it). In
+    order for a specification to match each part of it must
+    match. The wildcard "*" matches everything. The empty string
+    matches nothing. (Therefore an empty string anywhere ensures no
+    automatic indexing.) Otherwise a comma delimited list of
+    integers is expected. The sensible ranges for each field are
+    as follows:
         <table>
           <tr><td>Minutes</td><td>0-59</td></tr>
           <tr><td>Hours</td><td>0-23</td></tr>
