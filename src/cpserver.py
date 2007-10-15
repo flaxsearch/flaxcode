@@ -291,9 +291,9 @@ class Admin(Top):
     @cherrypy.expose
     def index(self):
         """
-        Render the index template.
+        Currently no use for home page, so redirect to collections list.
         """
-        return self._index_template ()
+        raise cherrypy.HTTPRedirect ('collections')
 
 
 def start_web_server(flax_data, index_server, conffile):
