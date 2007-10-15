@@ -54,21 +54,18 @@ class DBSpec(object):
 
         self.maybe_make_db()
 
-    def dbname(self):
+    def dbpath(self):
         """This method must return a path to the database.
 
-        FIXME - rename to dbpath, dbname implies that only the basename needs
-        to be returned.
-
         """
-        raise NotImplementedError, "Subclasses must implement dbname"
+        raise NotImplementedError, "Subclasses must implement dbpath"
 
     def maybe_make_db(self):
-        dbname = self.dbname()
-        if not os.path.exists(dbname):
-            os.makedirs(dbname)
+        dbpath = self.dbpath()
+        if not os.path.exists(dbpath):
+            os.makedirs(dbpath)
 
-            conn = xappy.IndexerConnection(dbname)
+            conn = xappy.IndexerConnection(dbpath)
 
             add_internal_field_actions(conn, self.stopwords, self.language)
 

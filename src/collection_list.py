@@ -31,15 +31,14 @@ class CollectionList(object):
 
     """
 
-    def __init__(self, db_dir, formats):
+    def __init__(self, formats):
         self._collections = {}
-        self.db_dir = db_dir
         self.formats = formats
 
     def new_collection(self, name, **kwargs):
         if isinstance(name, types.StringType) and not self._collections.has_key(name):
             log.info("Creating new collection: %s" % name)
-            col = doc_collection.DocCollection(name, self.db_dir)
+            col = doc_collection.DocCollection(name)
             self._collections[name] = col
             if 'formats' not in kwargs:
                 kwargs['formats'] = self.formats
@@ -65,7 +64,7 @@ class CollectionList(object):
         """
         if cols is None:
             cols = self._collections.keys()
-        dbs_to_search = [self._collections[col].dbname() for col in cols]
+        dbs_to_search = [self._collections[col].dbpath() for col in cols]
         if doc_id and col_id:
             query = (self._collections[col_id], doc_id)
         if query:

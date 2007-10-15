@@ -19,17 +19,19 @@
 from __future__ import with_statement
 __docformat__ = "restructuredtext en"
 
-import sys
 import copy
-import os
 import logging
+import os
+import sys
 
-import util
-import filespec
-import dbspec
-import schedulespec
 import setuppaths
 import xappy
+
+import dbspec
+import filespec
+import flaxpaths
+import schedulespec
+import util
 
 class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec):
     """Representation of a collection of documents.
@@ -41,9 +43,8 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
 
     log = logging.getLogger('collections')
 
-    def __init__(self, name, db_dir, *args, **kwargs):
+    def __init__(self, name, *args, **kwargs):
         self.name = name
-        self.db_dir = db_dir
         self.mappings = {}
         self.update(*args, **kwargs)
         self._search_conn=None
@@ -100,11 +101,11 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
         
     def search_conn(self):
         if not self._search_conn:
-            self._search_conn = xappy.SearchConnection(self.dbname())
+            self._search_conn = xappy.SearchConnection(self.dbpath())
         return self._search_conn
 
-    def dbname(self):
-        return os.path.join(self.db_dir, self.name+'.db')
+    def dbpath(self):
+        return os.path.join(flaxpaths.paths.dbs_dir, self.name + '.db')
 
     def source_file_from_id(self, file_id):
         "return the source file name given a document id."

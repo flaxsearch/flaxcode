@@ -25,20 +25,18 @@ import collection_list
 import flaxpaths
 import logclient
 
-current_version = 6
+current_version = 7
 
 class FlaxOptions(object):
     """Global options for Flax.
 
     """    
-    def __init__(self, version, flax_dir, formats, 
+    def __init__(self, version, formats, 
                  logger_names, filters, filter_settings, languages):
 
         self.version = version
-        self.db_dir = os.path.join(flax_dir, "dbs")
-        self.flax_dir = flax_dir
         self.formats = formats
-        self.collections = collection_list.CollectionList(self.db_dir, self.formats)
+        self.collections = collection_list.CollectionList(self.formats)
         self.logger_names = logger_names
         self.filters = filters
         self.filter_settings = filter_settings
@@ -76,8 +74,6 @@ class FlaxOptions(object):
         return ('NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
 
 def make_options():
-    #dir = os.path.dirname(os.path.abspath(os.path.normpath(__file__)))
-    dir = os.getcwd()
     user = os.path.expanduser('~')
     logger_names = ("",
                     "collections",
@@ -112,7 +108,6 @@ def make_options():
                   ("sv", "Swedish")]
               
     return FlaxOptions(current_version,
-                       dir, 
                        formats, 
                        logger_names,
                        filters,

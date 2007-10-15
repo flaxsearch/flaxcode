@@ -36,7 +36,7 @@ class Indexer(object):
         if windows:
             self._filter_map["IFilter"] =  w32com_ifilter.remote_ifilter
 
-    def do_indexing(self, col_name, dbname, filter_settings, files, status):
+    def do_indexing(self, col_name, dbpath, filter_settings, files, status):
         """Perform an indexing pass.
 
         Index the database for col_name using filters given by
@@ -60,7 +60,7 @@ class Indexer(object):
             # collection's problem not the indexer's.
             # FIXME - we should really test for the error though, so we can
             # give a better error message.
-            conn = xappy.IndexerConnection(dbname)
+            conn = xappy.IndexerConnection(dbpath)
             status['number_of_documents'] = conn.get_doccount()
             print status
             docs_found = dict((id, False) for id in conn.iterids())
@@ -80,7 +80,7 @@ class Indexer(object):
 
             self.log.info("Indexing of %s finished" % col_name)
         except xappy.XapianDatabaseLockError, e:
-            self.log.error("Attempt to index locked database: %s, ignoring" % dbname)
+            self.log.error("Attempt to index locked database: %s, ignoring" % dbpath)
         except Exception, e:
             self.log.error("Unhandled error in do_indexing: %s" % str(e))
             import traceback
@@ -196,7 +196,7 @@ class IndexServer(object):
     def do_indexing(self, col, filter_settings):
         self.maybe_initialise_status(col)
         self.indexingio[0].send((col.name,
-                                 col.dbname(),
+                                 col.dbpath(),
                                  filter_settings,
                                  list(col.files()),
                                  self.status_dict[col.name]))
