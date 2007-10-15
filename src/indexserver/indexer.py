@@ -207,7 +207,7 @@ class IndexServer(object):
     def get_status(self, col):
         """Returns the status of the indexing for the collection supplied.
 
-        The is initialised from static information about the
+        This is initialised from static information about the
         collection and then the indexer updates this information
         whilst it's running for a given collection
 
