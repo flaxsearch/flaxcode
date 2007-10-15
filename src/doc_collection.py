@@ -31,8 +31,6 @@ import schedulespec
 import setuppaths
 import xappy
 
-
-
 class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec):
     """Representation of a collection of documents.
 
@@ -46,13 +44,15 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
     def __init__(self, name, db_dir, *args, **kwargs):
         self.name = name
         self.db_dir = db_dir
-        self.indexed = "unknown"
-        self.docs = "unknown"
-        self.queries = 0
         self.mappings = {}
-        self.status = "unindexed"
         self.update(*args, **kwargs)
+        self._search_conn=None
         self.maybe_make_db()
+
+    def __getstate__(self):
+
+        self._search_conn = None
+        return self.__dict__
 
     def update(self, description="", **kwargs):
         self.description = description
@@ -98,6 +98,11 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
         else:
             return "/"
         
+    def search_conn(self):
+        if not self._search_conn:
+            self._search_conn = xappy.SearchConnection(self.dbname())
+        return self._search_conn
+
     def dbname(self):
         return os.path.join(self.db_dir, self.name+'.db')
 
@@ -106,7 +111,7 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
         try:
             # all this does at the moment is check that this file
             # has been indexed as part of this document collection.
-            conn = xappy.SearchConnection(self.dbname())
+            conn = self.search_conn()
             conn.get_document(file_id)
             conn.close()
             return file_id

@@ -41,7 +41,7 @@ class Results (object):
             self.spell_corrected_query = corrected if corrected != query else None
 
         else:
-            conn_for_sim = xappy.SearchConnection(query[0].dbname())
+            conn_for_sim = query[0].search_conn()
             self.xap_query =  conn_for_sim.query_similar([query[1]])
             self.spell_corrected_query = None
 

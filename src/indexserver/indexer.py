@@ -26,37 +26,26 @@ util.setup_psyco()
 
 class Indexer(object):
     """Perform indexing of a xapian database on demand.
-
-    The indexing process might be fragile since we're potentially invoking
-    third party filters that may fall over or fail to terminate.  However,
-    we attempt to mitigate this by calling filters which are known to have
-    problems in a subprocess, and monitoring that subprocess for problems.
-
-    FIXME - running filters in subprocesses is not yet implemented.
-
     """
 
-    def __init__(self, status):
+    def __init__(self):
+
         self._filter_map = {"Xapian": htmltotext_filter.html_filter,
                             "Text": simple_text_filter.text_filter}
         if windows:
             self._filter_map["IFilter"] =  w32com_ifilter.remote_ifilter
 
-        self.status = status
-
-    def do_indexing(self, col_name, dbname, filter_settings, files):
+    def do_indexing(self, col_name, dbname, filter_settings, files, status):
         """Perform an indexing pass.
 
-        Index the database for col_name using filters given by filter_settings.
-        The filename is used as the document id, and this is used to remove
-        documents in the database that no longer have an associated file.
-
+        Index the database for col_name using filters given by
+        filter_settings.  The filename is used as the document id, and
+        this is used to remove documents in the database that no
+        longer have an associated file.  status is a proxy for a
+        remote dictionary to inform the web server about the state of
+        the indexer.
         """
-        if col_name not in self.status:
-            self.status[col_name] = dict()
-        status = self.status[col_name]
-
-        status['currently_indexing'] = True
+        status['currently_indexing'] = "Indexing"
         status['number_of_files'] = 0
         conn = None
         try:
@@ -72,7 +61,7 @@ class Indexer(object):
             # give a better error message.
             conn = xappy.IndexerConnection(dbname)
             status['number_of_documents'] = conn.get_doccount()
-
+            print status
             docs_found = dict((id, False) for id in conn.iterids())
 
             for f in files:
@@ -96,7 +85,7 @@ class Indexer(object):
             import traceback
             traceback.print_exc()
         finally:
-            status['currently_indexing'] = False
+            status['currently_indexing'] = "Indexed"
             if conn:
                 conn.close()
 
@@ -143,33 +132,22 @@ class Indexer(object):
                     status['number_of_documents'] = conn.get_doccount()
                     self.log.debug("Added (or replaced) doc %s to collection %s with text from source file %s" %
                                   (doc.id, collection_name, file_name))
-                    return True
                 except Exception, e:
                     self.log.error("Filtering file: %s with filter: %s raised exception %s, skipping"
                                    % (file_name, filter, e))
-                    return False
             else:
                 self.log.warn("Filter for %s is not valid, not filtering file: %s" % (ext, file_name))
-                return False
         else:
             self.log.debug("File: %s has not changed since last indexing, not filtering" % file_name)
-            return True
 
     def stale(self, file_name, conn):
-        "Return True if the file named by file_name has changed since we indexed it last"
+        "Has the file named by file_name has changed since we last indexed it?"
 
         try:
             doc = conn.get_document(file_name)
         except KeyError:
             # file not in the database, so has "changed"
             return True
-
-        # This will error if the mtime field isn't in the document
-        # with appropriate data, but that shouldn't happen because
-        # every document should have mtime data of the correct format.
-        # So let the exception through in order to diagnose the
-        # problem.  We are potentially vunerable to a filter that adds
-        # things with that field, but the restriction is documented.
         try:
             rv =  os.path.getmtime(file_name) != float(doc.data['mtime'][0])
         except KeyError:
@@ -177,12 +155,11 @@ class Indexer(object):
             return True
         return rv
 
-
-def index_server_loop(indexingio, logconfio, logconf_path, status):
+def index_server_loop(indexingio, logconfio, logconf_path):
     import logclient
     logclient.LogListener(logconfio)
     logclient.LogConf(logconf_path).update_log_config()
-    indexer = Indexer(status)
+    indexer = Indexer()
     while True:
         args=indexingio.recv()
         indexer.do_indexing(*args)
@@ -195,36 +172,49 @@ class IndexServer(object):
         self.logconfio = processing.Pipe()
         self.indexingio = processing.Pipe()
         self.syncman = processing.Manager()
-        self.status_dict = self.syncman.dict()
+        self.status_dict = dict()
         server = processing.Process(target=index_server_loop,
                                     name="IndexServer",
                                     args=(self.indexingio[1],
                                           self.logconfio[1],
-                                          'flaxlog.conf',
-                                          self.status_dict))
+                                          'flaxlog.conf'))
         server.setDaemon(True)
         server.start()
 
+    def maybe_initialise_status(self, col):
+        if col.name not in self.status_dict:
+            search_conn = col.search_conn()
+            d = self.syncman.dict()
+
+            d['currently_indexing'] = "Unknown"
+            d['number_of_documents'] = search_conn.get_doccount()
+            d['number_of_files'] = -1
+            self.status_dict[col.name] = d
+
+
     def do_indexing(self, col, filter_settings):
+        self.maybe_initialise_status(col)
         self.indexingio[0].send((col.name,
                                  col.dbname(),
                                  filter_settings,
-                                 list(col.files())))
+                                 list(col.files()),
+                                 self.status_dict[col.name]))
 
     @property
     def logconf_input(self):
         return self.logconfio[0]
 
-    def get_status(self):
-        """Returns the status of the indexing.
+    def get_status(self, col):
+        """Returns the status of the indexing for the collection supplied.
 
-        This is a dictionary keyed on collection names. There may be no entry
-        for a collection indicating that the indexer knows nothing about that
-        collection. Otherwise the value is a dictionary with keys and values as
-        follows:
+        The is initialised from static information about the
+        collection and then the indexer updates this information
+        whilst it's running for a given collection
 
-         - currently_indexing: A boolean indicating whether the collection is
-           currently being indexed.
+        The value is a dictionary with keys and values as follows:
+
+         - currently_indexing: A string that describes what the
+           indexer is doing, or has done, with this collection.
 
          - number_of_documents: The number of documents in the collection.
 
@@ -236,4 +226,5 @@ class IndexServer(object):
            corrupt files might not be added to the database.
 
         """
-        return self.status_dict
+        self.maybe_initialise_status(col)
+        return self.status_dict[col.name]

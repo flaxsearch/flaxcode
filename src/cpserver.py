@@ -124,7 +124,6 @@ class Collections(FlaxResource):
         """
 
         self._only_post()
-
         if col and col in self._flax_data.collections:
             self._flax_data.collections[col].update(**kwargs)
             self._signal_data_changed()
@@ -167,7 +166,8 @@ class Collections(FlaxResource):
                 raise cherrypy.NotFound()
         else:
             return self._list_template (self._flax_data.collections.itervalues(),
-                                        '/admin/collections')
+                                        '/admin/collections',
+                                        self._index_server)
 
 class SearchForm(object):
     """

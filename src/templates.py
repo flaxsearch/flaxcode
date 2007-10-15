@@ -147,19 +147,20 @@ def render_search_collection (node, collection, selected=None):
 
 ##### Collection List Template #####
 
-def render_collections_list(template, collections, base_url):
+def render_collections_list(template, collections, base_url, indexer):
     template.main.atts['action'] = base_url + '/add/'
-    template.main.collection.repeat(render_collection, collections, base_url)
+    template.main.collection.repeat(render_collection, collections, base_url, indexer)
 
-def render_collection(node, collection, base_url):
+def render_collection(node, collection, base_url, indexer):
+    stat = indexer.get_status(collection)
     col_url = base_url + '/' + collection.name + '/view'
     node.name.content = collection.name
     node.name.atts['href'] = urllib.quote(col_url)
     node.description.content = collection.description
-    node.indexed.content = str(collection.indexed)
-    node.doc_count.content = str(collection.docs)
-    node.query_count.content = str(collection.queries)
-    node.status.content = str(collection.status)
+
+    node.doc_count.content = str(stat['number_of_documents'])
+    node.file_count.content = str(stat['number_of_files'])
+    node.status.content = str(stat['currently_indexing'])
 
     node.delete.atts['href'] = urllib.quote(col_url+'/confirm_delete')
 
