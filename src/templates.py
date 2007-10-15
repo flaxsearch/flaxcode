@@ -179,7 +179,7 @@ def render_collection(node, collection, base_url, indexer):
     node.description.content = collection.description
 
     node.doc_count.content = str(stat['number_of_documents'])
-    node.file_count.content = str(stat['number_of_files'])
+    #node.file_count.content = str(stat['number_of_files'])
     node.status.content = str(stat['currently_indexing'])
 
     node.delete.atts['href'] = urllib.quote(col_url+'/confirm_delete')

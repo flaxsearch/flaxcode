@@ -8,15 +8,16 @@
 
 <div node="con:body">
 
-  <table class="collection_list_table" summary="This table lists current document collections." >
+  <table class="collection_list_table" summary="This table lists current document collections." 
+   width="100%">
     <thead>
-      <tr class="header_row">
+      <tr>
         <th class="col_del"></th>
         <th class="col_name">Name</th>
-        <th class="col_description">Description</th>
+        <th class="col_desc">Description</th>
         <th class="col_status">Status</th>
         <th class="col_docs">Documents</th>
-        <th class="col_files">Files</th>
+        <th class="col_errors">Errors</th>
       </tr>
     </thead>
     <tbody>
@@ -29,20 +30,21 @@
         <td class="col_name">
           <a node="con:name" href=""></a>
         </td>
-        <td class="col_description" node="con:description"></td>
+        <td class="col_desc" node="con:description"></td>
         <td class="col_status" node="con:status"></td>
         <td class="col_docs" node="con:doc_count"></td>
-        <td class="col_files" node="con:file_count"></td>
+        <td class="col_errors" node="con:error_count"></td>
       </tr>
     </tbody>
   </table>
 
-  <div>
+  <p>
     <a href="collections/new">Create a new collection </a>
-  </div>
+  </p>
 
   <!-- move this to a separate help document - it's a bit intrusive here -->
-  <p> Current document collections are listed above. The columns are as follows:
+  <p class="help_notes"> 
+  Current document collections are listed above. The columns are as follows:
     <ol>
       <li>A link to delete the collection in that row. This link takes
       you to a page confirming that you wish to actually delete the

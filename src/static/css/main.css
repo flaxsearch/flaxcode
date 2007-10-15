@@ -42,12 +42,12 @@ body {
   padding:0;
 }
 
-.navlist a {
+a {
     text-decoration: none;
     color: darkblue;
 }
 
-.navlist a:hover {
+a:hover {
   color: darkred;
 }
 
@@ -56,23 +56,55 @@ body {
 }
 
 a.delete_button img {
-    border: none;
-    text-decoration: none;
+  border: none;
+  text-decoration: none;
 }
 
 /* styling of the collection list table */
 
 table.collection_list_table {
-    border-collapse: collapse;
+  border-collapse: collapse;
 }
 
 table.collection_list_table thead  {
-    border: 3px solid blue;
+  border: 1px solid black;
+  background-color: lightgray;
 }
 
 table.collection_list_table tbody  {
-    border: 1px solid black;
+  border: 1px solid black;
 }
+
+.col_del {
+  text-align: left;
+  width: 30px;
+}
+
+.col_name {
+  text-align: left;
+  width: 120px;
+}
+
+.col_desc {
+  text-align: left;
+}
+
+.col_status {
+  text-align: left;
+  width: 90px;
+}
+
+.col_docs {
+  text-align: right;
+  width: 90px;
+}
+
+.col_errors {
+  text-align: right;
+  width: 90px;
+  padding-right: 3px;
+}
+
 
 label.main_label {
     float: left;
@@ -172,4 +204,10 @@ div.info {
 
 .link_disabled {
     color: gray;
+}
+
+.help_notes {
+  margin-top: 30px;
+  padding-top: 10px;
+  border-top: 1px dashed gray;
 }
