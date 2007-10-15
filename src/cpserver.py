@@ -23,7 +23,6 @@ import cherrypy
 import templates
 import persist
 import util
-import os
 
 class FlaxResource(object):
     "Abstract class supporting common error handling across all Flax web pages"
@@ -297,11 +296,11 @@ class Admin(Top):
         raise cherrypy.HTTPRedirect ('collections')
 
 
-def start_web_server(flax_data, index_server, mainpath, conffile):
+def start_web_server(flax_data, index_server, conffile):
     """
     Run Flax web server.
     """
-    renderer = templates.Renderer(os.path.join(mainpath,"templates"))
+    renderer = templates.Renderer("templates")
     collections = Collections(flax_data,
                               renderer.collection_list_render,
                               renderer.collection_detail_render,
@@ -318,7 +317,7 @@ def start_web_server(flax_data, index_server, mainpath, conffile):
     cherrypy.Application.root = top
     cherrypy.Application.root.admin = admin
     cherrypy.Application.root.admin.collections = collections
-    cherrypy.quickstart(top, config = os.path.join(mainpath,conffile))
+    cherrypy.quickstart(top, config = conffile)
 
 def stop_web_server():
     """Stop the flax web server.
