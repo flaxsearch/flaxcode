@@ -279,13 +279,7 @@ class Admin(Top):
         Render the options template.
         """
         if cherrypy.request.method == "POST":
-
-            for arg in ("db_dir", "flax_dir"):
-                if arg in kwargs:
-                    setattr(self._flax_data, arg, kwargs[arg])
-
             self._flax_data.log_settings = kwargs
-
         return self._options_template (self._flax_data)
 
     @cherrypy.expose

@@ -5,24 +5,10 @@
 <div node="con:body">
   <form method="POST">
     <fieldset>
-      <legend>File handling options</legend>
+      <legend>Logging</legend>
       <div class="info">
-	These options control the files Flax uses for its data.
-	<dl>
-	  <dt>Flax Directory</dt>
-	  <dd>The directory for persistent Flax data.</dd>
-	</dl>
-      </div>      
-      <div>
-	<label class="main_label" for="flax_dir">Flax directory:</label>
-	<input name="flax_dir" node="con:flax_dir"></input>
-      </div>
-      </fieldset>
-      <fieldset>
-	<legend>Logging</legend>
-	<div class="info">
-	  <p>These options controls which events are logged.</p>
-	  <p>Events have both a category and a severity. For each
+	<p>These options controls which events are logged.</p>
+	<p>Events have both a category and a severity. For each
 	  category you can specify the level at or above which events are
 	  logged. For example, the "Critical" level will cause only critical
 	  errors to be logged, whereas the "Debug" level will cause all
@@ -30,17 +16,17 @@
 	  in very large number of log entries being generated).  The "Default"
 	  level will cause the level for a particular category of log message
 	  to follow the setting for the "default" category.</p>
-	  <p>The order of the levels is as follows:
+	<p>The order of the levels is as follows:
 	  <span node="rep:level_meaning"></span>
-	  </p>
-	</div>
-	<div node="rep:collection_events">
-	  <label node="con:event_label" class="main_label">Event</label>
-	  <select node="con:event_select">
-	    <option node="rep:event_option">Level</option>
-	  </select>
-	</div> 
-      </fieldset>
-      <input type="submit"></input>
+	</p>
+      </div>
+      <div node="rep:collection_events">
+	<label node="con:event_label" class="main_label">Event</label>
+	<select node="con:event_select">
+	  <option node="rep:event_option">Level</option>
+	</select>
+      </div> 
+    </fieldset>
+    <input type="submit"></input>
   </form>
 </div>

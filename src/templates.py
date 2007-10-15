@@ -54,7 +54,6 @@ class TemplateManager(object):
             cached = self._cache[key]
             if cached[1] == mtime:
                 return cached[0]
-
         except KeyError:
             pass
 
@@ -115,7 +114,6 @@ def render_admin_banner (t):
 
 def render_options(template, flax_data):
 
-    template.main.flax_dir.atts["value"] = flax_data.flax_dir
     log_settings = flax_data.log_settings
 
     def fill_log_events(node, event):
