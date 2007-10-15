@@ -120,12 +120,12 @@ def render_options(template, flax_data):
 
 ##### Search Templates #####
 
-def render_search(template, collections, advanced=False, formats=[]):
+def render_search(template, renderer, collections, advanced=False, formats=[]):
     cols = list(collections.itervalues())
     template.main.collections.repeat(render_search_collection, cols)
     template.main.col_descriptions.name_and_desc.repeat(render_collection_descriptions, cols)
     if advanced:
-        template.main.advanced_holder=_advanced_search_options().body
+        template.main.advanced_holder = renderer._advanced_search_options().body
         def fill_format(node, format):
             node.format_label.content = format
             node.format_checkbox.atts['value'] = format
@@ -259,13 +259,14 @@ def render_search_result (template, results, collections, selcols):
 
     if results.is_results_corrected:
         template.main.corrected.raw = \
-             "The original query returned no results, the spell corrected query: <em>%s</em> was used instead." % \
-             results.spell_corrected_query
+            uistrings.msg('auto_spell_corrected_msg') % \
+            results.spell_corrected_query
     elif (results.spell_corrected_query and
           (not (results.spell_corrected_query == results.query))):
-         template.main.corrected.raw = "Did you mean <a href=./?%s>%s</a>?" % (
-         urllib.quote_plus(results.spell_corrected_query),
-         results.spell_corrected_query)
+         template.main.corrected.raw = uistrings.msg('spell_suggestion_msg') % {
+             "uri": "search?query=" + urllib.quote_plus(results.spell_corrected_query),
+             "corrected": results.spell_corrected_query,
+         }
     else:
         template.main.corrected.raw = ""
 
@@ -344,40 +345,45 @@ def format_date (data):
     data = float (data)
     return time.asctime (time.localtime (data))
 
-_tman = TemplateManager("templates")
+class Renderer(object):
+    """Object providing methods for rendering the templates.
 
-#: Template admin index pages.
-def index_render (*args):
-    return _tman.create_admin_template("index.html").render (*args)
+    """
+    def __init__(self, template_dir):
+        self._tman = TemplateManager(template_dir)
 
-#: Template for global options page
-def options_render (*args):
-    return _tman.create_admin_template("options.html", render_options).render (*args)
+    def index_render(self, *args):
+        "Render the admin index page."
+        return self._tman.create_admin_template("index.html").render(*args)
 
-#: template for administrator search pages.
-def admin_search_render (*args):
-    return _tman.create_admin_template("search_admin.html", render_search).render (*args)
+    def options_render(self, *args):
+        "Render the global options page."
+        return self._tman.create_admin_template("options.html", render_options).render (*args)
 
-#: template for user search pages.
-def user_search_render (*args):
-    return _tman.create_user_template("search.html", render_search).render (*args)
+    def admin_search_render(self, *args):
+        "Render the administrator search page."
+        return self._tman.create_admin_template("search_admin.html", render_search).render(self, *args)
 
-#: template for collections listing
-def collection_list_render (*args):
-    return _tman.create_admin_template("collections.html", render_collections_list).render (*args)
+    def user_search_render(self, *args):
+        "Render the user search page."
+        return self._tman.create_user_template("search.html", render_search).render(self, *args)
 
-#: template for viewing a collection.
-def collection_detail_render (*args):
-    return _tman.create_admin_template("collection_detail.html", render_collection_detail).render (*args)
+    def collection_list_render(self, *args):
+        "Render the collection listing admin page."
+        return self._tman.create_admin_template("collections.html", render_collections_list).render (*args)
 
-#: administrator template for viewing search results.
-def admin_search_result_render (*args):
-    return _tman.create_admin_template("search_result.html", render_search_result).render (*args)
+    def collection_detail_render(self, *args):
+        "Render the collection detail admin page."
+        return self._tman.create_admin_template("collection_detail.html", render_collection_detail).render (*args)
 
-#: user template for viewing search results.
-def user_search_result_render (*args):
-    return _tman.create_user_template("search_result_admin.html", render_search_result).render (*args)
+    def admin_search_result_render(self, *args):
+        "Render the administrator search results page."
+        return self._tman.create_admin_template("search_result.html", render_search_result).render (*args)
 
-# used internally
-def _advanced_search_options ():
-    return _tman.make_template(_tman.dummy_render, "advanced_search.html")
+    def user_search_result_render(self, *args):
+        "Render the user search results page."
+        return self._tman.create_user_template("search_result_admin.html", render_search_result).render (*args)
+
+    def _advanced_search_options(self):
+        "Get a template for rendering the advanced search options"
+        return self._tman.make_template(self._tman.dummy_render, "advanced_search.html")

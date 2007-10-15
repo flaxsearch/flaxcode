@@ -298,20 +298,21 @@ def start_web_server(flax_data, index_server):
     """
     Run Flax web server.
     """
+    renderer = templates.Renderer("templates")
     collections = Collections(flax_data,
-                              templates.collection_list_render,
-                              templates.collection_detail_render,
+                              renderer.collection_list_render,
+                              renderer.collection_detail_render,
                               index_server)
 
     admin = Admin(flax_data,
-                  templates.admin_search_render,
-                  templates.admin_search_result_render,
-                  templates.options_render,
-                  templates.index_render)
+                  renderer.admin_search_render,
+                  renderer.admin_search_result_render,
+                  renderer.options_render,
+                  renderer.index_render)
 
-    top = Top(flax_data, templates.user_search_render, templates.user_search_result_render)
+    top = Top(flax_data, renderer.user_search_render, renderer.user_search_result_render)
 
-    cherrypy.Application.root=top
+    cherrypy.Application.root = top
     cherrypy.Application.root.admin = admin
     cherrypy.Application.root.admin.collections = collections
     cherrypy.quickstart(top, config = 'cp.conf')
