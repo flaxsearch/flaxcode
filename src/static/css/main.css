@@ -118,10 +118,24 @@ form {
     margin: 0px;
 }
 
+fieldset {
+  border: 1px solid gray;
+  margin: 5px 0px 10px 0px;
+}
+
+dt {
+  font-style: italic;
+}
+
+dd {
+  margin-bottom: 3px;
+}
+
 div.info {
   float: right;
   font-size: 75%;
-  border: 1px solid;
+  background-color: #F4F8FF;
+  border: 1px solid #D0D4F0;
   height: auto;
   width: 250px;
   padding: 3px;

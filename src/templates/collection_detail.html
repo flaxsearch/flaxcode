@@ -69,7 +69,8 @@
       <!-- mappings div is used by the javacript - it should remain here.-->
       <div id="mappings">
       </div>
-      <button onClick="add_blank_mapping()" type="button">+</button>
+      <label class="main_label">&nbsp;</label>
+      <button onClick="add_blank_mapping()" type="button">Add another path</button>
       <div style="margin-top:10px">
         <label class="main_label">Formats:</label>
         <div node="rep:formats">
@@ -81,7 +82,7 @@
       <div style="margin-top:10px">
     <label class="main_label">Age:</label>
         <select name="oldest">
-          <option node="con:none" value="">Unset</option>
+          <option node="con:none" value="">Any age</option>
           <option node="con:one_day" value="1 0 0">One Day</option>
           <option node="con:one_week" value="7 0 0">One Week</option>
           <option node="con:one_month" value="30 0 0">One Month</option>
@@ -154,4 +155,6 @@
     </fieldset>
     <input type="submit" />
   </form>
+<p>&nbsp;</p>
+
 </div>
