@@ -25,6 +25,13 @@ class FlaxPaths(object):
 
     This is a singleton class.
 
+    The directory paths stored in this module are:
+
+     - dbs_dir: the parent directory under which databases are created.
+     - log_dir: the directory in which logs are stored.
+     - conf_dir: the directory in which configuration files are stored.
+     - var_dir: the directory in which persistent runtime state is stored.
+
     """
     def __new__(cls, *args, **kwargs):
         """Ensure that there is only one instance of the object.
@@ -38,17 +45,27 @@ class FlaxPaths(object):
         self.src_dir = os.path.dirname(__file__)
 
     def set_dirs(self, main_dir=None,
-                 dbs_dir=None, log_dir=None, conf_dir=None):
+                 dbs_dir=None, log_dir=None, conf_dir=None, var_dir=None):
         """Set the directories for Flax to use.
+
+         - main_dir: Only required if any of the more specific directories are
+           not specified - specifies a top-level directory under which all the
+           files will be placed.
+         - dbs_dir: the parent directory under which databases are created.
+         - log_dir: the directory in which logs are stored.
+         - conf_dir: the directory in which configuration files are stored.
+         - var_dir: the directory in which persistent runtime state is stored.
 
         """
         self.dbs_dir = dbs_dir
         self.log_dir = log_dir
         self.conf_dir = conf_dir
+        self.var_dir = var_dir
 
         if self.dbs_dir is None or \
            self.log_dir is None or \
-           self.conf_dir is None:
+           self.conf_dir is None or \
+           self.var_dir is None:
             if main_dir is None:
                 raise ValueError("main_dir must be specified unless all "
                                  "specific configuration directories are.")
@@ -58,7 +75,9 @@ class FlaxPaths(object):
         if self.log_dir is None:
             self.log_dir = os.path.join(main_dir, 'logs')
         if self.conf_dir is None:
-            self.conf_dir = srcdir
+            self.conf_dir = os.path.join(main_dir, 'conf')
+        if self.var_dir is None:
+            self.var_dir = os.path.join(main_dir, 'var')
 
     def makedirs(self):
         """Create the directories used by flax.
@@ -70,6 +89,8 @@ class FlaxPaths(object):
             os.makedirs(self.log_dir)
         if not os.path.exists(self.conf_dir):
             os.makedirs(self.conf_dir)
+        if not os.path.exists(self.var_dir):
+            os.makedirs(self.var_dir)
 
     @property
     def logconf_path(self):
@@ -80,13 +101,20 @@ class FlaxPaths(object):
 
     @property
     def cpconf_path(self):
-        """The path of the cherrypy configuration file
+        """The path of the cherrypy configuration file.
 
         """
         return os.path.join(self.conf_dir, 'cp.conf')
 
     @property
-    def staticdir(self):
+    def flaxstate_path(self):
+        """The path of the main file holding the current flax state.
+
+        """
+        return os.path.join(self.var_dir, 'flax.flx')
+
+    @property
+    def static_dir(self):
         """The path of the static files to serve to the webserver.
 
         """
