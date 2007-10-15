@@ -313,7 +313,11 @@ def render_search_result (template, results, collections, selcols):
     template.main.collections.repeat (render_search_collection, collections.itervalues(), selcols)
 
     xr = results.xap_results
-    if xr.startrank < xr.endrank:
+    if xr is None:
+        # No collections to search
+        template.main.info.content = 'No collections to search'
+        template.main.nav.omit()
+    elif xr.startrank < xr.endrank:
         template.main.results.repeat(fill_results, results.xap_results)
         template.main.info.content = '%s to %s of %s%d matching documents' % (
             xr.startrank + 1, xr.endrank,

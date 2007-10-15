@@ -27,6 +27,13 @@ class Results (object):
     log = logging.getLogger("searching")
 
     def __init__(self, query, dbs, tophit, maxhits):
+
+        if len(dbs) == 0:
+            self.query = query
+            self.is_results_corrected = False
+            self.spell_corrected_query = None
+            self.xap_results = None
+            return
         
         self.dbs = dbs
         self.query = query
