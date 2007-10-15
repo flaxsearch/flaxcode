@@ -35,7 +35,7 @@ class LogConf(object):
 
     """
     
-    def __init__(self, filepath='flaxlog.conf'):
+    def __init__(self, filepath):
         self.filepath = filepath
         self.parser = ConfigParser.SafeConfigParser()
 

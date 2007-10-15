@@ -22,6 +22,7 @@ import logging
 import os
 
 import collection_list
+import flaxpaths
 import logclient
 
 current_version = 6
@@ -51,7 +52,7 @@ class FlaxOptions(object):
         if "default" in vals:
             new_levels[""] = vals["default"]
 
-        lq = logclient.LogConf()
+        lq = logclient.LogConf(flaxpaths.paths.logconf_path)
         lq.set_levels(new_levels)
 
     def _get_log_settings(self):

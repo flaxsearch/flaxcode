@@ -11,6 +11,7 @@ import xappy
 import sys
 sys.path.append('..')
 import dbspec
+import flaxpaths
 import util
 
 try:
@@ -177,7 +178,7 @@ class IndexServer(object):
                                     name="IndexServer",
                                     args=(self.indexingio[1],
                                           self.logconfio[1],
-                                          'flaxlog.conf'))
+                                          flaxpaths.paths.logconf_path))
         server.setDaemon(True)
         server.start()
 

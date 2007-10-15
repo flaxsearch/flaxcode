@@ -22,6 +22,7 @@ __docformat__ = "restructuredtext en"
 
 import setuppaths
 import optparse
+import os
 import threading
 import traceback
 
@@ -29,6 +30,7 @@ import processing
 
 import cpserver
 import flax
+import flaxpaths
 from indexserver import indexer
 import logclient
 import persist
@@ -41,8 +43,11 @@ class StartupOptions(object):
     """Options passed at startup time.
 
     """
-    input_file = None
-    output_file = None
+    main_dir = None
+    dbs_dir = None
+    log_dir = None
+    conf_dir = None
+    var_dir = None
 
     def __init__(self, **kwargs):
         for key, value in kwargs.iteritems():
@@ -50,17 +55,34 @@ class StartupOptions(object):
 
 def parse_cli_opts():
     op = optparse.OptionParser()
-    op.add_option('-i', '--input-file',
-                  dest = 'input_file',
-                  help = "Flax input data file (default is flax.flx)",
-                  default = 'flax.flx')
-    op.add_option('-o', '--output-file',
-                  dest = 'output_file',
-                  help = "Flax output data file (default is flax.flx)",
-                  default = 'flax.flx')
+    op.add_option('-d', '--main-dir',
+                  dest = 'main_dir',
+                  help = 'Flax main directory',
+                  default = None)
+    op.add_option('--dbs-dir',
+                  dest = 'dbs_dir',
+                  help = 'Flax database directory (default is <main>/dbs)',
+                  default = None)
+    op.add_option('--log-dir',
+                  dest = 'log_dir',
+                  help = 'Flax logfile directory (default is <main>/logs)',
+                  default = None)
+    op.add_option('--conf-dir',
+                  dest = 'conf_dir',
+                  help = 'Flax configuration file directory (default is <main>/conf)',
+                  default = None)
+    op.add_option('--var-dir',
+                  dest = 'var_dir',
+                  help = 'Flax runtime state directory (default is <main>/var)',
+                  default = None)
     (options, args) = op.parse_args()
-    return StartupOptions(input_file = options.input_file,
-                          output_file = options.output_file)
+    if options.main_dir is None:
+        options.main_dir = os.path.join(os.path.dirname(__file__), 'data')
+    return StartupOptions(main_dir = options.main_dir,
+                          dbs_dir = options.dbs_dir,
+                          log_dir = options.log_dir,
+                          conf_dir = options.conf_dir,
+                          var_dir = options.var_dir)
 
 class FlaxMain():
     """Class controlling starting and stopping Flax.
@@ -77,9 +99,12 @@ class FlaxMain():
     afterwards.
 
     """
-
     def __init__(self, options):
-        self.options = options
+        paths = flaxpaths.paths
+        paths.set_dirs(options.main_dir, options.dbs_dir, options.log_dir,
+                       options.conf_dir, options.var_dir)
+        paths.makedirs()
+
         self._thread = None
         self._need_cleanup = False
 
@@ -92,16 +117,19 @@ class FlaxMain():
         if self._need_cleanup:
             self._do_cleanup()
         self._need_cleanup = True
+
+        flax.options = persist.read_flax(flaxpaths.flaxstate_path)
+
         webserver_logconfio = processing.Pipe()
         index_server = indexer.IndexServer()
-        logclient.LogConfPub('flaxlog.conf', [webserver_logconfio[0], index_server.logconf_input])
+        logclient.LogConfPub(flaxpaths.paths.logconf_path,
+                             [webserver_logconfio[0], index_server.logconf_input])
         logclient.LogListener(webserver_logconfio[1]).start()
-        logclient.LogConf().update_log_config()
-        flax.options = persist.read_flax(self.options.input_file)
+        logclient.LogConf(flaxpaths.paths.logconf_path).update_log_config()
         scheduler.ScheduleIndexing(index_server).start()
-        persist.DataSaver(self.options.output_file).start()
+        persist.DataSaver(flaxpaths.flaxstate_path).start()
         cpserver.start_web_server(flax.options, index_server,
-                                  'cp.conf')
+                                  flaxpaths.paths.cpconf_path)
 
     def _do_cleanup(self):
         """Internal method to perform all necessary cleanup when shutting down.
@@ -112,7 +140,7 @@ class FlaxMain():
         if not self._need_cleanup:
             return
         self._need_cleanup = False
-        persist.store_flax(self.options.output_file, flax.options)
+        persist.store_flax(flaxpaths.flaxstate_path, flax.options)
 
     def _do_start_in_thread(self):
         """Method used to start in a separate thread.
