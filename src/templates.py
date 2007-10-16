@@ -169,6 +169,12 @@ def render_search_collection (node, collection, selected=None):
 
 def render_collections_list(template, collections, base_url, indexer):
     template.main.atts['action'] = base_url + '/add/'
+
+    # HACK - sort collections by name
+    collections = [(c.name, c) for c in collections]
+    collections.sort()
+    collections = [c[1] for c in collections]
+    
     template.main.collection.repeat(render_collection, collections, base_url, indexer)
 
 def render_collection(node, collection, base_url, indexer):
