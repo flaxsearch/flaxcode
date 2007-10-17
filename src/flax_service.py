@@ -115,6 +115,8 @@ class FlaxService(win32serviceutil.ServiceFramework):
 
     def __init__(self, args):
         win32serviceutil.ServiceFramework.__init__(self, args)
+        servicemanager.SetEventSourceName(self._svc_display_name_)
+        
         self.hWaitStop = win32event.CreateEvent(None, 0, 0, None)
 
         self._options = start.StartupOptions(main_dir = runtimepath,
