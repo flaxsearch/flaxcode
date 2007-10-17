@@ -31,8 +31,6 @@ import os
 import sys
 import threading
 
-import subprocess
-
 # We need to do a lot of messing about with paths, as when running as a service
 # it's not clear what our actual path is. The path to the executable is set in
 # the Registry by the installation script.
