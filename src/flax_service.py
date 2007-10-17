@@ -31,6 +31,8 @@ import os
 import sys
 import threading
 
+import subprocess
+
 # We need to do a lot of messing about with paths, as when running as a service
 # it's not clear what our actual path is. The path to the executable is set in
 # the Registry by the installation script.
@@ -66,7 +68,7 @@ try:
     except:
         exedir = win32api.RegQueryValue(regutil.GetRootKey(),
                                         regutil.BuildDefaultPythonKey())
-        exepath = os.path.join(exedir, 'Python.exe')
+    exepath = os.path.join(exedir, 'Python.exe')
     if not os.path.exists(exepath):
         raise ValueError("Python installation not complete")
 except:
@@ -119,10 +121,25 @@ class FlaxService(win32serviceutil.ServiceFramework):
         
         self.hWaitStop = win32event.CreateEvent(None, 0, 0, None)
 
+        # Create our 'main' class
         self._options = start.StartupOptions(main_dir = runtimepath,
                                              dbs_dir = datapath)
         self._flax_main = start.FlaxMain(self._options)
-
+        
+    def logmsg(self, event):
+        # log a service event using servicemanager.LogMsg
+        try:
+            servicemanager.LogMsg(servicemanager.EVENTLOG_INFORMATION_TYPE,
+                                  event,
+                                  (self._svc_name_,
+                                   " (%s)" % self._svc_display_name_))
+        except win32api.error, details:
+            # Failed to write a log entry - most likely problem is
+            # that the event log is full.  We don't want this to kill us
+            try:
+                print "FAILED to write INFO event", event, ":", details
+            except IOError:
+                pass        
 
     def SvcStop(self):
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
@@ -130,17 +147,13 @@ class FlaxService(win32serviceutil.ServiceFramework):
 
     def SvcDoRun(self):
         # Write a 'started' event to the event log...
-        win32evtlogutil.ReportEvent(self._svc_name_,
-                                    servicemanager.PYS_SERVICE_STARTED,
-                                    0, # category
-                                    servicemanager.EVENTLOG_INFORMATION_TYPE,
-                                    (self._svc_name_, ''))
+        self.logmsg(servicemanager.PYS_SERVICE_STARTED)
 
         # Redirect stdout and stderr to avoid buffer overflows and to allow
         # debugging while acting as a service
         sys.stderr = open(stderrpath, 'w')
         sys.stdout = open(stdoutpath, 'w')
-
+        
         try:
             try:
                 try:
@@ -162,11 +175,7 @@ class FlaxService(win32serviceutil.ServiceFramework):
                     traceback.print_exc()
         finally:
             # and write a 'stopped' event to the event log.
-            win32evtlogutil.ReportEvent(self._svc_name_,
-                                        servicemanager.PYS_SERVICE_STOPPED,
-                                        0, # category
-                                        servicemanager.EVENTLOG_INFORMATION_TYPE,
-                                        (self._svc_name_, ''))
+            self.logmsg(servicemanager.PYS_SERVICE_STOPPED)
 
 def ctrlHandler(ctrlType):
     """A windows control message handler.
