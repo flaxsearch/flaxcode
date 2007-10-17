@@ -157,7 +157,7 @@ class FlaxService(win32serviceutil.ServiceFramework):
                 try:
                     # Start flax, non-blocking
                     self._flax_main.start(blocking = False)
-
+                    self.ReportServiceStatus(win32service.SERVICE_RUNNING)
                     # Wait for message telling us to stop.
                     win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
                 except:
@@ -166,8 +166,11 @@ class FlaxService(win32serviceutil.ServiceFramework):
             finally:
                 try:
                     # Tell Flax to stop, and wait for it to stop.
+                    self.logmsg(11111)            
                     self._flax_main.stop()
+                    self.logmsg(11112)            
                     self._flax_main.join()
+                    self.logmsg(11113)            
                 except:
                     import traceback
                     traceback.print_exc()
@@ -189,7 +192,7 @@ def ctrlHandler(ctrlType):
 
 if __name__ == '__main__':
     import processing
-    processing.freezeSupport()
+#    processing.freezeSupport()
 
     win32api.SetConsoleCtrlHandler(ctrlHandler, True)
     win32serviceutil.HandleCommandLine(FlaxService)
