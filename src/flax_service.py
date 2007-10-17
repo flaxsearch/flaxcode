@@ -29,7 +29,6 @@ import win32evtlogutil
 
 import os
 import sys
-import threading
 
 # We need to do a lot of messing about with paths, as when running as a service
 # it's not clear what our actual path is. The path to the executable is set in
@@ -102,6 +101,9 @@ def _dummy_signal(*args, **kwargs):
 import signal
 signal.signal = _dummy_signal
 
+#FIXME - pacify processing 0.35
+if __name__ != '__main__':
+    sys.argv[0] = ''
 
 # Import start module, which implements starting and stopping Flax.
 import start
@@ -141,6 +143,9 @@ class FlaxService(win32serviceutil.ServiceFramework):
 
     def SvcStop(self):
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
+        self._flax_main.stop()
+        #FIXME: why do we need to call this ourselves? Shouldn't it happen anyway?
+        sys.exitfunc()
         win32event.SetEvent(self.hWaitStop)
 
     def SvcDoRun(self):
@@ -152,31 +157,11 @@ class FlaxService(win32serviceutil.ServiceFramework):
         sys.stderr = open(stderrpath, 'w')
         sys.stdout = open(stdoutpath, 'w')
         
-        try:
-            try:
-                try:
-                    # Start flax, non-blocking
-                    self._flax_main.start(blocking = False)
-                    self.ReportServiceStatus(win32service.SERVICE_RUNNING)
-                    # Wait for message telling us to stop.
-                    win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
-                except:
-                    import traceback
-                    traceback.print_exc()
-            finally:
-                try:
-                    # Tell Flax to stop, and wait for it to stop.
-                    self.logmsg(11111)            
-                    self._flax_main.stop()
-                    self.logmsg(11112)            
-                    self._flax_main.join()
-                    self.logmsg(11113)            
-                except:
-                    import traceback
-                    traceback.print_exc()
-        finally:
-            # and write a 'stopped' event to the event log.
-            self.logmsg(servicemanager.PYS_SERVICE_STOPPED)
+        # Start flax, non-blocking
+        self._flax_main.start(blocking = False)
+        self.ReportServiceStatus(win32service.SERVICE_RUNNING)
+        # Wait for message telling us to stop.
+        win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
 
 def ctrlHandler(ctrlType):
     """A windows control message handler.
@@ -191,8 +176,5 @@ def ctrlHandler(ctrlType):
     return True
 
 if __name__ == '__main__':
-    import processing
-#    processing.freezeSupport()
-
     win32api.SetConsoleCtrlHandler(ctrlHandler, True)
     win32serviceutil.HandleCommandLine(FlaxService)

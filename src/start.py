@@ -23,11 +23,9 @@ __docformat__ = "restructuredtext en"
 import setuppaths
 import optparse
 import os
-import threading
-import traceback
+
 
 import processing
-
 import cpserver
 import flax
 import flaxpaths
@@ -94,9 +92,7 @@ class FlaxMain():
 
     To use asynchronously, the "start" method is called with blocking=False.
     This will return immediately.  To cause the server to stop, the stop()
-    method is called.  The thread which started the server should later call
-    join() to wait for the server to actually stop, and clean up resources
-    afterwards.
+    method is called.  
 
     """
     def __init__(self, options):
@@ -104,11 +100,9 @@ class FlaxMain():
         paths.set_dirs(options.main_dir, options.dbs_dir, options.log_dir,
                        options.conf_dir, options.var_dir)
         paths.makedirs()
-
-        self._thread = None
         self._need_cleanup = False
 
-    def _do_start(self):
+    def _do_start(self, blocking):
         """Internal method to actually start all the required processes.
 
         This blocks until the stop() method is called.
@@ -130,7 +124,8 @@ class FlaxMain():
         persist.DataSaver(flaxpaths.paths.flaxstate_path).start()
         cpserver.start_web_server(flax.options, index_server,
                                   flaxpaths.paths.cpconf_path,
-                                  flaxpaths.paths.templates_path)
+                                  flaxpaths.paths.templates_path,
+                                  blocking)
 
     def _do_cleanup(self):
         """Internal method to perform all necessary cleanup when shutting down.
@@ -143,42 +138,16 @@ class FlaxMain():
         self._need_cleanup = False
         persist.store_flax(flaxpaths.paths.flaxstate_path, flax.options)
 
-    def _do_start_in_thread(self):
-        """Method used to start in a separate thread.
-
-        Calls start, and if there's an unhandled exception calls cleanup, and
-        handles the exception by printing it to stdout.
-
-        """
-        try:
-            self._do_start()
-        except Exception:
-            traceback.print_exc()
-            self._do_cleanup()
-        except:
-            traceback.print_exc()
-            self._do_cleanup()
-            raise
-
     def start(self, blocking=True):
         """Start all the Flax threads and processes.
 
-        If blocking is True, this will block until the server is stopped.
-        Otherwise, the method will spawn a new thread and return immediately.
+        If blocking is True, this will block until the server is
+        stopped.  Otherwise, the method will return immediately, in
+        which case stop should be called to terminate.
 
         """
-        if self._thread is not None:
-            self.stop()
-            self.join()
-
-        if blocking:
-            try:
-                self._do_start()
-            finally:
-                self._do_cleanup()
-        else:
-            self._thread = threading.Thread(None, self._do_start_in_thread, 'Flax-Main', ())
-            self._thread.start()
+        
+        self._do_start(blocking)
 
     def stop(self):
         """Stop any running Flax threads and processes.
@@ -192,18 +161,8 @@ class FlaxMain():
         """
         cpserver.stop_web_server()
 
-    def join(self):
-        """Block until all the Flax threads and processes have finished.
-
-        """
-        if self._thread is not None:
-            self._thread.join()
-            self._thread = None
-        self._do_cleanup()
-
 
 if __name__ == "__main__":
-    processing.freezeSupport()
     options = parse_cli_opts()
     main = FlaxMain(options)
     main.start(blocking=True)

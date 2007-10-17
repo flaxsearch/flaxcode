@@ -290,7 +290,7 @@ class Admin(Top):
         raise cherrypy.HTTPRedirect ('collections')
 
 
-def start_web_server(flax_data, index_server, conf_path, templates_path):
+def start_web_server(flax_data, index_server, conf_path, templates_path, blocking=True):
     """Start the web server.
 
     """
@@ -307,11 +307,12 @@ def start_web_server(flax_data, index_server, conf_path, templates_path):
                   renderer.index_render)
 
     top = Top(flax_data, renderer.user_search_render, renderer.user_search_result_render)
-
-    cherrypy.Application.root = top
-    cherrypy.Application.root.admin = admin
-    cherrypy.Application.root.admin.collections = collections
-    cherrypy.quickstart(top, config = conf_path)
+    admin.collections = collections
+    top.admin = admin
+    cherrypy.config.update(conf_path)
+    cherrypy.tree.mount(top, '/', config=conf_path)
+    cherrypy.server.quickstart()
+    cherrypy.engine.start(blocking)
 
 def stop_web_server():
     """Stop the flax web server.
