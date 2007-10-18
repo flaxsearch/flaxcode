@@ -119,7 +119,7 @@ if __name__ != '__main__':
 
 # Import start module, which implements starting and stopping Flax.
 import start
-
+import processing
 
 class FlaxService(win32serviceutil.ServiceFramework):
 
@@ -195,8 +195,11 @@ class FlaxService(win32serviceutil.ServiceFramework):
         # FIXME - should we be calling processing.process._exit_func() instead?
         # FIXME - Or get a public interface to this added to the processing
         # module, and use it instead of calling this internal interface.
-        sys.exitfunc()
-
+        #sys.exitfunc()
+        processing.process._exit_func()
+        # Write a 'stopped' event to the event log...
+        self.logmsg(servicemanager.PYS_SERVICE_STOPPED)
+        
 def ctrlHandler(ctrlType):
     """A windows control message handler.
 
