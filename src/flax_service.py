@@ -63,12 +63,18 @@ try:
         exepath = win32api.RegQueryValue(regutil.GetRootKey(),
                                          REGKEY_BASE + "PythonExePath")
     except:
-        exedir = win32api.RegQueryValue(regutil.GetRootKey(),
-                                        regutil.BuildDefaultPythonKey())
-    exepath = os.path.join(exedir, 'Python.exe')
+        exepath = win32api.RegQueryValue(regutil.GetRootKey(),
+                                         regutil.BuildDefaultPythonKey())
+    # If exepath points to a directory, add the name of the default python
+    # interpreter to get a path to a file.
+    if os.path.isdir(exepath):
+        exepath = os.path.join(exepath, 'Python.exe')
     if not os.path.exists(exepath):
-        raise ValueError("Python installation not complete")
+        raise ValueError("Python installation not complete (interpreter not "
+                         "found at %s)" % exepath)
 except:
+    # No useful registry entries; try looking for Python.exe in the parents of
+    # the current value of sys.executable.
     exedir = sys.executable
     while True:
         newdir = os.path.dirname(exedir)
@@ -79,7 +85,8 @@ except:
         if os.path.exists(exepath):
             break
     if not os.path.exists(exepath):
-        raise ValueError("Cannot determine python executable")
+        raise ValueError("Cannot find python executable (looked in parent "
+                         "directories of %s)" % os.path.dirname(sys.executable))
 sys.executable = exepath
 
 # TODO - fix up any other paths
@@ -101,7 +108,12 @@ def _dummy_signal(*args, **kwargs):
 import signal
 signal.signal = _dummy_signal
 
-#FIXME - pacify processing 0.35
+# Pacify processing 0.35.
+# If we don't set argv[0] to '', processing 0.35 will raise an error due to an
+# attempt to access sys.modules['__main__'], which doesn't exist when running
+# as a service.
+# FIXME - check that the above comment is a correct description of what goes
+# wrong with 0.35 if the following two lines aren't used.
 if __name__ != '__main__':
     sys.argv[0] = ''
 
@@ -121,13 +133,16 @@ class FlaxService(win32serviceutil.ServiceFramework):
         
         self.hWaitStop = win32event.CreateEvent(None, 0, 0, None)
 
-        # Create our 'main' class
+        # Set options according to our configuration, and create the class
+        # which manages starting and stopping the flax threads and processes.
         self._options = start.StartupOptions(main_dir = runtimepath,
                                              dbs_dir = datapath)
         self._flax_main = start.FlaxMain(self._options)
         
     def logmsg(self, event):
-        # log a service event using servicemanager.LogMsg
+        """Log a service event using servicemanager.LogMsg
+
+        """
         try:
             servicemanager.LogMsg(servicemanager.EVENTLOG_INFORMATION_TYPE,
                                   event,
@@ -135,7 +150,7 @@ class FlaxService(win32serviceutil.ServiceFramework):
                                    " (%s)" % self._svc_display_name_))
         except win32api.error, details:
             # Failed to write a log entry - most likely problem is
-            # that the event log is full.  We don't want this to kill us
+            # that the event log is full.  We don't want this to kill us.
             try:
                 print "FAILED to write INFO event", event, ":", details
             except IOError:
@@ -144,8 +159,6 @@ class FlaxService(win32serviceutil.ServiceFramework):
     def SvcStop(self):
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
         self._flax_main.stop()
-        #FIXME: why do we need to call this ourselves? Shouldn't it happen anyway?
-        sys.exitfunc()
         win32event.SetEvent(self.hWaitStop)
 
     def SvcDoRun(self):
@@ -157,11 +170,22 @@ class FlaxService(win32serviceutil.ServiceFramework):
         sys.stderr = open(stderrpath, 'w')
         sys.stdout = open(stdoutpath, 'w')
         
-        # Start flax, non-blocking
+        # Start flax, non-blocking.
         self._flax_main.start(blocking = False)
         self.ReportServiceStatus(win32service.SERVICE_RUNNING)
+
         # Wait for message telling us to stop.
         win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
+
+        # Perform cleanup.
+
+        # Call sys.exitfunc() directly as a workaround: this is meant to be
+        # called when python exits, but doesn't seem to be for some reason.
+        # FIXME - work out why this doesn't happen automatically.
+        # FIXME - should we be calling processing.process._exit_func() instead.
+        # FIXME - Or get a public interface to this added to the processing
+        # module, and use it instead of calling this internal interface.
+        sys.exitfunc()
 
 def ctrlHandler(ctrlType):
     """A windows control message handler.
