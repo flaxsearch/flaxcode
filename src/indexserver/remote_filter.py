@@ -56,8 +56,8 @@ class RemoteFilterRunner(object):
                 yield block
         else:
             self.server.terminate()
-            self.server = self.i = self.o =None
-            raise TimeOutError("The server took to long to process file %s, giving up" % file_name)
+            self.server = self.i = self.o = None
+            raise TimeOutError("The server took too long to process file %s, giving up" % file_name)
         
     def maybe_start_server(self):
         if not self.server:
