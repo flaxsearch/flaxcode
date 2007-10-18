@@ -158,8 +158,13 @@ class FlaxService(win32serviceutil.ServiceFramework):
 
     def SvcStop(self):
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
-        self._flax_main.stop()
         win32event.SetEvent(self.hWaitStop)
+
+        # This call to stop() may take some time, but this shouldn't cause
+        # windows to complain because the SvcDoRun thread will have awoken and
+        # be sending SERVICE_STOP_PENDING messages every 4 seconds until join()
+        # returns True.
+        self._flax_main.stop()
 
     def SvcDoRun(self):
         # Write a 'started' event to the event log...
@@ -174,15 +179,20 @@ class FlaxService(win32serviceutil.ServiceFramework):
         self._flax_main.start(blocking = False)
         self.ReportServiceStatus(win32service.SERVICE_RUNNING)
 
-        # Wait for message telling us to stop.
+        # Wait for message telling us that we're stopping.
         win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
 
-        # Perform cleanup.
+        # Wait for the service to stop (and reassure windows that we're still
+        # trying to stop).
+        self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING, 5000)
+        while not self._flax_main.join(4):
+            self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING, 5000)
 
+        # Perform cleanup.
         # Call sys.exitfunc() directly as a workaround: this is meant to be
         # called when python exits, but doesn't seem to be for some reason.
         # FIXME - work out why this doesn't happen automatically.
-        # FIXME - should we be calling processing.process._exit_func() instead.
+        # FIXME - should we be calling processing.process._exit_func() instead?
         # FIXME - Or get a public interface to this added to the processing
         # module, and use it instead of calling this internal interface.
         sys.exitfunc()

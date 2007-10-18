@@ -161,6 +161,19 @@ class FlaxMain():
         """
         cpserver.stop_web_server()
 
+    def join(self, timeout=None):
+        """Block until all the Flax threads and processes have finished.
+
+        If timeout is specified, it is the maximum time (in seconds) which the
+        call will block for.
+
+        Return True if all threads and processes have finished.  Otherwise,
+        returns False.
+ 
+        """
+        self._do_cleanup()
+        return True
+
 
 if __name__ == "__main__":
     options = parse_cli_opts()
