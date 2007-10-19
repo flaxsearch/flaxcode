@@ -142,7 +142,7 @@ def render_options(template, flax_data):
 
 def render_search(template, renderer, collections, advanced=False, formats=[]):
     cols = list(collections.itervalues())
-    template.main.collections.repeat(render_search_collection, cols)
+    template.main.collections.repeat(render_search_collection, cols, len(cols))
     template.main.col_descriptions.name_and_desc.repeat(render_collection_descriptions, cols)
     if advanced:
         template.main.advanced_holder = renderer._advanced_search_options().body
@@ -159,11 +159,14 @@ def render_collection_descriptions(node, collection):
     node.name.content = collection.name
     node.description.content = collection.description
 
-def render_search_collection (node, collection, selected=None):
+def render_search_collection (node, collection, collection_len, selected=None):
     node.col_name.content = collection.name
-    node.col_select.atts['value'] = collection.name
-    if selected and collection.name in selected:
-        node.col_select.atts['checked'] = 'true'
+    if collection_len == 1:
+        node.col_select.omit()
+    else:
+        node.col_select.atts['value'] = collection.name
+        if selected and collection.name in selected:
+            node.col_select.atts['checked'] = 'true'
 
 ##### Collection List Template #####
 
@@ -316,7 +319,8 @@ def render_search_result (template, results, collections, selcols):
         mtime = res.data.get ('mtime')
         node.res_mtime.content = format_date (mtime[0]) if mtime else 'unknown'
 
-    template.main.collections.repeat (render_search_collection, collections.itervalues(), selcols)
+    cols = list(collections.itervalues())
+    template.main.collections.repeat (render_search_collection, cols, len(cols), selcols)
 
     xr = results.xap_results
     if xr is None:
