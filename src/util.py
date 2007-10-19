@@ -6,6 +6,7 @@ import os
 import sys
 import datetime
 import time
+import thread
 import threading
 import re
 
@@ -89,3 +90,23 @@ class FileWatcher(DelayThread):
         if new_mtime > self.mtime:
             self.mtime = new_mtime
             self.change_action()
+
+
+class AsyncFunc(object):
+    """ Invoke a callable asynchronously and pass it's return value to
+    a supplied callback when it completes.
+    """
+    def __init__(self, func, result_callback):
+        """ func is the function (callable) to be called,
+        result_callback will be passed the return value of func.
+        """
+        self.func = func
+        self.result_callback = result_callback
+
+    def __call__(self, *args, **kwargs):
+        """
+        Invoke func asynchronously, passing in args and kwargs. Call
+        call_back with the return value when of func when it returns.
+        """
+        thread.start_new_thread(lambda: self.result_callback(self.func(*args, **kwargs)), ())
+
