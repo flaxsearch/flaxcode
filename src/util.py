@@ -89,26 +89,3 @@ class FileWatcher(DelayThread):
         if new_mtime > self.mtime:
             self.mtime = new_mtime
             self.change_action()
-
-
-import cPickle as pickle
-
-class IO(object):
-    """
-    A utility class to aid communication between processes.
-    
-    Simple communication based on file like objects for sending and
-    recieving data and using pickle to serialize python objects.
-    """
-
-    def __init__(self, instream = sys.stdin, outstream = sys.stdout, pickle_protocol = -1):
-        self.instream = instream
-        self.outstream = outstream
-        self.pickle_protocol = pickle_protocol
-    
-    def receive(self):
-        return pickle.load(self.instream)
-
-    def send(self, obj):
-        pickle.dump(obj, self.outstream, self.pickle_protocol)
-        self.outstream.flush()
