@@ -84,7 +84,7 @@ def make_options():
 
     filters = ["IFilter", "Xapian", "Text"]
     
-    formats = ["txt", "doc", "rtf", "html", "pdf", "xsl", "ppt"]
+    formats = ["txt", "doc", "rtf", "html", "pdf", "xls", "ppt"]
     formats.sort()
 
     default_filter = filters[0] if os.name == 'nt' else filters[2]
