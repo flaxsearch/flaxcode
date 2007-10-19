@@ -189,15 +189,15 @@ class FlaxService(win32serviceutil.ServiceFramework):
             self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING, 5000)
 
         # Perform cleanup.
-        # Call sys.exitfunc() directly as a workaround: this is meant to be
-        # called when python exits, but doesn't seem to be for some reason.
-        # FIXME - work out why this doesn't happen automatically.
-        # FIXME - should we be calling processing.process._exit_func() instead?
-        # FIXME - Or get a public interface to this added to the processing
-        # module, and use it instead of calling this internal interface.
-        #sys.exitfunc()
+        # This is needed because of a bug in PythonService.exe - it doesn't
+        # call Py_Finalize(), so atexit handlers don't get called.  We call
+        # processing.process._exit_func() directly as a workaround.  When the
+        # bug is fixed, we should stop doing this.  See:
+        # https://sourceforge.net/tracker/?func=detail&atid=551954&aid=1273738&group_id=78018
+        # for details.
         processing.process._exit_func()
-        # Write a 'stopped' event to the event log...
+
+        # Tell windows that we've stopped.
         self.logmsg(servicemanager.PYS_SERVICE_STOPPED)
         
 def ctrlHandler(ctrlType):
@@ -213,5 +213,6 @@ def ctrlHandler(ctrlType):
     return True
 
 if __name__ == '__main__':
+    processing.freezeSupport()
     win32api.SetConsoleCtrlHandler(ctrlHandler, True)
     win32serviceutil.HandleCommandLine(FlaxService)
