@@ -68,7 +68,7 @@ table.collection_list_table {
 
 table.collection_list_table thead  {
   border: 1px solid black;
-  background-color: lightgray;
+  background-color: #F4F8FF;
 }
 
 table.collection_list_table tbody  {
