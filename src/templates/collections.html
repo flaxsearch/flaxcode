@@ -51,13 +51,49 @@
   <!-- move this to a separate help document - it's a bit intrusive here -->
   <p class="help_notes"> 
   Current document collections are listed above. The columns are as follows:
-    <ol>
-      <li>A link to delete the collection in that row. This link takes
-      you to a page confirming that you wish to actually delete the
-      collection.</li>
-      <li>The name of the collection and a link to the detail page for that collection.</li>
-      <li>The description of the collection.</li>
-    </ol>
+    <dl>
+      <dt>Delete (no heading)</dt>
+      <dd>A link to delete the collection in that row.</dd>
+
+      <dt>Name</dt>
+      <dd>The name of the collection, linked to a page for viewing or
+      editing the details of the collection.</dd>
+
+      <dt>Description</dt>
+      <dd>The collection's description, or the initial part thereof if
+      it's too long to fit in the column.</dd>
+
+      <dt>Indexing?</dt>
+      <dd>Whether the collection is currently being indexed.</dd>
+
+      <dt>Indexing Due</dt>    
+      <dd>Whether indexing of this collection is due. Collections that
+      are due will be considered for indexing when the indexer has
+      finished working. After indexing this is automatically set to
+      false. The scheduling system automatically sets collections as
+      due according to the collection's scheduling specification.</dd>
+      
+      <dt>Indexing held</dt>
+      <dd>Whether indexing of this collection is held. Held
+      collections will not be indexed even if they are due. If a
+      collection becomes held whilst it is being indexed the indexer
+      will stop indexing the collection even if there is still
+      outstanding work to be done.</dd>
+
+      <dt>Docs</dt>
+      <dd>The number of documents currently in the xapian database for
+      the collection.</dd>
+
+      <dt>Files</dt> 
+      <dd>The number of files found in the collection on the last
+      indexing run, or during the current run if indexing is in
+      progress.</dd>
+
+      <dt>Errors</dt>
+      <dd>The number of files that generated errors during the last
+      indexing run, or the current run if indexing is in
+      progress.</dd>
+    </dl>
   </p>
 
 
