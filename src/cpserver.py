@@ -75,6 +75,8 @@ class Collections(FlaxResource):
         if col_id and action:
             if action == 'toggle_due':
                 return self.toggle_due_or_held(col_id, **kwargs)
+            elif action == 'delete':
+                return self.delete(col_id, **kwargs)
             elif action == 'toggle_held':
                 return self.toggle_due_or_held(col_id, held=True, **kwargs)
             elif action == 'update':
@@ -109,6 +111,15 @@ class Collections(FlaxResource):
             return self._redirect_to_view()
         else:
             self._bad_collection_name(col)
+
+
+    def delete(self, col=None, **kwargs):
+
+        self._only_post()
+
+        if col and col in self._flax_data.collections:
+            self._flax_data.collections.remove_collection(col)
+            return self.view()
 
     def update(self, col=None, **kwargs):
         """

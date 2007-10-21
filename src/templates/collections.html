@@ -26,9 +26,11 @@
     <tbody>
       <tr node="rep:collection">
         <td class="col_del">
-          <a class="delete_button" node="con:delete">
-            <img src="/static/img/del.png" alt="Delete" width="20" height="20" />
-          </a>
+          <form node="con:delete_form" method="POST" action="delete">
+            <button node="con:delete_button">
+              <img src="/static/img/del.png" alt="Delete" width="20" height="20" />
+            </button>
+          </form>
         </td>
         <td class="col_name">
           <a node="con:name" href=""></a>
@@ -95,6 +97,4 @@
       progress.</dd>
     </dl>
   </p>
-
-
 </div>

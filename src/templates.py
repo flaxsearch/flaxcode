@@ -181,6 +181,9 @@ def render_collections_list(template, collections, base_url, indexer):
     template.main.collection.repeat(render_collection, collections, base_url, indexer)
 
 def render_collection(node, collection, base_url, indexer):
+
+    node.delete_form.atts['action']='/admin/collections/%s/delete' % collection.name
+
     col_url = base_url + '/' + collection.name + '/view'
     node.name.content = collection.name
     node.name.atts['href'] = urllib.quote(col_url)
@@ -197,7 +200,6 @@ def render_collection(node, collection, base_url, indexer):
     node.held_form.atts['action']='/admin/collections/%s/toggle_held' % collection.name
     node.held_form.held_button.content = str(collection.indexing_held)
 
-    node.delete.atts['href'] = urllib.quote(col_url+'/confirm_delete')
 
 ###### Collection Detail Template ######
 
