@@ -48,6 +48,10 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
         self.mappings = {}
         self.update(*args, **kwargs)
         self._search_conn=None
+        self.indexing_due = False
+        self.indexing_held = False
+        self.file_count = 0
+        self.error_count = 0
         self.maybe_make_db()
 
     def __getstate__(self):
@@ -74,7 +78,6 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
         pairs = zip(self.paths, mappings)
         self.mappings = dict(filter (lambda (x, y): x !='', pairs))
         self.paths = filter(None, self.paths)
-        print self.paths, self.mappings
 
     def url_for_doc(self, doc_id):
         """ Use the mappings attribute of the collection to give the
@@ -102,7 +105,12 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
     def search_conn(self):
         if not self._search_conn:
             self._search_conn = xappy.SearchConnection(self.dbpath())
+        self._search_conn.reopen()
         return self._search_conn
+
+    @property
+    def document_count(self):
+        return self.search_conn().get_doccount()
 
     def dbpath(self):
         return os.path.join(flaxpaths.paths.dbs_dir, self.name + '.db')

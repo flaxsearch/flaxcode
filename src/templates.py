@@ -181,15 +181,21 @@ def render_collections_list(template, collections, base_url, indexer):
     template.main.collection.repeat(render_collection, collections, base_url, indexer)
 
 def render_collection(node, collection, base_url, indexer):
-    stat = indexer.get_status(collection)
     col_url = base_url + '/' + collection.name + '/view'
     node.name.content = collection.name
     node.name.atts['href'] = urllib.quote(col_url)
     node.description.content = collection.description
 
-    node.doc_count.content = str(stat['number_of_documents'])
-    #node.file_count.content = str(stat['number_of_files'])
-    node.status.content = str(stat['currently_indexing'])
+    indexing, file_count, error_count = indexer.indexing_info(collection)
+    node.doc_count.content = str(collection.document_count)
+    node.file_count.content = str(file_count)
+    node.error_count.content = str(error_count)
+    node.status.content = str("Yes" if indexing else "No")
+
+    node.due_form.atts['action']='/admin/collections/%s/toggle_due' % collection.name
+    node.due_form.due_button.content = str(collection.indexing_due)
+    node.held_form.atts['action']='/admin/collections/%s/toggle_held' % collection.name
+    node.held_form.held_button.content = str(collection.indexing_held)
 
     node.delete.atts['href'] = urllib.quote(col_url+'/confirm_delete')
 

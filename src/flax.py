@@ -25,7 +25,7 @@ import collection_list
 import flaxpaths
 import logclient
 
-current_version = 7
+current_version = 8
 
 class FlaxOptions(object):
     """Global options for Flax.

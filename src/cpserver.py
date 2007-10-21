@@ -63,14 +63,20 @@ class Collections(FlaxResource):
         self._detail_template = detail_template
         self._index_server = index_server
 
-    def _redirect_to_view(self, col):
-        raise cherrypy.HTTPRedirect('/admin/collections/' + col + '/view' )
+    def _redirect_to_view(self, col=None):
+        if col:
+            raise cherrypy.HTTPRedirect('/admin/collections/' + col + '/view' )
+        else:
+            raise cherrypy.HTTPRedirect('/admin/collections/')
+
 
     @cherrypy.expose
     def default(self, col_id=None, action=None, **kwargs):
         if col_id and action:
-            if action == 'do_indexing':
-                return self.do_indexing(col_id, **kwargs)
+            if action == 'toggle_due':
+                return self.toggle_due_or_held(col_id, **kwargs)
+            elif action == 'toggle_held':
+                return self.toggle_due_or_held(col_id, held=True, **kwargs)
             elif action == 'update':
                 return self.update(col_id, **kwargs)
             elif action == 'view':
@@ -80,15 +86,13 @@ class Collections(FlaxResource):
         else:
             return self.view()
 
-    def do_indexing(self, col=None, **kwargs):
+    def toggle_due_or_held(self, col=None, held=False, **kwargs):
         """
-        (Re)-index a document collection.
+        Set or clears one of the flags controlling collection indexing
 
         :Parameters:
             - `col`: Names the document collection to be indexed.
-
-        This method forces an immediate indexing of the document
-        collection named by the parameter `col`.
+            - `held`: If True set the held flag, otherwise the due flag.
 
         The HTTP method should be POST
 
@@ -101,8 +105,8 @@ class Collections(FlaxResource):
         self._only_post()
 
         if col and col in self._flax_data.collections:
-            self._index_server.do_indexing(self._flax_data.collections[col], self._flax_data.filter_settings)
-            self._redirect_to_view(col)
+            self._index_server.toggle_due_or_held(self._flax_data.collections[col], held)
+            return self._redirect_to_view()
         else:
             self._bad_collection_name(col)
 

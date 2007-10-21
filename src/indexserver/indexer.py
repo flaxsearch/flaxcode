@@ -13,6 +13,9 @@ sys.path.append('..')
 import dbspec
 import flaxpaths
 import util
+import flax
+import logclient
+import doc_collection
 
 try:
     import w32com_ifilter
@@ -23,7 +26,10 @@ except ImportError:
 import simple_text_filter
 import htmltotext_filter
 
-util.setup_psyco()
+log = logging.getLogger('indexing')
+
+
+#util.setup_psyco()
 
 class Indexer(object):
     """Perform indexing of a xapian database on demand.
@@ -36,22 +42,28 @@ class Indexer(object):
         if windows:
             self._filter_map["IFilter"] =  w32com_ifilter.remote_ifilter
 
-    def do_indexing(self, col_name, dbpath, filter_settings, files, status):
+    def do_indexing(self, col, filter_settings, continue_check):
+
         """Perform an indexing pass.
 
-        Index the database for col_name using filters given by
+        Index the database for col using filters given by
         filter_settings.  The filename is used as the document id, and
         this is used to remove documents in the database that no
-        longer have an associated file.  status is a proxy for a
-        remote dictionary to inform the web server about the state of
-        the indexer.
+        longer have an associated file.
+
+        
+        continue_check will be called before each file of the
+        collection is about to be processed. If it returns False then
+        indexing will stop and do_indexing will return False.
+
+        If do_indexing attempt to index all the files then it will return True.
+        
         """
-        status['currently_indexing'] = "Indexing"
-        status['number_of_files'] = 0
         conn = None
         try:
-            self.log = logging.getLogger('indexing')
-            self.log.info("Indexing collection: %s with filter settings: %s" % (col_name, filter_settings))
+            name = col.name
+            log.info("Indexing collection: %s with filter settings: %s" % (name, filter_settings))
+            dbname = col.dbpath()
 
             # This will error if the directory containing the databases has
             # disappeared, but that's probably a good thing - the document
@@ -60,35 +72,39 @@ class Indexer(object):
             # collection's problem not the indexer's.
             # FIXME - we should really test for the error though, so we can
             # give a better error message.
-            conn = xappy.IndexerConnection(dbpath)
-            status['number_of_documents'] = conn.get_doccount()
-            print status
+            conn = xappy.IndexerConnection(dbname)
+            
             docs_found = dict((id, False) for id in conn.iterids())
 
-            for f in files:
-                self._process_file(f, conn, col_name, filter_settings, status)
+            error_count = file_count = 0
+            for f in col.files():
+                if not self._process_file(f, conn, name, filter_settings):
+                    error_count += 1
+                file_count += 1
                 docs_found[f]=True
-                status['number_of_files'] += 1
+                if not continue_check(file_count, error_count):
+                    return False
 
             for id, found in docs_found.iteritems():
                 if not found:
-                    self.log.info("Removing %s from %s" % (id, col_name))
+                    log.info("Removing %s from %s" % (id, name))
                     conn.delete(id)
-                    status['number_of_documents'] = conn.get_doccount()
+                    continue_check(file_count, error_count)
 
-            conn.flush()
-
-            self.log.info("Indexing of %s finished" % col_name)
+            log.info("Indexing of %s finished" % name)
+            return True
+            
         except xappy.XapianDatabaseLockError, e:
-            self.log.error("Attempt to index locked database: %s, ignoring" % dbpath)
+            log.error("Attempt to index locked database: %s, ignoring" % dbpath)
         except Exception, e:
-            self.log.error("Unhandled error in do_indexing: %s" % str(e))
+            log.error("Unhandled error in do_indexing: %s" % str(e))
             import traceback
             traceback.print_exc()
+            raise
         finally:
-            status['currently_indexing'] = "Indexed"
             if conn:
                 conn.close()
+                
 
     def _find_filter(self, filter_name):
         return self._filter_map[filter_name] if filter_name in self._filter_map else None
@@ -100,22 +116,23 @@ class Indexer(object):
 
         """
         if field_name in dbspec.internal_fields():
-            self.log.error("Filters are not permitted to add content to the field: %s, rejecting block" % field_name)
+            log.error("Filters are not permitted to add content to the field: %s, rejecting block" % field_name)
             return False
         else:
             return True
 
-    def _process_file(self, file_name, conn, collection_name, filter_settings, status):
+    def _process_file(self, file_name, conn, collection_name, filter_settings):
         """ Extract text from a file, make a xapian document and add
-        it to the database.
+        it to the database. Return True if complete succesfully, False
+        otherwise.
         """
-        self.log.info("Indexing collection %s: processing file: %s" % (collection_name, file_name))
+        log.info("Indexing collection %s: processing file: %s" % (collection_name, file_name))
         unused, ext = os.path.splitext(file_name)
         ext = ext.lower()
         if self.stale(file_name, conn):
             filter = self._find_filter(filter_settings[ext[1:]])
             if filter:
-                self.log.debug("Filtering file %s using filter %s" % (file_name, filter))
+                log.debug("Filtering file %s using filter %s" % (file_name, filter))
                 fixed_fields = ( ("filename", file_name),
                                  ("nametext", os.path.basename(file_name)),
                                  ("collection", collection_name),
@@ -130,16 +147,19 @@ class Indexer(object):
                     doc = xappy.UnprocessedDocument(fields = fields)
                     doc.id = file_name
                     conn.replace(doc)
-                    status['number_of_documents'] = conn.get_doccount()
-                    self.log.debug("Added (or replaced) doc %s to collection %s with text from source file %s" %
+                    log.debug("Added (or replaced) doc %s to collection %s with text from source file %s" %
                                   (doc.id, collection_name, file_name))
+                    return True
                 except Exception, e:
-                    self.log.error("Filtering file: %s with filter: %s raised exception %s, skipping"
+                    log.error("Filtering file: %s with filter: %s raised exception %s, skipping"
                                    % (file_name, filter, e))
+                    return False
             else:
-                self.log.warn("Filter for %s is not valid, not filtering file: %s" % (ext, file_name))
+                log.warn("Filter for %s is not valid, not filtering file: %s" % (ext, file_name))
+                return False
         else:
-            self.log.debug("File: %s has not changed since last indexing, not filtering" % file_name)
+            log.debug("File: %s has not changed since last indexing, not filtering" % file_name)
+            return True
 
     def stale(self, file_name, conn):
         "Has the file named by file_name has changed since we last indexed it?"
@@ -152,80 +172,127 @@ class Indexer(object):
         try:
             rv =  os.path.getmtime(file_name) != float(doc.data['mtime'][0])
         except KeyError:
-            self.log.error("Existing document %s has no mtime field" % doc.id)
+            log.error("Existing document %s has no mtime field" % doc.id)
             return True
         return rv
 
-def index_server_loop(indexingio, logconfio, logconf_path):
-    import logclient
-    logclient.LogListener(logconfio)
-    logclient.LogConf(logconf_path).update_log_config()
-    indexer = Indexer()
-    while True:
-        args=indexingio.recv()
-        indexer.do_indexing(*args)
 
-class IndexServer(object):
-    """ Manages the indexing of Flax databases in a child process and
-    provides information about the state of collection indexing.
+class IndexServer(processing.Process):
+    """ The indexing process.  Controls a remote indexer and provides
+    methods for interacting with it.
     """
+
     def __init__(self):
+        processing.Process.__init__(self)
+        self.setDaemon(True)
         self.logconfio = processing.Pipe()
-        self.indexingio = processing.Pipe()
-        self.syncman = processing.Manager()
-        self.status_dict = dict()
-        server = processing.Process(target=index_server_loop,
-                                    name="IndexServer",
-                                    args=(self.indexingio[1],
-                                          self.logconfio[1],
-                                          flaxpaths.paths.logconf_path))
-        server.setDaemon(True)
-        server.start()
+        self.inpipe = processing.Pipe()
+        self.outpipe = processing.Pipe()
+        self.syncman = processing.LocalManager()
+        self.error_count_sv = self.syncman.SharedValue('i',0)
+        self.file_count_sv = self.syncman.SharedValue('i', 0)
+        self.stop_sv = self.syncman.SharedValue('i', 0)
+        self.currently_indexing = None
+        self.hints = set()
+        self.start()
 
-    def maybe_initialise_status(self, col):
-        if col.name not in self.status_dict:
-            search_conn = col.search_conn()
-            d = self.syncman.dict()
+    def run(self):
+        logclient.LogListener(self.logconfio[1]).start()
+        logclient.LogConf(flaxpaths.paths.logconf_path).update_log_config()
+        indexer = Indexer()
+        while True:
+            collection, filter_settings = self.inpipe[1].recv()
+            self.outpipe[0].send(indexer.do_indexing(collection, filter_settings, self.continue_check))
 
-            d['currently_indexing'] = "Unknown"
-            d['number_of_documents'] = search_conn.get_doccount()
-            d['number_of_files'] = -1
-            self.status_dict[col.name] = d
+    def continue_check(self, file_count, error_count):
+        self.file_count_sv.value = file_count
+        self.error_count_sv.value = error_count
+        return not self.stop_sv.value
+            
+    def do_indexing(self, collection):
+        assert not self.currently_indexing
+        assert not self.stop_sv.value
+        self.hints.discard(collection)
+        collection.indexing_due = False
+        self.currently_indexing = collection
+        self.error_count_sv.value = 0
+        self.file_count_sv.value = 0
+        self.inpipe[0].send((collection, flax.options.filter_settings))
+        # block here for a result
+        # the return value shows whether we finished, or were prematurely stopped
+        collection.indexing_due = not self.outpipe[1].recv()        
+        collection.file_count = self.file_count_sv.value
+        collection.error_count = self.error_count_sv.value
+        self.stop_sv.value = False
+        self.currently_indexing = None
+                
+    def async_do_indexing(self, collection):
+        # call do_indexing in a separate thread and return.
+        util.AsyncFunc(self.do_indexing)(collection)
 
-
-    def do_indexing(self, col, filter_settings):
-        self.maybe_initialise_status(col)
-        self.indexingio[0].send((col.name,
-                                 col.dbpath(),
-                                 filter_settings,
-                                 list(col.files()),
-                                 self.status_dict[col.name]))
-
-    @property
-    def logconf_input(self):
-        return self.logconfio[0]
-
-    def get_status(self, col):
-        """Returns the status of the indexing for the collection supplied.
-
-        This is initialised from static information about the
-        collection and then the indexer updates this information
-        whilst it's running for a given collection
-
-        The value is a dictionary with keys and values as follows:
-
-         - currently_indexing: A string that describes what the
-           indexer is doing, or has done, with this collection.
-
-         - number_of_documents: The number of documents in the collection.
-
-         - number_of_files: The number of source files for documents in the
-           collection.  If currently_indexing is true this is the number of
-           files that we have tried to index so far. If the currently_indexing
-           is False it is the total considered at the last indexing run. Note
-           the number_of_files can exceed number_of_documents, since (e.g.)
-           corrupt files might not be added to the database.
-
+    def indexing_info(self, collection):
+        """ Returns a triple of indexing information for the collection updated in real time
+        for an indexing collection, or the cached values from last indeding otherwise
+        
+        currently_indexing: True iff collection is currently indexing
+        file_count: number of files 
+        error_count: number of files that generate errors.
         """
-        self.maybe_initialise_status(col)
-        return self.status_dict[col.name]
+        if collection is self.currently_indexing:
+            return True, self.file_count_sv.value, self.error_count_sv.value
+        else:
+            return False, collection.file_count, collection.error_count
+
+    def ok_to_index(self, collection):
+        assert isinstance(collection, doc_collection.DocCollection)
+        return collection.indexing_due and not collection.indexing_held
+
+    def start_indexing(self, hint = None):
+        """ Select a collection for indexing and start indexing
+        it. Prefer the collection passed in hint (if any). If there is
+        already a collection indexing do nothing.
+        """
+        assert not hint or isinstance(hint, doc_collection.DocCollection)
+        if self.currently_indexing:
+            if hint:
+                if hint.indexing_due:
+                    self.hints.add(hint)
+                else:
+                    self.hints.discard(hint)
+            return
+
+        for col in itertools.chain([hint] if hint else [], self.hints, flax.options.collections.itervalues()):
+            if self.ok_to_index(col):
+                self.async_do_indexing(col)
+                break
+
+    def hold_indexing(self, collection):
+        if self.currently_indexing and self.currently_indexing == collection:
+            self.stop_sv.value = True
+        collection.indexing_held = True
+
+    def unhold_indexing(self, collection):
+        collection.indexing_held = False
+        self.start_indexing(collection)
+
+    def set_due(self, collection):
+        collection.indexing_due = True
+        self.start_indexing(collection)
+
+    def unset_due(self, collection):
+        collection.indexing_due = False
+        self.start_indexing(collection)
+
+    # convenience function
+    def toggle_due_or_held(self, collection, held):
+        assert isinstance(collection, doc_collection.DocCollection)
+        if held:
+            if collection.indexing_held:
+                self.unhold_indexing(collection)
+            else:
+                self.hold_indexing(collection)
+        else:
+            if collection.indexing_due:
+                self.unset_due(collection)
+            else:
+                self.set_due(collection)

@@ -15,8 +15,11 @@
         <th class="col_del"></th>
         <th class="col_name">Name</th>
         <th class="col_desc">Description</th>
-        <th class="col_status">Status</th>
-        <th class="col_docs">Documents</th>
+        <th class="col_status">Indexing?</th>
+        <th class="col_due">Indexing Due</th>
+        <th class="col_held">Indexing Held</th>
+        <th class="col_docs">Docs</th>
+        <th class="col_files">Files</th>
         <th class="col_errors">Errors</th>
       </tr>
     </thead>
@@ -32,14 +35,17 @@
         </td>
         <td class="col_desc" node="con:description"></td>
         <td class="col_status" node="con:status"></td>
+        <td class="col_due"><form node="con:due_form" method="POST" action="toggle_due"><button node="con:due_button">Due</button></form></td>
+        <td class="col_held"><form node="con:held_form" method="POST" action="toggle_hold"><button node="con:held_button">Held</button></form></td>
         <td class="col_docs" node="con:doc_count"></td>
+        <td class="col_docs" node="con:file_count"></td>
         <td class="col_errors" node="con:error_count"></td>
       </tr>
     </tbody>
   </table>
 
   <p>
-    <a href="collections/new">Create a new collection </a>
+    <a href="/admin/collections/new">Create a new collection </a>
   </p>
 
   <!-- move this to a separate help document - it's a bit intrusive here -->
@@ -52,7 +58,6 @@
       <li>The name of the collection and a link to the detail page for that collection.</li>
       <li>The description of the collection.</li>
     </ol>
-    Note finally the last row. This allows you to enter data for a new collection and create it.
   </p>
 
 

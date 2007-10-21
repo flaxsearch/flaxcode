@@ -9,6 +9,7 @@ import time
 import thread
 import threading
 import re
+import functools
 
 def listify(obj):
     return obj if isinstance(obj, list) else [obj]
@@ -96,7 +97,7 @@ class AsyncFunc(object):
     """ Invoke a callable asynchronously and pass it's return value to
     a supplied callback when it completes.
     """
-    def __init__(self, func, result_callback):
+    def __init__(self, func, result_callback = lambda x : x):
         """ func is the function (callable) to be called,
         result_callback will be passed the return value of func.
         """
@@ -109,4 +110,3 @@ class AsyncFunc(object):
         call_back with the return value when of func when it returns.
         """
         thread.start_new_thread(lambda: self.result_callback(self.func(*args, **kwargs)), ())
-

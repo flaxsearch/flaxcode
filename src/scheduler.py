@@ -13,7 +13,6 @@ import flax
 import util
 import logging
 
-
 class ScheduleIndexing(util.DelayThread):
 
     def __init__(self,  indexserver, delay=60, **kwargs):
@@ -27,5 +26,5 @@ class ScheduleIndexing(util.DelayThread):
         for collection in flax.options.collections.itervalues():
             if collection.matching_time(now):
                 self.log.info('Collection: %s, due for indexing, creating request' % collection.name)
-                self.indexserver.do_indexing(collection, flax.options.filter_settings)
+                self.indexserver.set_due(collection)
 
