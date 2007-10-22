@@ -27,6 +27,7 @@ class FlaxPaths(object):
 
     The directory paths stored in this module are:
 
+     - src_dir: the directory where our source files are
      - dbs_dir: the parent directory under which databases are created.
      - log_dir: the directory in which logs are stored.
      - conf_dir: the directory in which configuration files are stored.
@@ -44,7 +45,7 @@ class FlaxPaths(object):
     def __init__(self):
         self.src_dir = os.path.dirname(__file__)
 
-    def set_dirs(self, main_dir=None,
+    def set_dirs(self, main_dir=None, src_dir=None,
                  dbs_dir=None, log_dir=None, conf_dir=None, var_dir=None):
         """Set the directories for Flax to use.
 
@@ -57,6 +58,7 @@ class FlaxPaths(object):
          - var_dir: the directory in which persistent runtime state is stored.
 
         """
+        self.src_dir = src_dir
         self.dbs_dir = dbs_dir
         self.log_dir = log_dir
         self.conf_dir = conf_dir
@@ -70,6 +72,8 @@ class FlaxPaths(object):
                 raise ValueError("main_dir must be specified unless all "
                                  "specific configuration directories are.")
 
+        if self.src_dir is None:
+            self.src_dir = main_dir
         if self.dbs_dir is None:
             self.dbs_dir = os.path.join(main_dir, 'dbs')
         if self.log_dir is None:
