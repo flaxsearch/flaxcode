@@ -175,6 +175,7 @@ class FlaxMain():
 
 
 if __name__ == "__main__":
+    processing.freezeSupport()
     options = parse_cli_opts()
     main = FlaxMain(options)
     main.start(blocking=True)
