@@ -114,7 +114,7 @@ class FlaxMain():
 
         flax.options = persist.read_flax(flaxpaths.paths.flaxstate_path)
         webserver_logconfio = processing.Pipe()
-        index_server = indexer.IndexServer()
+        index_server = indexer.IndexServer(flaxpaths.paths.logconf_path)
         logclient.LogConfPub(flaxpaths.paths.logconf_path,
                              [webserver_logconfio[0], index_server.logconfio[0]])
         logclient.LogListener(webserver_logconfio[1]).start()

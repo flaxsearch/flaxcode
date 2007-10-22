@@ -182,7 +182,7 @@ class IndexServer(processing.Process):
     methods for interacting with it.
     """
 
-    def __init__(self):
+    def __init__(self, logconfpath):
         processing.Process.__init__(self)
         self.setDaemon(True)
         self.logconfio = processing.Pipe()
@@ -194,11 +194,12 @@ class IndexServer(processing.Process):
         self.stop_sv = self.syncman.SharedValue('i', 0)
         self.currently_indexing = None
         self.hints = set()
+        self.logconfpath = logconfpath
         self.start()
 
     def run(self):
         logclient.LogListener(self.logconfio[1]).start()
-        logclient.LogConf(flaxpaths.paths.logconf_path).update_log_config()
+        logclient.LogConf(self.logconfpath).update_log_config()
         indexer = Indexer()
         while True:
             collection, filter_settings = self.inpipe[1].recv()
