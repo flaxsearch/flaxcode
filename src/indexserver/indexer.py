@@ -3,13 +3,12 @@ import itertools
 import logging
 import os
 import time
+import threading
 
 import setuppaths
 import processing
 import xappy
 
-import sys
-sys.path.append('..')
 import dbspec
 import flaxpaths
 import util
@@ -84,6 +83,7 @@ class Indexer(object):
                 docs_found[f]=True
                 if not continue_check(file_count, error_count):
                     return False
+                conn.flush()
 
             for id, found in docs_found.iteritems():
                 if not found:
@@ -180,6 +180,10 @@ class Indexer(object):
 class IndexServer(processing.Process):
     """ The indexing process.  Controls a remote indexer and provides
     methods for interacting with it.
+
+    Note that the logic for controlling the execution of the indexer
+    all runs in the main process (the one creating the IndexServer
+    object).
     """
 
     def __init__(self, logconfpath):
@@ -191,8 +195,12 @@ class IndexServer(processing.Process):
         self.syncman = processing.LocalManager()
         self.error_count_sv = self.syncman.SharedValue('i',0)
         self.file_count_sv = self.syncman.SharedValue('i', 0)
+
+        # changes to stop_sv and currently indexing should be atomic - use this lock to ensure so.
+        self.state_lock = threading.Lock() 
         self.stop_sv = self.syncman.SharedValue('i', 0)
         self.currently_indexing = None
+
         self.hints = set()
         self.logconfpath = logconfpath
         self.start()
@@ -224,8 +232,9 @@ class IndexServer(processing.Process):
         collection.indexing_due = not self.outpipe[1].recv()        
         collection.file_count = self.file_count_sv.value
         collection.error_count = self.error_count_sv.value
-        self.stop_sv.value = False
-        self.currently_indexing = None
+        with self.state_lock:
+            self.stop_sv.value = False
+            self.currently_indexing = None
                 
     def async_do_indexing(self, collection):
         # call do_indexing in a separate thread and return.
@@ -267,10 +276,19 @@ class IndexServer(processing.Process):
                 self.async_do_indexing(col)
                 break
 
+    def stop_indexing(self, collection):
+        """Stop indexing collection if it is currently indexing,
+        otherwise do nothing"""
+        
+        with self.state_lock:
+            if self.currently_indexing is collection:
+                self.stop_sv.value = True
+        # stopping collection might mean another can now be indexed..:
+        self.start_indexing()
+
     def hold_indexing(self, collection):
-        if self.currently_indexing and self.currently_indexing == collection:
-            self.stop_sv.value = True
         collection.indexing_held = True
+        self.stop_indexing(collection)
 
     def unhold_indexing(self, collection):
         collection.indexing_held = False
@@ -283,7 +301,7 @@ class IndexServer(processing.Process):
     def unset_due(self, collection):
         collection.indexing_due = False
         self.start_indexing(collection)
-
+        
     # convenience function
     def toggle_due_or_held(self, collection, held):
         assert isinstance(collection, doc_collection.DocCollection)

@@ -143,6 +143,7 @@ class Collections(FlaxResource):
             collection = self._flax_data.collections[col]
             collection.update(**kwargs)
             self._signal_data_changed()
+            self._index_server.stop_indexing(collection)
             self._index_server.set_due(collection)
             self._redirect_to_view(col)
         else:
