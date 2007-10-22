@@ -136,6 +136,7 @@ class FlaxService(win32serviceutil.ServiceFramework):
         # Set options according to our configuration, and create the class
         # which manages starting and stopping the flax threads and processes.
         self._options = start.StartupOptions(main_dir = runtimepath,
+                                             src_dir = runtimepath,
                                              dbs_dir = datapath)
         self._flax_main = start.FlaxMain(self._options)
         
