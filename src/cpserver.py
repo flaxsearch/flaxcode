@@ -154,7 +154,6 @@ class Collections(FlaxResource):
             if col is None:
                 self._bad_request("A collection name must be provided for new collections")
             elif col in self._flax_data.collections:
-                # FIXME - handle this error more nicely.
                 self._bad_request("The collection name is already in use")
             else:
                 self._flax_data.collections.new_collection(col, **kwargs)
