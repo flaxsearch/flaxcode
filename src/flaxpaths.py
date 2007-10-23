@@ -42,9 +42,6 @@ class FlaxPaths(object):
             cls._the_instance = object.__new__(cls)
         return cls._the_instance
 
-    def __init__(self):
-        self.src_dir = os.path.dirname(__file__)
-
     def set_dirs(self, main_dir=None, src_dir=None,
                  dbs_dir=None, log_dir=None, conf_dir=None, var_dir=None):
         """Set the directories for Flax to use.
@@ -58,7 +55,7 @@ class FlaxPaths(object):
          - var_dir: the directory in which persistent runtime state is stored.
 
         """
-        self.src_dir = src_dir
+        self.src_dir = src_dir if src_dir else os.path.dirname(__file__)
         self.dbs_dir = dbs_dir
         self.log_dir = log_dir
         self.conf_dir = conf_dir

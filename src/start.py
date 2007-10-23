@@ -97,7 +97,7 @@ class FlaxMain():
     """
     def __init__(self, options):
         paths = flaxpaths.paths
-        paths.set_dirs(options.main_dir, options.dbs_dir, options.log_dir,
+        paths.set_dirs(options.main_dir, None, options.dbs_dir, options.log_dir,
                        options.conf_dir, options.var_dir)
         paths.makedirs()
         self._need_cleanup = False
