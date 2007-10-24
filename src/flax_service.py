@@ -18,7 +18,7 @@
 """
 __docformat__ = "restructuredtext en"
 
-import regutil
+
 import servicemanager
 import win32api
 import win32con
@@ -30,70 +30,18 @@ import win32evtlogutil
 import os
 import sys
 
-# We need to do a lot of messing about with paths, as when running as a service
-# it's not clear what our actual path is. The path to the executable is set in
-# the Registry by the installation script.
+from servicemanager import LogInfoMsg
 
-REGKEY_BASE = "SOFTWARE\\Lemur Consulting Ltd\\Flax\\"
+# Get any Registry settings
+from flax_w32 import FlaxRegistry
+_reg = FlaxRegistry()
 
-# Get the path to the installed application from the Registry 
-try:
-    runtimepath = win32api.RegQueryValue(regutil.GetRootKey(),
-                                        REGKEY_BASE + "RuntimePath")
-except:
-    runtimepath = r"c:\Program Files\Flax"
-# We need to do the following so we can load any further modules
-sys.path.insert(0,runtimepath)
-
-# Get the path to the data folder from the Registry
-try:
-    datapath = win32api.RegQueryValue(regutil.GetRootKey(),
-                                      REGKEY_BASE + "DataPath")
-except:
-    datapath = r"c:\Program Files\Flax"
-
-# We have to set sys.executable to a normal Python interpreter.  It won't point
+# We have to set sys.executable to a normal Python interpreter.  It may not point
 # to one because we will have been run by PythonService.exe (and sys.executable
 # will be the path to that executable).  However, the "processing" extension
 # module uses sys.executable to emulate a fork, and needs it to be the correct
-# python interpreter.  We'll try to read it from a registry entry, and try
-# making it up otherwise.
-try:
-    try:
-        exepath = win32api.RegQueryValue(regutil.GetRootKey(),
-                                         REGKEY_BASE + "PythonExePath")
-    except:
-        exepath = win32api.RegQueryValue(regutil.GetRootKey(),
-                                         regutil.BuildDefaultPythonKey())
-    # If exepath points to a directory, add the name of the default python
-    # interpreter to get a path to a file.
-    if os.path.isdir(exepath):
-        exepath = os.path.join(exepath, 'Python.exe')
-    if not os.path.exists(exepath):
-        raise ValueError("Python installation not complete (interpreter not "
-                         "found at %s)" % exepath)
-except:
-    # No useful registry entries; try looking for Python.exe in the parents of
-    # the current value of sys.executable.
-    exedir = sys.executable
-    while True:
-        newdir = os.path.dirname(exedir)
-        if newdir == exedir:
-            break
-        exedir = newdir
-        exepath = os.path.join(exedir, 'Python.exe')
-        if os.path.exists(exepath):
-            break
-    if not os.path.exists(exepath):
-        raise ValueError("Cannot find python executable (looked in parent "
-                         "directories of %s)" % os.path.dirname(sys.executable))
-sys.executable = exepath
-
-# TODO - fix up any other paths
-
-# Prevent buffer overflows by redirecting stdout & stderr to a file
-stdoutpath = os.path.join(datapath, 'flax_stdout.log')
-stderrpath = os.path.join(datapath, 'flax_stderr.log')
+# python interpreter.  .
+sys.executable = _reg.executablepath
 
 # The "processing" module attempts to set a signal handler (by calling
 # signal.signal).  However, this is not possible when we're installing as a
@@ -116,7 +64,7 @@ signal.signal = _dummy_signal
 # wrong with 0.35 if the following two lines aren't used.
 if __name__ != '__main__':
     sys.argv[0] = ''
-
+    
 # Import start module, which implements starting and stopping Flax.
 import start
 import processing
@@ -133,30 +81,15 @@ class FlaxService(win32serviceutil.ServiceFramework):
         
         self.hWaitStop = win32event.CreateEvent(None, 0, 0, None)
 
+        LogInfoMsg('The Flax service is initialising.')
+
         # Set options according to our configuration, and create the class
         # which manages starting and stopping the flax threads and processes.
-        self._options = start.StartupOptions(main_dir = runtimepath,
-                                             src_dir = runtimepath,
-                                             dbs_dir = datapath)
+        self._options = start.StartupOptions(main_dir = _reg.runtimepath,
+                                             dbs_dir = _reg.datapath)
         self._flax_main = start.FlaxMain(self._options)
+        LogInfoMsg('The Flax service is initialised.')
         
-    def logmsg(self, event):
-        """Log a service event using servicemanager.LogMsg
-
-        """
-        try:
-            servicemanager.LogMsg(servicemanager.EVENTLOG_INFORMATION_TYPE,
-                                  event,
-                                  (self._svc_name_,
-                                   " (%s)" % self._svc_display_name_))
-        except win32api.error, details:
-            # Failed to write a log entry - most likely problem is
-            # that the event log is full.  We don't want this to kill us.
-            try:
-                print "FAILED to write INFO event", event, ":", details
-            except IOError:
-                pass        
-
     def SvcStop(self):
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
         win32event.SetEvent(self.hWaitStop)
@@ -169,12 +102,12 @@ class FlaxService(win32serviceutil.ServiceFramework):
 
     def SvcDoRun(self):
         # Write a 'started' event to the event log...
-        self.logmsg(servicemanager.PYS_SERVICE_STARTED)
+        LogInfoMsg('The Flax service has started.')
 
         # Redirect stdout and stderr to avoid buffer overflows and to allow
         # debugging while acting as a service
-        sys.stderr = open(stderrpath, 'w')
-        sys.stdout = open(stdoutpath, 'w')
+        sys.stderr = open(os.path.join(_reg.datapath, 'flax_stderr.log'), 'w')
+        sys.stdout = open(os.path.join(_reg.datapath, 'flax_stdout.log'), 'w')
         
         # Start flax, non-blocking.
         self._flax_main.start(blocking = False)
@@ -183,6 +116,7 @@ class FlaxService(win32serviceutil.ServiceFramework):
         # Wait for message telling us that we're stopping.
         win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
 
+        LogInfoMsg('The Flax service is stopping.')
         # Wait for the service to stop (and reassure windows that we're still
         # trying to stop).
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING, 5000)
@@ -199,7 +133,7 @@ class FlaxService(win32serviceutil.ServiceFramework):
         processing.process._exit_func()
 
         # Tell windows that we've stopped.
-        self.logmsg(servicemanager.PYS_SERVICE_STOPPED)
+        LogInfoMsg('The Flax service has stopped.')
         
 def ctrlHandler(ctrlType):
     """A windows control message handler.
