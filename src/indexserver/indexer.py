@@ -196,8 +196,13 @@ class IndexServer(processing.Process):
         self.error_count_sv = self.syncman.SharedValue('i',0)
         self.file_count_sv = self.syncman.SharedValue('i', 0)
 
+        # Note that although this lock is only used in the main
+        # process on windows instances of this class are pickled so we
+        # have to use processing.Lock rather than threading.Lock. (On
+        # linux threading.Lock is fine.)
+
         # changes to stop_sv and currently indexing should be atomic - use this lock to ensure so.
-        self.state_lock = threading.Lock() 
+        self.state_lock = processing.Lock() 
         self.stop_sv = self.syncman.SharedValue('i', 0)
         self.currently_indexing = None
 
