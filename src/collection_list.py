@@ -22,6 +22,7 @@ import logging
 import types
 
 import doc_collection
+import flaxpaths
 import search
 
 log = logging.getLogger("collection")
@@ -38,7 +39,7 @@ class CollectionList(object):
     def new_collection(self, name, **kwargs):
         if isinstance(name, types.StringType) and not self._collections.has_key(name):
             log.info("Creating new collection: %s" % name)
-            col = doc_collection.DocCollection(name)
+            col = doc_collection.DocCollection(name, flaxpaths.paths.dbs_dir)
             self._collections[name] = col
             if 'formats' not in kwargs:
                 kwargs['formats'] = self.formats
