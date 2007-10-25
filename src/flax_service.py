@@ -36,13 +36,6 @@ from servicemanager import LogInfoMsg
 from flax_w32 import FlaxRegistry
 _reg = FlaxRegistry()
 
-# We have to set sys.executable to a normal Python interpreter.  It may not point
-# to one because we will have been run by PythonService.exe (and sys.executable
-# will be the path to that executable).  However, the "processing" extension
-# module uses sys.executable to emulate a fork, and needs it to be the correct
-# python interpreter.  .
-sys.executable = _reg.executablepath
-
 # The "processing" module attempts to set a signal handler (by calling
 # signal.signal).  However, this is not possible when we're installing as a
 # service, since signal.signal only works in the main thread, and we are run in
@@ -64,10 +57,16 @@ signal.signal = _dummy_signal
 # wrong with 0.35 if the following two lines aren't used.
 if __name__ != '__main__':
     sys.argv[0] = ''
-    
-# Import start module, which implements starting and stopping Flax.
-import start
+
+# Before importing the Processing module we have to set sys.executable to point 
+# at the command-line version of Flax. This means the Processing module will correctly
+# run new processes via the freezeSupport() method. However we can't leave it as this 
+# as Py2exe expects it to be set to the path to the Service executable it builds.
+oldsysexec = sys.executable
+sys.executable = _reg.runtimepath + '/startflax.exe'
+import startflax
 import processing
+sys.executable = oldsysexec
 
 class FlaxService(win32serviceutil.ServiceFramework):
 
@@ -85,11 +84,13 @@ class FlaxService(win32serviceutil.ServiceFramework):
 
         # Set options according to our configuration, and create the class
         # which manages starting and stopping the flax threads and processes.
-        self._options = start.StartupOptions(main_dir = _reg.runtimepath,
-                                             dbs_dir = _reg.datapath)
-        self._flax_main = start.FlaxMain(self._options)
-        LogInfoMsg('The Flax service is initialised.')
+        self._options = startflax.StartupOptions(main_dir = _reg.runtimepath,
+                                                 src_dir = _reg.runtimepath,
+                                                 dbs_dir = _reg.datapath)
+        self._flax_main = startflax.FlaxMain(self._options)
         
+        LogInfoMsg('The Flax service is initialised.')
+            
     def SvcStop(self):
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
         win32event.SetEvent(self.hWaitStop)
@@ -147,6 +148,7 @@ def ctrlHandler(ctrlType):
     """
     return True
 
+# Note that this method is never run in the 'frozen' executable, however it may be used for debugging
 if __name__ == '__main__':
     processing.freezeSupport()
     win32api.SetConsoleCtrlHandler(ctrlHandler, True)
