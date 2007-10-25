@@ -25,6 +25,7 @@ import os
 import sys
 
 REGKEY_BASE = "SOFTWARE\\Lemur Consulting Ltd\\Flax\\"
+DEFAULT_INSTALL_DIR = r"c:\Program Files\Flax"
 
 class FlaxRegistry(object):
     """Encapsulate all the settings we read from the Registry
@@ -37,52 +38,16 @@ class FlaxRegistry(object):
 
         self.runtimepath = None
         self.datapath = None
-        self.executablepath = None
 
         try:
             self.runtimepath = win32api.RegQueryValue(regutil.GetRootKey(),
                                             REGKEY_BASE + "RuntimePath")
         except:
-            self.runtimepath = r"c:\Program Files\Flax"
+            self.runtimepath = DEFAULT_INSTALL_DIR
     
         try:
             self.datapath = win32api.RegQueryValue(regutil.GetRootKey(),
                                         REGKEY_BASE + "DataPath")
         except:
-            self.datapath = r"c:\Program Files\Flax"
+            self.datapath = DEFAULT_INSTALL_DIR
 
-        # When running as a Service we need to know where our interpreter is: try and read from the
-        # Registry, if this fails try and look somewhere else
-        try:
-            try:
-                exepath = win32api.RegQueryValue(regutil.GetRootKey(),
-                                                REGKEY_BASE + "PythonExePath")
-            except:
-                exepath = win32api.RegQueryValue(regutil.GetRootKey(),
-                                                regutil.BuildDefaultPythonKey())
-            # If exepath points to a directory, add the name of the default python
-            # interpreter to get a path to a file.
-            if os.path.isdir(exepath):
-                exepath = os.path.join(exepath, 'Python.exe')
-            if not os.path.exists(exepath):
-                raise ValueError("Python installation not complete (interpreter not "
-                                "found at %s)" % exepath)
-        except: 
-            # No useful registry entries; try looking for Python.exe in the parents of
-            # the current value of sys.executable.
-            exedir = sys.executable
-            while True:
-                newdir = os.path.dirname(exedir)
-                if newdir == exedir:
-                    break
-                exedir = newdir
-                exepath = os.path.join(exedir, 'Python.exe')
-                if os.path.exists(exepath):
-                    break
-            if not os.path.exists(exepath):
-                raise ValueError("Cannot find python executable (looked in parent "
-                                 "directories of %s)" % os.path.dirname(sys.executable))
-
-        self.executablepath = exepath
-    
-    
