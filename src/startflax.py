@@ -43,6 +43,7 @@ class StartupOptions(object):
 
     """
     main_dir = None
+    src_dir = None
     dbs_dir = None
     log_dir = None
     conf_dir = None
@@ -55,6 +56,7 @@ class StartupOptions(object):
 def parse_cli_opts():
     op = optparse.OptionParser()
     windows = (sys.platform == "win32")
+    # On Windows, we use the paths set in the Registry unless overridden by a command line option
     if windows:
         import flax_w32
         reg = flax_w32.FlaxRegistry()
@@ -63,6 +65,10 @@ def parse_cli_opts():
                   dest = 'main_dir',
                   help = 'Flax main directory',
                   default = reg.runtimepath if windows else os.path.join(os.path.dirname(__file__), 'data'))
+    op.add_option('--src-dir',
+                  dest = 'src_dir',
+                  help = 'Flax code directory',
+                  default = reg.runtimepath if windows else os.path.dirname(__file__))
     op.add_option('--dbs-dir',
                   dest = 'dbs_dir',
                   help = 'Flax database directory (default is <main>/dbs)',
@@ -81,6 +87,7 @@ def parse_cli_opts():
                   default = None)
     (options, args) = op.parse_args()
     return StartupOptions(main_dir = options.main_dir,
+                          src_dir = options.src_dir,
                           dbs_dir = options.dbs_dir,
                           log_dir = options.log_dir,
                           conf_dir = options.conf_dir,
@@ -101,7 +108,7 @@ class FlaxMain():
     """
     def __init__(self, options):
         paths = flaxpaths.paths
-        paths.set_dirs(options.main_dir, None, options.dbs_dir, options.log_dir,
+        paths.set_dirs(options.main_dir, options.src_dir, options.dbs_dir, options.log_dir,
                        options.conf_dir, options.var_dir)
         paths.makedirs()
         self._need_cleanup = False
