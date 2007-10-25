@@ -84,22 +84,5 @@ class FlaxRegistry(object):
                                  "directories of %s)" % os.path.dirname(sys.executable))
 
         self.executablepath = exepath
-
-
-        
-# Import start module, which implements starting and stopping Flax.
-import start     
-import processing                       
-    
-if __name__ == "__main__":
-    processing.freezeSupport()
-    
-    _reg = FlaxRegistry()
-    # Set options according to our configuration, and create and start the class
-    # which manages starting and stopping the flax threads and processes.
-    _options = start.StartupOptions(main_dir = _reg.runtimepath,
-                                    dbs_dir = _reg.datapath)
-    _flax_main = start.FlaxMain(_options)    
-    _flax_main.start(blocking = True)
     
     

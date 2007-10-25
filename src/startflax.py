@@ -23,6 +23,7 @@ __docformat__ = "restructuredtext en"
 import setuppaths
 import optparse
 import os
+import sys
 
 
 import processing
@@ -53,14 +54,19 @@ class StartupOptions(object):
 
 def parse_cli_opts():
     op = optparse.OptionParser()
+    windows = (sys.platform == "win32")
+    if windows:
+        import flax_w32
+        reg = flax_w32.FlaxRegistry()
+        
     op.add_option('-d', '--main-dir',
                   dest = 'main_dir',
                   help = 'Flax main directory',
-                  default = None)
+                  default = reg.runtimepath if windows else os.path.join(os.path.dirname(__file__), 'data'))
     op.add_option('--dbs-dir',
                   dest = 'dbs_dir',
                   help = 'Flax database directory (default is <main>/dbs)',
-                  default = None)
+                  default = reg.datapath if windows else None)
     op.add_option('--log-dir',
                   dest = 'log_dir',
                   help = 'Flax logfile directory (default is <main>/logs)',
@@ -74,8 +80,6 @@ def parse_cli_opts():
                   help = 'Flax runtime state directory (default is <main>/var)',
                   default = None)
     (options, args) = op.parse_args()
-    if options.main_dir is None:
-        options.main_dir = os.path.join(os.path.dirname(__file__), 'data')
     return StartupOptions(main_dir = options.main_dir,
                           dbs_dir = options.dbs_dir,
                           log_dir = options.log_dir,
