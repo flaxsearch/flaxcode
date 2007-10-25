@@ -25,7 +25,7 @@ import collection_list
 import flaxpaths
 import logclient
 
-current_version = 9
+current_version = 10
 
 class FlaxOptions(object):
     """Global options for Flax.
@@ -84,14 +84,15 @@ def make_options():
 
     filters = ["IFilter", "Xapian", "Text"]
     
-    formats = ["txt", "doc", "rtf", "html", "pdf", "xls", "ppt"]
+    formats = ["txt", "doc", "rtf", "html", "htm", "pdf", "xls", "ppt"]
     formats.sort()
 
     default_filter = filters[0] if os.name == 'nt' else filters[2]
     
     filter_settings = dict( (f, default_filter) for f in formats)
     if os.name != 'nt':
-        filter_settings['html'] = 'Xapian'
+        filter_settings['html'] = filter_settings['htm'] = 'Xapian'
+
 
     languages = [ ("none", "None"),
                   ("da", "Danish"),
