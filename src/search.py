@@ -4,6 +4,8 @@ import types
 import xappy
 import xapian
 
+import util
+
 # Searching multiple databases depends on using xapian facilities not
 # available via xappy. We use the xappy SearchConnection's internal
 # handle on the xapian connection and invoke its add_database
@@ -18,6 +20,9 @@ class Results (object):
     `xap_query`: The xapian query that produced the results.
     `xap_results`: The xappy list of SearchResult objects.
     `query`: The string query or (collection, doc_id) pair.
+    `exact`: A phrase to be search for exactly
+    `exclusions`: a list of words that should not appear in the results
+    `formats`: a list of file formats to be searched
     `spell_corrected_query`: The spell corrected query is there is one.
     `is_results_corrected`: if results is for the spell_corrected_query rather than original_query
     `tophit`: rank of the first result in results
@@ -26,7 +31,7 @@ class Results (object):
 
     log = logging.getLogger("searching")
 
-    def __init__(self, query, dbs, tophit, maxhits):
+    def __init__(self, query,  exact, exclusions, format, dbs, tophit, maxhits):
 
         if len(dbs) == 0:
             self.query = query
@@ -43,7 +48,7 @@ class Results (object):
         conn = self.conn_for_dbs(dbs)
         is_string_query = isinstance(query, types.StringType)
         if is_string_query:
-            self.xap_query = conn.query_parse(query)
+            self.xap_query = self.make_xap_query(conn, query, exact, exclusions, format)
             corrected = conn.spell_correct(self.query)
             self.spell_corrected_query = corrected if corrected != query else None
 
@@ -65,6 +70,20 @@ class Results (object):
             else:
                 self.spell_corrected_query = None
 
+    def make_xap_query(self, conn, query, exact, exclusions, format):
+        q = query
+
+        if exact:
+            q += ' AND "%s"' % exact
+        if exclusions:
+            q += ' AND %s' % ' AND '.join('-%s' % e for e in util.listify(exclusions))
+        if format:
+            q += ' AND %s' % ' AND '.join('id:.%s' % f for f in util.listify(format))
+
+        print q, conn.query_parse(q)
+        return conn.query_parse(q)
+        
+
     def do_search(self, conn):        
         self.log.info("Search databases %s with query %s" % (self.dbs, self.xap_query))
         self.xap_results = conn.search(self.xap_query, self.tophit, self.tophit + self.maxhits)
@@ -75,7 +94,7 @@ class Results (object):
             conn._index.add_database(xapian.Database(d))
         return conn
 
-def search(query, dbs, tophit = 0, maxhits = 10):
+def search(query, exact, exclusions, format, dbs, tophit = 0, maxhits = 10):
     """ search the xapian dbs named by `dbs` with `query`.  return a
         triple (results, corrected_query, corrected_results), where
         results is the xapian results object, corrected query is a
@@ -91,4 +110,4 @@ def search(query, dbs, tophit = 0, maxhits = 10):
         query.
 
     """
-    return Results(query, dbs, tophit, maxhits)
+    return Results(query, exact, exclusions, format, dbs, tophit, maxhits)

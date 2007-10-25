@@ -203,7 +203,9 @@ class SearchForm(object):
         self._template = search_template
         self._result_template = result_template
 
-    def search(self, query = None, col = None, col_id= None, doc_id=None, advanced = False, tophit = 0, maxhits = 10):
+    def search(self, query=None, col=None, col_id=None, doc_id=None, advanced=False,
+               exact=None, exclusions=None, format=None, 
+               tophit=0, maxhits=10):
         """
         Search document collections.
 
@@ -230,6 +232,7 @@ class SearchForm(object):
         if query or (col_id and doc_id):
             cols = util.listify(col) if col else None
             results = self._collections.search(query, col_id=col_id, doc_id=doc_id, cols=cols,
+                                               exact=exact, exclusions=exclusions, format=format, 
                                                tophit=tophit, maxhits=maxhits)
             return self._result_template (results, self._collections, cols)
         else:
