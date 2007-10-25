@@ -192,7 +192,7 @@ class SearchForm(object):
     the results.
     """
 
-    def __init__(self, collections, search_template, result_template):
+    def __init__(self, collections, search_template, advanced_template):
         """
         :Parameters:
             - `collections`: the set of document collections to be searched.
@@ -201,7 +201,7 @@ class SearchForm(object):
         """
         self._collections = collections
         self._template = search_template
-        self._result_template = result_template
+        self._advanced_template = advanced_template
 
     def search(self, query=None, col=None, col_id=None, doc_id=None, advanced=False,
                exact=None, exclusions=None, format=None, 
@@ -227,6 +227,7 @@ class SearchForm(object):
         """
 
         assert not (query and doc_id)
+        template = self._advanced_template if advanced else self._template
         tophit = int (tophit)
         maxhits = int (maxhits)
         if query or (col_id and doc_id):
@@ -234,15 +235,15 @@ class SearchForm(object):
             results = self._collections.search(query, col_id=col_id, doc_id=doc_id, cols=cols,
                                                exact=exact, exclusions=exclusions, format=format, 
                                                tophit=tophit, maxhits=maxhits)
-            return self._result_template (results, self._collections, cols)
+            return template(self._collections, advanced, self._collections.formats, results, cols)
         else:
-            return self._template (self._collections, advanced, self._collections.formats)
+            return template(self._collections, advanced, self._collections.formats)
 
 class Top(FlaxResource):
     """
     A contoller for the default (end-user) web pages.
     """
-    def __init__(self, flax_data, search_template, search_result_template):
+    def __init__(self, flax_data, search_template, advanced_template):
         """
         Constructor.
 
@@ -253,7 +254,7 @@ class Top(FlaxResource):
         """
 
         self._flax_data = flax_data
-        self._search = SearchForm(flax_data.collections, search_template, search_result_template)
+        self._search = SearchForm(flax_data.collections, search_template, advanced_template)
 
     @cherrypy.expose
     def index(self):
@@ -278,7 +279,7 @@ class Admin(Top):
     A controller for the administration pages.
     """
 
-    def __init__(self, flax_data, search_template, search_result_template, options_template, index_template):
+    def __init__(self, flax_data, search_template, advanced_template, options_template, index_template):
         """
         Constructor.
 
@@ -291,7 +292,7 @@ class Admin(Top):
         """
         self._options_template = options_template
         self._index_template = index_template
-        super(Admin, self).__init__(flax_data, search_template, search_result_template)
+        super(Admin, self).__init__(flax_data, search_template, advanced_template)
 
     @cherrypy.expose
     def options(self, **kwargs):
@@ -322,11 +323,11 @@ def start_web_server(flax_data, index_server, conf_path, templates_path, blockin
 
     admin = Admin(flax_data,
                   renderer.admin_search_render,
-                  renderer.admin_search_result_render,
+                  renderer.admin_advanced_search_render,
                   renderer.options_render,
                   renderer.index_render)
 
-    top = Top(flax_data, renderer.user_search_render, renderer.user_search_result_render)
+    top = Top(flax_data, renderer.user_search_render, renderer.user_advanced_search_render)
     admin.collections = collections
     top.admin = admin
     cherrypy.config.update(conf_path)

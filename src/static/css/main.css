@@ -47,13 +47,20 @@ a {
     color: darkblue;
 }
 
+
 a:hover {
   color: darkred;
 }
 
-.navlabel {
-  color: black;
+
+#banner_options #optnav .navlabel,
+#banner_search  #searchnav .navlabel,
+#banner_advsearch #advsearchnav .navlabel,
+#banner_collections #colnav .navlabel {
+ color: black;
 }
+
+
 
 a.delete_button img {
   border: none;

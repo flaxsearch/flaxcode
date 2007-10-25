@@ -4,16 +4,27 @@
 
 <title node="con:title">Search</title>
 
-<div node="con:body">
+<div node="-con:heads">
 
-  <div class="banner_search">
+  <script type="text/javascript">
+  function on_load() {
+      document.forms[0].query.focus();
+  }
+  </script>
+</div>
+
+<div node="con:body" onload="on_load()" id="search">
+
+  <!-- this will be removed for the admin search page" -->
+  <div class="banner_search" node="con:banner_search">
     <img src="/static/img/flax.250trans.png" alt="Flax Logo" />
   </div>
+
   
   <form method="GET" action="./search" >
     <div style="text-align:center">
       <!--label class="main_label" for="query">Search String: </label-->
-      <input name="query" class="search_query"/>
+      <input name="query" class="search_query" node="con:query" />
       <input type="submit" value="search"/>
     </div>
     <div class="search_cols">
@@ -26,19 +37,40 @@
     <div node="-con:advanced_holder">
     </div>
   </form>
-  <h3>Collection Descriptions</h3>
-  <dl node="con:col_descriptions" class="col_descriptions">
-    <div node="-rep:name_and_desc">
-      <dt node="con:name"></dt>
-      <dd node="con:description"></dd>
-    </div>
-  </dl>
 
-  <script type="text/javascript">
-  function on_load() {
-      document.forms[0].query.focus();
-  }
-  </script>
+  <div node="con:descriptions">
+    <h3>Collection Descriptions</h3>
+    <dl node="con:col_descriptions" class="col_descriptions">
+      <div node="-rep:name_and_desc">
+	<dt node="con:name"></dt>
+	<dd node="con:description"></dd>
+      </div>
+    </dl>
+  </div>
+
+  <div node="con:results">
+    <div node="con:corrected"> </div>
+
+    <div class="search_info" node="con:info">1 - 10 of foo bar wombat</div>
+
+    <!-- the contents of this div will be replaced by the results of --
+      -- the search -->
+    <div node="rep:results" class="search_hit">
+      <a node="con:res_link" class="search_hit_link"></a>
+      <div node="con:res_content" class="search_hit_content"></div>
+      <div class="search_hit_meta">
+	Size: <span node="con:res_size" class="search_hit_meta_item"></span>
+	Last modified: <span node="con:res_mtime" class="search_hit_meta_item"></span>
+	<a node="con:sim_link" class="search_sim_link">Find similar documents</a>
+      </div>
+    </div>
+  
+    <div node="con:nav" class="search_nav">
+      <a node="con:first_page" class="search_nav_link">&lt;&lt; First</a>&nbsp;&nbsp;
+      <a node="con:prev_page"  class="search_nav_link">&lt; Prev</a>&nbsp;&nbsp;
+      <a node="con:next_page"  class="search_nav_link">Next &gt;</a>
+    </div>
+  </div>
 
 </div>
 

@@ -2,14 +2,34 @@
 
 <!-- This file provides the top section for administrator pages. -->
 
-<div class="banner">
+<!-- This div will get an id based on the actual page being rendered
+     to allow for diferentiation of navlist styling according to which
+     page is being viewed -->
+
+<div class="banner" node="con:banner">
   <img src="/static/img/flax.125trans.png" alt="Flax Logo" 
    style="margin-right:15px;float:left;"/>
 
   <div class="navlist">
-    <span class="navitem" node="rep:navitem">
-      <a node="con:navlink"></a>
-      <span node="con:navlabel" class="navlabel"></span>
+    <span class="navitem">
+      <a href="/admin/collections" id="colnav">
+	<span class="navlabel">Collections</span>
+      </a>
+    </span>
+    <span class="navitem">
+      <a href="/admin/search" id="searchnav">
+	<span class="navlabel">Search</span>
+      </a>
+    </span>
+    <span class="navitem">
+      <a href="/admin/advanced_search" id="advsearchnav">
+	<span class="navlabel">Advanced Search</span>
+      </a>
+    </span>
+    <span class="navitem">
+      <a href="/admin/options" id="optnav">
+	<span class="navlabel">Options</span>
+      </a>
     </span>
   </div>
 </div>

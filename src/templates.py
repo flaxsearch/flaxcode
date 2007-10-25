@@ -5,11 +5,12 @@
 from __future__ import with_statement
 import os
 import urllib
-import HTMLTemplate
 import datetime
 import time
 import types
-import cherrypy
+import functools
+
+import HTMLTemplate
 
 import uistrings
 import util
@@ -61,54 +62,40 @@ class TemplateManager(object):
         self._cache[key] = (t, mtime)
         return t
 
-    def create_template(self, file_name, banner, render_fn = None):
-        fn = self.dummy_render if render_fn is None else render_fn
+    def create_template(self, file_name, banner, render_fn=None, real_id=None):
+        fn = render_fn if render_fn else self.dummy_render
         common_template = self.make_template(fn, "flax.html")
-        common_template.banner.raw = banner
         sub_template = self.make_template(self.dummy_render, file_name)
+        if real_id:
+            sub_template.body.atts['id']=real_id
+        try:
+            banner.banner.atts['id'] = 'banner_'+sub_template.body.atts['id']
+        except KeyError:
+            pass
+        common_template.banner.raw = banner.render()
+
         if hasattr(sub_template, 'title'):
             common_template.title = sub_template.title
         common_template.main = sub_template.body
         if hasattr(sub_template, 'heads'):
             common_template.heads = sub_template.heads
         else:
-            common_template.heads.raw = ''
+            common_template.heads.omit()
         return common_template
 
-    def create_admin_template(self, file_name, render_fn = None):
+    def create_admin_template(self, file_name, render_fn = None, real_id=None):
         """
         Make an administrator template.
         """
-        admin_banner_html = self.make_template (render_admin_banner, self.admin_banner_file).render()
-        return self.create_template(file_name, admin_banner_html, render_fn)
+        admin_banner = self.make_template (self.dummy_render, self.admin_banner_file)
+        return self.create_template(file_name, admin_banner, render_fn, real_id)
 
-    def create_user_template(self, file_name, render_fn = None):
+    def create_user_template(self, file_name, render_fn = None, real_id=None):
         """
         Make a user template.
         """
-        user_banner_html = self.make_template (self.dummy_render, self.user_banner_file).render()
-        return self.create_template(file_name, user_banner_html, render_fn)
-
-##### Admin banner #####
-
-# FIXME - this belongs somewhere else?
-_admin_navlist = (('Collections', '/admin/collections'), 
-                  ('Search', '/admin/search'),
-                  ('Advanced Search', '/admin/advanced_search'),
-                  ('Options', '/admin/options'))
-
-def render_admin_banner (t):
-    def render_tab (t, tab):
-        if cherrypy.request.path_info == tab[1]:
-            t.navlabel.content = tab[0]
-            t.navlink.omit()
-        else:
-            t.navlink.content = tab[0]
-            t.navlink.atts['href'] = tab[1]
-            t.navlabel.omit()
-        
-    t.navitem.repeat (render_tab, _admin_navlist)
-
+        user_banner = self.make_template (self.dummy_render, self.user_banner_file)
+        return self.create_template(file_name, user_banner, render_fn, real_id)
 
 ##### Options Template #####
 
@@ -140,10 +127,18 @@ def render_options(template, flax_data):
 
 ##### Search Templates #####
 
-def render_search(template, renderer, collections, advanced=False, formats=[]):
+def render_search(template, isAdmin, renderer, collections, advanced=False, formats=[], results=None, selcols=None):
+
+    if isAdmin:
+        template.main.banner_search.omit()
     cols = list(collections.itervalues())
     template.main.collections.repeat(render_search_collection, cols, len(cols))
-    template.main.col_descriptions.name_and_desc.repeat(render_collection_descriptions, cols)
+    if results:
+        render_search_result(template.main, results, collections, selcols)
+        template.main.descriptions.omit()
+    else:
+        template.main.descriptions.col_descriptions.name_and_desc.repeat(render_collection_descriptions, cols)
+        template.main.results.omit()
     if advanced:
         template.main.advanced_holder = renderer._advanced_search_options().body
         def fill_format(node, format):
@@ -153,7 +148,7 @@ def render_search(template, renderer, collections, advanced=False, formats=[]):
 
         template.main.advanced_holder.formats.repeat(fill_format, formats)
     else:
-        template.main.advanced_holder.raw = ""
+        template.main.advanced_holder.omit()
 
 def render_collection_descriptions(node, collection):
     node.name.content = collection.name
@@ -279,34 +274,35 @@ def render_collection_detail(template, collection, formats, languages):
         form.months.atts['value'] = render_spec(collection.months)
 
 
-###### Search Result Templates ######
+###### Search Result Rendering ######
+# used from render_search
 
 def render_searched_collection(node, col):
     node.content = col
 
-def render_search_result (template, results, collections, selcols):
+def render_search_result (node, results, collections, selcols):
     # collections is the list of available collections
     # selcols is a list of selected collections
 
     query = results.query
     if isinstance(query, types.StringType):
         q_or_ids = "?query=%s" % urllib.quote_plus (query)
-        template.main.query.atts['value'] = query
+        node.query.atts['value'] = query
     else:
         q_or_ids = "?doc_id=%s&col_id=%s" % (urllib.quote_plus(query[1]), urllib.quote_plus(query[0].name))
 
     if results.is_results_corrected:
-        template.main.corrected.raw = \
+        node.results.corrected.raw = \
             uistrings.msg('auto_spell_corrected_msg') % \
             results.spell_corrected_query
     elif (results.spell_corrected_query and
           (not (results.spell_corrected_query == results.query))):
-         template.main.corrected.raw = uistrings.msg('spell_suggestion_msg') % {
+         node.results.corrected.raw = uistrings.msg('spell_suggestion_msg') % {
              "uri": "search?query=" + urllib.quote_plus(results.spell_corrected_query),
              "corrected": results.spell_corrected_query,
          }
     else:
-        template.main.corrected.raw = ""
+        node.results.corrected.omit()
 
 
     def fill_results(node, res):
@@ -328,37 +324,38 @@ def render_search_result (template, results, collections, selcols):
         node.res_mtime.content = format_date (mtime[0]) if mtime else 'unknown'
 
     cols = list(collections.itervalues())
-    template.main.collections.repeat (render_search_collection, cols, len(cols), selcols)
+    node.collections.repeat (render_search_collection, cols, len(cols), selcols)
 
     xr = results.xap_results
+    res_node = node.results
     if xr is None:
         # No collections to search
-        template.main.info.content = 'No collections to search'
-        template.main.nav.omit()
+        node.info.content = 'No collections to search'
+        node.nav.omit()
     elif xr.startrank < xr.endrank:
-        template.main.results.repeat(fill_results, results.xap_results)
-        template.main.info.content = '%s to %s of %s%d matching documents' % (
+        res_node.results.repeat(fill_results, results.xap_results)
+        res_node.info.content = '%s to %s of %s%d matching documents' % (
             xr.startrank + 1, xr.endrank,
             '' if xr.estimate_is_exact else 'about ',
             xr.matches_human_readable_estimate)
 
         if xr.startrank:
-            template.main.nav.first_page.atts['href'] = q_or_ids
-            template.main.nav.prev_page.atts['href'] = '%s&tophit=%d' % (q_or_ids,
+            res_node.nav.first_page.atts['href'] = q_or_ids
+            res_node.nav.prev_page.atts['href'] = '%s&tophit=%d' % (q_or_ids,
                 xr.startrank - results.maxhits)
         else:
-            template.main.nav.first_page.atts['class'] = 'link_disabled'
-            template.main.nav.prev_page.atts['class'] = 'link_disabled'
+            res_node.nav.first_page.atts['class'] = 'link_disabled'
+            res_node.nav.prev_page.atts['class'] = 'link_disabled'
 
         if xr.more_matches:
-            template.main.nav.next_page.atts['href'] = '%s&tophit=%d' % (q_or_ids,
+            res_node.nav.next_page.atts['href'] = '%s&tophit=%d' % (q_or_ids,
                 xr.startrank + results.maxhits)
         else:
-            template.main.nav.next_page.atts['class'] = 'link_disabled'
+            res_node.nav.next_page.atts['class'] = 'link_disabled'
     else:
         # no search results
-        template.main.info.content = 'No matching documents found'
-        template.main.nav.omit()
+        res_node.info.content = 'No matching documents found'
+        res_node.nav.omit()
 
 KB1 = 1024.0
 MB1 = KB1 * KB1
@@ -367,7 +364,7 @@ TB1 = GB1 * KB1
 
 def format_size (data):
     """
-    Return a nicely-formatted string for size data.
+    Return a nicely-formatted string for size data
     """
     data = int (data)
     if data < KB1:
@@ -405,11 +402,11 @@ class Renderer(object):
 
     def admin_search_render(self, *args):
         "Render the administrator search page."
-        return self._tman.create_admin_template("search_admin.html", render_search).render(self, *args)
+        return self._tman.create_admin_template("search.html", render_search).render(True, self, *args)
 
     def user_search_render(self, *args):
         "Render the user search page."
-        return self._tman.create_user_template("search.html", render_search).render(self, *args)
+        return self._tman.create_user_template("search.html", render_search).render(False, self, *args)
 
     def collection_list_render(self, *args):
         "Render the collection listing admin page."
@@ -419,13 +416,13 @@ class Renderer(object):
         "Render the collection detail admin page."
         return self._tman.create_admin_template("collection_detail.html", render_collection_detail).render (*args)
 
-    def admin_search_result_render(self, *args):
+    def admin_advanced_search_render(self, *args):
         "Render the administrator search results page."
-        return self._tman.create_admin_template("search_result.html", render_search_result).render (*args)
+        return self._tman.create_admin_template("search.html", render_search, real_id="advsearch").render (True, self, *args)
 
-    def user_search_result_render(self, *args):
+    def user_advanced_search_render(self, *args):
         "Render the user search results page."
-        return self._tman.create_user_template("search_result_admin.html", render_search_result).render (*args)
+        return self._tman.create_user_template("search.html", render_search, real_id="advseach").render (False, self, *args)
 
     def _advanced_search_options(self):
         "Get a template for rendering the advanced search options"
