@@ -31,7 +31,7 @@ class Results (object):
 
     log = logging.getLogger("searching")
 
-    def __init__(self, query,  exact, exclusions, format, dbs, tophit, maxhits):
+    def __init__(self, query,  exact, exclusions,  dbs, tophit, maxhits):
 
         if len(dbs) == 0:
             self.query = query
@@ -48,7 +48,7 @@ class Results (object):
         conn = self.conn_for_dbs(dbs)
         is_string_query = isinstance(query, types.StringType)
         if is_string_query:
-            self.xap_query = self.make_xap_query(conn, query, exact, exclusions, format)
+            self.xap_query = self.make_xap_query(conn, query, exact, exclusions)
             corrected = conn.spell_correct(self.query)
             self.spell_corrected_query = corrected if corrected != query else None
 
@@ -70,17 +70,13 @@ class Results (object):
             else:
                 self.spell_corrected_query = None
 
-    def make_xap_query(self, conn, query, exact, exclusions, format):
+    def make_xap_query(self, conn, query, exact, exclusions):
         q = query
 
         if exact:
             q += ' AND "%s"' % exact
         if exclusions:
             q += ' AND %s' % ' AND '.join('-%s' % e for e in util.listify(exclusions))
-        if format:
-            q += ' AND %s' % ' AND '.join('id:.%s' % f for f in util.listify(format))
-
-        print q, conn.query_parse(q)
         return conn.query_parse(q)
         
 
@@ -94,7 +90,7 @@ class Results (object):
             conn._index.add_database(xapian.Database(d))
         return conn
 
-def search(query, exact, exclusions, format, dbs, tophit = 0, maxhits = 10):
+def search(query, exact, exclusions,  dbs, tophit = 0, maxhits = 10):
     """ search the xapian dbs named by `dbs` with `query`.  return a
         triple (results, corrected_query, corrected_results), where
         results is the xapian results object, corrected query is a
@@ -110,4 +106,4 @@ def search(query, exact, exclusions, format, dbs, tophit = 0, maxhits = 10):
         query.
 
     """
-    return Results(query, exact, exclusions, format, dbs, tophit, maxhits)
+    return Results(query, exact, exclusions, dbs, tophit, maxhits)
