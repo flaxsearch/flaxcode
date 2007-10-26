@@ -62,9 +62,19 @@ if __name__ != '__main__':
 # as Py2exe expects it to be set to the path to the Service executable it builds.
 oldsysexec = sys.executable
 sys.executable = _reg.runtimepath + '/startflax.exe'
+#######################################################
+#NOTE: if you need to run the code *non-frozen* ((i.e. 'python flaxservice.py')
+# you must replace the above as follows:
+# sys.executable = 'c:\Python25\Python.exe'
+# (or the equivalent path to a Python interpreter - you may need to read this from the Registry)
+# The Services framework will have set it to PythonService.exe, which again won't 
+# work with the Processing module.
+#######################################################
+
 import startflax
 import processing
 sys.executable = oldsysexec
+
 
 import flaxpaths
 
