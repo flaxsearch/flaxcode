@@ -100,7 +100,7 @@ class Collections(FlaxResource):
 
         A 400 is returned if either:
 
-        - `col` is ommited; or
+        - `col` is omitted; or
         - `col` is present by does not name a collection;
         """
 
@@ -117,7 +117,7 @@ class Collections(FlaxResource):
 
         self._only_post()
 
-        if col and col in self._flax_data.collections:
+        if col in self._flax_data.collections:
             self._flax_data.collections.remove_collection(col)
             return self.view()
 
