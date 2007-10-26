@@ -43,9 +43,8 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
 
     log = logging.getLogger('collections')
 
-    def __init__(self, name, db_dir, *args, **kwargs):
+    def __init__(self, name, *args, **kwargs):
         self.name = name
-        self.db_dir = db_dir
         self.mappings = {}
         self.update(*args, **kwargs)
         self._search_conn=None
@@ -119,7 +118,7 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
         return self.search_conn().get_doccount()
 
     def dbpath(self):
-        return os.path.join(self.db_dir, self.name + '.db')
+        return os.path.join(flaxpaths.paths.dbs_dir, self.name + '.db')
 
     def source_file_from_id(self, file_id):
         "return the source file name given a document id."
