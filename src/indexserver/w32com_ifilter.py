@@ -39,6 +39,13 @@ _filter_init_flags = IFILTER_INIT_INDEXING_ONLY | \
                      IFILTER_INIT_APPLY_OTHER_ATTRIBUTES | \
                      IFILTER_INIT_SEARCH_LINKS
 
+# ensure that the data we pass back is unicode.  It appears to be mbcs
+# encoded string data, but the pythonwin docs suggest that it should
+# already be unicode. It could be that something to do with the local
+# settings affect what we actually get back.
+def decode_prop(prop):
+    return prop.decode('mbcs') if prop else prop
+
 def ifilter_filter(filename, init_flags = _filter_init_flags):
     pythoncom.CoInitialize()
     filt, stg = get_ifilter_for_file(filename)
@@ -50,7 +57,7 @@ def ifilter_filter(filename, init_flags = _filter_init_flags):
                pss = stg.QueryInterface(pythoncom.IID_IPropertySetStorage)
                ps = pss.Open(PSGUID_SUMMARYINFORMATION)
                props_to_read = (PIDSI_TITLE, PIDSI_SUBJECT, PIDSI_AUTHOR, PIDSI_KEYWORDS, PIDSI_COMMENTS)
-               title, subject, author, keywords, comments = ps.ReadMultiple(props_to_read)
+               title, subject, author, keywords, comments = map(decode_prop, ps.ReadMultiple(props_to_read))
                if title:
                    yield 'title', title
                if subject:
