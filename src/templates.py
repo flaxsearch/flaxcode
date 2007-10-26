@@ -70,7 +70,7 @@ class TemplateManager(object):
             sub_template.body.atts['id']=real_id
         try:
             banner.banner.atts['id'] = 'banner_'+sub_template.body.atts['id']
-        except KeyError:
+        except (KeyError, AttributeError):
             pass
         common_template.banner.raw = banner.render()
 
