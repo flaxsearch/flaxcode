@@ -53,8 +53,6 @@ signal.signal = _dummy_signal
 # If we don't set argv[0] to '', processing 0.35 will raise an error due to an
 # attempt to access sys.modules['__main__'], which doesn't exist when running
 # as a service.
-# FIXME - check that the above comment is a correct description of what goes
-# wrong with 0.35 if the following two lines aren't used.
 if __name__ != '__main__':
     sys.argv[0] = ''
 
