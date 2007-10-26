@@ -8,12 +8,17 @@ from __future__ import with_statement
 import ConfigParser
 import logging
 import logging.config
+import flaxloghandlers
 import StringIO
 import threading
 import processing
 import time
 
 import util
+
+# Add flaxloghandlers to the logging module, to make it available from the
+# log configuration file.
+logging.flaxloghandlers = flaxloghandlers
 
 def update_log_config_from_string(s):
     logging.config.fileConfig(StringIO.StringIO(s))
