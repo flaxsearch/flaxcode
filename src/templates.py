@@ -310,8 +310,15 @@ def render_search_result (node, results, collections, selcols):
         if 'filename' in res.data and 'collection' in res.data:
             filename = res.data['filename'][0]
             collection = res.data['collection'][0]
-            title = res.data['title'][0].encode('utf-8') if 'title' in res.data else filename
-            node.res_link.atts['href'] = collections[collection].url_for_doc(filename)
+            url = collections[collection].url_for_doc(filename)
+            if 'title' in res.data:
+                title = res.data['title'][0].encode('utf-8')
+            else:
+                if url != "":
+                    title = url
+                else:
+                    title = filename
+            node.res_link.atts['href'] = url
             node.res_link.content = '%d. %s' % (res.rank + 1, title)
             node.sim_link.atts['href'] = './search?doc_id=%s&col_id=%s' % (filename, collection)
 
