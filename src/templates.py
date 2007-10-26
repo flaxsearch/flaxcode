@@ -331,8 +331,8 @@ def render_search_result (node, results, collections, selcols):
     res_node = node.results
     if xr is None:
         # No collections to search
-        node.info.content = 'No collections to search'
-        node.nav.omit()
+        res_node.info.content = 'No collections to search'
+        res_node.nav.omit()
     elif xr.startrank < xr.endrank:
         res_node.results.repeat(fill_results, results.xap_results)
         res_node.info.content = '%s to %s of %s%d matching documents' % (
