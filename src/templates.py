@@ -141,12 +141,6 @@ def render_search(template, isAdmin, renderer, collections, advanced=False, form
         template.main.results.omit()
     if advanced:
         template.main.advanced_holder = renderer._advanced_search_options().body
-        def fill_format(node, format):
-            node.format_label.content = format
-            node.format_checkbox.atts['value'] = format
-            node.format_checkbox.atts['checked'] = 'on'
-
-        template.main.advanced_holder.formats.repeat(fill_format, formats)
     else:
         template.main.advanced_holder.omit()
 
