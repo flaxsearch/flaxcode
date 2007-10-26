@@ -95,7 +95,7 @@ class Indexer(object):
             return True
             
         except xappy.XapianDatabaseLockError, e:
-            log.error("Attempt to index locked database: %s, ignoring" % dbpath)
+            log.error("Attempt to index locked database: %s, ignoring" % dbname)
         except Exception, e:
             log.error("Unhandled error in do_indexing: %s" % str(e))
             import traceback
