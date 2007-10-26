@@ -92,21 +92,28 @@ class FileWatcher(DelayThread):
             self.mtime = new_mtime
             self.change_action()
 
-
 class AsyncFunc(object):
-    """ Invoke a callable asynchronously and pass it's return value to
-    a supplied callback when it completes.
+    """Invoke a callable asynchronously.
+    
+    The return value is passed to the supplied callback when it completes.
+
     """
     def __init__(self, func, result_callback = lambda x : x):
-        """ func is the function (callable) to be called,
-        result_callback will be passed the return value of func.
+        """Setup the callable function.
+
+         - func is the function (callable) to be called.
+         - result_callback will be passed the return value of func.
+
         """
         self.func = func
         self.result_callback = result_callback
 
     def __call__(self, *args, **kwargs):
-        """
-        Invoke func asynchronously, passing in args and kwargs. Call
-        call_back with the return value when of func when it returns.
+        """Invoke the callable asynchronously.
+        
+        The callable is invoked in a separate thread, passing in args and
+        kwargs.  The callback is then called with the return value when of func
+        when it returns.
+
         """
         thread.start_new_thread(lambda: self.result_callback(self.func(*args, **kwargs)), ())
