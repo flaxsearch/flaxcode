@@ -83,8 +83,7 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
     def url_for_doc(self, doc_id):
         """ Use the mappings attribute of the collection to give the
         url for the document.  If there is no mapping specified then
-        provide a url to serve from Flax if flax_serve is True,
-        otherwise just return the empty string.
+        just return the empty string.
         """
         #Possibly a file lives below two separate paths, in which case
         #we're just taking the first mapping here. To really address
@@ -99,9 +98,9 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
             return "/"
         mapped = self.mappings[path[0]]
         if mapped:
-            return mapped+"/"+doc_id[len(path[0]):]
+            return mapped + "/" + doc_id[len(path[0]):].replace('\\', '/')
         else:
-            return "/"
+            return ""
         
     def search_conn(self):
         if not self._search_conn:
