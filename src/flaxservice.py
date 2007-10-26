@@ -68,6 +68,8 @@ import startflax
 import processing
 sys.executable = oldsysexec
 
+import flaxpaths
+
 class FlaxService(win32serviceutil.ServiceFramework):
 
     _svc_name_ = "FlaxService"
@@ -107,8 +109,8 @@ class FlaxService(win32serviceutil.ServiceFramework):
 
         # Redirect stdout and stderr to avoid buffer overflows and to allow
         # debugging while acting as a service
-        sys.stderr = open(os.path.join(_reg.datapath, 'flax_stderr.log'), 'w')
-        sys.stdout = open(os.path.join(_reg.datapath, 'flax_stdout.log'), 'w')
+        sys.stderr = open(os.path.join(flaxpaths.paths.log_dir, 'flax_stderr.log'), 'w')
+        sys.stdout = open(os.path.join(flaxpaths.paths.log_dir, 'flax_stdout.log'), 'w')
         
         # Start flax, non-blocking.
         self._flax_main.start(blocking = False)
