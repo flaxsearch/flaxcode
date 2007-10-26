@@ -208,9 +208,11 @@ class IndexServer(processing.Process):
 
         self.hints = set()
         self.logconfpath = logconfpath
+        self.flaxpaths = flaxpaths.paths
         self.start()
 
     def run(self):
+        flaxpaths.paths = self.flaxpaths
         logclient.LogListener(self.logconfio[1]).start()
         logclient.LogConf(self.logconfpath).update_log_config()
         indexer = Indexer()
