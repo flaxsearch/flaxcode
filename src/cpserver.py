@@ -233,9 +233,9 @@ class SearchForm(object):
             cols = util.listify(col) if col else None
             results = self._collections.search(query, col_id=col_id, doc_id=doc_id, cols=cols,
                                                exact=exact, exclusions=exclusions, tophit=tophit, maxhits=maxhits)
-            return template(self._collections, advanced, self._collections.formats, results, cols)
+            return template(self._collections, results, cols)
         else:
-            return template(self._collections, advanced, self._collections.formats)
+            return template(self._collections)
 
 class Top(FlaxResource):
     """

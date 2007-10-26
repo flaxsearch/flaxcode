@@ -43,14 +43,14 @@ class TemplateManager(object):
         """
         pass
 
-    def make_template(self, render_fn, file_name):
+    def make_template(self, render_fn, file_name, real_id=None):
         """
         Make an HTMLTemplate from `file_name` in `template_dir` using `render_fn`.
 
         """
         fpath = os.path.join (self.template_dir, file_name)
         mtime = os.path.getmtime(fpath)
-        key = (file_name, render_fn)
+        key = (file_name, render_fn, real_id)
         try:
             cached = self._cache[key]
             if cached[1] == mtime:
@@ -65,7 +65,7 @@ class TemplateManager(object):
     def create_template(self, file_name, banner, render_fn=None, real_id=None):
         fn = render_fn if render_fn else self.dummy_render
         common_template = self.make_template(fn, "flax.html")
-        sub_template = self.make_template(self.dummy_render, file_name)
+        sub_template = self.make_template(self.dummy_render, file_name, real_id)
         if real_id:
             sub_template.body.atts['id']=real_id
         try:
@@ -127,7 +127,7 @@ def render_options(template, flax_data):
 
 ##### Search Templates #####
 
-def render_search(template, isAdmin, renderer, collections, advanced=False, formats=[], results=None, selcols=None):
+def render_search(template, isAdmin, renderer, advanced, collections, results=None, selcols=None):
 
     if isAdmin:
         template.main.banner_search.omit()
@@ -403,11 +403,11 @@ class Renderer(object):
 
     def admin_search_render(self, *args):
         "Render the administrator search page."
-        return self._tman.create_admin_template("search.html", render_search).render(True, self, *args)
+        return self._tman.create_admin_template("search.html", render_search).render(True, self, False, *args)
 
     def user_search_render(self, *args):
         "Render the user search page."
-        return self._tman.create_user_template("search.html", render_search).render(False, self, *args)
+        return self._tman.create_user_template("search.html", render_search).render(False, self, False, *args)
 
     def collection_list_render(self, *args):
         "Render the collection listing admin page."
@@ -419,11 +419,11 @@ class Renderer(object):
 
     def admin_advanced_search_render(self, *args):
         "Render the administrator search results page."
-        return self._tman.create_admin_template("search.html", render_search, real_id="advsearch").render (True, self, *args)
+        return self._tman.create_admin_template("search.html", render_search, real_id="advsearch").render(True, self, True, *args)
 
     def user_advanced_search_render(self, *args):
         "Render the user search results page."
-        return self._tman.create_user_template("search.html", render_search, real_id="advseach").render (False, self, *args)
+        return self._tman.create_user_template("search.html", render_search, real_id="advsearch").render(False, self, True, *args)
 
     def _advanced_search_options(self):
         "Get a template for rendering the advanced search options"

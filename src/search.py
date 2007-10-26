@@ -71,13 +71,19 @@ class Results (object):
                 self.spell_corrected_query = None
 
     def make_xap_query(self, conn, query, exact, exclusions):
-        q = query
+        if not (query or exact or exclusions):
+            return conn.query_parse("")
+        
+        if query:
+            xq = conn.query_parse(query)
+        else:
+            xq = conn.query_all()
 
         if exact:
-            q += ' AND "%s"' % exact
+            xq = conn.query_composite(xappy.SearchConnection.OP_AND, (xq, conn.query_parse( '"%s"' % exact)))
         if exclusions:
-            q += ' AND %s' % ' AND '.join('-%s' % e for e in util.listify(exclusions))
-        return conn.query_parse(q)
+            xq = conn.query_filter(xq, conn.query_parse( ' '.join(util.listify(exclusions))), True )
+        return xq
         
 
     def do_search(self, conn):        
