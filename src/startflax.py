@@ -123,13 +123,13 @@ class FlaxMain():
             self._do_cleanup()
         self._need_cleanup = True
 
-        flax.options = persist.read_flax(flaxpaths.paths.flaxstate_path)
         webserver_logconfio = processing.Pipe()
         index_server = indexer.IndexServer(flaxpaths.paths.logconf_path)
         logclient.LogConfPub(flaxpaths.paths.logconf_path,
                              [webserver_logconfio[0], index_server.logconfio[0]])
         logclient.LogListener(webserver_logconfio[1]).start()
         logclient.LogConf(flaxpaths.paths.logconf_path).update_log_config()
+        flax.options = persist.read_flax(flaxpaths.paths.flaxstate_path)
         scheduler.ScheduleIndexing(index_server).start()
         persist.DataSaver(flaxpaths.paths.flaxstate_path).start()
         cpserver.start_web_server(flax.options, index_server,
