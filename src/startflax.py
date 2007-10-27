@@ -127,7 +127,7 @@ class FlaxMain():
         webserver_logconfio = processing.Pipe()
         index_server = indexer.IndexServer(flaxpaths.paths.logconf_path)
         logclient.LogConfPub(flaxpaths.paths.logconf_path,
-                             [webserver_logconfio[0], index_server.logconfio[0]])
+                             [webserver_logconfio[0], index_server.log_config_listener()])
         logclient.LogListener(webserver_logconfio[1]).start()
         logclient.LogConf(flaxpaths.paths.logconf_path).update_log_config()
         flax.options = persist.read_flax(flaxpaths.paths.flaxstate_path)
