@@ -86,12 +86,13 @@ def parse_cli_opts():
                   help = 'Flax runtime state directory (default is <main>/var)',
                   default = None)
     (options, args) = op.parse_args()
-    return StartupOptions(main_dir = options.main_dir,
-                          src_dir = options.src_dir,
-                          dbs_dir = options.dbs_dir,
-                          log_dir = options.log_dir,
-                          conf_dir = options.conf_dir,
-                          var_dir = options.var_dir)
+    realpath = lambda x: os.path.realpath(x) if x else None
+    return StartupOptions(main_dir = realpath(options.main_dir),
+                          src_dir = realpath(options.src_dir),
+                          dbs_dir = realpath(options.dbs_dir),
+                          log_dir = realpath(options.log_dir),
+                          conf_dir = realpath(options.conf_dir),
+                          var_dir = realpath(options.var_dir))
 
 class FlaxMain():
     """Class controlling starting and stopping Flax.
