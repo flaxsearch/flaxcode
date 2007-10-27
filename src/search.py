@@ -38,6 +38,8 @@ class Results (object):
             self.xap_results = None
             return
 
+        self.exclusions = exclusions
+        self.exact = exact
         self.dbs = dbs
         self.query = query
         self.tophit = tophit

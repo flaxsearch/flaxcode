@@ -229,7 +229,7 @@ class SearchForm(object):
         template = self._advanced_template if advanced else self._template
         tophit = int (tophit)
         maxhits = int (maxhits)
-        if query or (col_id and doc_id):
+        if (query or exact or exclusions) or (col_id and doc_id):
             cols = util.listify(col) if col else None
             results = self._collections.search(query, col_id=col_id, doc_id=doc_id, cols=cols,
                                                exact=exact, exclusions=exclusions, tophit=tophit, maxhits=maxhits)

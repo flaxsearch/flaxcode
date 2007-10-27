@@ -128,9 +128,10 @@ def render_options(template, flax_data):
 ##### Search Templates #####
 
 def render_search(template, isAdmin, renderer, advanced, collections, results=None, selcols=None):
-
     if isAdmin:
         template.main.banner_search.omit()
+    if not advanced:
+        template.main.advanced_holder.omit()
     cols = list(collections.itervalues())
     template.main.collections.repeat(render_search_collection, cols, len(cols))
     if results:
@@ -139,10 +140,6 @@ def render_search(template, isAdmin, renderer, advanced, collections, results=No
     else:
         template.main.descriptions.col_descriptions.name_and_desc.repeat(render_collection_descriptions, cols)
         template.main.results.omit()
-    if advanced:
-        template.main.advanced_holder = renderer._advanced_search_options().body
-    else:
-        template.main.advanced_holder.omit()
 
 def render_collection_descriptions(node, collection):
     node.name.content = collection.name
@@ -280,11 +277,18 @@ def render_search_result (node, results, collections, selcols):
 
     query = results.query
     is_string_query = isinstance(query, types.StringType)
+
     if is_string_query:
-        q_or_ids = "?query=%s" % (
+        q_or_ids = "?query=%s&exact=%s&exclusions=%s" % (
             urllib.quote_plus(query),
+            urllib.quote_plus(results.exact or ""),
+            urllib.quote_plus(results.exclusions or "")
         )
         node.query.atts['value'] = query
+        if results.exact:
+            node.advanced_holder.exact.atts['value'] = results.exact
+        if results.exclusions:
+            node.advanced_holder.exclusions.atts['value'] = results.exclusions
     else:
         q_or_ids = "?doc_id=%s&col_id=%s" % (
             urllib.quote_plus(query[1]),
@@ -434,6 +438,3 @@ class Renderer(object):
         "Render the user search results page."
         return self._tman.create_user_template("search.html", render_search, real_id="advsearch").render(False, self, True, *args)
 
-    def _advanced_search_options(self):
-        "Get a template for rendering the advanced search options"
-        return self._tman.make_template(self._tman.dummy_render, "advanced_search.html")

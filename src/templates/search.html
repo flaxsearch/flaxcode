@@ -21,7 +21,7 @@
   </div>
 
   
-  <form method="GET" action="./search" >
+  <form method="GET" >
     <div style="text-align:center">
       <!--label class="main_label" for="query">Search String: </label-->
       <input name="query" class="search_query" node="con:query" />
@@ -34,8 +34,18 @@
         <label node="con:col_name">Collection name</label>
       </span>
     </div>
-    <div node="-con:advanced_holder">
+
+    <div node="con:advanced_holder">
+      <div style="margin-top:5px">
+        <label class="main_label" for="exact">Exact Phrase:</label>
+        <input node="con:exact" name="exact" size="50"> </input>
+      </div>
+      <div>
+        <label class="main_label" for="exclusions">Without the words:</label>
+        <input node="con:exclusions" name="exclusions" size="50"> </input>
+      </div>
     </div>
+
   </form>
 
   <div node="con:descriptions">

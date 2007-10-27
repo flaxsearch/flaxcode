@@ -68,7 +68,7 @@ class CollectionList(object):
         dbs_to_search = [self._collections[col].dbpath() for col in cols]
         if doc_id and col_id:
             query = (self._collections[col_id], doc_id)
-        if query:
+        if query or exact or exclusions:
             return search.search(query, exact, exclusions, dbs_to_search, tophit, maxhits)
         else:
             return None
