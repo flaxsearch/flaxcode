@@ -279,11 +279,17 @@ def render_search_result (node, results, collections, selcols):
     # selcols is a list of selected collections
 
     query = results.query
-    if isinstance(query, types.StringType):
-        q_or_ids = "?query=%s" % urllib.quote_plus (query)
+    is_string_query = isinstance(query, types.StringType)
+    if is_string_query:
+        q_or_ids = "?query=%s" % (
+            urllib.quote_plus(query),
+        )
         node.query.atts['value'] = query
     else:
-        q_or_ids = "?doc_id=%s&col_id=%s" % (urllib.quote_plus(query[1]), urllib.quote_plus(query[0].name))
+        q_or_ids = "?doc_id=%s&col_id=%s" % (
+            urllib.quote_plus(query[1]),
+            urllib.quote_plus(query[0].name),
+        )
 
     if results.is_results_corrected:
         node.results.corrected.raw = \
@@ -291,16 +297,16 @@ def render_search_result (node, results, collections, selcols):
             results.spell_corrected_query
     elif (results.spell_corrected_query and
           (not (results.spell_corrected_query == results.query))):
-         node.results.corrected.raw = uistrings.msg('spell_suggestion_msg') % {
-             "uri": "search?query=" + urllib.quote_plus(results.spell_corrected_query),
-             "corrected": results.spell_corrected_query,
-         }
+        node.results.corrected.raw = uistrings.msg('spell_suggestion_msg') % {
+            "uri": "search?query=" + urllib.quote_plus(results.spell_corrected_query),
+            "corrected": results.spell_corrected_query,
+        }
     else:
         node.results.corrected.omit()
 
 
     def fill_results(node, res):
-        # res is xapian results object
+        # res is xappy SearchResult object
         if 'filename' in res.data and 'collection' in res.data:
             filename = res.data['filename'][0]
             collection = res.data['collection'][0]
@@ -317,7 +323,10 @@ def render_search_result (node, results, collections, selcols):
             node.sim_link.atts['href'] = './search?doc_id=%s&col_id=%s' % (filename, collection)
 
         if 'content' in res.data:
-            node.res_content.raw = res.summarise('content', hl=('<strong>','</strong>'))
+            if is_string_query:
+                node.res_content.raw = res.summarise('content', hl=('<strong>','</strong>'))
+            else:
+                node.res_content.raw = res.summarise('content', hl=('',''))
 
         size = res.data.get ('size')
         node.res_size.content = format_size (size[0]) if size else 'unknown'
