@@ -15,14 +15,12 @@ import util
 class Results (object):
     """ Make search results from supplied query information.
 
-    
     `dbs` the databases queried to get the results.
     `xap_query`: The xapian query that produced the results.
     `xap_results`: The xappy list of SearchResult objects.
     `query`: The string query or (collection, doc_id) pair.
-    `exact`: A phrase to be search for exactly
-    `exclusions`: a list of words that should not appear in the results
-    `formats`: a list of file formats to be searched
+    `exact`: A phrase to be searched for exactly.
+    `exclusions`: a list of words that should not appear in the results.
     `spell_corrected_query`: The spell corrected query is there is one.
     `is_results_corrected`: if results is for the spell_corrected_query rather than original_query
     `tophit`: rank of the first result in results
@@ -31,7 +29,7 @@ class Results (object):
 
     log = logging.getLogger("searching")
 
-    def __init__(self, query,  exact, exclusions,  dbs, tophit, maxhits):
+    def __init__(self, query, exact, exclusions, dbs, tophit, maxhits):
 
         if len(dbs) == 0:
             self.query = query
@@ -39,7 +37,7 @@ class Results (object):
             self.spell_corrected_query = None
             self.xap_results = None
             return
-        
+
         self.dbs = dbs
         self.query = query
         self.tophit = tophit
@@ -54,7 +52,7 @@ class Results (object):
 
         else:
             conn_for_sim = query[0].search_conn()
-            self.xap_query =  conn_for_sim.query_similar([query[1]])
+            self.xap_query = conn_for_sim.query_similar([query[1]])
             self.spell_corrected_query = None
 
         self.do_search(conn)
@@ -84,11 +82,13 @@ class Results (object):
         if exclusions:
             xq = conn.query_filter(xq, conn.query_parse( ' '.join(util.listify(exclusions))), True )
         return xq
-        
 
-    def do_search(self, conn):        
+    def do_search(self, conn):
         self.log.info("Search databases %s with query %s" % (self.dbs, self.xap_query))
-        self.xap_results = conn.search(self.xap_query, self.tophit, self.tophit + self.maxhits)
+        self.xap_results = conn.search(self.xap_query,
+                                       self.tophit,
+                                       self.tophit + self.maxhits,
+                                       100)
 
     def conn_for_dbs(self, dbs):
         conn = xappy.SearchConnection(dbs[0])
@@ -96,7 +96,7 @@ class Results (object):
             conn._index.add_database(xapian.Database(d))
         return conn
 
-def search(query, exact, exclusions,  dbs, tophit = 0, maxhits = 10):
+def search(query, exact, exclusions, dbs, tophit = 0, maxhits = 10):
     """ search the xapian dbs named by `dbs` with `query`.  return a
         triple (results, corrected_query, corrected_results), where
         results is the xapian results object, corrected query is a
