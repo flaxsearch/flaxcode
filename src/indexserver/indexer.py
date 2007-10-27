@@ -32,16 +32,34 @@ log = logging.getLogger('indexing')
 
 class Indexer(object):
     """Perform indexing of a xapian database on demand.
+
+       Indexing a collection can take some time, the objects
+       error_count_holder, file_count_holder and stop_flag_holder can
+       be used to interegate the state of the indexing. Each is
+       assumed to have a value attribute, the first two will be set to
+       the number of files processed and the number of files that
+       error during the current indexing. The last will be
+       periodically checked, and if it's value is true then indexing
+       will terminate quickly (without processing all files).
     """
 
-    def __init__(self):
+    def __init__(self, file_count_holder, error_count_holder, stop_flag_holder):
 
         self._filter_map = {"Xapian": htmltotext_filter.html_filter,
                             "Text": simple_text_filter.text_filter}
         if windows:
             self._filter_map["IFilter"] =  w32com_ifilter.remote_ifilter
 
-    def do_indexing(self, col, filter_settings, continue_check):
+        self.file_count_holder = file_count_holder
+        self.error_count_holder = error_count_holder
+        self.stop_flag_holder = stop_flag_holder
+
+    def continue_check(self, file_count, error_count):
+        self.file_count_holder.value = file_count
+        self.error_count_holder.value = error_count
+        return not self.stop_flag_holder.value
+
+    def do_indexing(self, col, filter_settings):
 
         """Perform an indexing pass.
 
@@ -81,7 +99,8 @@ class Indexer(object):
                     error_count += 1
                 file_count += 1
                 docs_found[f]=True
-                if not continue_check(file_count, error_count):
+                if not self.continue_check(file_count, error_count):
+                    log.debug("Prematurely terminating indexing, stop flag is true")
                     return False
                 conn.flush()
 
@@ -89,7 +108,6 @@ class Indexer(object):
                 if not found:
                     log.info("Removing %s from %s" % (id, name))
                     conn.delete(id)
-                    continue_check(file_count, error_count)
 
             log.info("Indexing of %s finished" % name)
             return True
@@ -177,37 +195,16 @@ class Indexer(object):
         return rv
 
 
-class IndexServer(processing.Process):
-    """ The indexing process.  Controls a remote indexer and provides
-    methods for interacting with it.
+class IndexProcess(processing.Process):
 
-    Note that the logic for controlling the execution of the indexer
-    all runs in the main process (the one creating the IndexServer
-    object).
-    """
-
-    def __init__(self, logconfpath):
+    def __init__(self, logconfpath, *indexer_args):
         processing.Process.__init__(self)
         self.setDaemon(True)
         self.logconfio = processing.Pipe()
         self.inpipe = processing.Pipe()
         self.outpipe = processing.Pipe()
-        self.syncman = processing.LocalManager()
-        self.error_count_sv = self.syncman.SharedValue('i',0)
-        self.file_count_sv = self.syncman.SharedValue('i', 0)
-
-        # Note that although this lock is only used in the main
-        # process on windows instances of this class are pickled so we
-        # have to use processing.Lock rather than threading.Lock. (On
-        # linux threading.Lock is fine.)
-
-        # changes to stop_sv and currently indexing should be atomic - use this lock to ensure so.
-        self.state_lock = processing.Lock() 
-        self.stop_sv = self.syncman.SharedValue('i', 0)
-        self.currently_indexing = None
-
-        self.hints = set()
         self.logconfpath = logconfpath
+        self.indexer_args = indexer_args
         self.flaxpaths = flaxpaths.paths
         self.start()
 
@@ -215,16 +212,39 @@ class IndexServer(processing.Process):
         flaxpaths.paths = self.flaxpaths
         logclient.LogListener(self.logconfio[1]).start()
         logclient.LogConf(self.logconfpath).update_log_config()
-        indexer = Indexer()
+        indexer = Indexer(*self.indexer_args)
         while True:
             collection, filter_settings = self.inpipe[1].recv()
-            self.outpipe[0].send(indexer.do_indexing(collection, filter_settings, self.continue_check))
+            self.outpipe[0].send(indexer.do_indexing(collection, filter_settings))
 
-    def continue_check(self, file_count, error_count):
-        self.file_count_sv.value = file_count
-        self.error_count_sv.value = error_count
-        return not self.stop_sv.value
+
+    # call do indexing in the remote process, block until return value is sent back
+    def do_indexing(self, collection, filter_settings):
+        self.inpipe[0].send((collection, filter_settings))
+        return self.outpipe[1].recv()
             
+
+
+class IndexServer(object):
+    """ The index server, controls when collections are indexed and
+    provides information about the state of the indexing process.
+    """
+
+    def __init__(self, logconfpath):
+        self.syncman = processing.LocalManager()
+        self.error_count_sv = self.syncman.SharedValue('i',0)
+        self.file_count_sv = self.syncman.SharedValue('i', 0)
+        # changes to stop_sv and currently indexing should be atomic - use this lock to ensure so.
+        self.state_lock = threading.Lock() 
+        self.stop_sv = self.syncman.SharedValue('i', 0)
+        self.currently_indexing = None
+        self.hints = set()
+        self.indexing_process = IndexProcess(logconfpath, self.file_count_sv, self.error_count_sv, self.stop_sv)
+
+    def log_config_listener(self):
+        "return a listener for log configuration changes in the remote indexing process"
+        return self.indexing_process.logconfio[0]
+    
     def do_indexing(self, collection):
         assert not self.currently_indexing
         assert not self.stop_sv.value
@@ -233,10 +253,9 @@ class IndexServer(processing.Process):
         self.currently_indexing = collection
         self.error_count_sv.value = 0
         self.file_count_sv.value = 0
-        self.inpipe[0].send((collection, flax.options.filter_settings))
         # block here for a result
         # the return value shows whether we finished, or were prematurely stopped
-        collection.indexing_due = not self.outpipe[1].recv()        
+        collection.indexing_due = not self.indexing_process.do_indexing(collection, flax.options.filter_settings)
         collection.file_count = self.file_count_sv.value
         collection.error_count = self.error_count_sv.value
         with self.state_lock:
