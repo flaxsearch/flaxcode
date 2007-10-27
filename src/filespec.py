@@ -63,10 +63,13 @@ class FileSpec(object):
                 # (assuming the file passes the other criteria for
                 # inclusion.)
                 for f in files:
-                    fname = os.path.join(root, f)
+                    fname = os.path.realpath(os.path.join(root, f))
                     logger_indexing.debug("Walked to file %s" % fname)
-                    if self.included(fname, logger_indexing):
-                        yield fname
+                    if os.path.exists(fname):
+                        if self.included(fname, logger_indexing):
+                            yield fname
+                    else:
+                        logger_indexing.debug("Walked file %s, does not exist (dangling symlink?), skipping" % fname)
 
     def _get_oldest(self):
         return self._oldest
