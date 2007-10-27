@@ -231,7 +231,7 @@ class IndexServer(object):
     """
 
     def __init__(self, logconfpath):
-        self.syncman = processing.LocalManager()
+        self.syncman = processing.Manager()
         self.error_count_sv = self.syncman.SharedValue('i',0)
         self.file_count_sv = self.syncman.SharedValue('i', 0)
         # changes to stop_sv and currently indexing should be atomic - use this lock to ensure so.
