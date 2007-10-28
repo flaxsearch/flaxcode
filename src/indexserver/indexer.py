@@ -80,7 +80,6 @@ class Indexer(object):
         return not self.stop_flag_holder.value
 
     def do_indexing(self, col, filter_settings):
-
         """Perform an indexing pass.
 
         Index the database for col using filters given by
@@ -88,13 +87,12 @@ class Indexer(object):
         this is used to remove documents in the database that no
         longer have an associated file.
 
-        
         continue_check will be called before each file of the
         collection is about to be processed. If it returns False then
         indexing will stop and do_indexing will return False.
 
         If do_indexing attempt to index all the files then it will return True.
-        
+
         """
         conn = None
         try:
@@ -110,7 +108,7 @@ class Indexer(object):
             # FIXME - we should really test for the error though, so we can
             # give a better error message.
             conn = xappy.IndexerConnection(dbname)
-            
+
             docs_found = dict((id, False) for id in conn.iterids())
 
             error_count = file_count = 0
@@ -131,7 +129,7 @@ class Indexer(object):
 
             log.info("Indexing of %s finished" % name)
             return True
-            
+
         except xappy.XapianDatabaseLockError, e:
             log.error("Attempt to index locked database: %s, ignoring" % dbname)
         except Exception, e:
@@ -142,7 +140,6 @@ class Indexer(object):
         finally:
             if conn:
                 conn.close()
-                
 
     def _find_filter(self, filter_name):
         return self._filter_map[filter_name] if filter_name in self._filter_map else None
@@ -242,7 +239,6 @@ class IndexProcess(processing.Process):
     def do_indexing(self, collection, filter_settings):
         self.inpipe[0].send((collection, filter_settings))
         return self.outpipe[1].recv()
-            
 
 
 class IndexServer(object):
@@ -255,7 +251,7 @@ class IndexServer(object):
         self.error_count_sv = self.syncman.SharedValue('i',0)
         self.file_count_sv = self.syncman.SharedValue('i', 0)
         # changes to stop_sv and currently indexing should be atomic - use this lock to ensure so.
-        self.state_lock = threading.Lock() 
+        self.state_lock = threading.Lock()
         self.stop_sv = self.syncman.SharedValue('i', 0)
         self.currently_indexing = None
         self.hints = set()
@@ -264,7 +260,7 @@ class IndexServer(object):
     def log_config_listener(self):
         "return a listener for log configuration changes in the remote indexing process"
         return self.indexing_process.logconfio[0]
-    
+
     def do_indexing(self, collection):
         assert not self.currently_indexing
         assert not self.stop_sv.value
@@ -281,17 +277,20 @@ class IndexServer(object):
         with self.state_lock:
             self.stop_sv.value = False
             self.currently_indexing = None
-                
+
     def async_do_indexing(self, collection):
         # call do_indexing in a separate thread and return.
         util.AsyncFunc(self.do_indexing)(collection)
 
     def indexing_info(self, collection):
-        """ Returns a triple of indexing information for the collection updated in real time
-        for an indexing collection, or the cached values from last indeding otherwise
-        
+        """Get information about the status of indexing.
+
+        Returns a triple of indexing information for the collection updated in
+        real time for an indexing collection, or the cached values from last
+        indeding otherwise
+
         currently_indexing: True iff collection is currently indexing
-        file_count: number of files 
+        file_count: number of files
         error_count: number of files that generate errors.
         """
         if collection is self.currently_indexing:
@@ -325,7 +324,7 @@ class IndexServer(object):
     def stop_indexing(self, collection):
         """Stop indexing collection if it is currently indexing,
         otherwise do nothing"""
-        
+
         with self.state_lock:
             if self.currently_indexing is collection:
                 self.stop_sv.value = True
@@ -347,7 +346,7 @@ class IndexServer(object):
     def unset_due(self, collection):
         collection.indexing_due = False
         self.start_indexing(collection)
-        
+
     # convenience function
     def toggle_due_or_held(self, collection, held):
         assert isinstance(collection, doc_collection.DocCollection)
