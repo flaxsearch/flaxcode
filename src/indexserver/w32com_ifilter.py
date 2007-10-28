@@ -1,4 +1,55 @@
-#$Id : xxx $
+# Copyright (C) 2007 Lemur Consulting Ltd
+# Copyright (C) 1994-2001, Mark Hammond
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+#
+# Portions of this file were derived from an example in the "Python for
+# Windows" extensions, to which the following license applies:
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#
+#  Redistributions of source code must retain the above copyright notice,
+#  this list of conditions and the following disclaimer.
+#
+#  Redistributions in binary form must reproduce the above copyright
+#  notice, this list of conditions and the following disclaimer in
+#  the documentation and/or other materials provided with the distribution.
+#
+#  Neither name of Mark Hammond nor the name of contributors may be used
+#  to endorse or promote products derived from this software without
+#  specific prior written permission.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+#  IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+#  TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+#  PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+#  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+#  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+#  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+#  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+#  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""Filter using the windows-specific ifilter mechanism, over COM.
+
+"""
+__docformat__ = "restructuredtext en"
+
 import itertools
 import pythoncom
 import pywintypes
@@ -29,7 +80,7 @@ def text_for_current_chunk(filt):
             yield filt.GetText()
 
     return(util.gen_until_exception(get_text(),
-                                    pythoncom.com_error, 
+                                    pythoncom.com_error,
                                     lambda e: e[0] == FILTER_E_NO_MORE_TEXT))
 
 _filter_init_flags = IFILTER_INIT_INDEXING_ONLY | \
@@ -71,7 +122,6 @@ def ifilter_filter(filename, init_flags = _filter_init_flags):
                    yield 'comments', comments
            except pythoncom.com_error, e:
                pass
-               
 
     def do_chunks():
         while True:
@@ -80,12 +130,12 @@ def ifilter_filter(filename, init_flags = _filter_init_flags):
             if flags == CHUNK_TEXT:
                 for txt in text_for_current_chunk(filt):
                     yield prop_name, txt
-        
+
     return itertools.chain(start_fields(),
                            util.gen_until_exception(do_chunks(),
                                                     pythoncom.com_error,
                                                     lambda e: e[0] == FILTER_E_END_OF_CHUNKS))
-        
+
 def load_ifilter(filename):
     try:
         return ifilter.LoadIFilter(filename)
@@ -95,12 +145,11 @@ def load_ifilter(filename):
         else:
             log.warning("File %s cannot be processed" % filename)
         raise
-        
-    
+
 
 def get_ifilter_for_file(filename):
     """
-    Deal with structured storage file if possible. 
+    Deal with structured storage file if possible.
     See http://msdn2.microsoft.com/en-us/library/aa380369.aspx
     """
 
@@ -119,6 +168,6 @@ def get_ifilter_for_file(filename):
         stg = None
     return (filt, stg)
 
-# A filter than runs ifilter in a separate process. See remote_filter.
+# A filter that runs ifilter in a separate process. See remote_filter.
 import remote_filter
 remote_ifilter = remote_filter.RemoteFilterRunner(ifilter_filter)
