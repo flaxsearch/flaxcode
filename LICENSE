@@ -1,37 +1,50 @@
-Unless otherwise stated in a specific file or subdirectory or noted
-below all files are Copyright (C) 2007 Lemur Consulting Ltd and may be
-used and distributed according to the terms of the GNU General Public
-License, incorporated herein by reference.
+LICENSE
+=======
 
+Copyright (C) 2007 Lemur Consulting Ltd
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
 w32com_ifilter.py
 -----------------
 
-The file src/w32com_ifilter.py conatains some bits of code that are
-modified versions of code from the python for windows extentions to
-which the following applies::
+Portions of the file "src/indexserver/w32com_ifilter.py" were derived from an
+example in the "Python for Windows" extensions, to which the following license
+applies:
 
   Unless stated in the specfic source file, this work is
-  Copyright (c) 1994-2001, Mark Hammond 
+  Copyright (c) 1994-2001, Mark Hammond
   All rights reserved.
 
-  Redistribution and use in source and binary forms, with or without 
-  modification, are permitted provided that the following conditions 
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
   are met:
 
-  Redistributions of source code must retain the above copyright notice, 
+  Redistributions of source code must retain the above copyright notice,
   this list of conditions and the following disclaimer.
 
-  Redistributions in binary form must reproduce the above copyright 
-  notice, this list of conditions and the following disclaimer in 
+  Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer in
   the documentation and/or other materials provided with the distribution.
 
-  Neither name of Mark Hammond nor the name of contributors may be used 
-  to endorse or promote products derived from this software without 
-  specific prior written permission. 
+  Neither name of Mark Hammond nor the name of contributors may be used
+  to endorse or promote products derived from this software without
+  specific prior written permission.
 
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ''AS
   IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
   TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
   PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
@@ -41,4 +54,4 @@ which the following applies::
   PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
   LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
