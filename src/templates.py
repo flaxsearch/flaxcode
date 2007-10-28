@@ -1,4 +1,3 @@
-# $Id$
 """ HTMLTemplates for Flax and rendering thereof.
 """
 
