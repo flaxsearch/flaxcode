@@ -1,26 +1,26 @@
+# Copyright (C) 2007 Lemur Consulting Ltd
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""Support for running filters in a subprocess.
+
+This is intended to protect the main indexing process against badly behaved
+filters: filters which take too long can be killed, and filters which crash or
+fail in other ways will not break the whole indexing process.
+
 """
-Program to run filters and communicate their output.
-
-This is indented to be run as a subprocess for the main indexing
-process, so as to protect it against badly behaved filters.
-
-The program starts expects a single argument being a
-moduldename.filter pattern. It attempts to import the module named by
-modulname and checks that it contains a callable named by filter. If
-not then it exits immediately.
-
-All communication is via stdin and stdout. All communication consists
-of a long, n, packed as struct('L', n) followed by n bytes of data
-being a pickled representation of a python object. We will elide this
-detail and just talk about the underlying objects, trusting that the
-pickling is working underneath.
-
-We wait for a filename on standard input. We call the filter on the
-file, writing the resultant blocks to standard output. Once the
-iteration finishes we return the empty string and wait for more input.
-Exceptions are caught and returned.
-
-"""
+__docformat__ = "restructuredtext en"
 
 import sys
 import processing
@@ -58,7 +58,7 @@ class RemoteFilterRunner(object):
             self.server.terminate()
             self.server = self.i = self.o = None
             raise TimeOutError("The server took too long to process file %s, giving up" % file_name)
-        
+
     def maybe_start_server(self):
         if not self.server:
             self.inpipe = processing.Pipe()
@@ -68,9 +68,7 @@ class RemoteFilterRunner(object):
             self.server.start()
 
 # just for expermenting/testing
-
 if __name__ == "__main__":
-
     def forever_filter(filename):
         while 1:
             pass
@@ -82,7 +80,7 @@ if __name__ == "__main__":
         if not callable(obj):
             raise TypeError("Need a callable")
         else:
-            return obj        
+            return obj
 
     filter = RemoteFilterRunner(find_filter(sys.argv[1]))
     while 1:
@@ -94,6 +92,3 @@ if __name__ == "__main__":
             blocks = filter(filename)
             print "blocks are:"
             print list(blocks)
-    
-
-
