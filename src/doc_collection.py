@@ -67,7 +67,6 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
         self.update_mappings(**kwargs)
 
     def update_mappings(self, path=None, mapping=None, **kwargs):
-        
         # This relies on the ordering of the form elements, I'm not
         # sure if it's safe to do so, although it seems to work fine.
         if (path == None or mapping == None):
@@ -100,7 +99,7 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
             return mapped + "/" + doc_id[len(path[0]):].replace('\\', '/')
         else:
             return ""
-        
+
     def search_conn(self):
         if not self._search_conn:
             try:

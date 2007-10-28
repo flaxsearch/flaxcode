@@ -30,8 +30,8 @@ current_version = 10
 class FlaxOptions(object):
     """Global options for Flax.
 
-    """    
-    def __init__(self, version, formats, 
+    """
+    def __init__(self, version, formats,
                  logger_names, filters, filter_settings, languages):
 
         self.version = version
@@ -60,10 +60,10 @@ class FlaxOptions(object):
 
     log_settings = property(fset=_set_log_settings, fget=_get_log_settings, doc=
         """A dictionary mapping log event names to log levels.
-    
+
         It is permitted for the dictionary to contain names that do not name a log
         event, such will be silently ignored.
-    
+
         """)
 
     @property
@@ -83,12 +83,12 @@ def make_options():
                     "scheduling")
 
     filters = ["IFilter", "Xapian", "Text"]
-    
+
     formats = ["txt", "doc", "rtf", "html", "htm", "pdf", "xls", "ppt"]
     formats.sort()
 
     default_filter = filters[0] if os.name == 'nt' else filters[2]
-    
+
     filter_settings = dict( (f, default_filter) for f in formats)
     if os.name != 'nt':
         filter_settings['html'] = filter_settings['htm'] = 'Xapian'
@@ -107,9 +107,9 @@ def make_options():
                   ("ru", "Russian"),
                   ("es", "Spanish"),
                   ("sv", "Swedish")]
-              
+
     return FlaxOptions(current_version,
-                       formats, 
+                       formats,
                        logger_names,
                        filters,
                        filter_settings,

@@ -1,10 +1,27 @@
-""" Logging
+# Copyright (C) 2007 Lemur Consulting Ltd
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""Support for logging.
 
-    We read the logging configuration at startup, and then listen for
-    new configurations.
+We read the logging configuration at startup, and then listen for new
+configurations.
 
 """
 from __future__ import with_statement
+__docformat__ = "restructuredtext en"
+
 import ConfigParser
 import logging
 import logging.config
@@ -39,7 +56,6 @@ class LogConf(object):
     """ Simple log configuration control/querying.
 
     """
-    
     def __init__(self, filepath):
         self.filepath = filepath
         self.parser = ConfigParser.SafeConfigParser()
@@ -47,7 +63,7 @@ class LogConf(object):
     def update_log_config(self):
         with open(self.filepath) as f:
             update_log_config_from_string(f.read())
-    
+
     def set_levels(self, logger_levels):
         """
         logger_levels is a sequence of (logger, level) pairs,
@@ -82,5 +98,3 @@ class LogConfPub(object):
             data = f.read()
             for s in self.subscribers:
                 s.send(data)
-
-

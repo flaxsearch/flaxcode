@@ -1,3 +1,23 @@
+# Copyright (C) 2007 Lemur Consulting Ltd
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""Build and perform searches according to user input.
+
+"""
+__docformat__ = "restructuredtext en"
+
 import logging
 import types
 
@@ -10,7 +30,6 @@ import util
 # available via xappy. We use the xappy SearchConnection's internal
 # handle on the xapian connection and invoke its add_database
 # property.
-
 
 class Results (object):
     """ Make search results from supplied query information.
@@ -73,7 +92,7 @@ class Results (object):
     def make_xap_query(self, conn, query, exact, exclusions):
         if not (query or exact or exclusions):
             return conn.query_parse("")
-        
+
         if query:
             xq = conn.query_parse(query)
         else:

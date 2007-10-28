@@ -57,11 +57,11 @@ class CollectionList(object):
     def search(self, query=None, col_id=None, doc_id=None, cols=None,
                exact=None, exclusions=None, tophit=0, maxhits=10):
         """Perform a search.
-        
+
         Either query or (col_id and doc_id) should be passed, the latter
         idicates a similarity search for the document identified by col_id and
         doc_id.
-        
+
         """
         if cols is None:
             cols = self._collections.keys()
@@ -72,7 +72,7 @@ class CollectionList(object):
             return search.search(query, exact, exclusions, dbs_to_search, tophit, maxhits)
         else:
             return None
-        
+
     @property
     def collection_names (self):
         return self._collections.keys()

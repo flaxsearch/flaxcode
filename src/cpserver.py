@@ -211,7 +211,7 @@ class SearchForm(object):
         :Parameters:
             - `query`: the search query
             - `col`: the (list of) collection(s) to be searched.
-            - `doc_id`: A document to generate a search query 
+            - `doc_id`: A document to generate a search query.
             - `advanced`: the style of search form.
 
         One of `query` or (`col_id` and `doc_id`) should be provided

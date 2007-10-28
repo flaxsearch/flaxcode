@@ -25,7 +25,6 @@ import optparse
 import os
 import sys
 
-
 import processing
 import cpserver
 import flax
@@ -60,7 +59,7 @@ def parse_cli_opts():
     if windows:
         import flax_w32
         reg = flax_w32.FlaxRegistry()
-        
+
     op.add_option('-d', '--main-dir',
                   dest = 'main_dir',
                   help = 'Flax main directory',
@@ -104,7 +103,7 @@ class FlaxMain():
 
     To use asynchronously, the "start" method is called with blocking=False.
     This will return immediately.  To cause the server to stop, the stop()
-    method is called.  
+    method is called.
 
     """
     def __init__(self, options):
@@ -157,7 +156,6 @@ class FlaxMain():
         which case stop should be called to terminate.
 
         """
-        
         self._do_start(blocking)
 
     def stop(self):
@@ -180,7 +178,7 @@ class FlaxMain():
 
         Return True if all threads and processes have finished.  Otherwise,
         returns False.
- 
+
         """
         self._do_cleanup()
         return True

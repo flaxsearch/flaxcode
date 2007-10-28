@@ -28,14 +28,15 @@ REGKEY_BASE = "SOFTWARE\\Lemur Consulting Ltd\\Flax Site Search\\"
 DEFAULT_INSTALL_DIR = r"c:\Program Files\Flax"
 
 class FlaxRegistry(object):
-    """Encapsulate all the settings we read from the Registry
+    """Encapsulate all the settings we read from the Registry.
+
     """
 
-    # We need to do a lot of messing about with paths, as when running as a frozen executable
-    # (under Windows using Py2exe)  it's not clear what our actual path is. 
+    # We need to do a lot of messing about with paths, as when running as a
+    # frozen executable (under Windows using Py2exe) it's not clear what our
+    # actual path is.
 
     def __init__(self):
-
         self.runtimepath = None
         self.datapath = None
 
@@ -44,10 +45,9 @@ class FlaxRegistry(object):
                                             REGKEY_BASE + "RuntimePath")
         except:
             self.runtimepath = DEFAULT_INSTALL_DIR
-    
+
         try:
             self.datapath = win32api.RegQueryValue(regutil.GetRootKey(),
                                         REGKEY_BASE + "DataPath")
         except:
             self.datapath = DEFAULT_INSTALL_DIR
-

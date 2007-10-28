@@ -1,6 +1,22 @@
+# Copyright (C) 2007 Lemur Consulting Ltd
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""A variety of utilities for Flax.
+
 """
-A variety of utilities for Flax.
-"""
+__docformat__ = "restructuredtext en"
 
 import os
 import sys
@@ -75,11 +91,12 @@ class DelayThread(threading.Thread):
         print "Subclasses should override action"
 
 class FileWatcher(DelayThread):
-    """ Watches a file for modification and notifies when such changes
-        occur by calling a supplied callable.  We don't deal with
-        non-existent files or cope with file deletion.
+    """Watches a file for modification.
+
+    Notify when such changes occur by calling a supplied callable.  We don't
+    deal with non-existent files or cope with file deletion.
+
     """
-    
     def __init__(self, filename, change_action,  **kwargs):
         DelayThread.__init__(self, **kwargs)
         self.filename = filename
@@ -94,7 +111,7 @@ class FileWatcher(DelayThread):
 
 class AsyncFunc(object):
     """Invoke a callable asynchronously.
-    
+
     The return value is passed to the supplied callback when it completes.
 
     """
@@ -110,7 +127,7 @@ class AsyncFunc(object):
 
     def __call__(self, *args, **kwargs):
         """Invoke the callable asynchronously.
-        
+
         The callable is invoked in a separate thread, passing in args and
         kwargs.  The callback is then called with the return value when of func
         when it returns.

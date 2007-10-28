@@ -18,7 +18,6 @@
 """
 __docformat__ = "restructuredtext en"
 
-
 import servicemanager
 import win32api
 import win32con
@@ -56,18 +55,19 @@ signal.signal = _dummy_signal
 if __name__ != '__main__':
     sys.argv[0] = ''
 
-# Before importing the Processing module we have to set sys.executable to point 
+# Before importing the Processing module we have to set sys.executable to point
 # at the command-line version of Flax. This means the Processing module will correctly
-# run new processes via the freezeSupport() method. However we can't leave it as this 
+# run new processes via the freezeSupport() method. However we can't leave it as this
 # as Py2exe expects it to be set to the path to the Service executable it builds.
 oldsysexec = sys.executable
 sys.executable = _reg.runtimepath + '/startflax.exe'
+
 #######################################################
 #NOTE: if you need to run the code *non-frozen* ((i.e. 'python flaxservice.py')
 # you must replace the above as follows:
 # sys.executable = 'c:\Python25\Python.exe'
 # (or the equivalent path to a Python interpreter - you may need to read this from the Registry)
-# The Services framework will have set it to PythonService.exe, which again won't 
+# The Services framework will have set it to PythonService.exe, which again won't
 # work with the Processing module.
 #######################################################
 
@@ -87,7 +87,7 @@ class FlaxService(win32serviceutil.ServiceFramework):
     def __init__(self, args):
         win32serviceutil.ServiceFramework.__init__(self, args)
         servicemanager.SetEventSourceName(self._svc_display_name_)
-        
+
         self.hWaitStop = win32event.CreateEvent(None, 0, 0, None)
 
         LogInfoMsg('The Flax service is initialising.')
@@ -98,9 +98,9 @@ class FlaxService(win32serviceutil.ServiceFramework):
                                                  src_dir = _reg.runtimepath,
                                                  dbs_dir = _reg.datapath)
         self._flax_main = startflax.FlaxMain(self._options)
-        
+
         LogInfoMsg('The Flax service is initialised.')
-            
+
     def SvcStop(self):
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
         win32event.SetEvent(self.hWaitStop)
@@ -119,7 +119,7 @@ class FlaxService(win32serviceutil.ServiceFramework):
         # debugging while acting as a service
         sys.stderr = open(os.path.join(flaxpaths.paths.log_dir, 'flax_stderr.log'), 'w')
         sys.stdout = open(os.path.join(flaxpaths.paths.log_dir, 'flax_stdout.log'), 'w')
-        
+
         # Start flax, non-blocking.
         self._flax_main.start(blocking = False)
         self.ReportServiceStatus(win32service.SERVICE_RUNNING)
@@ -145,7 +145,7 @@ class FlaxService(win32serviceutil.ServiceFramework):
 
         # Tell windows that we've stopped.
         LogInfoMsg('The Flax service has stopped.')
-        
+
 def ctrlHandler(ctrlType):
     """A windows control message handler.
 
