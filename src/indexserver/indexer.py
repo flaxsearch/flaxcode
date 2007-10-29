@@ -108,6 +108,7 @@ class Indexer(object):
             # FIXME - we should really test for the error though, so we can
             # give a better error message.
             conn = xappy.IndexerConnection(dbname)
+            conn.set_max_mem_use(max_mem_proportion = 0.1)
 
             docs_found = dict((id, False) for id in conn.iterids())
 
