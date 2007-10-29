@@ -52,7 +52,7 @@ class RemoteFilterRunner(object):
         self.outpipe[0].send(file_name)
         if self.inpipe[1].poll(self.timeout):
             blocks = self.inpipe[1].recv()
-            if isinstance(blocks, Exception)
+            if isinstance(blocks, Exception):
                 raise blocks
             for block in blocks:
                 yield block
