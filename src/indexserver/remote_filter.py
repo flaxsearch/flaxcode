@@ -30,8 +30,10 @@ def filter_runner(filter, i, o):
     "Repeatedly receive a filename on `i`, run filter on that file, send output to `o`"
     while 1:
         filename = i.recv()
-        results = list(filter(filename))
-        o.send(list(filter(filename)))
+        results = filter(filename)
+        if not isinstance(results, Exception):
+            results = list(results)
+        o.send(results)
 
 class TimeOutError(Exception):
     "Signal that a remote filter is taking too long to process a file"
