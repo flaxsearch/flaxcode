@@ -52,6 +52,12 @@ class FlaxOptions(object):
 
         lq = logclient.LogConf(flaxpaths.paths.logconf_path)
         lq.set_levels(new_levels)
+        
+        # This is here so that the web page that people see after
+        # setting a new option reflects the change that they've just
+        # made. See
+        # http://code.google.com/p/flaxcode/issues/detail?id=55
+        lq.update_log_config()
 
     def _get_log_settings(self):
         # is .level part of the public api for logger objects?
