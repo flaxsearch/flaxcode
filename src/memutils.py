@@ -51,26 +51,25 @@ def _get_physical_mem_win32():
     """
     """
     try:
-        from ctypes import *
-        from ctypes.wintypes import *
+        import ctypes
+        import ctypes.wintypes as wintypes
     except ValueError:
         return None
-
     
-    class MEMORYSTATUS(Structure):
+    class MEMORYSTATUS(wintypes.Structure):
         _fields_ = [
-            ('dwLength', DWORD),
-            ('dwMemoryLoad', DWORD),
-            ('dwTotalPhys', DWORD),
-            ('dwAvailPhys', DWORD),
-            ('dwTotalPageFile', DWORD),
-            ('dwAvailPageFile', DWORD),
-            ('dwTotalVirtual', DWORD),
-            ('dwAvailVirtual', DWORD),
+            ('dwLength', wintypes.DWORD),
+            ('dwMemoryLoad', wintypes.DWORD),
+            ('dwTotalPhys', wintypes.DWORD),
+            ('dwAvailPhys', wintypes.DWORD),
+            ('dwTotalPageFile', wintypes.DWORD),
+            ('dwAvailPageFile', wintypes.DWORD),
+            ('dwTotalVirtual', wintypes.DWORD),
+            ('dwAvailVirtual', wintypes.DWORD),
         ]
 
     m = MEMORYSTATUS()
-    windll.kernel32.GlobalMemoryStatus(byref(m))
+    wintypes.windll.kernel32.GlobalMemoryStatus(byref(m))
     return m.dwTotalPhys
 
 def get_physical_memory():
@@ -83,4 +82,3 @@ def get_physical_memory():
     if result is not None:
         return result
     return _get_physical_mem_win32()
-    
