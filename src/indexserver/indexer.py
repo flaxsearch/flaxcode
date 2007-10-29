@@ -121,7 +121,6 @@ class Indexer(object):
                 if not self.continue_check(file_count, error_count):
                     log.debug("Prematurely terminating indexing, stop flag is true")
                     return False
-                conn.flush()
 
             for id, found in docs_found.iteritems():
                 if not found:
