@@ -60,6 +60,9 @@ import sys
 sys.path.append('..')
 import util
 import logging
+import threading
+
+threadlocal = threading.local()
 
 log = logging.getLogger("filtering.ifilter")
 
@@ -98,7 +101,10 @@ def decode_prop(prop):
     return prop.decode('mbcs') if prop else prop
 
 def ifilter_filter(filename, init_flags = _filter_init_flags):
-    pythoncom.CoInitialize()
+    if not hasattr(threadlocal, 'cominit'):
+        pythoncom.CoInitializeEx(pythoncom.COINIT_APARTMENTTHREADED)
+        threadlocal.cominit = True
+
     try:
         filt, stg = get_ifilter_for_file(filename)
     except pythoncom.com_error, e:
