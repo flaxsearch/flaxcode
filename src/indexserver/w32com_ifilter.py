@@ -99,7 +99,11 @@ def decode_prop(prop):
 
 def ifilter_filter(filename, init_flags = _filter_init_flags):
     pythoncom.CoInitialize()
-    filt, stg = get_ifilter_for_file(filename)
+    try:
+        filt, stg = get_ifilter_for_file(filename)
+    except pythoncom.com_error, e:
+        return e
+        
     init_flags = filt.Init(init_flags)
 
     def start_fields():

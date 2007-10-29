@@ -45,13 +45,15 @@ class RemoteFilterRunner(object):
     def __init__(self, filter, timeout=30):
         self.filter = filter
         self.timeout = timeout
-        self.server=None
+        self.server = None
 
     def __call__(self, file_name):
         self.maybe_start_server()
         self.outpipe[0].send(file_name)
         if self.inpipe[1].poll(self.timeout):
             blocks = self.inpipe[1].recv()
+            if isinstance(blocks, Exception)
+                raise blocks
             for block in blocks:
                 yield block
         else:
