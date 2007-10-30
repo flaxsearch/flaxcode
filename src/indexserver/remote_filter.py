@@ -38,16 +38,16 @@ class FilterRunner(logclient.LogClientProcess):
         self.setDaemon(True)
         self.start()
         
-        def run(self):
-            """Repeatedly receive a filename on `self.i`, run
-            self.filter on that file, send output to `o`"""
-            self.initialise_logging()
-            while 1:
-                filename = self.i.recv()
-                results = self.filter(filename)
-                if not isinstance(results, Exception):
-                    results = list(results)
-                self.o.send(results)
+    def run(self):
+        """Repeatedly receive a filename on `self.i`, run
+        self.filter on that file, send output to `o`"""
+        self.initialise_logging()
+        while 1:
+            filename = self.i.recv()
+            results = self.filter(filename)
+            if not isinstance(results, Exception):
+                results = list(results)
+            self.o.send(results)
 
 class TimeOutError(Exception):
     "Signal that a remote filter is taking too long to process a file"
