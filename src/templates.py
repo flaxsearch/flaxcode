@@ -150,7 +150,7 @@ def render_search(template, isAdmin, renderer, advanced, collections, results=No
         template.main.advanced_holder.omit()
     cols = list(collections.itervalues())
     template.main.collections.repeat(render_search_collection, cols, len(cols))
-    if results:
+    if results and cols:
         render_search_result(template.main, results, collections, selcols)
         template.main.descriptions.omit()
     else:

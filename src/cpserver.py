@@ -256,7 +256,7 @@ class Top(FlaxResource):
 
     @cherrypy.expose
     def index(self):
-        return self.search()
+        raise cherrypy.HTTPRedirect('search')
 
     @cherrypy.expose
     def search(self, **kwargs):
