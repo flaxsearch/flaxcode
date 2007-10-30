@@ -64,6 +64,7 @@ a:hover {
 #banner_options #optnav .navlabel,
 #banner_search  #searchnav .navlabel,
 #banner_advsearch #advsearchnav .navlabel,
+#banner_about #aboutnav .navlabel,
 #banner_collections #colnav .navlabel {
  color: black;
 }

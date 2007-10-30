@@ -207,10 +207,12 @@ def render_search_collection (node, collection, collection_len, selected=None):
 
 ##### About Template #####
 
-def render_about(template):
+def render_about(template, isAdmin):
     """Render the "about" template.
 
     """
+    if isAdmin:
+        template.main.banner_search.omit()
     template.main.version.content = version.get_version_string()
 
 
@@ -496,9 +498,9 @@ class Renderer(object):
 
     def admin_about_render(self, *args):
         "Render the admin About page."
-        return self._tman.create_admin_template("about.html", render_about).render(*args)
+        return self._tman.create_admin_template("about.html", render_about).render(True, *args)
 
     def user_about_render(self, *args):
         "Render the user About page."
-        return self._tman.create_user_template("about.html", render_about).render(*args)
+        return self._tman.create_user_template("about.html", render_about).render(False, *args)
 
