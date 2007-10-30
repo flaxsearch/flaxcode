@@ -299,6 +299,11 @@ class Admin(Top):
         """
         if cherrypy.request.method == "POST":
             self._flax_data.log_settings = kwargs
+            # Sleep for a short interval to let the log settings propagate
+            import time
+            time.sleep(1)
+            # Redirect to prevent reloads redoing the POST.
+            raise cherrypy.HTTPRedirect('options')
         return self._options_template (self._flax_data)
 
     @cherrypy.expose
