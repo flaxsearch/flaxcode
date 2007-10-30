@@ -31,6 +31,14 @@ import HTMLTemplate
 import uistrings
 import util
 
+# Cause HTMLTemplate to discard all XML comments.
+# This is a bit nasty, but HTMLTemplate development seems to have ceased, and
+# there's no-one to submit changes to: so the options are to start maintaining
+# our own fork of HTMLTemplate, or to patch it on the fly like this.
+def my_handle_comment(self, txt): pass
+HTMLTemplate.Parser.handle_comment = my_handle_comment
+del my_handle_comment
+
 class TemplateManager(object):
     """
     Facilities for making HTMLTemplates for Flax with preconfigured
