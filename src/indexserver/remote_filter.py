@@ -26,14 +26,28 @@ import sys
 import processing
 import functools
 
-def filter_runner(filter, i, o):
-    "Repeatedly receive a filename on `i`, run filter on that file, send output to `o`"
-    while 1:
-        filename = i.recv()
-        results = filter(filename)
-        if not isinstance(results, Exception):
-            results = list(results)
-        o.send(results)
+import logclient
+
+class FilterRunner(logclient.LogClientProcess):
+
+    def __init__(self, filter, i, o):
+        logclient.LogClientProcess.__init__(self)
+        self.i = i
+        self.o = o
+        self.filter = filter
+        self.setDaemon(True)
+        self.start()
+        
+        def run(self):
+            """Repeatedly receive a filename on `self.i`, run
+            self.filter on that file, send output to `o`"""
+            self.initialise_logging()
+            while 1:
+                filename = self.i.recv()
+                results = self.filter(filename)
+                if not isinstance(results, Exception):
+                    results = list(results)
+                self.o.send(results)
 
 class TimeOutError(Exception):
     "Signal that a remote filter is taking too long to process a file"
@@ -60,16 +74,14 @@ class RemoteFilterRunner(object):
                 yield block
         else:
             self.server.terminate()
-            self.server = self.i = self.o = None
+            self.server = self.inpipe = self.outpipe = None
             raise TimeOutError("The server took too long to process file %s, giving up" % file_name)
 
     def maybe_start_server(self):
         if not self.server:
             self.inpipe = processing.Pipe()
             self.outpipe = processing.Pipe()
-            self.server = processing.Process(target = filter_runner, args = [ self.filter, self.outpipe[1], self.inpipe[0]])
-            self.server.setDaemon(True)
-            self.server.start()
+            self.server = FilterRunner(self.filter, self.outpipe[1], self.inpipe[0])
 
 # just for expermenting/testing
 if __name__ == "__main__":

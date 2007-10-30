@@ -212,23 +212,19 @@ class Indexer(object):
         return rv
 
 
-class IndexProcess(processing.Process):
+class IndexProcess(logclient.LogClientProcess):
 
-    def __init__(self, logconfpath, *indexer_args):
-        processing.Process.__init__(self)
+    def __init__(self, *indexer_args):
+        logclient.LogClientProcess.__init__(self)
         self.setDaemon(True)
         self.logconfio = processing.Pipe()
         self.inpipe = processing.Pipe()
         self.outpipe = processing.Pipe()
-        self.logconfpath = logconfpath
         self.indexer_args = indexer_args
-        self.flaxpaths = flaxpaths.paths
         self.start()
 
     def run(self):
-        flaxpaths.paths = self.flaxpaths
-        logclient.LogListener(self.logconfio[1]).start()
-        logclient.LogConf(self.logconfpath).update_log_config()
+        self.initialise_logging()
         indexer = Indexer(*self.indexer_args)
         while True:
             collection, filter_settings = self.inpipe[1].recv()
@@ -246,7 +242,7 @@ class IndexServer(object):
     provides information about the state of the indexing process.
     """
 
-    def __init__(self, logconfpath):
+    def __init__(self):
         self.syncman = processing.Manager()
         self.error_count_sv = self.syncman.SharedValue('i',0)
         self.file_count_sv = self.syncman.SharedValue('i', 0)
@@ -255,7 +251,7 @@ class IndexServer(object):
         self.stop_sv = self.syncman.SharedValue('i', 0)
         self.currently_indexing = None
         self.hints = set()
-        self.indexing_process = IndexProcess(logconfpath, self.file_count_sv, self.error_count_sv, self.stop_sv)
+        self.indexing_process = IndexProcess(self.file_count_sv, self.error_count_sv, self.stop_sv)
 
     def log_config_listener(self):
         "return a listener for log configuration changes in the remote indexing process"

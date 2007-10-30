@@ -32,6 +32,7 @@ import processing
 import time
 
 import util
+import flaxpaths
 
 # Add flaxloghandlers to the logging module, to make it available from the
 # log configuration file.
@@ -98,3 +99,20 @@ class LogConfPub(object):
             data = f.read()
             for s in self.subscribers:
                 s.send(data)
+
+class LogClientProcess(processing.Process):
+    """ A processing.Process that can receive logging configuration
+        updates.  Subclass run implementations should call
+        initialise_logging before doing their main work.
+    """
+
+    def __init__(self):
+        processing.Process.__init__(self)
+        self.logconfio = processing.Pipe()
+        self.flaxpaths = flaxpaths.paths
+
+
+    def initialise_logging(self):
+        flaxpaths.paths = self.flaxpaths
+        LogListener(self.logconfio[1]).start()
+        LogConf(flaxpaths.paths.logconf_path).update_log_config()
