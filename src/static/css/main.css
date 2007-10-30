@@ -16,7 +16,7 @@ body {
     border: 0px solid pink;
 }
 
-.banner {
+.admin_banner {
    height: 60px;
    text-align: left;
    border: 0px solid pink;
@@ -32,9 +32,17 @@ body {
 }
 
 .navlist {
-  height: 20px;
-  border-bottom: 1px solid #D0D4F0;
   margin: 0;
+  border-bottom: 1px solid #D0D4F0;
+}
+
+.admin_banner .navlist {
+  height: 20px;
+}
+
+.user_banner .navlist {
+  font-size: 8pt;
+  margin-left:70%;
 }
 
 .navitem {
