@@ -30,6 +30,7 @@ import HTMLTemplate
 
 import uistrings
 import util
+import version
 
 # Cause HTMLTemplate to discard all XML comments.
 # This is a bit nasty, but HTMLTemplate development seems to have ceased, and
@@ -38,6 +39,7 @@ import util
 def my_handle_comment(self, txt): pass
 HTMLTemplate.Parser.handle_comment = my_handle_comment
 del my_handle_comment
+
 
 class TemplateManager(object):
     """
@@ -67,14 +69,14 @@ class TemplateManager(object):
         """
         pass
 
-    def make_template(self, render_fn, file_name, real_id=None):
+    def make_template(self, render_fn, file_name, nav_id=None):
         """
         Make an HTMLTemplate from `file_name` in `template_dir` using `render_fn`.
 
         """
         fpath = os.path.join (self.template_dir, file_name)
         mtime = os.path.getmtime(fpath)
-        key = (file_name, render_fn, real_id)
+        key = (file_name, render_fn, nav_id)
         try:
             cached = self._cache[key]
             if cached[1] == mtime:
@@ -86,20 +88,38 @@ class TemplateManager(object):
         self._cache[key] = (t, mtime)
         return t
 
-    def create_template(self, file_name, banner, render_fn=None, real_id=None):
+    def create_template(self, file_name, banner, render_fn=None, nav_id=None):
+        """Create a template.
+
+        :Parameters:
+           - `file_name`: The name of the file in the template directory to
+             read the template from.
+           - `banner`: The banner to display at the top of the resulting
+             template.  This should be a template.
+           - `render_fn`: The function which should be called when the template
+             is rendered.  If None, a dummy function which doesn't do
+             substitutions will be used.
+           - `nav_id`: If not None, change the id attribute for the banner to
+             "banner_" + nav_id, to cause the navigation links to highlight a
+             specific part of the navigation page.  If None, the banner id will
+             be set from the ID attribute of the node named "body".
+
+        """
         fn = render_fn if render_fn else self.dummy_render
         common_template = self.make_template(fn, "flax.html")
-        sub_template = self.make_template(self.dummy_render, file_name, real_id)
-        if real_id:
-            sub_template.body.atts['id']=real_id
+        sub_template = self.make_template(self.dummy_render, file_name, nav_id)
         try:
-            banner.banner.atts['id'] = 'banner_'+sub_template.body.atts['id']
+            if not nav_id:
+                nav_id = sub_template.body.atts['id']
+            banner.banner.atts['id'] = 'banner_' + nav_id
         except (KeyError, AttributeError):
             pass
         common_template.banner.raw = banner.render()
 
+        # Substitute the contents of any title node
         if hasattr(sub_template, 'title'):
             common_template.title = sub_template.title
+
         common_template.main = sub_template.body
         if hasattr(sub_template, 'heads'):
             common_template.heads = sub_template.heads
@@ -107,19 +127,25 @@ class TemplateManager(object):
             common_template.heads.omit()
         return common_template
 
-    def create_admin_template(self, file_name, render_fn = None, real_id=None):
-        """
-        Make an administrator template.
-        """
-        admin_banner = self.make_template (self.dummy_render, self.admin_banner_file)
-        return self.create_template(file_name, admin_banner, render_fn, real_id)
+    def create_admin_template(self, file_name, render_fn=None, nav_id=None):
+        """Make an administrator template.
 
-    def create_user_template(self, file_name, render_fn = None, real_id=None):
+        This just calls create_template with a banner template made from the
+        admin banner file.
+
         """
-        Make a user template.
+        admin_banner = self.make_template(self.dummy_render, self.admin_banner_file)
+        return self.create_template(file_name, admin_banner, render_fn, nav_id)
+
+    def create_user_template(self, file_name, render_fn=None, nav_id=None):
+        """Make a user template.
+
+        This just calls create_template with a banner template made from the
+        user banner file.
+
         """
-        user_banner = self.make_template (self.dummy_render, self.user_banner_file)
-        return self.create_template(file_name, user_banner, render_fn, real_id)
+        user_banner = self.make_template(self.dummy_render, self.user_banner_file)
+        return self.create_template(file_name, user_banner, render_fn, nav_id)
 
 ##### Options Template #####
 
@@ -177,6 +203,16 @@ def render_search_collection (node, collection, collection_len, selected=None):
         node.col_select.atts['value'] = collection.name
         if selected and collection.name in selected:
             node.col_select.atts['checked'] = 'true'
+
+
+##### About Template #####
+
+def render_about(template):
+    """Render the "about" template.
+
+    """
+    template.main.version.content = version.get_version_string()
+
 
 ##### Collection List Template #####
 
@@ -430,10 +466,6 @@ class Renderer(object):
     def __init__(self, template_dir):
         self._tman = TemplateManager(template_dir)
 
-    def index_render(self, *args):
-        "Render the admin index page."
-        return self._tman.create_admin_template("index.html").render(*args)
-
     def options_render(self, *args):
         "Render the global options page."
         return self._tman.create_admin_template("options.html", render_options).render (*args)
@@ -456,9 +488,17 @@ class Renderer(object):
 
     def admin_advanced_search_render(self, *args):
         "Render the administrator search results page."
-        return self._tman.create_admin_template("search.html", render_search, real_id="advsearch").render(True, self, True, *args)
+        return self._tman.create_admin_template("search.html", render_search, nav_id="advsearch").render(True, self, True, *args)
 
     def user_advanced_search_render(self, *args):
         "Render the user search results page."
-        return self._tman.create_user_template("search.html", render_search, real_id="advsearch").render(False, self, True, *args)
+        return self._tman.create_user_template("search.html", render_search, nav_id="advsearch").render(False, self, True, *args)
+
+    def admin_about_render(self, *args):
+        "Render the admin About page."
+        return self._tman.create_admin_template("about.html", render_about).render(*args)
+
+    def user_about_render(self, *args):
+        "Render the user About page."
+        return self._tman.create_user_template("about.html", render_about).render(*args)
 

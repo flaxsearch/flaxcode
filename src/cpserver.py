@@ -42,21 +42,27 @@ class FlaxResource(object):
 
 
 class Collections(FlaxResource):
-    """
-    Controller for web pages dealing with document collections.
+    """Controller for web pages dealing with document collections.
+
     """
 
     def _bad_collection_name(self, name):
+        """Return an error page describing a problem with a collection name.
+
+        """
         self._bad_request("%s does not name a collection." % name if name else "No collection name supplied")
 
     def __init__(self, flax_data, list_template, detail_template, index_server):
-        """
-        Collections constructor.
+        """Collections constructor.
 
         :Parameters:
-            - `collections`: The set of document collections.
-            - `list_template`: A template for rendering the set of document collections.
+            - `flax_data`: The flax configuration and status data.
+            - `list_template`: A template for rendering the set of document
+              collections.
             - `detail_template`: A template for rendering a single collection.
+            - `index_server`: The index server - used to control and monitor
+              indexing progress.
+
         """
         self._flax_data = flax_data
         self._list_template = list_template
@@ -64,14 +70,24 @@ class Collections(FlaxResource):
         self._index_server = index_server
 
     def _redirect_to_view(self, col=None):
+        """Redirect to a view page.
+
+        If `col` is specified, redirects to the view page for that collection -
+        otherwise redirects to the view page which lists all the collections.
+
+        """
         if col:
             raise cherrypy.HTTPRedirect('/admin/collections/' + col + '/view' )
         else:
             raise cherrypy.HTTPRedirect('/admin/collections/')
 
-
     @cherrypy.expose
     def default(self, col_id=None, action=None, **kwargs):
+        """Default handler.
+        
+        Calls the appropriate sub handler based on the action parameter.
+
+        """
         if col_id and action:
             if action == 'toggle_due':
                 return self.toggle_due_or_held(col_id, **kwargs)
@@ -89,8 +105,7 @@ class Collections(FlaxResource):
             return self.view()
 
     def toggle_due_or_held(self, col=None, held=False, **kwargs):
-        """
-        Set or clears one of the flags controlling collection indexing
+        """Set or clears one of the flags controlling collection indexing.
 
         :Parameters:
             - `col`: Names the document collection to be indexed.
@@ -102,8 +117,8 @@ class Collections(FlaxResource):
 
         - `col` is omitted; or
         - `col` is present by does not name a collection;
-        """
 
+        """
         self._only_post()
 
         if col and col in self._flax_data.collections:
@@ -112,18 +127,22 @@ class Collections(FlaxResource):
         else:
             self._bad_collection_name(col)
 
-
     def delete(self, col=None, **kwargs):
+        """Delete a document collection.
 
+        :Parameters:
+            - `col`: The name of the document collection to be deleted.
+
+        """
         self._only_post()
 
         if col in self._flax_data.collections:
             self._flax_data.collections.remove_collection(col)
+            # FIXME - should probably redirect here.
             return self.view()
 
     def update(self, col=None, **kwargs):
-        """
-        Update the attributes of a document collection.
+        """Update the attributes of a document collection.
 
         :Parameters:
             - `col`: The name of the document collection to be updated.
@@ -137,8 +156,8 @@ class Collections(FlaxResource):
         400 is returned.
 
         """
-
         self._only_post()
+
         if col and col in self._flax_data.collections:
             collection = self._flax_data.collections[col]
             collection.update(**kwargs)
@@ -151,6 +170,9 @@ class Collections(FlaxResource):
 
     @cherrypy.expose
     def new(self, col=None, **kwargs):
+        """Create a new document collection.
+
+        """
         if cherrypy.request.method == "POST":
             if col is None:
                 self._bad_request("A collection name must be provided for new collections")
@@ -165,14 +187,14 @@ class Collections(FlaxResource):
 
     @cherrypy.expose
     def view(self, col=None, **kwargs):
-        """
-        View a document collection.
+        """View a document collection.
 
         :Parameters:
             - `col`: The name of the collection to be viewed.
 
         Shows the detail for the document collection named by `col`,
         if it exists; otherwise return 404.
+
         """
         if col:
             if col in self._flax_data.collections:
@@ -187,17 +209,18 @@ class Collections(FlaxResource):
                                         self._index_server)
 
 class SearchForm(object):
-    """
-    A controller for searching document collections and rendering
+    """Controller for searching document collections and rendering
     the results.
-    """
 
+    """
     def __init__(self, collections, search_template, advanced_template):
-        """
+        """Constructor.
+
         :Parameters:
             - `collections`: the set of document collections to be searched.
             - `search_template`: A template for redering the search form.
             - `result_template`: A template for rendering search results.
+
         """
         self._collections = collections
         self._template = search_template
@@ -205,8 +228,7 @@ class SearchForm(object):
 
     def search(self, query=None, col=None, col_id=None, doc_id=None, advanced=False,
                exact=None, exclusions=None, tophit=0, maxhits=10):
-        """
-        Search document collections.
+        """Search document collections.
 
         :Parameters:
             - `query`: the search query
@@ -223,8 +245,8 @@ class SearchForm(object):
         Otherwise render a page containing a form to initiate a new
         search. If `advanced` tests true then the form will have more
         structure.
-        """
 
+        """
         assert not (query and doc_id)
         template = self._advanced_template if advanced else self._template
         tophit = int (tophit)
@@ -241,18 +263,22 @@ class Top(FlaxResource):
     """
     A contoller for the default (end-user) web pages.
     """
-    def __init__(self, flax_data, search_template, advanced_template):
+    def __init__(self, flax_data, search_template, advanced_template,
+                 about_template):
         """
         Constructor.
 
         :Parameters:
-            - `collections`: collections to be processed.
+            - `flax_data`: flax data to supply to templates.
             - `search_template`: template for the search forms.
-            - `search_result_template`: template for rendering search results.
-        """
+            - `advanced_search_template`: template for the advanced search.
+            - `about_template`: template for the about page.
 
+        """
         self._flax_data = flax_data
-        self._search = SearchForm(flax_data.collections, search_template, advanced_template)
+        self._search = SearchForm(flax_data.collections,
+                                  search_template, advanced_template)
+        self._about_template = about_template
 
     @cherrypy.expose
     def index(self):
@@ -272,43 +298,57 @@ class Top(FlaxResource):
         """
         return self._search.search(advanced=True, **kwargs )
 
+    @cherrypy.expose
+    def about(self):
+        """Display the "About" page.
+
+        """
+        return self._about_template()
+
+
 class Admin(Top):
-    """
-    A controller for the administration pages.
+    """A controller for the administration pages.
+
     """
 
-    def __init__(self, flax_data, search_template, advanced_template, options_template, index_template):
-        """
-        Constructor.
+    def __init__(self,
+                 flax_data,
+                 search_template,
+                 advanced_template,
+                 about_template,
+                 options_template):
+        """Constructor.
 
         :Parameters:
-            - `collections`: collections to be processed.
+            - `flax_data`: flax data to supply to templates.
             - `search_template`: template for the search forms.
-            - `search_result_template`: template for rendering search results.
+            - `advanced_search_template`: template for the advanced search.
+            - `about_template`: template for the about page.
             - `options_template`: template for the global options page.
-            - `index_template`: template for the index page.
+
         """
         self._options_template = options_template
-        self._index_template = index_template
-        super(Admin, self).__init__(flax_data, search_template, advanced_template)
+        super(Admin, self).__init__(flax_data,
+                                    search_template, advanced_template,
+                                    about_template)
 
     @cherrypy.expose
     def options(self, **kwargs):
-        """
-        Render the options template.
+        """Render the options template.
+
         """
         if cherrypy.request.method == "POST":
             self._flax_data.log_settings = kwargs
             # Redirect to prevent reloads redoing the POST.
             raise cherrypy.HTTPRedirect('options')
-        return self._options_template (self._flax_data)
+        return self._options_template(self._flax_data)
 
     @cherrypy.expose
     def index(self):
+        """Currently no use for home page, so redirect to collections list.
+
         """
-        Currently no use for home page, so redirect to collections list.
-        """
-        raise cherrypy.HTTPRedirect ('collections')
+        raise cherrypy.HTTPRedirect('collections')
 
 
 def start_web_server(flax_data, index_server, conf_path, templates_path, blocking=True):
@@ -324,10 +364,14 @@ def start_web_server(flax_data, index_server, conf_path, templates_path, blockin
     admin = Admin(flax_data,
                   renderer.admin_search_render,
                   renderer.admin_advanced_search_render,
-                  renderer.options_render,
-                  renderer.index_render)
+                  renderer.admin_about_render,
+                  renderer.options_render)
 
-    top = Top(flax_data, renderer.user_search_render, renderer.user_advanced_search_render)
+    top = Top(flax_data,
+              renderer.user_search_render,
+              renderer.user_advanced_search_render,
+              renderer.user_about_render)
+
     admin.collections = collections
     top.admin = admin
     cherrypy.config.update(conf_path)
