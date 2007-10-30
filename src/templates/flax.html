@@ -4,29 +4,27 @@
 <!-- This boilerplate is used for all the web pages.  The "banner" node
      will be replaced with a banner (by default admin_banner.html for
      adminstrator pages and user_banner.html for end user pages.
-     The body of specific pages replaces the
-     "main" node.
-  -->
+     The body of specific pages replaces the "main" node. -->
 
 <html>
   <head profile="http://www.w3.org/2005/11/profile">
     <link rel="icon" type="image/png" href="/favicon.ico"/>
     <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
-    <link href="/static/css/main.css" rel="stylesheet" type="text/css" />
-    <title node="con:title" ></title>
+    <link href="/static/css/main.css" rel="stylesheet" type="text/css"/>
+    <title node="con:title"></title>
     <div node="-con:heads">
-      <!-- Place holder for extra stuff, templates should define a heads
-           div at the top level and the contents will end up here.-->
-      <!-- I know perfectly well that you can't put a div here, but
-           it'll be removed before any pages are rendered.-->
+      <!-- Placeholder for extra stuff, templates should define a heads
+           div at the top level and the contents will end up here.
+           I know perfectly well that you can't put a div here, but
+           it'll be removed before any pages are rendered. -->
     </div>
   </head>
   <body>
     <div node="-con:banner">...</div>
     <div>
-      <!-- main content for pages -->
-      <!-- don't do <div /> here, HTMLTemplate seems to ignore it (bug?) -->
-      <div node="-con:main"> ... </div>
+      <div node="-con:main">
+        <!-- main content for pages is placed here. -->
+      </div>
     </div>
   </body>
 </html>
