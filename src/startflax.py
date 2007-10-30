@@ -21,6 +21,7 @@
 __docformat__ = "restructuredtext en"
 
 import setuppaths
+import getpass
 import optparse
 import os
 import sys
@@ -33,6 +34,7 @@ from indexserver import indexer
 import logclient
 import persist
 import scheduler
+import version
 import util
 
 util.setup_psyco()
@@ -53,7 +55,7 @@ class StartupOptions(object):
             setattr(self, key, value)
 
 def parse_cli_opts():
-    op = optparse.OptionParser()
+    op = optparse.OptionParser(version="Flax version: " + version.get_version_string())
     windows = (sys.platform == "win32")
     # On Windows, we use the paths set in the Registry unless overridden by a command line option
     if windows:
@@ -84,6 +86,13 @@ def parse_cli_opts():
                   dest = 'var_dir',
                   help = 'Flax runtime state directory (default is <main>/var)',
                   default = None)
+
+    op.add_option('--set-admin-password',
+                  dest = 'set_admin_password',
+                  help = 'Set the administrator password (and then exit)',
+                  action = 'store_true',
+                  default = False)
+
     (options, args) = op.parse_args()
     realpath = lambda x: os.path.realpath(x) if x else None
     return StartupOptions(main_dir = realpath(options.main_dir),
@@ -91,7 +100,8 @@ def parse_cli_opts():
                           dbs_dir = realpath(options.dbs_dir),
                           log_dir = realpath(options.log_dir),
                           conf_dir = realpath(options.conf_dir),
-                          var_dir = realpath(options.var_dir))
+                          var_dir = realpath(options.var_dir),
+                          set_admin_password = options.set_admin_password)
 
 class FlaxMain():
     """Class controlling starting and stopping Flax.
@@ -183,9 +193,19 @@ class FlaxMain():
         self._do_cleanup()
         return True
 
+def set_admin_password():
+    pw1 = getpass.getpass('New password:')
+    pw2 = getpass.getpass('New password again, to check:')
+    if pw1 != pw2:
+        print "Passwords differ - not changing"
+        return
+    cpserver.set_admin_password()
 
 if __name__ == "__main__":
     processing.freezeSupport()
     options = parse_cli_opts()
     main = FlaxMain(options)
+    if options.set_admin_password:
+        set_admin_password()
+        sys.exit(0)
     main.start(blocking=True)
