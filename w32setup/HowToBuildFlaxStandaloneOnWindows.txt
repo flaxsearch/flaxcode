@@ -10,6 +10,10 @@
 8. Install Zlib from http://www.zlib.net/ - extract zlib1.dll from the ZIP file and put it in the same folder as this text file
 9. Compile Xapian and the Python bindings (currently we need the version held
 in the tarballs in the xappy\libs directory). Copy xapian.py to C:\Python25\lib\site-packages and _xapian.pyd to the same folder as this text file.
+10. Copy the following files into the same folder as this text file:
+    msvcr80.dll
+    msvcp71.dll
+    msvcr71.dll
 10. Start a command line window (Start|Run|cmd.exe), and run
     cd \work\Flax
     python utils/install_dependencies.py
