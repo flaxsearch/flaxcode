@@ -44,4 +44,9 @@ Root: HKLM; Subkey: "Software\Lemur Consulting Ltd\Flax Site Search\DataPath"; V
 [Run]
 ; Don't allow user to start it
 ; Filename: "{app}\startflax.exe"; Description: "{cm:LaunchProgram,Flax Site Search}"; Flags: nowait postinstall skipifsilent
+; Install & run Service
+Filename: "{app}\startflaxservice.bat"; Description: "{cm:LaunchProgram,Flax Site Search as a Windows Service}"; Flags: postinstall waituntilterminated 
 
+[UninstallRun]
+; Make sure we remove the existing Windows Service
+Filename: "{app}\stopflaxservice.bat"; Flags: waituntilterminated 

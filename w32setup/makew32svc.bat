@@ -36,6 +36,8 @@ copy ..\..\localinst\htmltotext.pyd
 copy \windows\msvcr80.dll 
 copy \windows\system32\msvcp71.dll 
 copy ..\zlib1.dll
+copy ..\stopflaxservice.bat
+copy ..\startflaxservice.bat
 rem Get Xapian
 copy \work\xapian-svn\xapian-core\win32\release\Python\_xapian.pyd
 if not errorlevel 0 goto fail
