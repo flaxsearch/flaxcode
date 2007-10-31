@@ -27,3 +27,22 @@ def filter_forever():
         if not rf.server:
             print "no server"
             break
+
+# this is similar to the above, but is actually using the
+# ifilter_filter on a pdf.  obviously it will only run on windows.
+# Interestingly it will run for quite a while. Memory does seem to
+# creep up slowly, suggesting that there is a small problem somewhere.
+# Sometimes (after hours of running) An com error 0x80004005 gets
+# raised, which is an "unspecified error" accoding to
+# http://msdn2.microsoft.com/en-us/library/aa705941.aspx.  The
+# interesting thing about that is that it's not data dependent,
+# because we're using the same file each time.
+import w32com_ifilter
+def repeat_file_filter():    
+    fname = os.path.join(os.path.realpath('sampledocs'), 'ukpga_20060041_en.pdf')
+    while 1:
+        stuff = list(w32com_ifilter.remote_ifilter(fname))
+        if not w32com_ifilter.remote_ifilter.server:
+            print "no server"
+            break
+
