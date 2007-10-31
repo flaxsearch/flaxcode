@@ -152,6 +152,9 @@ class FlaxService(win32serviceutil.ServiceFramework):
             # for details.
             processing.process._exit_func()
 
+            sys.stderr.close()
+            sys.stdout.close()
+            
             # Tell windows that we've stopped.
             LogInfoMsg('The Flax service has stopped.')
         except:
