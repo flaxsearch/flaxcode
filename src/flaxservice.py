@@ -29,7 +29,7 @@ import win32evtlogutil
 import os
 import sys
 
-from servicemanager import LogInfoMsg
+from servicemanager import LogInfoMsg, LogErrorMsg
 
 # Get any Registry settings
 from flax_w32 import FlaxRegistry
@@ -92,14 +92,19 @@ class FlaxService(win32serviceutil.ServiceFramework):
 
         LogInfoMsg('The Flax service is initialising.')
 
-        # Set options according to our configuration, and create the class
-        # which manages starting and stopping the flax threads and processes.
-        self._options = startflax.StartupOptions(main_dir = _reg.runtimepath,
-                                                 src_dir = _reg.runtimepath,
-                                                 dbs_dir = _reg.datapath)
-        self._flax_main = startflax.FlaxMain(self._options)
-
-        LogInfoMsg('The Flax service is initialised.')
+        try:
+            # Set options according to our configuration, and create the class
+            # which manages starting and stopping the flax threads and processes.
+            self._options = startflax.StartupOptions(main_dir = _reg.runtimepath,
+                                                    src_dir = _reg.runtimepath,
+                                                    dbs_dir = _reg.datapath)
+            self._flax_main = startflax.FlaxMain(self._options)
+            LogInfoMsg('The Flax service is initialised.')
+        except:
+            import traceback
+            tb=traceback.format_exc()
+            LogErrorMsg('Exception during initialisation, traceback follows:\n %s' % tb)            
+          
 
     def SvcStop(self):
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
@@ -109,7 +114,12 @@ class FlaxService(win32serviceutil.ServiceFramework):
         # windows to complain because the SvcDoRun thread will have awoken and
         # be sending SERVICE_STOP_PENDING messages every 4 seconds until join()
         # returns True.
-        self._flax_main.stop()
+        try:
+            self._flax_main.stop()
+        except:
+            import traceback
+            tb=traceback.format_exc()
+            LogErrorMsg('Exception during SvcStop, traceback follows:\n %s' % tb)            
 
     def SvcDoRun(self):
         # Write a 'started' event to the event log...
@@ -120,31 +130,34 @@ class FlaxService(win32serviceutil.ServiceFramework):
         sys.stderr = open(os.path.join(flaxpaths.paths.log_dir, 'flax_stderr.log'), 'w')
         sys.stdout = open(os.path.join(flaxpaths.paths.log_dir, 'flax_stdout.log'), 'w')
 
-        # Start flax, non-blocking.
-        self._flax_main.start(blocking = False)
-        self.ReportServiceStatus(win32service.SERVICE_RUNNING)
-
-        # Wait for message telling us that we're stopping.
-        win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
-
-        LogInfoMsg('The Flax service is stopping.')
-        # Wait for the service to stop (and reassure windows that we're still
-        # trying to stop).
-        self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING, 5000)
-        while not self._flax_main.join(4):
+        try:
+            # Start flax, non-blocking.
+            self._flax_main.start(blocking = False)
+            self.ReportServiceStatus(win32service.SERVICE_RUNNING)
+            # Wait for message telling us that we're stopping.
+            win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
+            LogInfoMsg('The Flax service is stopping.')
+            # Wait for the service to stop (and reassure windows that we're still
+            # trying to stop).
             self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING, 5000)
+            while not self._flax_main.join(4):
+                self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING, 5000)
 
-        # Perform cleanup.
-        # This is needed because of a bug in PythonService.exe - it doesn't
-        # call Py_Finalize(), so atexit handlers don't get called.  We call
-        # processing.process._exit_func() directly as a workaround.  When the
-        # bug is fixed, we should stop doing this.  See:
-        # https://sourceforge.net/tracker/?func=detail&atid=551954&aid=1273738&group_id=78018
-        # for details.
-        processing.process._exit_func()
+            # Perform cleanup.
+            # This is needed because of a bug in PythonService.exe - it doesn't
+            # call Py_Finalize(), so atexit handlers don't get called.  We call
+            # processing.process._exit_func() directly as a workaround.  When the
+            # bug is fixed, we should stop doing this.  See:
+            # https://sourceforge.net/tracker/?func=detail&atid=551954&aid=1273738&group_id=78018
+            # for details.
+            processing.process._exit_func()
 
-        # Tell windows that we've stopped.
-        LogInfoMsg('The Flax service has stopped.')
+            # Tell windows that we've stopped.
+            LogInfoMsg('The Flax service has stopped.')
+        except:
+            import traceback
+            tb=traceback.format_exc()
+            LogErrorMsg('Exception during SvcDoRun, traceback follows:\n %s' % tb)            
 
 def ctrlHandler(ctrlType):
     """A windows control message handler.
