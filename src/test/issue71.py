@@ -76,7 +76,11 @@ def repeat_bind_ifilter2():
 # Perhaps it's a problem specifically with the pdf filtering thing?
 # This is the same as the above but we use an html file.  Memory use
 # for this does not seem to increase - maybe it's all Adobe's fault?
-# :/
+# :/ A bit of googling yeilds:
+# http://markharrison.co.uk/blog/2007/05/foxit-pdf-ifilter-x64-and-32-bit.htm
+# which contains an (anonymous) claim that there is a memory leak in
+# the adobde pdf IFilter that comes with verion 8 of acrobat reader
+# (the one I have installed).
 def repeat_bind_ifilter3():
     fname = os.path.join(os.path.realpath('sampledocs'), 'Ukpga_19880002_en_1.htm')
     while 1:
