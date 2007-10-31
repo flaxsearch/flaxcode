@@ -129,3 +129,11 @@ class FlaxPaths(object):
         return os.path.join(self.src_dir, 'static')
 
 paths = FlaxPaths()
+
+
+# so that we can use this in tests. In startflax.py set_dirs is called
+# again with arguments taken from the command line.
+this_dir = os.path.dirname(os.path.realpath(__file__))
+paths.set_dirs(conf_dir=this_dir,
+               main_dir=os.path.join(this_dir, 'data'))
+
