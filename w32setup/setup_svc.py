@@ -60,7 +60,6 @@ class InnoScript:
         self.src_dir = this_dir + '\..\src'
         self.output_dir = this_dir + '\package'
         self.localinst_dir = this_dir + '\..\localinst'
-        self.windows_dir = '\windows'
 
     def chop(self, pathname):
         assert pathname.startswith(self.this_dir)
@@ -100,8 +99,8 @@ class InnoScript:
         print >> ofi, r'Source: "%s\flaxlog.conf"; DestDir: "{app}\conf"; Flags: ignoreversion' % self.src_dir
         print >> ofi, r'Source: "%s\processing\_processing.pyd"; DestDir: "{app}"; Flags: ignoreversion' % self.localinst_dir
         print >> ofi, r'Source: "%s\htmltotext.pyd"; DestDir: "{app}"; Flags: ignoreversion' % self.localinst_dir
-        print >> ofi, r'Source: "%s\msvcr80.dll"; DestDir: "{app}"; Flags: ignoreversion' % self.windows_dir
-        print >> ofi, r'Source: "%s\system32\msvcp71.dll"; DestDir: "{app}"; Flags: ignoreversion' % self.windows_dir
+        print >> ofi, r'Source: "%s\msvcr80.dll"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
+        print >> ofi, r'Source: "%s\msvcp71.dll"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\startflaxservice.bat"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\stopflaxservice.bat"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\zlib1.dll"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
