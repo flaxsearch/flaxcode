@@ -41,12 +41,18 @@ class InnoScript:
                  publisher,
                  homepage,
                  licensefile,
-                 version = "NO VERSION"):
+                 versionA,
+                 versionB,
+                 versionC,
+                 versionD):
         self.this_dir = this_dir
         if not self.this_dir[-1] in "\\/":
             self.this_dir += "\\"
         self.name = name
-        self.version = version
+        self.versionA = versionA
+        self.versionB = versionB
+        self.versionC = versionC
+        self.versionD = versionD
         self.publisher = publisher
         self.homepage = homepage
         self.licensefile = licensefile
@@ -67,7 +73,8 @@ class InnoScript:
         print >> ofi, "; will be overwritten the next time py2exe is run!"
         print >> ofi, r"[Setup]"
         print >> ofi, r"AppName=%s" % self.name
-        print >> ofi, r"AppVerName=%s version %s" % (self.name, self.version)
+        print >> ofi, r"AppVerName=%s version %s.%s.%s.%s" % (self.name, self.versionA, self.versionB, self.versionC, self.versionD)
+        print >> ofi, r"VersionInfoVersion=%s.%s.%s.%s" % (self.versionA, self.versionB, self.versionC, self.versionD)
         print >> ofi, r"DefaultDirName={pf}\%s" % self.name
         print >> ofi, r"DefaultGroupName=%s" % self.name
         print >> ofi, r"AppPublisher=%s" % self.publisher
@@ -164,7 +171,10 @@ class build_installer(py2exe):
         # create the Installer, using the files py2exe has created.
         script = InnoScript(name="Flax Site Search",
                             this_dir=os.getcwd(),
-                            version=version.get_version_string(),
+                            versionA=version.get_major(),
+                            versionB=version.get_minor(),
+                            versionC=version.get_revision(),
+                            versionD=version.get_svn(),
                             publisher="Lemur Consulting Ltd",
                             homepage="http://www.flax.co.uk",
                             licensefile="gpl.txt")
@@ -191,7 +201,7 @@ class Target:
     def __init__(self, **kw):
         self.__dict__.update(kw)
         # for the versioninfo resources
-        self.version = "1.0 beta"
+        self.version = version.get_version_string()
         self.company_name = "Lemur Consulting Ltd"
         self.copyright = "Copyright (c) Lemur Consulting Ltd 2007"
         self.name = "Flax Site Search"
