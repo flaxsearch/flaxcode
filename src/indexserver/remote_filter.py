@@ -49,11 +49,15 @@ class FilterRunner(logclient.LogClientProcess):
             filename = self.i.recv()
             try:
                 results = self.filter(filename)
+                # because the filter returns an iterator we won't
+                # see all errors until we actually compute the
+                # values so this next needs to be in the try
+                # block as well.
+                if not isinstance(results, Exception):
+                    results = list(results)
             except Exception, e:
                 log.warning("FilterRunner: %s caught exception: %s" % (str(self), str(e)))
                 results = e
-            if not isinstance(results, Exception):
-                results = list(results)
             self.o.send(results)
 
 class TimeOutError(Exception):
@@ -65,12 +69,18 @@ class RemoteFilterRunner(object):
     A filter that runs another filter in a subprocess, with a timeout.
     """
 
-    def __init__(self, filter, timeout=30):
+    def __init__(self, filter, timeout=30, restart_limit=1000):
         self.filter = filter
         self.timeout = timeout
         self.server = None
+        self.restart_limit = restart_limit
+        # count is the number of calls we've processed since the remote process was started.
+        self.count = 0
 
     def __call__(self, file_name):
+        self.count += 1
+        if self.count > self.restart_limit:
+            self.kill_server()
         self.maybe_start_server()
         self.outpipe[0].send(file_name)
         if self.inpipe[1].poll(self.timeout):
@@ -92,8 +102,10 @@ class RemoteFilterRunner(object):
             raise TimeOutError("The server took too long to process file %s, giving up" % file_name)
 
     def kill_server(self):
-        log.info("killing remote filter process with pid: %d" % self.server.getPid())
-        self.server.terminate()
+        if self.server:
+            log.info("killing remote filter process with pid: %d" % self.server.getPid())
+            self.server.terminate()
+        self.count = 0
         self.server = self.inpipe = self.outpipe = None
 
     def maybe_start_server(self):
