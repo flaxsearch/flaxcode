@@ -50,6 +50,7 @@ class FilterRunner(logclient.LogClientProcess):
             try:
                 results = self.filter(filename)
             except Exception, e:
+                log.warning("FilterRunner: %s caught exception: %s" % (str(self), str(e)))
                 results = e
             if not isinstance(results, Exception):
                 results = list(results)
