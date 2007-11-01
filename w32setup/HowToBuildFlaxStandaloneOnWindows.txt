@@ -1,23 +1,39 @@
 1. Make a folder for Flax, say c:\work\Flax
-2. Check out the Flax sources to this folder
+2. Check out the Flax sources to this folder 
 3. Install Python 2.5 (to the default folder, C:\Python25)
 4. Add this folder to your Path (Control Panel, System, Advanced, Environment Variables)
-5. Install pywin32 for Python 2.5
-6. Install py2exe for Python 2.5
+5. Install Visual C++ 2005 Express Edition
+6. Install pywin32 for Python 2.5
+7. Install py2exe for Python 2.5
         HACK: py2exe currently needs patching:
         http://www.selenic.com/pipermail/mercurial-devel/2006-November/000353.html
-7. Install InnoSetup and add its folder to your path
-8. Install Zlib from http://www.zlib.net/ - extract zlib1.dll from the ZIP file and put it in the same folder as this text file
-9. Compile Xapian and the Python bindings (currently we need the version held
-in the tarballs in the xappy\libs directory). Copy xapian.py to C:\Python25\lib\site-packages and _xapian.pyd to the same folder as this text file.
-10. Copy the following files into the same folder as this text file:
+8. Install InnoSetup and add its folder to your path
+9. Install Zlib from http://www.zlib.net/ - extract zlib1.dll from the ZIP file and put it in the same folder as this text file
+10. Build Xapian from the snapshots provided in Xappy: 
+a. unpack the tarballs in ..\libs\xappy\libs
+b. modify win32msvc\config.mak to match your system (check the Python path for example)
+c. modify win32msvc\win32_bindings_python.mak to comment out lines 70-77 (the block that starts with 'modern/xapian_wrap.cc...'
+d. start a Visual C++ Express Edition command line and:
+    cd ..\libs\xappy\libs\xapian-core
+    md win32
+    xcopy ..\win32msvc\*.* /s
+    cd makedepend
+    nmake -f makedepend.mak
+    copy makedepend.exe ..
+    cd ..
+    nmake check
+    cd ..\..\xapian-bindings\python
+    nmake check
+     
+10.Copy xapian-core/win32/Releases/Python/xapian.py to C:\Python25\lib\site-packages and _xapian.pyd to the same folder as this text file.
+11. Copy the following files into the same folder as this text file:
     msvcr80.dll
     msvcp71.dll
     msvcr71.dll
-10. Start a command line window (Start|Run|cmd.exe), and run
+12. Start a command line window (Start|Run|cmd.exe), and run
     cd \work\Flax
     python utils/install_dependencies.py
     cd win32setup
     python setup_svc.py install
-11. The packaged, standalone Flax should be in the packages/ subfolder
+13. The packaged, standalone Flax should be in the packages/ subfolder
 
