@@ -25,8 +25,11 @@ __docformat__ = "restructuredtext en"
 import sys
 import processing
 import functools
+import logging
 
 import logclient
+
+log = logging.getLogger("indexing")
 
 class FilterRunner(logclient.LogClientProcess):
 
@@ -44,7 +47,10 @@ class FilterRunner(logclient.LogClientProcess):
         self.initialise_logging()
         while 1:
             filename = self.i.recv()
-            results = self.filter(filename)
+            try:
+                results = self.filter(filename)
+            except Exception, e:
+                results = e
             if not isinstance(results, Exception):
                 results = list(results)
             self.o.send(results)
@@ -69,19 +75,35 @@ class RemoteFilterRunner(object):
         if self.inpipe[1].poll(self.timeout):
             blocks = self.inpipe[1].recv()
             if isinstance(blocks, Exception):
+                # if there was an exception raised then we should
+                # restart the remote process immediately
+                # otherwise the next document may timeout because the
+                # remote process is not responding
+                log.warning("Killing remote filter - it raised the exception: %s" %
+                          str(blocks))
+                self.kill_server()
                 raise blocks
             for block in blocks:
                 yield block
         else:
-            self.server.terminate()
-            self.server = self.inpipe = self.outpipe = None
+            log.warning("Killing remote filter due to timeout")
+            self.kill_server()
             raise TimeOutError("The server took too long to process file %s, giving up" % file_name)
 
+    def kill_server(self):
+        log.info("killing remote filter process with pid: %d" % self.server.getPid())
+        self.server.terminate()
+        self.server = self.inpipe = self.outpipe = None
+
     def maybe_start_server(self):
-        if not self.server:
+        if not self.server or (self.server and not self.server.isAlive()):
+            if self.server:
+                self.kill_server()
             self.inpipe = processing.Pipe()
             self.outpipe = processing.Pipe()
             self.server = FilterRunner(self.filter, self.outpipe[1], self.inpipe[0])
+            log.info("Starting a remote filter process with pid: %d" % self.server.getPid())
+
 
 # just for expermenting/testing
 if __name__ == "__main__":
