@@ -63,14 +63,33 @@
       <button onClick="add_blank_mapping()" type="button">Add another path</button>
       <div style="margin-top:10px">
         <label class="main_label">Formats:</label>
-        <div node="rep:formats">
-          <input node="con:format_checkbox" type="checkbox" name="formats" value="format_name"></input>
-          <label node="con:format_label">Fmt</label>
+        <div class="form_content">
+          <label class="inline_label">Excel</label>
+	  <input node="con:xls" type="checkbox" 
+	         name="format" value="xls"></input>
+	  <label class="inline_label">HTML</label>
+	  <input node="con:html" type="checkbox"
+	       name="format" value="html"></input>
+	  <label class="inline_label">PDF</label>
+	  <input node="con:pdf" type="checkbox" 
+	         name="format" value="pdf"></input>
+	  <label class="inline_label">Power Point</label>
+	  <input node="con:ppt" type="checkbox" 
+	       name="format" value="ppt"></input>
+	  <label class="inline_label">RTF</label>
+	  <input node="con:rtf" type="checkbox" 
+	         name="format" value="rtf"></input>
+	  <label class="inline_label">Text</label>
+	  <input node="con:txt" type="checkbox" class="inline_label"
+	         name="format" value="txt"></input>
+	  <label class="inline_label">Word</label>
+	  <input node="con:doc" type="checkbox" 
+	         name="format" value="doc"></input>
         </div>
-        <label class="main_label" node="sep:formats">&nbsp;</label>
       </div>
+
       <div style="margin-top:10px">
-    <label class="main_label">Age:</label>
+        <label class="main_label">Age:</label>
         <select name="oldest">
           <option node="con:none" value="">Any age</option>
           <option node="con:one_day" value="1 0 0">One Day</option>

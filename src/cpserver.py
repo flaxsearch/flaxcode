@@ -253,9 +253,11 @@ class SearchForm(object):
         maxhits = int (maxhits)
         if (query or exact or exclusions or format) or (col_id and doc_id):
             cols = util.listify(col) if col else None
+            formats = util.listify(format)
+            if 'html' in formats:
+                formats.append('htm')
             results = self._flax_data.collections.search(query, col_id=col_id, doc_id=doc_id, cols=cols, format=format,
                                                exact=exact, exclusions=exclusions, tophit=tophit, maxhits=maxhits)
-            print "FORMATS:   ", self._flax_data.formats
             return template(self._flax_data.collections, results, cols, self._flax_data.formats)
         else:
             return template(self._flax_data.collections, None, None, self._flax_data.formats )

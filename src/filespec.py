@@ -41,12 +41,12 @@ class FileSpec(object):
 
     strptime_format = "%d/%m/%y %H:%M:%S"
 
-    def update(self, paths=None,  oldest=None, formats = [], **kwargs):
+    def update(self, paths=None,  oldest=None, format = [], **kwargs):
         if paths == None:
             paths = []
         self.paths = [paths] if isinstance(paths, str) else paths
         self.oldest = oldest
-        self.formats = [formats] if isinstance(formats, str) else formats
+        self.formats = util.listify(format)
 
     def files(self):
         """Returns an iterator over the files defined by this FileSpec."""

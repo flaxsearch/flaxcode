@@ -191,11 +191,6 @@ def render_search(template, isAdmin, renderer, advanced, collections, results=No
         template.main.descriptions.col_descriptions.name_and_desc.repeat(render_collection_descriptions, cols)
         template.main.results.omit()
 
-    def fill_format(node, format):
-        node.format_label.content = format
-        node.format_checkbox.atts['value'] = format
-    template.main.advanced_holder.formats.repeat(fill_format, formats)
-
 
 
 def render_collection_descriptions(node, collection):
@@ -295,15 +290,9 @@ def render_collection_detail(template, collection, formats, languages):
         form.name.content = collection.name
         form.description.atts['value'] = collection.description
         form.col.raw=""
-
-    def fill_format(node, format):
-        node.format_label.content = format
-        node.format_checkbox.atts['value'] = format
-        if collection:
-            if format in collection.formats:
-                node.format_checkbox.atts['checked'] = 'on'
-
-    form.formats.repeat(fill_format, formats)
+        for format in formats:
+            if format in collection.formats and format != "htm":
+                getattr(form, format).atts['checked'] = 'on'
 
     oldest_lookup = {None: form.none,
                      datetime.timedelta(1): form.one_day,
@@ -324,7 +313,6 @@ def render_collection_detail(template, collection, formats, languages):
     form.language_option.repeat(fill_languages, languages)
     if collection:
         form.stopwords.atts["value"] = " ".join(collection.stopwords)
-
 
     if collection:
         def render_spec(spec):
@@ -358,25 +346,18 @@ def render_search_result (node, results, collections, selcols, formats):
             urllib.quote_plus(query),
             urllib.quote_plus(results.exact or ""),
             urllib.quote_plus(results.exclusions or ""),
-            ["format=%s" % urllib.quote_plus(f) for f in results.formats] if results.formats else ""
+            ["format=%s" % urllib.quote_plus(f) for f in results.formats if f != 'htm'] if results.formats else ""
         )
         node.query.atts['value'] = query
         if results.exact:
             node.advanced_holder.exact.atts['value'] = results.exact
         if results.exclusions:
             node.advanced_holder.exclusions.atts['value'] = results.exclusions
+
         if results.formats:
-            result_formats = util.listify(results.formats)
-
-            def fill_format(node, format):
-                node.format_label.content = format
-                node.format_checkbox.atts['value'] = format
-                if format in result_formats:
-                    node.format_checkbox.atts['checked'] = 'on'
-
-            node.advanced_holder.formats.repeat(fill_format, formats)
-
-            
+            for format in util.listify(results.formats):
+                if format !='htm':
+                    getattr(node.advanced_holder, format).atts['checked'] = 'on'       
     else:
         q_or_ids = "?doc_id=%s&col_id=%s" % (
             urllib.quote_plus(query[1]),

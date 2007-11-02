@@ -158,6 +158,10 @@ label.main_label {
 
 }
 
+.form_content {
+    margin-left: 150px
+}
+
 form {
     border: 0px;
     padding: 0px;
