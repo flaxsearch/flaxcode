@@ -106,26 +106,46 @@ table.collection_list_table tbody  {
 
 .col_name {
   text-align: left;
-  width: 120px;
+  width: 100px;
+}
+
+.col_nameh {
+  text-align: left;
 }
 
 .col_desc {
   text-align: left;
+  width: auto;
 }
 
 .col_status {
-  text-align: left;
-  width: 90px;
+  text-align: center;
+  width: 60px;
+}
+
+.col_due {
+  text-align: center;
+  width: 60px;
+}
+
+.col_held {
+  text-align: center;
+  width: 60px;
 }
 
 .col_docs {
   text-align: right;
-  width: 90px;
+  width: 60px;
+}
+
+.col_files {
+  text-align: right;
+  width: 60px;
 }
 
 .col_errors {
   text-align: right;
-  width: 90px;
+  width: 80px;
   padding-right: 3px;
 }
 

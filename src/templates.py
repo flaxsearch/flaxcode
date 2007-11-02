@@ -242,8 +242,14 @@ def render_collection(node, collection, base_url, indexer):
     col_url = base_url + '/' + collection.name + '/view'
     node.name.content = collection.name
     node.name.atts['href'] = urllib.quote(col_url)
-    node.description.content = collection.description
-
+    
+    if len (collection.description) > 30:   # FIXME a bit arbitrary
+        node.description.content = collection.description[:30]
+        node.description_more.atts['href'] = 'javascript:alert(%s)' % repr (collection.description)
+    else:
+        node.description.content = collection.description
+        node.description_more.omit()
+        
     indexing, file_count, error_count = indexer.indexing_info(collection)
     node.doc_count.content = str(collection.document_count)
     node.file_count.content = str(file_count)

@@ -11,12 +11,11 @@
    width="100%">
     <thead>
       <tr>
-        <th class="col_del"></th>
-        <th class="col_name">Name</th>
+        <th colspan="2" class="col_nameh">Collection</th>
         <th class="col_desc">Description</th>
         <th class="col_status">Indexing?</th>
-        <th class="col_due">Indexing Due</th>
-        <th class="col_held">Indexing Held</th>
+        <th class="col_due">Due</th>
+        <th class="col_held">Held</th>
         <th class="col_docs">Docs</th>
         <th class="col_files">Files</th>
         <th class="col_errors">Errors</th>
@@ -34,12 +33,15 @@
         <td class="col_name">
           <a node="con:name" href=""></a>
         </td>
-        <td class="col_desc" node="con:description"></td>
+        <td class="col_desc">
+            <span node="-con:description"></span>
+            <a node="con:description_more">...</a>
+        </td>
         <td class="col_status" node="con:status"></td>
         <td class="col_due"><form node="con:due_form" method="POST" action="toggle_due"><button node="con:due_button">Due</button></form></td>
         <td class="col_held"><form node="con:held_form" method="POST" action="toggle_hold"><button node="con:held_button">Held</button></form></td>
         <td class="col_docs" node="con:doc_count"></td>
-        <td class="col_docs" node="con:file_count"></td>
+        <td class="col_files" node="con:file_count"></td>
         <td class="col_errors" node="con:error_count"></td>
       </tr>
     </tbody>
