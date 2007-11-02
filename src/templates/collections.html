@@ -7,8 +7,10 @@
 
 <div node="con:body" id="collections">
 
-  <table class="collection_list_table" summary="This table lists current document collections." 
-   width="100%">
+  <div class="border_div">
+  <table class="collection_list_table" 
+   summary="This table lists current document collections." 
+   width="100%" border="0" cellpadding="1">
     <thead>
       <tr>
         <th colspan="2" class="col_nameh">Collection</th>
@@ -22,6 +24,7 @@
       </tr>
     </thead>
     <tbody>
+      <tr><td colspan="8" height="3"></td></th>
       <tr node="rep:collection">
         <td class="col_del">
           <form node="con:delete_form" method="POST" action="delete">
@@ -46,6 +49,7 @@
       </tr>
     </tbody>
   </table>
+  </div>
 
   <p>
     <a href="/admin/collections/new">Create a new collection </a>
