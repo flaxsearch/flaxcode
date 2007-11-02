@@ -194,11 +194,26 @@ class FlaxMain():
         return True
 
 def set_admin_password():
-    pw1 = getpass.getpass('New password:')
-    pw2 = getpass.getpass('New password again, to check:')
-    if pw1 != pw2:
-        print "Passwords differ - not changing"
-        return
+    print """
+Enter a new administrator password.  This is needed to allow access to the
+administrator section of the Flax interface.
+
+The password is case sensitive.  You will be asked to enter it twice, to guard
+against typing errors.
+
+""".strip() + '\n'
+    while True:
+        pw1 = getpass.getpass('New password:')
+        pw2 = getpass.getpass('New password again, to check:')
+        if pw1 != pw2:
+            print "Passwords differ - try again"
+            print
+            continue
+        if pw1 == '':
+            print "No password entered - try again"
+            print
+            continue
+        break
     cpserver.set_admin_password()
 
 if __name__ == "__main__":
