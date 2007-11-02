@@ -96,6 +96,14 @@ table.collection_list_table tbody  {
   width: 30px;
 }
 
+.del_button {
+  border: none;
+  padding: none;
+  margin: 0px;
+  background-color: white;
+  width: 30px;
+}
+
 .col_name {
   text-align: left;
   width: 120px;
