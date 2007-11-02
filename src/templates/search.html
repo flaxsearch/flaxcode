@@ -42,10 +42,17 @@
         <label class="main_label" for="exclusions">Without the words:</label>
         <input node="con:exclusions" name="exclusions" size="50"> </input>
       </div>
+      <div>
+	<label class="main_label" for="formats">Formats:</label>
+	<div node="-rep:formats">
+	  <label node="con:format_label">Fmt</label>
+	  <input node="con:format_checkbox" type="checkbox"
+		 name="format" value="format_name"> </input>
+	</div>
+      </div>
     </div>
-
   </form>
-
+  
   <div node="con:descriptions">
     <h3>Collection Descriptions</h3>
     <dl node="con:col_descriptions" class="col_descriptions">
@@ -55,7 +62,7 @@
       </div>
     </dl>
   </div>
-
+  
   <div node="con:results">
     <div node="con:corrected"> </div>
 

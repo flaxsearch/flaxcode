@@ -48,7 +48,7 @@ class Results (object):
 
     log = logging.getLogger("searching")
 
-    def __init__(self, query, exact, exclusions, dbs, tophit, maxhits):
+    def __init__(self, query, exact, exclusions, formats, dbs, tophit, maxhits):
 
         if len(dbs) == 0:
             self.query = query
@@ -59,6 +59,7 @@ class Results (object):
 
         self.exclusions = exclusions
         self.exact = exact
+        self.formats = formats
         self.dbs = dbs
         self.query = query
         self.tophit = tophit
@@ -67,7 +68,7 @@ class Results (object):
         conn = self.conn_for_dbs(dbs)
         is_string_query = isinstance(query, types.StringType)
         if is_string_query:
-            self.xap_query = self.make_xap_query(conn, query, exact, exclusions)
+            self.xap_query = self.make_xap_query(conn, query, exact, exclusions, formats)
             corrected = conn.spell_correct(self.query)
             self.spell_corrected_query = corrected if corrected != query else None
 
@@ -89,8 +90,8 @@ class Results (object):
             else:
                 self.spell_corrected_query = None
 
-    def make_xap_query(self, conn, query, exact, exclusions):
-        if not (query or exact or exclusions):
+    def make_xap_query(self, conn, query, exact, exclusions, formats):
+        if not any((query, exact, exclusions, formats)):
             return conn.query_parse("")
 
         if query:
@@ -102,6 +103,8 @@ class Results (object):
             xq = conn.query_composite(xappy.SearchConnection.OP_AND, (xq, conn.query_parse( '"%s"' % exact)))
         if exclusions:
             xq = conn.query_filter(xq, conn.query_parse( ' '.join(util.listify(exclusions))), True )
+        if formats:
+            xq = conn.query_filter(xq, conn.query_parse(' '.join(["filetype:%s" %f for f in util.listify(formats)])))
         return xq
 
     def do_search(self, conn):
@@ -117,7 +120,7 @@ class Results (object):
             conn._index.add_database(xapian.Database(d))
         return conn
 
-def search(query, exact, exclusions, dbs, tophit = 0, maxhits = 10):
+def search(query, exact, exclusions, formats, dbs, tophit = 0, maxhits = 10):
     """ search the xapian dbs named by `dbs` with `query`.  return a
         triple (results, corrected_query, corrected_results), where
         results is the xapian results object, corrected query is a
@@ -133,4 +136,4 @@ def search(query, exact, exclusions, dbs, tophit = 0, maxhits = 10):
         query.
 
     """
-    return Results(query, exact, exclusions, dbs, tophit, maxhits)
+    return Results(query, exact, exclusions, formats, dbs, tophit, maxhits)

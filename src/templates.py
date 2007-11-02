@@ -177,7 +177,7 @@ def render_options(template, flax_data):
 
 ##### Search Templates #####
 
-def render_search(template, isAdmin, renderer, advanced, collections, results=None, selcols=None):
+def render_search(template, isAdmin, renderer, advanced, collections, results=None, selcols=None, formats=[]):
     if isAdmin:
         template.main.banner_search.omit()
     if not advanced:
@@ -185,11 +185,18 @@ def render_search(template, isAdmin, renderer, advanced, collections, results=No
     cols = list(collections.itervalues())
     template.main.collections.repeat(render_search_collection, cols, len(cols))
     if results and cols:
-        render_search_result(template.main, results, collections, selcols)
+        render_search_result(template.main, results, collections, selcols, formats)
         template.main.descriptions.omit()
     else:
         template.main.descriptions.col_descriptions.name_and_desc.repeat(render_collection_descriptions, cols)
         template.main.results.omit()
+
+    def fill_format(node, format):
+        node.format_label.content = format
+        node.format_checkbox.atts['value'] = format
+    template.main.advanced_holder.formats.repeat(fill_format, formats)
+
+
 
 def render_collection_descriptions(node, collection):
     node.name.content = collection.name
@@ -333,7 +340,7 @@ def render_collection_detail(template, collection, formats, languages):
 def render_searched_collection(node, col):
     node.content = col
 
-def render_search_result (node, results, collections, selcols):
+def render_search_result (node, results, collections, selcols, formats):
     # collections is the list of available collections
     # selcols is a list of selected collections
 
@@ -341,16 +348,29 @@ def render_search_result (node, results, collections, selcols):
     is_string_query = isinstance(query, types.StringType)
 
     if is_string_query:
-        q_or_ids = "?query=%s&exact=%s&exclusions=%s" % (
+        q_or_ids = "?query=%s&exact=%s&exclusions=%s&%s" % (
             urllib.quote_plus(query),
             urllib.quote_plus(results.exact or ""),
-            urllib.quote_plus(results.exclusions or "")
+            urllib.quote_plus(results.exclusions or ""),
+            ["format=%s" % urllib.quote_plus(f) for f in results.formats] if results.formats else ""
         )
         node.query.atts['value'] = query
         if results.exact:
             node.advanced_holder.exact.atts['value'] = results.exact
         if results.exclusions:
             node.advanced_holder.exclusions.atts['value'] = results.exclusions
+        if results.formats:
+            result_formats = util.listify(results.formats)
+
+            def fill_format(node, format):
+                node.format_label.content = format
+                node.format_checkbox.atts['value'] = format
+                if format in result_formats:
+                    node.format_checkbox.atts['checked'] = 'on'
+
+            node.advanced_holder.formats.repeat(fill_format, formats)
+
+            
     else:
         q_or_ids = "?doc_id=%s&col_id=%s" % (
             urllib.quote_plus(query[1]),

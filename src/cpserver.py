@@ -213,7 +213,7 @@ class SearchForm(object):
     the results.
 
     """
-    def __init__(self, collections, search_template, advanced_template):
+    def __init__(self, flax_data, search_template, advanced_template):
         """Constructor.
 
         :Parameters:
@@ -222,11 +222,11 @@ class SearchForm(object):
             - `result_template`: A template for rendering search results.
 
         """
-        self._collections = collections
+        self._flax_data = flax_data
         self._template = search_template
         self._advanced_template = advanced_template
 
-    def search(self, query=None, col=None, col_id=None, doc_id=None, advanced=False,
+    def search(self, query=None, col=None, col_id=None, doc_id=None, advanced=False, format=None,
                exact=None, exclusions=None, tophit=0, maxhits=10):
         """Search document collections.
 
@@ -251,13 +251,14 @@ class SearchForm(object):
         template = self._advanced_template if advanced else self._template
         tophit = int (tophit)
         maxhits = int (maxhits)
-        if (query or exact or exclusions) or (col_id and doc_id):
+        if (query or exact or exclusions or format) or (col_id and doc_id):
             cols = util.listify(col) if col else None
-            results = self._collections.search(query, col_id=col_id, doc_id=doc_id, cols=cols,
+            results = self._flax_data.collections.search(query, col_id=col_id, doc_id=doc_id, cols=cols, format=format,
                                                exact=exact, exclusions=exclusions, tophit=tophit, maxhits=maxhits)
-            return template(self._collections, results, cols)
+            print "FORMATS:   ", self._flax_data.formats
+            return template(self._flax_data.collections, results, cols, self._flax_data.formats)
         else:
-            return template(self._collections)
+            return template(self._flax_data.collections, None, None, self._flax_data.formats )
 
 class Top(FlaxResource):
     """
@@ -276,7 +277,7 @@ class Top(FlaxResource):
 
         """
         self._flax_data = flax_data
-        self._search = SearchForm(flax_data.collections,
+        self._search = SearchForm(flax_data,
                                   search_template, advanced_template)
         self._about_template = about_template
 

@@ -170,6 +170,7 @@ class Indexer(object):
                 log.debug("Filtering file %s using filter %s" % (file_name, filter))
                 fixed_fields = ( ("filename", file_name),
                                  ("nametext", os.path.basename(file_name)),
+                                 ("filetype", os.path.splitext(file_name)[1]),
                                  ("collection", collection_name),
                                  ("mtime", str(os.path.getmtime(file_name))),
                                  ("size", str(os.path.getsize(file_name))),

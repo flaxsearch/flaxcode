@@ -98,7 +98,7 @@ def internal_fields():
     Such fields must not be returned by filters.
 
     """
-    return ('filename', 'uri', 'nametext', 'mtime', 'size', 'collection', )
+    return ('filename', 'uri', 'nametext', 'mtime', 'size', 'collection', 'filetype',)
 
 def add_internal_field_actions(conn, stopwords, language):
     """Add field actions for the internal fields.
@@ -144,3 +144,9 @@ def add_internal_field_actions(conn, stopwords, language):
     # collection.
     conn.add_field_action("collection", xappy.FieldActions.INDEX_EXACT)
     conn.add_field_action("collection", xappy.FieldActions.STORE_CONTENT)
+
+    # filetype is just the extention to support searching by "format"
+    # (at some point we'll add a mimetype field as well, or instead).
+    conn.add_field_action('filetype', xappy.FieldActions.INDEX_EXACT)
+    conn.add_field_action('filetype', xappy.FieldActions.STORE_CONTENT)
+            
