@@ -19,6 +19,7 @@
 __docformat__ = "restructuredtext en"
 
 import re
+import getsvnrev
 
 # The various parts of the version number
 _version_number_major = 0
@@ -28,8 +29,41 @@ _version_number_revision = 0
 # Set to True if this is an official release.
 _is_release = False
 
-# Automatically updated to the SVN version this was checked out at.
-_svn_revision = '$LastChangedRevision$'
+def _calc_svn_revision():
+    """Calculate the SVN revision part of the version number.
+
+    This is performed once on initial import of the module, and shouldn't need
+    to be performed again.
+
+    """
+    if _is_release:
+        return None
+
+    # First, try getting the svn revision from the working directory.
+    # Will raise a RevisionException if the working directory isn't an SVN
+    # repository, or if the svn command line tools can't be found, or if some
+    # error occurs while running the tools.
+    try:
+        rev = getsvnrev.get_svn_rev()
+    except getsvnrev.RevisionException, e:
+        pass
+    else:
+        return rev
+
+    # Next, see if we have a generated svnrevision module, which will contain a
+    # cached value.  (This method is used for for frozen executables, and
+    # snapshot builds.)
+    try:
+        import svnrevision
+        return svnrevision.svn_revision
+    except ImportError, e:
+        pass
+
+    return "unknown"
+
+# The svn revision in use.
+_svn_revision = _calc_svn_revision()
+
 
 def get_major():
     "Get the major version number." 
@@ -44,22 +78,18 @@ def get_revision():
     return _version_number_revision
 
 def get_svn():
-    """Get the svn part of the version number.
+    """Get the SVN part of the version number.
 
     If this is an official release, this will be None.  Otherwise, it will be
     an SVN revision number, or "svn" if the SVN revision number couldn't be
     obtained (eg, the sources weren't obtained from SVN).
 
-    """
-    if _is_release:
-        return None
+    Note that the revision may not be a pure number - it may include various
+    strings to indicate that a branch, or a third-party repository, is being
+    used.
 
-    svnrev = re.search('[0-9]+', _svn_revision)
-    if svnrev:
-        svnrev = svnrev.group(0)
-    else:
-        svnrev = 'svn'
-    return svnrev
+    """
+    return _svn_revision
 
 def get_version_string():
     '''Get a string representing the version number.
@@ -67,8 +97,7 @@ def get_version_string():
     This will be in major.minor.revision or major.minor.revision.svn format.
 
     '''
-    svnrev = get_svn()
-    if svnrev is None:
+    if _svn_revision is None:
         return '%d.%d.%d' % (_version_number_major,
                              _version_number_minor,
                              _version_number_revision)
@@ -76,4 +105,4 @@ def get_version_string():
         return '%d.%d.%d.%s' % (_version_number_major,
                                 _version_number_minor,
                                 _version_number_revision,
-                                svnrev)
+                                _svn_revision)

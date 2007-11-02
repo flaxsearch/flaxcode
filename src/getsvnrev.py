@@ -80,12 +80,18 @@ def get_svn_rev():
     being used.
 
     """
+    if not os.path.exists(__file__):
+        raise RevisionException("__file__ is not a path")
     toppath = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
-    process = subprocess.Popen(['svn', '-R', '--xml', 'info', toppath],
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
-    (out, err) = process.communicate()
+    try:
+        process = subprocess.Popen(['svn', '-R', '--xml', 'info', toppath],
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.PIPE)
+        (out, err) = process.communicate()
+    except Exception, e:
+        raise RevisionException("Error running svn tools: %s" % str(e))
+
     out = out.strip()
     err = err.strip()
     if err != '':
@@ -101,7 +107,9 @@ def get_svn_rev():
 
     if info.uuid != '07824224-6132-0410-9051-db7a3662f6e8':
         #print "Unknown external repository %r in use (uuid:%r)" % (info.root, info.uuid)
-        info.rev = "ext" + info.rev
+        info.rev = "svnext" + info.rev
+    else:
+        info.rev = "svn" + info.rev
 
     if not info.url.startswith(info.root + '/'):
         raise RevisionException("Invalid URL found in repository: url was %r, root was %r" %
@@ -116,6 +124,9 @@ def get_svn_rev():
 
 def gen_revision_file(rev):
     """Generate the revision file, with the supplied revision number.
+
+    This is intended to be run during a "build distribution" process - eg, when
+    preparing tarballs, or freezing an executable for windows.
 
     """
     print "Generating svnrevision.py with revision set to %r" % rev
