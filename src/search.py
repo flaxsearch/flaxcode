@@ -104,7 +104,7 @@ class Results (object):
         if exclusions:
             xq = conn.query_filter(xq, conn.query_parse( ' '.join(util.listify(exclusions))), True )
         if formats:
-            xq = conn.query_filter(xq, conn.query_parse(' '.join(["filetype:%s" %f for f in util.listify(formats)])))
+            xq = conn.query_filter(xq, conn.query_parse(' OR '.join(["filetype:%s" %f for f in util.listify(formats)])))
         return xq
 
     def do_search(self, conn):

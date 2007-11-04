@@ -61,6 +61,9 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
 
     def update(self, description="", **kwargs):
         self.description = description
+        if 'formats' in kwargs and kwargs['formats'] and 'html' in kwargs['formats']:
+            kwargs['formats'] = util.listify(kwargs['formats'])
+            kwargs['formats'].append('htm')
         filespec.FileSpec.update(self, **kwargs)
         dbspec.DBSpec.update(self, **kwargs)
         schedulespec.ScheduleSpec.update(self, **kwargs)
