@@ -20,6 +20,7 @@ __docformat__ = "restructuredtext en"
 
 import setuppaths
 import cherrypy
+import cplogger
 import templates
 import persist
 import util
@@ -380,6 +381,7 @@ def start_web_server(flax_data, index_server, conf_path, templates_path, blockin
     cherrypy.config.update(conf_path)
     cherrypy.tree.mount(top, '/', config=conf_path)
     cherrypy.server.quickstart()
+#    cherrypy.log = cplogger.cpLogger()
     cherrypy.engine.start(blocking)
 
 def stop_web_server():

@@ -25,7 +25,7 @@ import collection_list
 import flaxpaths
 import logclient
 
-current_version = 10
+current_version = 11
 
 class FlaxOptions(object):
     """Global options for Flax.
@@ -86,7 +86,9 @@ def make_options():
                     "indexing",
                     "filtering",
                     "searching",
-                    "scheduling")
+                    "scheduling",
+                    "webserver")
+    
 
     filters = ["IFilter", "Xapian", "Text"]
 
