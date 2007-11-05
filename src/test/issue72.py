@@ -23,6 +23,12 @@ class TestFileTypes(unittest.TestCase):
 
     def testFileTypeSearch(self):
         conn = xappy.SearchConnection(self.col.dbpath())
+
+        # not sure why the search below fails to produce any results,
+        # bar.htm has 'htm' in the filetype field:
+        bar = conn.get_document(os.path.realpath('sampledocs/issue72/bar.htm'))
+        print bar.data['filetype']
+
         res = conn.search(conn.query_parse('filetype:htm'), 0 , 10)
         results = [r for r in res]
         self.assertEqual(len(results), 1)
