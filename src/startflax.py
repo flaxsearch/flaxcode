@@ -29,6 +29,7 @@ import sys
 import processing
 import cpserver
 import flax
+import flaxauth
 import flaxpaths
 from indexserver import indexer
 import logclient
@@ -133,6 +134,7 @@ class FlaxMain():
             self._do_cleanup()
         self._need_cleanup = True
 
+        flaxauth.load()
         webserver_logconfio = processing.Pipe()
         index_server = indexer.IndexServer()
         logclient.LogConfPub(flaxpaths.paths.logconf_path,
@@ -194,6 +196,11 @@ class FlaxMain():
         return True
 
 def set_admin_password():
+    """Get a new administrator password (from stdin) and store it.
+    
+    The password is stored in the appropriate configuration file.
+
+    """
     print """
 Enter a new administrator password.  This is needed to allow access to the
 administrator section of the Flax interface.
@@ -214,7 +221,9 @@ against typing errors.
             print
             continue
         break
-    cpserver.set_admin_password()
+    flaxauth.load()
+    flaxauth.set('admin', pw1)
+    flaxauth.save()
 
 if __name__ == "__main__":
     processing.freezeSupport()

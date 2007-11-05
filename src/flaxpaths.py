@@ -108,6 +108,13 @@ class FlaxPaths(object):
         return os.path.join(self.conf_dir, 'cp.conf')
 
     @property
+    def authconf_path(self):
+        """The path of the cherrypy password file.
+
+        """
+        return os.path.join(self.conf_dir, 'auth.conf')
+
+    @property
     def templates_path(self):
         """The path of the template directory.
 
