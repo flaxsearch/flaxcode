@@ -41,6 +41,6 @@ as this text file.
     cd \work\Flax
     python utils/install_dependencies.py
     cd w32setup
-    python setup_svc.py install
+    python setup_svc.py py2exe
 14. The packaged, standalone Flax should be in the package/ subfolder
 
