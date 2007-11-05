@@ -15,6 +15,8 @@ b. modify win32msvc\config.mak to match your system (check the Python path for e
 c. modify win32msvc\win32_bindings_python.mak to comment out lines 70-77 (the block that starts with 'modern/xapian_wrap.cc...'
 TEMP: patch xapian-core\net\remoteconnection.cc with the patch in
 http://svn.xapian.org/trunk/xapian-core/net/remoteconnection.cc?r1=9463&r2=9558
+TEMP: change the first line of win32msvc\version.rc.python to
+#include "winresrc.h"
 d. start a Visual C++ Express Edition command line and:
     cd ..\libs\xappy\libs\xapian-core
     md win32
