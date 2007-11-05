@@ -118,10 +118,10 @@ class FlaxMain():
 
     """
     def __init__(self, options):
-        paths = flaxpaths.paths
-        paths.set_dirs(options.main_dir, options.src_dir, options.dbs_dir, options.log_dir,
-                       options.conf_dir, options.var_dir)
-        paths.makedirs()
+        flaxpaths.paths.set_dirs(options.main_dir, options.src_dir,
+                                 options.dbs_dir, options.log_dir,
+                                 options.conf_dir, options.var_dir)
+        flaxpaths.paths.makedirs()
         self._need_cleanup = False
 
     def _do_start(self, blocking):
@@ -221,7 +221,8 @@ against typing errors.
             print
             continue
         break
-    flaxauth.load()
+    if os.path.exists(flaxpaths.paths.authconf_path):
+        flaxauth.load()
     flaxauth.set('admin', pw1)
     flaxauth.save()
 
