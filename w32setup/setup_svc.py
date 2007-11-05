@@ -156,6 +156,10 @@ class InnoScript:
 
 
 ################################################################
+import getsvnrev
+rev = getsvnrev.get_svn_rev()
+getsvnrev.gen_revision_file(rev)
+
 import version
 from py2exe.build_exe import py2exe
 
