@@ -102,7 +102,7 @@ def get_version_string():
                              _version_number_minor,
                              _version_number_revision)
     else:
-        return '%d.%d.%d.%s' % (_version_number_major,
+        return '%d.%d.%da%s' % (_version_number_major,
                                 _version_number_minor,
                                 _version_number_revision,
                                 _svn_revision)

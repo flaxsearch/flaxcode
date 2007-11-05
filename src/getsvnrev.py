@@ -107,9 +107,9 @@ def get_svn_rev():
 
     if info.uuid != '07824224-6132-0410-9051-db7a3662f6e8':
         #print "Unknown external repository %r in use (uuid:%r)" % (info.root, info.uuid)
-        info.rev = "svnext" + info.rev
+        info.rev = "ext" + info.rev
     else:
-        info.rev = "svn" + info.rev
+        info.rev = info.rev
 
     if not info.url.startswith(info.root + '/'):
         raise RevisionException("Invalid URL found in repository: url was %r, root was %r" %
