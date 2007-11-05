@@ -30,7 +30,9 @@ d. start a Visual C++ Express Edition command line and:
     cd ..\..\xapian-bindings\python
     nmake check
      
-11. Copy xapian-core/win32/Releases/Python/xapian.py to C:\Python25\lib\site-packages and _xapian.pyd to the same folder as this text file.
+11. Copy xapian-core/win32/Release/Python/xapian.py to
+C:\Python25\lib\site-packages and _xapian.pyd and zlib.dll to the same folder
+as this text file.
 12. Copy the following files into the same folder as this text file:
     msvcr80.dll
     msvcp71.dll
@@ -38,7 +40,7 @@ d. start a Visual C++ Express Edition command line and:
 13. Start a command line window (Start|Run|cmd.exe), and run
     cd \work\Flax
     python utils/install_dependencies.py
-    cd win32setup
+    cd w32setup
     python setup_svc.py install
-14. The packaged, standalone Flax should be in the packages/ subfolder
+14. The packaged, standalone Flax should be in the package/ subfolder
 
