@@ -16,7 +16,8 @@ c. modify win32msvc\win32_bindings_python.mak to comment out lines 70-77 (the bl
 d. start a Visual C++ Express Edition command line and:
     cd ..\libs\xappy\libs\xapian-core
     md win32
-    xcopy ..\win32msvc\*.* /s
+    cd win32
+    xcopy ..\..\win32msvc\*.* /s
     cd makedepend
     nmake -f makedepend.mak
     copy makedepend.exe ..
