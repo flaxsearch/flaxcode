@@ -40,9 +40,14 @@ body {
   height: 20px;
 }
 
-.user_banner .navlist {
+.user_banner {
+  margin-bottom: 7px;
+}
+
+.user_navlist {
   font-size: 8pt;
-  margin-left:70%;
+  text-align: right;
+  border-bottom: 1px solid #D0D4F0;
 }
 
 .navitem {
@@ -108,7 +113,7 @@ table.collection_list_table thead  {
 
 .col_name {
   text-align: left;
-  width: 100px;
+  width: 90px;
 }
 
 .col_nameh {
