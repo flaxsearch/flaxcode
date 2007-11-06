@@ -97,14 +97,14 @@ class InnoScript:
         print >> ofi, r'Source: "%s\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs' % self.dist_dir
         print >> ofi, r'Source: "%s\cp.conf"; DestDir: "{app}\conf"; Flags: ignoreversion' % self.src_dir
         print >> ofi, r'Source: "%s\flaxlog.conf"; DestDir: "{app}\conf"; Flags: ignoreversion' % self.src_dir
-        print >> ofi, r'Source: "%s\processing\_processing.pyd"; DestDir: "{app}"; Flags: ignoreversion' % self.localinst_dir
-        print >> ofi, r'Source: "%s\htmltotext.pyd"; DestDir: "{app}"; Flags: ignoreversion' % self.localinst_dir
+        print >> ofi, r'Source: "%s\processing\_processing.pyd"; DestDir: "{app}\localinst"; Flags: ignoreversion' % self.localinst_dir
+        print >> ofi, r'Source: "%s\htmltotext.pyd"; DestDir: "{app}\localinst"; Flags: ignoreversion' % self.localinst_dir
         print >> ofi, r'Source: "%s\msvcr80.dll"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\msvcp71.dll"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\startflaxservice.bat"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\stopflaxservice.bat"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
-        print >> ofi, r'Source: "%s\zlib1.dll"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
-        print >> ofi, r'Source: "%s\_xapian.pyd"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
+        print >> ofi, r'Source: "%s\zlib1.dll"; DestDir: "{app}\localinst"; Flags: ignoreversion' % self.this_dir
+        print >> ofi, r'Source: "%s\_xapian.pyd"; DestDir: "{app}\localinst"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'; NOTE: Do not use "Flags: ignoreversion" on any shared system files'
         print >> ofi, r""
         print >> ofi, r'[Icons]'
