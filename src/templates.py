@@ -178,8 +178,6 @@ def render_options(template, flax_data):
 ##### Search Templates #####
 
 def render_search(template, isAdmin, renderer, advanced, collections, results=None, selcols=None, formats=[]):
-    if isAdmin:
-        template.main.banner_search.omit()
     if not advanced:
         template.main.advanced_holder.omit()
     cols = list(collections.itervalues())
@@ -213,8 +211,6 @@ def render_about(template, isAdmin):
     """Render the "about" template.
 
     """
-    if isAdmin:
-        template.main.banner_search.omit()
     template.main.version.content = version.get_version_string()
 
 
