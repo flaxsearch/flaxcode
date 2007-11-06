@@ -19,7 +19,8 @@
            it'll be removed before any pages are rendered. -->
     </div>
   </head>
-  <body>
+  
+  <body onload="if (self.on_load) on_load();">
     <div node="-con:banner">...</div>
     <div>
       <div node="-con:main">
