@@ -22,6 +22,7 @@ pages, and strips out javascript, CSS and PHP sections.
 from __future__ import with_statement
 __docformat__ = "restructuredtext en"
 
+import setuppaths
 import htmltotext
 
 def html_filter(filename):
