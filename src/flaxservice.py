@@ -18,6 +18,7 @@
 """
 __docformat__ = "restructuredtext en"
 
+import setuppaths
 import servicemanager
 import win32api
 import win32con
