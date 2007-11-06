@@ -120,6 +120,8 @@ class InnoScript:
         print >> ofi, r'Root: HKLM; Subkey: "Software\%s\%s\DataPath"; ValueType: string; ValueName: ""; ValueData: "{app}\Data"'  % (self.publisher, self.name)
         print >> ofi, r""
         print >> ofi, r'[Run]'
+        print >> ofi, r'; Set admin password'
+        print >> ofi, r'Filename: "{app}\startflax.exe"; StatusMsg: "Setting administration password"; Parameters: "--set-admin-password"; Flags: waituntilterminated'
         print >> ofi, r'; Install & run Service'
         print >> ofi, r'Filename: "{app}\startflaxservice.bat"; Description: "{cm:LaunchProgram,Flax Site Search as a Windows Service}"; Flags: postinstall waituntilterminated '
         print >> ofi, r""
