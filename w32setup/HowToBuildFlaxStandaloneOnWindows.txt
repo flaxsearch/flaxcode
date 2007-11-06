@@ -1,17 +1,18 @@
 1. Make a folder for Flax, say c:\work\Flax
 2. Check out the Flax sources to this folder 
-3. Install Python 2.5 (to the default folder, C:\Python25)
-4. Add this folder to your Path (Control Panel, System, Advanced, Environment Variables)
+3. Install Python 2.5 (to the default folder, C:\Python25) and add this folder to your Path (Control Panel, System, Advanced, Environment  Variables)
+4. Install a recent Perl (say 5.8.8 from Active State at http://www.activestate.com/Products/activeperl/) - make a note of the Path to this for config.mak later.
 5. Install Visual C++ 2005 Express Edition
 6. Install pywin32 for Python 2.5
 7. Install py2exe for Python 2.5
         HACK: py2exe currently needs patching:
         http://www.selenic.com/pipermail/mercurial-devel/2006-November/000353.html
 8. Install InnoSetup and add its folder to your path
-9. Install Zlib from http://www.zlib.net/ - extract zlib1.dll from the ZIP file and put it in the same folder as this text file
-10. Build Xapian from the snapshots provided in Xappy: 
-a. unpack the tarballs in ..\libs\xappy\libs
-b. modify win32msvc\config.mak to match your system (check the Python path for example)
+9. Install Zlib from http://www.zlib.net/ - extract zlib1.dll from the ZIP file and put it in the same folder as this text file. Make a note of the path to the rest of Zlib for putting into config.mak later.
+10. Install SVN (download and unzip the Windows binary ' svn-win32-1.4.5.zip' from http://subversion.tigris.org/servlets/ProjectDocumentList?folderID=91 and add the folder to /bin to your Path (i.e. c:\work\svn-win32-1.4.5\bin)
+11. Build Xapian from the snapshots provided in Xappy: 
+a. unpack the tarballs in ..\libs\xappy\libs and rename the folders to xapian-core and xapian-bindings
+b. modify win32msvc\config.mak to match your system (Python path, Perl path, path to the folders in a. above, Zlib path)
 c. modify win32msvc\win32_bindings_python.mak to comment out lines 70-77 (the block that starts with 'modern/xapian_wrap.cc...'
 TEMP: patch xapian-core\net\remoteconnection.cc with the patch in
 http://svn.xapian.org/trunk/xapian-core/net/remoteconnection.cc?r1=9463&r2=9558
@@ -30,17 +31,17 @@ d. start a Visual C++ Express Edition command line and:
     cd ..\..\xapian-bindings\python
     nmake check
      
-11. Copy xapian-core/win32/Release/Python/xapian.py to
+12. Copy xapian-core/win32/Release/Python/xapian.py to
 C:\Python25\lib\site-packages and _xapian.pyd and zlib.dll to the same folder
 as this text file.
-12. Copy the following files into the same folder as this text file:
-    msvcr80.dll
+13. Copy the following files into the same folder as this text file (they should have been installed with Visual Studio Express Edition):
+    C:\Program Files\Microsoft Visual Studio 8\VC\redist\x86\Microsoft.VC80.CRT\msvcr80.dll
     msvcp71.dll
     msvcr71.dll
-13. Start a command line window (Start|Run|cmd.exe), and run
+14. Start a command line window (Start|Run|cmd.exe), and run
     cd \work\Flax
     python utils/install_dependencies.py
     cd w32setup
     python setup_svc.py py2exe
-14. The packaged, standalone Flax should be in the package/ subfolder
+15. The packaged, standalone Flax should be in the package/ subfolder
 
