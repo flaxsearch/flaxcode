@@ -5,6 +5,83 @@
 
 <title node="con:title">Collections</title>
 
+<div node="-con:heads">
+  <script type="text/javascript">
+  function on_load() 
+  {
+    if (is_indexing)
+    {
+      callLater (2, update_info);
+    }
+  }
+
+  function is_indexing()
+  {
+    var stati = getElementsByTagAndClassName ('td', 'col_due');
+    var indexing = false;
+    for (var i = 0; i < stati.length; i++)
+    {
+      if (scrapeText (stati[i]) == 'In progress') return true;
+    }
+    return false;
+  }
+  
+  function update_info()
+  {
+    try {
+      var onsuccess = function (json) {
+        var status = false;
+        for (var i = 0; i < json.length; i++)
+        {
+          try {
+            replaceChildNodes ($('_doc_count_' + json[i].name), 
+                               json[i].doc_count);
+            replaceChildNodes ($('_file_count_' + json[i].name), 
+                               json[i].file_count);
+            replaceChildNodes ($('_error_count_' + json[i].name), 
+                               json[i].error_count);
+        
+            var due = $('_due_button_' + json[i].name);
+            if (json[i].status)
+            {
+              status = true;
+              replaceChildNodes (due, 'In progress');
+              due.disabled = true;
+            }
+            else if (json[i].index_due)
+            {
+              replaceChildNodes (due, 'Scheduled');
+              due.disabled = true;
+            }
+            else
+            {
+              replaceChildNodes (due, 'Start');
+              due.disabled = false;
+            }
+          }
+          catch (err)
+          {
+            alert ('ERROR: ' + err);
+          }
+        }
+        
+        if (status) callLater (2, update_info);
+      };
+
+      var onfailure = function (err) {
+        alert ('AJAX error: ' + err);
+      };
+
+      var req = loadJSONDoc ('/admin/collections/json');
+      req.addCallbacks (onsuccess, onfailure);
+    }
+    catch (err)
+    { /* ignore errors caused by older browsers */ }
+  }
+
+  </script>
+</div>
+
 <div node="con:body" id="collections">
 
   <div class="border_div">
@@ -15,8 +92,9 @@
       <tr>
         <th colspan="2" class="col_nameh">Collection</th>
         <th class="col_desc">Description</th>
-        <th class="col_status">Indexing?</th>
-        <th class="col_due">Due</th>
+        <!--th class="col_status">Indexing?</th>
+        <th class="col_due">Due</th-->
+        <th class="col_due">Indexing</th>
         <th class="col_held">Held</th>
         <th class="col_docs">Docs</th>
         <th class="col_files">Files</th>
@@ -40,7 +118,7 @@
             <span node="-con:description"></span>
             <a node="con:description_more">...</a>
         </td>
-        <td class="col_status" node="con:status"></td>
+        <!--td class="col_status" node="con:status"></td-->
         <td class="col_due"><form node="con:due_form" method="POST" action="toggle_due"><button node="con:due_button">Due</button></form></td>
         <td class="col_held"><form node="con:held_form" method="POST" action="toggle_hold"><button node="con:held_button">Held</button></form></td>
         <td class="col_docs" node="con:doc_count"></td>

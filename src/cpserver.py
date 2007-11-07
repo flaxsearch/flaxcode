@@ -209,6 +209,31 @@ class Collections(FlaxResource):
                                         '/admin/collections',
                                         self._index_server)
 
+    @cherrypy.expose
+    def json (self, col=None, **kwargs):
+        """Return collection information in JSON format.
+        
+        """
+        if col:
+            return '"NOT IMPLEMENTED"'
+        else:
+            # order by name
+            cols = [(c.name, c) for c in self._flax_data.collections.itervalues()]
+            cols.sort()
+            cols = [c[1] for c in cols]
+            ret = []
+            for c in cols:
+                status, fc, ec = self._index_server.indexing_info (c)
+                ret.append ({"name":        c.name, 
+                             "status":      int(status), 
+                             "index_due":   int(c.indexing_due),
+                             "index_held":  int(c.indexing_held), 
+                             "doc_count":   c.document_count, 
+                             "file_count":  fc, 
+                             "error_count": ec })
+            return repr (ret)
+
+
 class SearchForm(object):
     """Controller for searching document collections and rendering
     the results.

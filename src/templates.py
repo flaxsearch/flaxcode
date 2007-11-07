@@ -243,14 +243,31 @@ def render_collection(node, collection, base_url, indexer):
         
     indexing, file_count, error_count = indexer.indexing_info(collection)
     node.doc_count.content = str(collection.document_count)
+    node.doc_count.atts['id'] = '_doc_count_' + collection.name
+    
     node.file_count.content = str(file_count)
+    node.file_count.atts['id'] = '_file_count_' + collection.name
+    
     node.error_count.content = str(error_count)
-    node.status.content = str("Yes" if indexing else "No")
+    node.error_count.atts['id'] = '_error_count_' + collection.name
+    
+#    node.status.content = str("Yes" if indexing else "No")
+#    node.status.atts['id'] = '_status_' + collection.name
 
+    node.due_form.due_button.atts['id'] = '_due_button_' + collection.name
     node.due_form.atts['action']='/admin/collections/%s/toggle_due' % collection.name
-    node.due_form.due_button.content = str(collection.indexing_due)
+    if indexing:
+        node.due_form.due_button.content = 'In progress'
+        node.due_form.due_button.atts['disabled'] = 'true'
+    elif collection.indexing_due:
+        node.due_form.due_button.content = 'Scheduled'
+        node.due_form.due_button.atts['disabled'] = 'true'
+    else:
+        node.due_form.due_button.content = 'Start'
+    
     node.held_form.atts['action']='/admin/collections/%s/toggle_held' % collection.name
     node.held_form.held_button.content = str(collection.indexing_held)
+    node.held_form.held_button.atts['id'] = '_held_button_' + collection.name
 
 
 ###### Collection Detail Template ######
