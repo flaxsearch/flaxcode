@@ -230,7 +230,7 @@ def render_collection(node, collection, base_url, indexer):
 
     node.delete_form.atts['action']='/admin/collections/%s/delete' % collection.name
     node.delete_form.atts['onsubmit'] = \
-        "return confirm('Please confirm deletion of collection \\\"%s\\\"')" % collection.name
+        "return confirm('Please confirm deletion of collection \"%s\"')" % collection.name
 
     col_url = base_url + '/' + collection.name + '/view'
     node.name.content = collection.name
