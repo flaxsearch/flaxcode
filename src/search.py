@@ -68,13 +68,14 @@ class Results (object):
         conn = self.conn_for_dbs(dbs)
         is_string_query = isinstance(query, types.StringType)
         if is_string_query:
-            self.xap_query = self.make_xap_query(conn, query, exact, exclusions, formats)
+            self.xap_query, self.highlight_query = self.make_xap_query(conn, query, exact, exclusions, formats)
             corrected = conn.spell_correct(self.query)
             self.spell_corrected_query = corrected if corrected != query else None
 
         else:
             conn_for_sim = query[0].search_conn()
             self.xap_query = conn_for_sim.query_similar([query[1]])
+            self.highlight_query = self.xap_query
             self.spell_corrected_query = None
 
         self.do_search(conn)
@@ -91,21 +92,35 @@ class Results (object):
                 self.spell_corrected_query = None
 
     def make_xap_query(self, conn, query, exact, exclusions, formats):
-        if not any((query, exact, exclusions, formats)):
-            return conn.query_parse("")
-        if query:
-            xq = conn.query_parse(query)
-        else:
-            xq = conn.query_all()
+        """Make the xapian query for a given set of search parameters.
 
+        Returns a pair: (xap_query, highlight_query), where xap_query is the
+        query to be used to perform the search, and highlight_query is a query
+        to be used for highlighting.
+
+        """
+        if not any((query, exact, exclusions, formats)):
+            empty_query = conn.query_none()
+            return empty_query, empty_query
+
+        # Work out "hq", which is the positive and textual parts of the query,
+        # used for highlighting.
+        if query:
+            hq = conn.query_parse(query)
+        else:
+            hq = conn.query_all()
         if exact:
-            xq = conn.query_composite(xappy.SearchConnection.OP_AND, (xq, conn.query_parse( '"%s"' % exact)))
+            hq = conn.query_composite(xappy.SearchConnection.OP_AND, (hq, conn.query_parse( '"%s"' % exact)))
+
+        # Work out xq, which is the actual query to be executed, but adding the
+        # filters and filetypes.
+        xq = hq
         if exclusions:
             xq = conn.query_filter(xq, conn.query_parse( ' '.join(util.listify(exclusions))), True )
         if formats:
             filetype_queries = [conn.query_field('filetype', format) for format in util.listify(formats)]
             xq = conn.query_filter(xq, conn.query_composite(conn.OP_OR, filetype_queries))
-        return xq
+        return xq, hq
 
     def do_search(self, conn):
         self.log.info("Search databases %s with query %s" % (self.dbs, self.xap_query))
