@@ -236,8 +236,8 @@ def render_collection(node, collection, base_url, indexer):
     node.name.content = collection.name
     node.name.atts['href'] = urllib.quote(col_url)
     
-    if len (collection.description) > 30:   # FIXME a bit arbitrary
-        node.description.content = collection.description[:30]
+    if len (collection.description) > 35:   # FIXME a bit arbitrary
+        node.description.content = collection.description[:35]
         node.description_more.atts['href'] = 'javascript:alert(%s)' % repr (collection.description)
     else:
         node.description.content = collection.description
