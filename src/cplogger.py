@@ -62,8 +62,8 @@ class cpLogger(object):
         self.error_log=logging.getLogger('webserver.errors')
         self.access_log=logging.getLogger('webserver.access')
 
-    def __call__(self, *args, **kwargs):
-        self.error_log.error(*args, **kwargs)
+    def __call__(self, msg='', context='', severity=logging.DEBUG, traceback=False):
+        self.error_log.log(severity, ' '.join((self.time(), context, msg)))
 
     # access string generation from cherrypy._cplogger.LogManager.access
     def access(self):
