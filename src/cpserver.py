@@ -163,9 +163,7 @@ class Collections(FlaxResource):
             collection = self._flax_data.collections[col]
             collection.update(**kwargs)
             self._signal_data_changed()
-            self._index_server.stop_indexing(collection)
-            self._index_server.set_due(collection)
-            self._redirect_to_view(col)
+            self._redirect_to_view()
         else:
             raise self._bad_collection_name(col)
 
@@ -182,7 +180,7 @@ class Collections(FlaxResource):
             else:
                 self._flax_data.collections.new_collection(col, **kwargs)
                 self._signal_data_changed()
-                self._redirect_to_view(col)
+                self._redirect_to_view()
         else:
             return self._detail_template(None, self._flax_data.formats, self._flax_data.languages)
 
