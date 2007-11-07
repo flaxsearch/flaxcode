@@ -131,6 +131,16 @@ class InnoScript:
         print >> ofi, r'[UninstallRun]'
         print >> ofi, r'; Make sure we remove the existing Windows Service'
         print >> ofi, r'Filename: "{app}\stopflaxservice.bat"; Flags: waituntilterminated'
+        print >> ofi, r""
+        print >> ofi, r'[Code]'
+        print >> ofi, r'function InitializeSetup(): Boolean;'
+        print >> ofi, r'begin'
+        print >> ofi, r"if RegKeyExists(HKLM, 'Software\Lemur Consulting Ltd\Flax Site Search') then begin"
+        print >> ofi, r"    MsgBox('Flax Site Search:'#13#13'Flax is already installed. Please uninstall the previous version before installing this version.'#13#13'There is an option to uninstall in Start, Programs, Flax Site Search', mbError, MB_OK);"
+        print >> ofi, r'    Result := False;'
+        print >> ofi, r'  end else'
+        print >> ofi, r'    Result := True;'
+        print >> ofi, r'end;        '
 
 
     def compile(self):
