@@ -1,9 +1,12 @@
 # A distutils setup script for Flax, for use with py2exe
-# 
-# Creates two executables, startflax.exe for use standalone and
-# flaxservice.exe for use as a Windows Service, then
-# packages them into setup.exe using InnoSetup.
-#
+
+# Copyright (C) Lemur Consulting Ltd 2007
+# This file is a modified version of the example from the py2exe distribution.
+
+# When run as "python setup_svc.py py2exe", creates two executables,
+# startflax.exe for use standalone and flaxservice.exe for use as a Windows
+# Service, then packages them into setup.exe using InnoSetup.
+
 import sys
 
 # This next section taken from http://www.py2exe.org/index.cgi/WinShell
