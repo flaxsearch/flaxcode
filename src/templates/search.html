@@ -38,27 +38,27 @@
       </div>
       <div>
 	<label class="main_label" for="formats">Formats:</label>
-	<label for="format_xls">Excel</label>
 	<input node="con:xls" type="checkbox" id="format_xls"
 	       name="format" value="xls"></input>
-	<label for="format_html">HTML</label>
+	<label for="format_xls">Excel</label>
 	<input node="con:html" type="checkbox" id="format_html"
 	       name="format" value="html"></input>
-	<label for="format_pdf">PDF</label>
+	<label for="format_html">HTML</label>
 	<input node="con:pdf" type="checkbox" id="format_pdf"
 	       name="format" value="pdf"></input>
-	<label for="format_ppt">Power Point</label>
+	<label for="format_pdf">PDF</label>
 	<input node="con:ppt" type="checkbox" id="format_ppt"
 	       name="format" value="ppt"></input>
-	<label for="format_rtf">RTF</label>
+	<label for="format_ppt">Power Point</label>
 	<input node="con:rtf" type="checkbox" id="format_rtf"
 	       name="format" value="rtf"></input>
-	<label for="format_txt">Text</label>
+	<label for="format_rtf">RTF</label>
 	<input node="con:txt" type="checkbox" id="format_txt"
 	       name="format" value="txt"></input>
-	<label for="format_doc">Word</label>
+	<label for="format_txt">Text</label>
 	<input node="con:doc" type="checkbox" id="format_doc"
 	       name="format" value="doc"></input>
+	<label for="format_doc">Word</label>
       </div>
     </div>
   </form>
@@ -78,8 +78,8 @@
 
     <div class="search_info" node="con:info">1 - 10 of foo bar wombat</div>
 
-    <!-- the contents of this div will be replaced by the results of --
-      -- the search -->
+    <!-- the contents of this div will be replaced by the results of
+         the search -->
     <div node="rep:results" class="search_hit">
       <a node="con:res_link" class="search_hit_link"></a>
       <div node="con:res_content" class="search_hit_content"></div>
