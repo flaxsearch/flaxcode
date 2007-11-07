@@ -258,6 +258,8 @@ setup(
                 glob.glob('../src/static/img/*.ico')),
                 ("static/js",
                 glob.glob('../src/static/js/*.js')),
+                ("static/js/MochiKit",
+                glob.glob('../src/static/js/MochiKit/*.js')),
                 
                 ],
 
