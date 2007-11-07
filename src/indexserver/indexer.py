@@ -128,6 +128,8 @@ class Indexer(object):
                     conn.delete(id)
 
             log.info("Indexing of %s finished" % name)
+            conn.close()
+            log.info("Changed to %s flushed" % name)
             return True
 
         except xappy.XapianDatabaseLockError, e:
@@ -137,9 +139,6 @@ class Indexer(object):
             tb = traceback.format_exc()
             log.error("Unhandled error in do_indexing, traceback is: %s" % tb)
             raise
-        finally:
-            if conn:
-                conn.close()
 
     def _find_filter(self, filter_name):
         return self._filter_map[filter_name] if filter_name in self._filter_map else None
@@ -227,9 +226,13 @@ class IndexProcess(logclient.LogClientProcess):
     def run(self):
         self.initialise_logging()
         indexer = Indexer(*self.indexer_args)
-        while True:
-            collection, filter_settings = self.inpipe[1].recv()
-            self.outpipe[0].send(indexer.do_indexing(collection, filter_settings))
+        try:
+            while True:
+                collection, filter_settings = self.inpipe[1].recv()
+                self.outpipe[0].send(indexer.do_indexing(collection, filter_settings))
+        finally:
+            log.info("Cleaning up child processes of indexer")
+            processing.process._exit_func() 
 
 
     # call do indexing in the remote process, block until return value is sent back
