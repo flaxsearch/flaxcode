@@ -1,6 +1,7 @@
 import unittest
 import os
 import sys
+import shutil
 import tempfile
 
 sys.path = [os.path.normpath(os.path.join(__file__, '..', '..'))]+sys.path
@@ -21,15 +22,12 @@ class TestFileTypes(unittest.TestCase):
         self.indexserver = indexer.IndexServer()
         self.indexserver.do_indexing(self.col)
 
+    def tearDown(self):
+        shutil.rmtree(flaxpaths.paths.dbs_dir)
+
     def testFileTypeSearch(self):
         conn = xappy.SearchConnection(self.col.dbpath())
-
-        # not sure why the search below fails to produce any results,
-        # bar.htm has 'htm' in the filetype field:
-        bar = conn.get_document(os.path.realpath('sampledocs/issue72/bar.htm'))
-        print bar.data['filetype']
-
-        res = conn.search(conn.query_parse('filetype:htm'), 0 , 10)
+        res = conn.search(conn.query_field('filetype', 'htm'), 0 , 10)
         results = [r for r in res]
         self.assertEqual(len(results), 1)
 
