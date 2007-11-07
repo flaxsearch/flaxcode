@@ -125,7 +125,7 @@ class InnoScript:
         print >> ofi, r'; Install & run Service'
         print >> ofi, r'Filename: "{app}\startflaxservice.bat"; Description: "{cm:LaunchProgram,Flax Site Search as a Windows Service}"; Flags: postinstall waituntilterminated '
         print >> ofi, r""
-        print >> ofi, r'[UninstallRun]"'
+        print >> ofi, r'[UninstallRun]'
         print >> ofi, r'; Make sure we remove the existing Windows Service'
         print >> ofi, r'Filename: "{app}\stopflaxservice.bat"; Flags: waituntilterminated'
 
