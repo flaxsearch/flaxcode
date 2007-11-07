@@ -412,9 +412,11 @@ def render_search_result (node, results, collections, selcols, formats):
 
         if 'content' in res.data:
             if is_string_query:
-                node.res_content.raw = res.summarise('content', hl=('<strong>','</strong>'))
+                node.res_content.raw = res.summarise('content', hl=('<strong>','</strong>'),
+                                                     query=results.highlight_query)
             else:
-                node.res_content.raw = res.summarise('content', hl=('',''))
+                node.res_content.raw = res.summarise('content', hl=('',''),
+                                                     query=results.highlight_query)
 
         size = res.data.get ('size')
         node.res_size.content = format_size (size[0]) if size else 'unknown'
