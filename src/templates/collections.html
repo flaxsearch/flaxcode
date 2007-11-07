@@ -9,28 +9,16 @@
   <script type="text/javascript">
   function on_load() 
   {
-    if (is_indexing)
-    {
-      callLater (2, update_info);
-    }
+    // this will always call the AJAX stuff once, whether or not indexing is
+    // in progress or scheduled. But that's not a big deal.
+    callLater (2, update_info);
   }
 
-  function is_indexing()
-  {
-    var stati = getElementsByTagAndClassName ('td', 'col_due');
-    var indexing = false;
-    for (var i = 0; i < stati.length; i++)
-    {
-      if (scrapeText (stati[i]) == 'In progress') return true;
-    }
-    return false;
-  }
-  
   function update_info()
   {
     try {
       var onsuccess = function (json) {
-        var status = false;
+        var again = false;
         for (var i = 0; i < json.length; i++)
         {
           try {
@@ -44,7 +32,7 @@
             var due = $('_due_button_' + json[i].name);
             if (json[i].status)
             {
-              status = true;
+              again = true;
               replaceChildNodes (due, 'In progress');
               due.disabled = true;
             }
@@ -52,6 +40,10 @@
             {
               replaceChildNodes (due, 'Scheduled');
               due.disabled = true;
+              if (scrapeText ($('_held_button_' + json[i].name)) == 'Hold')
+              { // indexing could start soon
+                again = true;
+              }
             }
             else
             {
@@ -65,11 +57,14 @@
           }
         }
         
-        if (status) callLater (2, update_info);
+        if (again) callLater (2, update_info);
       };
 
       var onfailure = function (err) {
-        alert ('AJAX error: ' + err);
+        if (err instanceof MochiKit.Async.XMLHttpRequestError)
+        { // quietly re-try
+          callLater (2, update_info);
+        }
       };
 
       var req = loadJSONDoc ('/admin/collections/json');
