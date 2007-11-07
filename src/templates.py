@@ -266,7 +266,7 @@ def render_collection(node, collection, base_url, indexer):
         node.due_form.due_button.content = 'Start'
     
     node.held_form.atts['action']='/admin/collections/%s/toggle_held' % collection.name
-    node.held_form.held_button.content = str(collection.indexing_held)
+    node.held_form.held_button.content = 'Unhold' if collection.indexing_held else 'Hold'
     node.held_form.held_button.atts['id'] = '_held_button_' + collection.name
 
 
