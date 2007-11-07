@@ -253,6 +253,7 @@ class IndexServer(object):
         self.currently_indexing = None
         self.hints = set()
         self.indexing_process = IndexProcess(self.file_count_sv, self.error_count_sv, self.stop_sv)
+        log.info("Started the indexing process with pid: %d" % self.indexing_process.getPid())
 
     def log_config_listener(self):
         "return a listener for log configuration changes in the remote indexing process"
