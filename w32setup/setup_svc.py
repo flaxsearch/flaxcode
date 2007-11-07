@@ -107,7 +107,6 @@ class InnoScript:
         print >> ofi, r'Source: "%s\startflaxservice.bat"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\stopflaxservice.bat"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\zlib1.dll"; DestDir: "{app}\localinst"; Flags: ignoreversion' % self.this_dir
-        print >> ofi, r'Source: "%s\_xapian.pyd"; DestDir: "{app}\localinst"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'; NOTE: Do not use "Flags: ignoreversion" on any shared system files'
         print >> ofi, r""
         print >> ofi, r'[Icons]'
@@ -258,8 +257,6 @@ setup(
                 glob.glob('../src/static/img/*.ico')),
                 ("static/js",
                 glob.glob('../src/static/js/*.js')),
-                ("static/js/MochiKit",
-                glob.glob('../src/static/js/MochiKit/*.js')),
                 
                 ],
 
