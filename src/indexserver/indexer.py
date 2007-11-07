@@ -278,7 +278,9 @@ class IndexServer(object):
         with self.state_lock:
             self.stop_sv.value = False
             self.currently_indexing = None
-
+        # now that we've finished we can see if there's another collection due for indexing
+        self.start_indexing()
+        
     def async_do_indexing(self, collection):
         # call do_indexing in a separate thread and return.
         util.AsyncFunc(self.do_indexing)(collection)
