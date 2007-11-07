@@ -281,7 +281,7 @@ def script_for_mappings(col):
     else:
         maps = ""
     maps += '\n   add_mapping("", "");'
-    return "\nvar make_mappings = function(){\n %s \n}\n window.onload=make_mappings\n" % maps
+    return "\nvar make_mappings = function(){\n %s \n}\n" % maps
 
 
 # This actually sucks a bit, really we want to make all the checkbox
