@@ -20,35 +20,38 @@
       var onsuccess = function (json) {
         var again = false;
         for (var i = 0; i < json.length; i++)
-        {
+        {        
           try {
-            replaceChildNodes ($('_doc_count_' + json[i].name), 
-                               json[i].doc_count);
-            replaceChildNodes ($('_file_count_' + json[i].name), 
-                               json[i].file_count);
-            replaceChildNodes ($('_error_count_' + json[i].name), 
-                               json[i].error_count);
+            if $('_doc_count_' + json[i].name)
+            {
+              replaceChildNodes ($('_doc_count_' + json[i].name), 
+                                 json[i].doc_count);
+              replaceChildNodes ($('_file_count_' + json[i].name), 
+                                 json[i].file_count);
+              replaceChildNodes ($('_error_count_' + json[i].name), 
+                                 json[i].error_count);
         
-            var due = $('_due_button_' + json[i].name);
-            if (json[i].status)
-            {
-              again = true;
-              replaceChildNodes (due, 'In progress');
-              due.disabled = true;
-            }
-            else if (json[i].index_due)
-            {
-              replaceChildNodes (due, 'Scheduled');
-              due.disabled = true;
-              if (scrapeText ($('_held_button_' + json[i].name)) == 'Hold')
-              { // indexing could start soon
+              var due = $('_due_button_' + json[i].name);
+              if (json[i].status)
+              {
                 again = true;
+                replaceChildNodes (due, 'In progress');
+                due.disabled = true;
               }
-            }
-            else
-            {
-              replaceChildNodes (due, 'Start');
-              due.disabled = false;
+              else if (json[i].index_due)
+              {
+                replaceChildNodes (due, 'Scheduled');
+                due.disabled = true;
+                if (scrapeText ($('_held_button_' + json[i].name)) == 'Hold')
+                { // indexing could start soon
+                  again = true;
+                }
+              }
+              else
+              {
+                replaceChildNodes (due, 'Start');
+                due.disabled = false;
+              }
             }
           }
           catch (err)
