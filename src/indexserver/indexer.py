@@ -225,11 +225,16 @@ class IndexProcess(logclient.LogClientProcess):
 
     def run(self):
         self.initialise_logging()
-        indexer = Indexer(*self.indexer_args)
         try:
-            while True:
-                collection, filter_settings = self.inpipe[1].recv()
-                self.outpipe[0].send(indexer.do_indexing(collection, filter_settings))
+            try:
+                indexer = Indexer(*self.indexer_args)
+                while True:
+                    collection, filter_settings = self.inpipe[1].recv()
+                    self.outpipe[0].send(indexer.do_indexing(collection, filter_settings))
+            except:
+                import traceback
+                tb=traceback.format_exc()
+                log.critical('Unhandled exception in IndexerProcess.run(), traceback follows:\n %s' % tb)
         finally:
             log.info("Cleaning up child processes of indexer")
             processing.process._exit_func() 
