@@ -22,7 +22,7 @@
         for (var i = 0; i < json.length; i++)
         {        
           try {
-            if $('_doc_count_' + json[i].name)
+            if ($('_doc_count_' + json[i].name))
             {
               replaceChildNodes ($('_doc_count_' + json[i].name), 
                                  json[i].doc_count);
