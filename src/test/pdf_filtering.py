@@ -15,6 +15,18 @@ class TestPdfFilter(unittest.TestCase):
         fname = os.path.join(os.path.realpath('sampledocs'), 'problem_docs', 'ukpga_19960008_en.pdf')
         stuff = list(w32com_ifilter.ifilter_filter(fname))
 
+    def testRepeatRemoteFiltering(self):
+        """this file error - here we repeatedly try to filter it catching the
+        error, the remote filter should make a new process each time
+        the error occurs.
+        """
+        fname = os.path.join(os.path.realpath('sampledocs'), 'problem_docs', 'ukpga_19960008_en.pdf')
+        for i in xrange(100):
+            try:
+                stuff = list(w32com_ifilter.remote_ifilter(fname))
+            except:
+                pass
+
 if __name__ == '__main__':
     unittest.main()
 
