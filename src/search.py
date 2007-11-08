@@ -34,7 +34,7 @@ import util
 class Results (object):
     """ Make search results from supplied query information.
 
-    `dbs` the databases queried to get the results.
+    `dbpaths` the paths of the databases queried to get the results.
     `xap_query`: The xapian query that produced the results.
     `xap_results`: The xappy list of SearchResult objects.
     `query`: The string query or (collection, doc_id) pair.
@@ -48,9 +48,9 @@ class Results (object):
 
     log = logging.getLogger("searching")
 
-    def __init__(self, query, exact, exclusions, formats, dbs, tophit, maxhits):
+    def __init__(self, query, exact, exclusions, formats, dbpaths, tophit, maxhits):
 
-        if len(dbs) == 0:
+        if len(dbpaths) == 0:
             self.query = query
             self.is_results_corrected = False
             self.spell_corrected_query = None
@@ -60,12 +60,12 @@ class Results (object):
         self.exclusions = exclusions
         self.exact = exact
         self.formats = formats
-        self.dbs = dbs
+        self.dbpaths = dbpaths
         self.query = query
         self.tophit = tophit
         self.maxhits = maxhits
 
-        conn = self.conn_for_dbs(dbs)
+        conn = self.conn_for_dbs(dbpaths)
         is_string_query = isinstance(query, types.StringType)
         if is_string_query:
             self.xap_query, self.highlight_query = self.make_xap_query(conn, query, exact, exclusions, formats)
@@ -123,32 +123,28 @@ class Results (object):
         return xq, hq
 
     def do_search(self, conn):
-        self.log.info("Search databases %s with query %s" % (self.dbs, self.xap_query))
+        self.log.info("Search databases %s with query %s" % (self.dbpaths, self.xap_query))
         self.xap_results = conn.search(self.xap_query,
                                        self.tophit,
                                        self.tophit + self.maxhits,
                                        100)
 
-    def conn_for_dbs(self, dbs):
-        conn = xappy.SearchConnection(dbs[0])
-        for d in dbs[1:]:
+    def conn_for_dbs(self, dbpaths):
+        conn = xappy.SearchConnection(dbpaths[0])
+        for d in dbpaths[1:]:
             conn._index.add_database(xapian.Database(d))
         return conn
 
-def search(query, exact, exclusions, formats, dbs, tophit = 0, maxhits = 10):
-    """ search the xapian dbs named by `dbs` with `query`.  return a
-        triple (results, corrected_query, corrected_results), where
-        results is the xapian results object, corrected query is a
-        spell corrected version of the oringinal query and corrected
-        results is a boolean flag indicating whether the results are
-        for the corrected query or the orgiginal query.
+def search(query, exact, exclusions, formats, dbpaths, tophit = 0, maxhits = 10):
+    """Search the xapian databases at the paths listed in `dbpaths` with `query`.
+    
+    Return a Results() object holding the results of the search.
 
-        Spell correction occurs when `query` is a string (rather than
-        a query object).
+    Spell correction occurs only when `query` is a string (rather than a query
+    object).
 
-        If spell correction occured and the results for the original
-        query were empty then the results are for the spell corrected
-        query.
+    If spell correction occured and the results for the original query were
+    empty then the results are for the spell corrected query.
 
     """
-    return Results(query, exact, exclusions, formats, dbs, tophit, maxhits)
+    return Results(query, exact, exclusions, formats, dbpaths, tophit, maxhits)
