@@ -8,10 +8,13 @@ Introduction
 
 This document is a guide to Flax internals. As ever the code is
 definitive and the comments in the code can be used to automatically
-generate an api reference. This is more of an overview and will
-hopefully help understand how it all fits together.
+generate an `api reference`_ (see the comments in the file epydoc.conf
+for how to do this). This is more of an overview and will hopefully
+help readers to understand how it all fits together.
 
 Some of this document is taken from pages in the wiki. 
+
+.. _`api reference`: file:api/index.html
 
 Components
 ==========
@@ -96,42 +99,54 @@ DocCollection) - such has a number of purposes:
 Logging.
 ========
 
-Flax uses the standard python logging module for logging. A basic
-understanding of that module is assumed. See:
-http://docs.python.org/lib/module-logging.html.
+Flax uses the standard `python logging module`_ for logging. A basic
+understanding of that module is assumed. 
+
+.. _`python logging module`: http://docs.python.org/lib/module-logging.html
 
 A number of loggers are used in the code (created by calls to
 logging.getLogger), and logging calls are made on these. Since Flax is
 intended to be a potentially long running process it's convenient to
 be able to change the logging output on the fly. To this end each
 process that forms part of the system has creates an instance of the
-class logclient.LogListener. The main process has an instance of the
-class logclient.LogConfPub. This latter has watches the logging
-configuration file for changes, and sends an updated version of the
-file to the LogListener instances in other processes. These update the
-logging configuration accordingly. This mean that changes to the
-logging configuration propagate to all parts of the system.
+class LogListener_. The main process has an instance of the class
+LogConfPub_. This latter has watches the logging configuration file
+for changes, and sends an updated version of the file to the
+LogListener instances in other processes. These update the logging
+configuration accordingly. This mean that changes to the logging
+configuration propagate to all parts of the system.
+
+.. _LogListener: file:api/logclient.LogListener-class.html
+.. _LogConfPub: file:api/logclient.LogConfPub-class.html
+.. _LogConf: file:api/logclient.LogConf-class.html
 
 There is also a mechanism for setting some aspects of the logging
 configuration via the web UI (the levels of the top level loggers can
-be set). The class logclient.LogConf supports this by rewriting the
-logging configuration file when its .set_levels() method is
-invoked. Of course once the file has been written LogConfPub will
-ensure that the changes propogate to rge LogListener instances as
-described above.
+be set). The class LogConf_ supports this by rewriting the logging
+configuration file when its .set_levels() method is invoked. Of course
+once the file has been written LogConfPub_ will ensure that the changes
+propogate to LogListener_ instances as described above.
 
 This combination allows for changes both via the Web UI and via the
 logging configuration file in a running system.
+
+A slight wart is that the `python configparser module`_ does not
+preserve order or comment on round tripping, we could, in the future,
+use the (non-standard) ConfigObj_ module instead to address this.
+
+.. _`python configparser module`: http://docs.python.org/lib/module-ConfigParser.html
+.. _ConfigObj: http://www.voidspace.org.uk/python/configobj.html
+
 
 Cherrypy Logging
 ~~~~~~~~~~~~~~~~
 
 Cherrypy also uses the logging module but, by default, hardcodes some
-logging calls thereby limiting the scope for using the full
-flexibility of the logging module's configuration. We have therefore
-replaces the default cherrypy logging manager with a custom one that
-integrates better with our scheme. This arranges for cherrypy logging
-calls to be logged to loggers "webserver.access" and
+apsects of the logging configuration thereby limiting the scope for
+using the full flexibility of the logging module's configuration. We
+have therefore replaced the default cherrypy logging manager with a
+custom one that integrates better with our scheme. This arranges for
+cherrypy logging calls to be logged to loggers "webserver.access" and
 "webserver.errors".
 
 
@@ -160,7 +175,7 @@ avoid cross process synchronization issues when such data changes.
 
 The remote indexing process is controlled by an instance of the class
 IndexServer_. This creates an instance of the class
-IndexProcess_ which is a subclass of
+IndexProcess_.
 
-.. _IndexServer:file://src/html/indexserver.indexer.IndexServer-class.html
-.. _IndexProcess:file://src/html/indexserver.indexer.IndexServer-class.html
+.. _IndexServer: file:api/indexserver.indexer.IndexServer-class.html
+.. _IndexProcess: file:api/indexserver.indexer.IndexServer-class.html
