@@ -47,17 +47,11 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
         self.name = name
         self.mappings = {}
         self.update(*args, **kwargs)
-        self._search_conn=None
         self.indexing_due = False
         self.indexing_held = False
         self.file_count = 0
         self.error_count = 0
         self.maybe_make_db()
-
-    def __getstate__(self):
-
-        self._search_conn = None
-        return self.__dict__
 
     def update(self, description="", **kwargs):
         self.description = description
@@ -104,10 +98,7 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
             return ""
 
     def search_conn(self):
-        if not self._search_conn:
-            self._search_conn = xappy.SearchConnection(self.dbpath())
-        self._search_conn.reopen()
-        return self._search_conn
+        return xappy.SearchConnection(self.dbpath())
 
     @property
     def document_count(self):
@@ -115,15 +106,3 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
 
     def dbpath(self):
         return os.path.join(flaxpaths.paths.dbs_dir, self.name + '.db')
-
-    def source_file_from_id(self, file_id):
-        "return the source file name given a document id."
-        try:
-            # all this does at the moment is check that this file
-            # has been indexed as part of this document collection.
-            conn = self.search_conn()
-            conn.get_document(file_id)
-            conn.close()
-            return file_id
-        except KeyError:
-            return None
