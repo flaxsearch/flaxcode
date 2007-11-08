@@ -105,13 +105,7 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
 
     def search_conn(self):
         if not self._search_conn:
-            try:
-                self._search_conn = xappy.SearchConnection(self.dbpath())
-            except xappy.XapianDatabaseOpeningError:
-                # maybe some has moved/deleted the database - make a new one
-                self.maybe_make_db()
-                self._search_conn = xappy.SearchConnection(self.dbpath())
-                # if we error again then let it go.
+            self._search_conn = xappy.SearchConnection(self.dbpath())
         self._search_conn.reopen()
         return self._search_conn
 
