@@ -208,6 +208,11 @@ div.info {
     font-size: 10pt;
 }
 
+.search_adv {
+    padding: 2px;
+    font-size: 10pt;
+}
+
 .search_info {
     font-size: 10pt;
     margin-top: 6px;
