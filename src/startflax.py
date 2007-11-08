@@ -104,7 +104,7 @@ def parse_cli_opts():
                           var_dir = realpath(options.var_dir),
                           set_admin_password = options.set_admin_password)
 
-class FlaxMain():
+class FlaxMain(object):
     """Class controlling starting and stopping Flax.
 
     Can be used in two ways; synchronously, or asynchronously.
