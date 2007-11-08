@@ -241,9 +241,9 @@ class SearchForm(object):
         """Constructor.
 
         :Parameters:
-            - `collections`: the set of document collections to be searched.
-            - `search_template`: A template for redering the search form.
-            - `result_template`: A template for rendering search results.
+            - `flax_data`: The flax options object.
+            - `search_template`: Template for rendering the standard search form (and results).
+            - `advanced_template`: Template for rendering advanced search form (and results).
 
         """
         self._flax_data = flax_data
@@ -297,8 +297,8 @@ class Top(FlaxResource):
 
         :Parameters:
             - `flax_data`: flax data to supply to templates.
-            - `search_template`: template for the search forms.
-            - `advanced_search_template`: template for the advanced search.
+            - `search_template`: Template for rendering the standard search form (and results).
+            - `advanced_template`: Template for rendering advanced search form (and results).
             - `about_template`: template for the about page.
 
         """
@@ -349,7 +349,7 @@ class Admin(Top):
         :Parameters:
             - `flax_data`: flax data to supply to templates.
             - `search_template`: template for the search forms.
-            - `advanced_search_template`: template for the advanced search.
+            - `advanced_template`: template for the advanced search.
             - `about_template`: template for the about page.
             - `options_template`: template for the global options page.
 

@@ -71,7 +71,8 @@ class TemplateManager(object):
 
     def make_template(self, render_fn, file_name, nav_id=None):
         """
-        Make an HTMLTemplate from `file_name` in `template_dir` using `render_fn`.
+        Make an HTMLTemplate from `file_name` in self.template_dir
+        using `render_fn`.
 
         """
         fpath = os.path.join (self.template_dir, file_name)
