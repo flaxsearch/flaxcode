@@ -11,6 +11,8 @@ definitive and the comments in the code can be used to automatically
 generate an api reference. This is more of an overview and will
 hopefully help understand how it all fits together.
 
+Some of this document is taken from pages in the wiki. 
+
 Components
 ==========
 
@@ -133,4 +135,32 @@ calls to be logged to loggers "webserver.access" and
 "webserver.errors".
 
 
+Indexing
+========
 
+In order to build Xapian databases from the files specified by a
+document collection Flax has a process that runs separately from the
+main web server. This has some advantages:
+
+  * Badly behaved document filters invoked by the indexing process
+    need not adversely affect the running of the main web server.
+
+  * The indexer could run on a separate machine from the web server if
+    desired to improve performance (this is not possible at the
+    moment, but could be acheived with small code changed).
+
+  * On mutlicore processors the indexing process can run on a
+    different core from the web service process.
+
+This is no long term state held in the indexer, so that at worst the
+current indexing process can be forcably terminated and
+restarted. Also the controlling logic for determining when and what to
+index depends on the state of document collections and we want to
+avoid cross process synchronization issues when such data changes.
+
+The remote indexing process is controlled by an instance of the class
+IndexServer_. This creates an instance of the class
+IndexProcess_ which is a subclass of
+
+.. _IndexServer:file://src/html/indexserver.indexer.IndexServer-class.html
+.. _IndexProcess:file://src/html/indexserver.indexer.IndexServer-class.html
