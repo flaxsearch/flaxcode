@@ -263,7 +263,7 @@ def render_collection(node, collection, base_url, indexer):
         node.due_form.due_button.content = 'In progress'
         node.due_form.due_button.atts['disabled'] = 'true'
     elif collection.indexing_due:
-        node.due_form.due_button.content = 'Scheduled'
+        node.due_form.due_button.content = 'Due'
         node.due_form.due_button.atts['disabled'] = 'true'
     else:
         node.due_form.due_button.content = 'Start'

@@ -40,7 +40,7 @@
               }
               else if (json[i].index_due)
               {
-                replaceChildNodes (due, 'Scheduled');
+                replaceChildNodes (due, 'Due');
                 due.disabled = true;
                 if (scrapeText ($('_held_button_' + json[i].name)) == 'Hold')
                 { // indexing could start soon
@@ -132,20 +132,21 @@
   <div class="info_wide"> 
   Current document collections are listed above. The columns are as follows:
     <dl>
-      <dt>Delete (no heading)</dt>
-      <dd>A link to delete the collection in that row.</dd>
+      <dt><img src="/static/img/del.png" border="0" height="15" width="15"/></dt>
+      <dd>Click this icon to delete the corresponding collection.</dd>
 
-      <dt>Name</dt>
+      <dt>Collection</dt>
       <dd>The name of the collection, linked to a page for viewing or
       editing the details of the collection.</dd>
 
       <dt>Description</dt>
-      <dd>The collection's description, or the initial part thereof if
-      it's too long to fit in the column.</dd>
+      <dd>The collection's description, truncated if too long to fit in the column
+      (in which case, click the ... for the whole description.)</dd>
 
       <dt>Indexing</dt>
-      <dd>Whether the collection is currently being indexed. Click "Start" to
-      schedule reindexing as soon as possible.</dd>
+      <dd>Shows whether the collection is currently being indexed ("In progress"), or will
+      be indexed as soon as possible ("Due"). If neither, you can click "Start" to schedule
+      indexing. This is independant from the </dd>
       
       <dt>Hold</dt>
       <dd>Whether indexing of this collection is held. Held
