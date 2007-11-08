@@ -12,7 +12,7 @@ generate an `api reference`_ (see the comments in the file epydoc.conf
 for how to do this). This is more of an overview and will hopefully
 help readers to understand how it all fits together.
 
-Some of this document is taken from pages in the wiki. 
+Some of this document is taken from pages in the wiki.
 
 .. _`api reference`: file:api/index.html
 
@@ -72,9 +72,6 @@ MochiKit
 ~~~~~~~~
 
 http://www.mochikit.com/
-
-
-
 
 
 Document Collections
@@ -174,8 +171,132 @@ index depends on the state of document collections and we want to
 avoid cross process synchronization issues when such data changes.
 
 The remote indexing process is controlled by an instance of the class
-IndexServer_. This creates an instance of the class
-IndexProcess_.
+IndexServer_. This creates an instance of the class IndexProcess_, and
+determines when document collections get indexed. This is determined
+as follows. Each document collection has properties ``indexing_due``
+and ``indexing_held``. If a the former is true, and the latter false
+then the collection is eligible for indexing. The code searches for
+eligible collections and starts indexing on the first it finds. This
+search happens whenever an indexing of a collection terminates, or
+when the ``indexing_due`` or ``indexing_held`` state of a collection
+is modified using one of the methods intended for this purpose:
+``hold_indexing``, ``unhold_indexing``, ``set_due``, ``unset_due``, or
+the convenience method ``toggle_due_or_held``.
+
+If there is a collection eligible then one should be in the process of
+being indexed. Currently no more than one collection can be indexed at
+any one time. It would be relatively simple to adapt the code to
+control a pool of indexing processes and allow for multiple
+simulatanous indexings, which might improve performance, especially on
+multicore processors, or if we allowed for indexing processes to run
+on separate machines.
 
 .. _IndexServer: file:api/indexserver.indexer.IndexServer-class.html
 .. _IndexProcess: file:api/indexserver.indexer.IndexServer-class.html
+
+
+The actual indexing involves making calls on Xapian_ (via Xappy_) to
+make (or update) a database for the collection. The document
+collection itself determines which files should be considered for
+indexing, and for each file type there is a filter__ that extracts the
+text content of the file. In the current implementation the file type
+to filter mapping is fixed (for each operating system) but in the
+future we plan to allow this mapping to be configured.
+
+.. __: Filters_
+
+Filters
+~~~~~~~
+
+A filter is a python callable (a function or an object that implements
+``__call__``) that takes a filename and returns an iterator that
+yields ``(fieldname, value)`` pairs, where ``fieldname`` names the
+field to which the ``value`` is to be added. Each such pair may be
+referred to as a "block" for ``fieldname``.
+
+Flax only takes note of a certain predefined fields, as mentioned
+below. Filters should avoid emitting blocks for other fields: if a
+non-predefined field is emitted, a warning message will be placed in
+the indexing log, and the field text will be ignored.  An error will
+not be raised, so that indexing of the document can complete.
+
+This allows a filter designed for a different versions of Flax to be
+used with a version of Flax which doesn't define a particular field,
+but avoids silently ignoring input data.
+
+Flax does minimal checking of the blocks returned by filters, and will
+tolerate significant deviation from the guidelines below (checking
+would slow down the indexing process, and make compatibility between
+versions of Flax harder), but if filters do not follow these
+guidelines then the quality of search results might be lessened. The
+filters that are distributed as part of Flax all comply with these
+guidelines.
+
+The fields that Flax notices are as follows:
+
+title
+    The document title. Ideally there should be exactly one block for
+    this field. If there is no block for this then Flax will provide a
+    default block based on something like the filename, URI or first
+    content block emitted by the filter (but filter writers shouldn't
+    rely on any particular behaviour here).
+
+content
+    Text for the main contents of the document. ``content`` blocks
+    should be emitted in paragraphs. Phrase and adjacency searches
+    take note of paragraphs. For example, if a filter emits blocks:
+    ``('content', 'Aardvark ')`` followed by ``('content', 'soup')``,
+    then a search for the phrase ``"Aardvark soup"`` will
+    fail. However if a filter emits ``('content', 'Aardvark soup')``
+    then the same search will succeed. (This is not necessarily an
+    argument for aggregating blocks together.)
+
+description
+    General descriptive text about the document. Filters may emit
+    several blocks for this field. Text should be emitted in
+    paragraphs.
+
+keyword
+    A keyword for the document. The content for each block should be a
+    single word describing the document.  Many document formats have a
+    way to store keywords for a particular document, which users may
+    use in various different ways - this field allows users to search
+    based on them.
+
+Note that the Flax infrastructure uses the following fields. Filters
+should not emit blocks for these:
+
+filename
+   The operating system filename for the file (only used for local
+   files)
+
+filetype
+    The file type of the file. Used when limiting searches to a
+    particular type of file. This will probably become obsolete when
+    we make use of mimetypes.
+
+mimetype
+    Not currently used, but reserved for future use.
+
+uri
+   URI for the file (not currently used, but reserved for future use).
+
+nametext
+   Text extracted from the filename.  Currently, this is just the
+   basename of the file, but later we may want to perform various word
+   splitting algorithms, and use other parts of the path.
+
+mtime
+   The time at which the file was last modified (note: this is not the
+   time when it was last indexed), as returned by the standard python
+   funtion ``os.path.getmtime``.
+
+size
+   The size of the file (in bytes).
+
+collection
+   The document collection that the document belongs too. (Note that
+   the same source file might form part of different document
+   settings, but this will give rise to different (Xapian) documents
+   within the document collection databases.)
+
