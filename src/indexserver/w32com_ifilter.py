@@ -50,6 +50,12 @@
 """
 __docformat__ = "restructuredtext en"
 
+# the code in this file makes com calls. If it's invoked from a thread
+# other than the main python thread then a call to
+# pythoncom.CoInitializeEx(pythoncom.COINIT_APARTMENTTHREADED) should
+# be made prior to invoking this code. Such a call should be balanced
+# by a call to pythoncom.CoUnInitialize before the thread terminates.
+
 import itertools
 import pythoncom
 import pywintypes
@@ -60,9 +66,6 @@ import sys
 sys.path.append('..')
 import util
 import logging
-import threading
-
-threadlocal = threading.local()
 
 log = logging.getLogger("filtering.ifilter")
 
@@ -101,10 +104,6 @@ def decode_prop(prop):
     return prop.decode('mbcs') if prop else prop
 
 def ifilter_filter(filename, init_flags = _filter_init_flags):
-    if not hasattr(threadlocal, 'cominit'):
-        pythoncom.CoInitializeEx(pythoncom.COINIT_APARTMENTTHREADED)
-        threadlocal.cominit = True
-
     try:
         filt, stg = get_ifilter_for_file(filename)
     except pythoncom.com_error, e:
