@@ -124,6 +124,10 @@ configuration file when its .set_levels() method is invoked. Of course
 once the file has been written LogConfPub_ will ensure that the changes
 propogate to LogListener_ instances as described above.
 
+The class LogClientProcess_ does most of this for you.
+
+.. _LogClientProcess: file:api/logclient.LogClientProcess-class.html
+
 This combination allows for changes both via the Web UI and via the
 logging configuration file in a running system.
 
@@ -276,7 +280,8 @@ filetype
     we make use of mimetypes.
 
 mimetype
-    Not currently used, but reserved for future use.
+    The mime type of the data. (Not currently used, but reserved for
+    future use.)
 
 uri
    URI for the file (not currently used, but reserved for future use).
