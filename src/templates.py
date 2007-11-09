@@ -304,7 +304,7 @@ def render_collection_detail(template, collection, formats, languages):
 
     if collection:
         form.name.content = collection.name
-        form.description.atts['value'] = collection.description
+        form.description.content = collection.description
         form.col.raw=""
         for format in formats:
             if format in collection.formats and format != "htm":
