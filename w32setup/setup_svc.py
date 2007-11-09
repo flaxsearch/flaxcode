@@ -110,16 +110,16 @@ class InnoScript:
         print >> ofi, r'; NOTE: Do not use "Flags: ignoreversion" on any shared system files'
         print >> ofi, r""
         print >> ofi, r'[Icons]'
-        print >> ofi, r'Name: "{group}\Flax Site Search"; Filename: "{app}\startflax.exe"'
-        print >> ofi, r'Name: "{group}\{cm:ProgramOnTheWeb,Flax Site Search}"; Filename: "http://www.flax.co.uk"'
-        print >> ofi, r'Name: "{group}\{cm:UninstallProgram,Flax Site Search}"; Filename: "{uninstallexe}"'
-        print >> ofi, r'Name: "{commondesktop}\Flax Site Search"; Filename: "{app}\startflax.exe"; Tasks: desktopicon'
+        print >> ofi, r'Name: "{group}\%s"; Filename: "{app}\startflax.exe"' % self.name
+        print >> ofi, r'Name: "{group}\{cm:ProgramOnTheWeb,%s}"; Filename: "http://www.flax.co.uk"' % self.name
+        print >> ofi, r'Name: "{group}\{cm:UninstallProgram,%s}"; Filename: "{uninstallexe}"' % self.name
+        print >> ofi, r'Name: "{commondesktop}\%s"; Filename: "{app}\startflax.exe"; Tasks: desktopicon' % self.name
         print >> ofi, r""
         print >> ofi, r'[Registry]'
         print >> ofi, r'Root: HKLM; Subkey: "Software\%s"; Flags: uninsdeletekeyifempty' % self.publisher
         print >> ofi, r'Root: HKLM; Subkey: "Software\%s\%s"; Flags: uninsdeletekey' % (self.publisher, self.name)
         print >> ofi, r'Root: HKLM; Subkey: "Software\%s\%s\RuntimePath"; ValueType: string; ValueName: ""; ValueData: "{app}"' % (self.publisher, self.name)
-        print >> ofi, r'Root: HKLM; Subkey: "Software\%s\%s\DataPath"; ValueType: string; ValueName: ""; ValueData: "{app}\Data"'  % (self.publisher, self.name)
+        print >> ofi, r'Root: HKLM; Subkey: "Software\%s\%s\DataPath"; ValueType: string; ValueName: ""; ValueData: "{code:GetDataDir}"'  % (self.publisher, self.name)
         print >> ofi, r""
         print >> ofi, r'[Run]'
         print >> ofi, r'; Set admin password'
@@ -131,15 +131,75 @@ class InnoScript:
         print >> ofi, r'; Make sure we remove the existing Windows Service'
         print >> ofi, r'Filename: "{app}\stopflaxservice.bat"; Flags: waituntilterminated'
         print >> ofi, r""
+        print >> ofi, r'[Dirs]'
+        print >> ofi, r'Name: {code:GetDataDir}; Flags: uninsneveruninstall'
+        print >> ofi, r""
         print >> ofi, r'[Code]'
+        print >> ofi, r'var'
+        print >> ofi, r'DataDirPage: TInputDirWizardPage;'
+        print >> ofi, r'LightMsgPage: TOutputMsgWizardPage;'
+        print >> ofi, r""
         print >> ofi, r'function InitializeSetup(): Boolean;'
         print >> ofi, r'begin'
-        print >> ofi, r"if RegKeyExists(HKLM, 'Software\Lemur Consulting Ltd\Flax Site Search') then begin"
+        print >> ofi, r"{ Check if our registry key exists, in which case assume we're already installed }"
+        print >> ofi, r"if RegKeyExists(HKLM, 'Software\Lemur Consulting Ltd\%s') then begin"  % self.name
         print >> ofi, r"    MsgBox('Flax Site Search:'#13#13'Flax is already installed. Please uninstall the previous version before installing this version.'#13#13'There is an option to uninstall in Start, Programs, Flax Site Search', mbError, MB_OK);"
         print >> ofi, r'    Result := False;'
         print >> ofi, r'  end else'
         print >> ofi, r'    Result := True;'
         print >> ofi, r'end;        '
+        print >> ofi, r'procedure InitializeWizard;'
+        print >> ofi, r'begin'
+        print >> ofi, r'{ Create the pages } '
+        print >> ofi, r''
+        print >> ofi, r"DataDirPage := CreateInputDirPage(wpSelectDir,"
+        print >> ofi, r"    'Select Data Directory', 'Where should data files be stored?',"
+        print >> ofi, r"    'Select the folder in which Flax Site Search should store its data files, then click Next. '#13#13 +"
+        print >> ofi, r"    'Note that Flax data files can be very large, so you may want to store them on a separate ' +"
+        print >> ofi, r"    'disk or partition.',"
+        print >> ofi, r"    False, '');"
+        print >> ofi, r"DataDirPage.Add('');"
+        print >> ofi, r"{ Set initial value }"
+        print >> ofi, r"DataDirPage.Values[0] := 'C:\Program Files\%s\Data'" % self.name
+        print >> ofi, r""
+        print >> ofi, r"LightMsgPage := CreateOutputMsgPage(wpPreparing,"
+        print >> ofi, r"    'Set Administration Password', 'Set Administration Password',"
+        print >> ofi, r"    'After installation, Setup will ask you to enter a password for the Administration pages of Flax Site Search.'#13#13 +"
+        print >> ofi, r"    'To view these pages you will need to use a username of " + '"admin"' + " and the password you choose. '#13#13 +"
+        print >> ofi, r"    'You will be asked to confirm the password by typing it twice.');"
+        print >> ofi, r""
+        print >> ofi, r"end;"
+        print >> ofi, r""
+        print >> ofi, r"function NextButtonClick(CurPageID: Integer): Boolean;"
+        print >> ofi, r"var"
+        print >> ofi, r"I: Integer;"
+        print >> ofi, r"begin"
+        print >> ofi, r"{ Validate certain pages before allowing the user to proceed }"
+        print >> ofi, r"if CurPageID = DataDirPage.ID then begin"
+        print >> ofi, r"if DataDirPage.Values[0] = '' then"
+        print >> ofi, r"    DataDirPage.Values[0] := 'C:\Program Files\%s\Data'" % self.name
+        print >> ofi, r"    Result := True;"
+        print >> ofi, r"    end;"
+        print >> ofi, r"Result := True;"
+        print >> ofi, r"end;"
+        print >> ofi, r""
+        print >> ofi, r"function GetDataDir(Param: String): String;"
+        print >> ofi, r"begin"
+        print >> ofi, r'{ Return the selected DataDir } '
+        print >> ofi, r"Result := DataDirPage.Values[0];"
+        print >> ofi, r"end;"        
+        print >> ofi, r"function UpdateReadyMemo(Space, NewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo,"
+        print >> ofi, r"  MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo: String): String;"
+        print >> ofi, r"var"
+        print >> ofi, r"  S: String;"
+        print >> ofi, r"begin"
+        print >> ofi, r"  { Fill the 'Ready Memo' with the normal settings and the custom settings }"
+        print >> ofi, r"  S := S + MemoDirInfo + NewLine;"
+        print >> ofi, r"  S := S + Space + DataDirPage.Values[0] + ' (Data files)' + NewLine + NewLine;"
+        print >> ofi, r"  S := S + MemoGroupInfo + NewLine + NewLine;"
+        print >> ofi, r"  S := S + MemoTasksInfo + NewLine + NewLine;"
+        print >> ofi, r"  Result := S;"
+        print >> ofi, r"end;"
 
 
     def compile(self):
