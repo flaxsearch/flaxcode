@@ -98,8 +98,8 @@ class InnoScript:
         print >> ofi, r'[Files]'
         print >> ofi, r'Source: "%s\startflax.exe"; DestDir: "{app}"; Flags: ignoreversion' % self.dist_dir
         print >> ofi, r'Source: "%s\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs' % self.dist_dir
-        print >> ofi, r'Source: "%s\cp.conf"; DestDir: "{app}\conf"; Flags: ignoreversion' % self.src_dir
-        print >> ofi, r'Source: "%s\flaxlog.conf"; DestDir: "{app}\conf"; Flags: ignoreversion' % self.src_dir
+        print >> ofi, r'Source: "%s\cp.conf"; DestDir: "{app}\conf"; Flags: onlyifdoesntexist ' % self.src_dir
+        print >> ofi, r'Source: "%s\flaxlog.conf"; DestDir: "{app}\conf"; Flags: onlyifdoesntexist ' % self.src_dir
         print >> ofi, r'Source: "%s\processing\_processing.pyd"; DestDir: "{app}\localinst"; Flags: ignoreversion' % self.localinst_dir
         print >> ofi, r'Source: "%s\htmltotext.pyd"; DestDir: "{app}\localinst"; Flags: ignoreversion' % self.localinst_dir
         print >> ofi, r'Source: "%s\msvcr80.dll"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
