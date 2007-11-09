@@ -21,6 +21,35 @@
       alert ('Please enter a name for the collection.');
       return false;
     }
+    
+    // check paths
+    if (fm.path.name)
+    {  // single path
+      if (fm.path.value == '')
+      {
+        fm.path.focus();
+        alert ('Please enter a file path for documents to index.');
+        return false;
+      }
+    }
+    else  // multiple paths
+    {
+      var ok = false;
+      for (var i = 0; i < fm.path.length; i++)
+      {
+        if (fm.path[i].value)
+        {
+          ok = true;
+          break;
+        }
+      }
+      if (!ok)
+      {
+        fm.path[0].focus();
+        alert ('Please enter a file path for documents to index.');
+        return false;      
+      }
+    }
   }
   </script>
 </div>

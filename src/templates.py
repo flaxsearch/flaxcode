@@ -282,8 +282,8 @@ def script_for_mappings(col):
         maps =  '\n'.join([('   add_mapping("%s", "%s");' % (p, col.mappings[p])).encode('string-escape')
                            for p in col.paths])
     else:
-        maps = ""
-    maps += '\n   add_mapping("", "");'
+        maps = '   add_mapping("", "");'
+
     return "\nvar make_mappings = function(){\n %s \n}\n" % maps
 
 
