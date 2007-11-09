@@ -127,10 +127,6 @@ class InnoScript:
         print >> ofi, r'; Install & run Service'
         print >> ofi, r'Filename: "{app}\startflaxservice.bat"; Description: "{cm:LaunchProgram,Flax Site Search as a Windows Service}"; Flags: postinstall waituntilterminated '
         print >> ofi, r""
-        print >> ofi, r'[UninstallRun]'
-        print >> ofi, r'; Make sure we remove the existing Windows Service'
-        print >> ofi, r'Filename: "{app}\stopflaxservice.bat"; Flags: waituntilterminated'
-        print >> ofi, r""
         print >> ofi, r'[Dirs]'
         print >> ofi, r'Name: {code:GetDataDir}; Flags: uninsneveruninstall'
         print >> ofi, r""
@@ -142,12 +138,13 @@ class InnoScript:
         print >> ofi, r'function InitializeSetup(): Boolean;'
         print >> ofi, r'begin'
         print >> ofi, r"{ Check if our registry key exists, in which case assume we're already installed }"
-        print >> ofi, r"if RegKeyExists(HKLM, 'Software\Lemur Consulting Ltd\%s') then begin"  % self.name
+        print >> ofi, r"if RegKeyExists(HKLM, 'Software\%s\%s') then begin"  % (self.publisher, self.name)
         print >> ofi, r"    MsgBox('Flax Site Search:'#13#13'Flax is already installed. Please uninstall the previous version before installing this version.'#13#13'There is an option to uninstall in Start, Programs, Flax Site Search', mbError, MB_OK);"
         print >> ofi, r'    Result := False;'
         print >> ofi, r'  end else'
         print >> ofi, r'    Result := True;'
         print >> ofi, r'end;        '
+        print >> ofi, r""
         print >> ofi, r'procedure InitializeWizard;'
         print >> ofi, r'begin'
         print >> ofi, r'{ Create the pages } '
@@ -188,6 +185,27 @@ class InnoScript:
         print >> ofi, r'{ Return the selected DataDir } '
         print >> ofi, r"Result := DataDirPage.Values[0];"
         print >> ofi, r"end;"        
+        print >> ofi, r""
+        print >> ofi, r"function InitializeUninstall(): Boolean;  "
+        print >> ofi, r"{ Ask the user if they want to uninstall everything }"
+        print >> ofi, r"var"
+        print >> ofi, r"SetDataPath: String;"
+        print >> ofi, r"ResultCode: Integer;"
+        print >> ofi, r"begin"
+        print >> ofi, r"  { First stop the service, so we can delete files }"
+        print >> ofi, r"  Exec(ExpandConstant('{app}\stopflaxservice.bat'), '', '', SW_SHOW,ewWaitUntilTerminated, ResultCode)"
+        print >> ofi, r"  if MsgBox('Do you want to remove ALL %s data - be careful, this includes settings and all indexes!'," % self.name
+        print >> ofi, r"             mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then begin" 
+        print >> ofi, r"    DelTree(ExpandConstant('{app}')+'\conf',True,True,True);"
+        print >> ofi, r"    DelTree(ExpandConstant('{app}')+'\var',True,True,True);"
+        print >> ofi, r"    DelTree(ExpandConstant('{app}')+'\logs',True,True,True);"
+        print >> ofi, r"    if RegKeyExists(HKLM, 'Software\%s\%s') then "  % (self.publisher, self.name)
+        print >> ofi, r"       if RegQueryStringValue(HKEY_LOCAL_MACHINE, 'Software\%s\%s\DataPath','', SetDataPath) then " % (self.publisher, self.name)
+        print >> ofi, r"         DelTree(SetDataPath,True,True,True);"
+        print >> ofi, r"  end;"
+        print >> ofi, r"  Result:= True;"
+        print >> ofi, r"end;"        
+        print >> ofi, r""
         print >> ofi, r"function UpdateReadyMemo(Space, NewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo,"
         print >> ofi, r"  MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo: String): String;"
         print >> ofi, r"var"
