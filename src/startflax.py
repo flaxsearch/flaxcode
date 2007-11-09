@@ -136,15 +136,15 @@ class FlaxMain(object):
 
         flaxauth.load()
         webserver_logconfio = processing.Pipe()
-        index_server = indexer.IndexServer()
+        self.index_server = indexer.IndexServer()
         logclient.LogConfPub(flaxpaths.paths.logconf_path,
-                             [webserver_logconfio[0], index_server.log_config_listener()])
+                             [webserver_logconfio[0], self.index_server.log_config_listener()])
         logclient.LogListener(webserver_logconfio[1]).start()
         logclient.LogConf(flaxpaths.paths.logconf_path).update_log_config()
         flax.options = persist.read_flax(flaxpaths.paths.flaxstate_path)
-        scheduler.ScheduleIndexing(index_server).start()
+        scheduler.ScheduleIndexing(self.index_server).start()
         persist.DataSaver(flaxpaths.paths.flaxstate_path).start()
-        cpserver.start_web_server(flax.options, index_server,
+        cpserver.start_web_server(flax.options, self.index_server,
                                   flaxpaths.paths.cpconf_path,
                                   flaxpaths.paths.templates_path,
                                   blocking)
@@ -180,6 +180,8 @@ class FlaxMain(object):
         it's been restarted since the previous call).
 
         """
+        if self.index_server:
+            self.index_server.stop()
         cpserver.stop_web_server()
 
     def join(self, timeout=None):
@@ -193,6 +195,8 @@ class FlaxMain(object):
 
         """
         self._do_cleanup()
+        if self.index_server:
+            self.index_server.join()
         return True
 
 def set_admin_password():

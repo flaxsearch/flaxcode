@@ -212,11 +212,28 @@ class Indexer(object):
         return rv
 
 
+# This process is a bit messy to deal with a problem with shutting
+# down when running as a service on Windows. Ideally we'd just like to
+# use setDaemonic(True) and allow the processing infrastructure to
+# clean up for us. But that doesn't work because things registered
+# with atexit never get called when running as a windows service.
+
+# So we manually manage killing the process with a shared value, and
+# ensure that we call process._exit_func before exiting so that our
+# child (daemonic) processes can clean up.
+
+# (I don't understand why using the process's stop method doesn't do
+# what we want - I guess that the exception isn't raised either
+# because we're catching it somewhere we shouldn't, because something
+# blocks too long so it can't raise in a timely fashion, or there's
+# some bug in processing. Should investigate further)
+
 class IndexProcess(logclient.LogClientProcess):
 
-    def __init__(self, *indexer_args):
+    def __init__(self, kill_self, *indexer_args):
         logclient.LogClientProcess.__init__(self)
-        self.setDaemon(True)
+        self.kill_self = kill_self
+        self.setStoppable(True)
         self.logconfio = processing.Pipe()
         self.inpipe = processing.Pipe()
         self.outpipe = processing.Pipe()
@@ -228,10 +245,20 @@ class IndexProcess(logclient.LogClientProcess):
         try:
             try:
                 indexer = Indexer(*self.indexer_args)
-                while True:
-                    collection, filter_settings = self.inpipe[1].recv()
-                    self.outpipe[0].send(indexer.do_indexing(collection, filter_settings))
+                while not self.kill_self.value:
+                    # we poll with a timeout to allow for stopping the
+                    # process, otherwise we can't check the kill_self
+                    # if we're blocking in .recv()
+                    if self.inpipe[1].poll(2):
+                        collection, filter_settings = self.inpipe[1].recv()
+                        self.outpipe[0].send(indexer.do_indexing(collection, filter_settings))
             except:
+                # Running as a non-console windows application
+                # (e.g. windows service deployment) there's no proper
+                # stdout or stderr. We therefore what to avoid
+                # exceptions escaping which might result in out on
+                # those which we might lose. Since we're exiting this
+                # process anyway here we log the error.
                 import traceback
                 tb=traceback.format_exc()
                 log.critical('Unhandled exception in IndexerProcess.run(), traceback follows:\n %s' % tb)
@@ -258,10 +285,23 @@ class IndexServer(object):
         # changes to stop_sv and currently_indexing should be atomic - use this lock to ensure so.
         self.state_lock = threading.Lock()
         self.stop_sv = self.syncman.SharedValue('i', 0)
+        self.kill_indexer = self.syncman.SharedValue('i', 0)
         self.currently_indexing = None
         self.hints = set()
-        self.indexing_process = IndexProcess(self.file_count_sv, self.error_count_sv, self.stop_sv)
+        self.indexing_process = IndexProcess(self.kill_indexer, self.file_count_sv, self.error_count_sv, self.stop_sv)
         log.info("Started the indexing process with pid: %d" % self.indexing_process.getPid())
+
+    def stop(self):
+        # in order to stop in a timely fashion if something is
+        # currently indexing we prematurely stop the indexing process
+        if self.currently_indexing:
+            self.stop_sv.value = 1
+        log.debug("Stopping indexing_process")
+        self.kill_indexer.value = 1
+        
+    def join(self):
+        log.debug("waiting to join indexing_process")
+        self.indexing_process.join()
 
     def log_config_listener(self):
         "return a listener for log configuration changes in the remote indexing process"
