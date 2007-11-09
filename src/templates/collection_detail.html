@@ -11,6 +11,17 @@
     make_mappings();  // written below by the server
     document.forms[0].col.focus();
   }
+  
+  function validate_form()
+  {
+    var fm = document.forms[0];
+    if (fm.col.value == '')
+    {
+      fm.col.focus();
+      alert ('Please enter a name for the collection.');
+      return false;
+    }
+  }
   </script>
 </div>
 
@@ -18,17 +29,16 @@
 <div node="-con:body">
   <script node="con:script" language='javascript'></script>
   <!-- the form is for updating the collections -->
-  <form node="con:main_form" action="update" method="POST">
+  <form node="con:main_form" action="update" method="POST" onsubmit="return validate_form()">
     <fieldset>
       <legend>Document Collection: <span node="con:name"></span></legend>
       <div class="info">
     <dl>
       <dt>Name</dt>
-      <dd>A short name for you collection. This will be visible to end
-        users, be used to form urls for manipulating this collection.
+      <dd>A short name for your collection, visible to end users.
       </dd>
       <dt>Description</dt>
-      <dd>The description will be visible to end users.</dd>
+      <dd>An optional longer description, also visible to end users.</dd>
     </dl>
       </div>
       <div node="-con:col">
@@ -47,16 +57,15 @@
       <legend>Files Specification</legend>
       <div class="info">
     <p>The options in this section determine which files will be
-    included in this document collection.</p>
+    included in this collection.</p>
     <dl>
       <dt>Paths</dt>
-      <dd>Each directory specified here will be (recursively) searched
+      <dd>Each directory specified here will be recursively searched
       for files. Individual files may also be specified here.</dd>
-          <dt>Mappings</dt>
-          <dd>This is used to generate a url for documents found below
-          the corresponding path in the search results pages. The
-          generated url replaces the path prefix of a filename with
-          the corresponding mapping.
+      <dt>Mappings</dt>
+      <dd>Used to generate a URL for documents in the search results pages, so (for 
+      example) they may be served by your main web server. The path specified in the
+      box above will be replaced with the mapping URL.
       <dt>Formats</dt>
       <dd>Files of the selected formats will be included.</dd>
       <dt>Age</dt>
@@ -124,8 +133,7 @@
     <fieldset>
       <legend>Indexing Options</legend>
       <div class="info">
-    These options control the way this document collection is
-    indexed. 
+    These options control the way this document collection is indexed. 
       </div>
       <div>
         <label class="main_label" for="language">Language:</label>
@@ -142,23 +150,22 @@
     <fieldset>
       <legend>Scheduling</legend>
       <div class="info">
-    These options determine when indexing of this collection takes
-    place. The collection will be scheduled every minute that
-    matches the specification (in practice it would probably be a
-    bad idea to allow such, but the specification allows it). In
-    order for a specification to match each part of it must
-    match. The wildcard "*" matches everything. The empty string
-    matches nothing. (Therefore an empty string anywhere ensures no
+    These options determine when automatic indexing of this collection takes
+    place. Each minute, the current time will be checked against the
+    specification, and if it matches, indexing will be started.  
+    The wildcard "*" matches everything. The empty string
+    matches nothing. (Therefore an empty string in any field ensures no
     automatic indexing.) Otherwise a comma delimited list of
     integers is expected. The sensible ranges for each field are
     as follows:
+    <br/><br/>
         <table>
-          <tr><td>Minutes</td><td>0-59</td></tr>
-          <tr><td>Hours</td><td>0-23</td></tr>
-          <tr><td>Weekdays</td><td>0-6</td></tr>
-          <tr><td>Monthdays</td><td>1-31</td></tr>
-          <tr><td>Months</td><td>1-12</td></tr>
-        </table>
+          <tr><td>Minutes:</td><td>0-59</td></tr>
+          <tr><td>Hours:</td><td>0-23</td></tr>
+          <tr><td>Weekdays:</td><td>0-6</td></tr>
+          <tr><td>Monthdays:</td><td>1-31</td></tr>
+          <tr><td>Months:</td><td>1-12</td></tr>
+        </table>    
       </div>
       
       <div>

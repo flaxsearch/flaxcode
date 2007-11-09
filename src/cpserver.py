@@ -173,14 +173,15 @@ class Collections(FlaxResource):
 
         """
         if cherrypy.request.method == "POST":
-            if col is None:
-                self._bad_request("A collection name must be provided for new collections")
-            elif col in self._flax_data.collections:
+            if col in self._flax_data.collections:
                 self._bad_request("The collection name is already in use")
-            else:
+            elif col:
                 self._flax_data.collections.new_collection(col, **kwargs)
                 self._signal_data_changed()
                 self._redirect_to_view()
+            else:
+                self._bad_request("A collection name must be provided for new collections")
+
         else:
             return self._detail_template(None, self._flax_data.formats, self._flax_data.languages)
 
