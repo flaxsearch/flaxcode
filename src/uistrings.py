@@ -18,7 +18,7 @@
 This file is intended to be used as a single location for placing any strings
 which are displayed in the user interface.  This allows translated versions of
 the user interface to be generated more easily, since we only have to look in
-this location (and, of course, in the templates/*.html files) for text which
+this location (and, of course, in the html files in templates/) for text which
 needs translating.
 
 """
