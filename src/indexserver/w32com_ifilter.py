@@ -108,7 +108,7 @@ def ifilter_filter(filename, init_flags = _filter_init_flags):
         filt, stg = get_ifilter_for_file(filename)
     except pythoncom.com_error, e:
         return e
-        
+
     init_flags = filt.Init(init_flags)
 
     def start_fields():
@@ -134,16 +134,54 @@ def ifilter_filter(filename, init_flags = _filter_init_flags):
 
     def do_chunks():
         while True:
-            chunk_id, break_type, flags, locale, (propset_guid, prop_id), chunk_source_id, start, len = filt.GetChunk()
+            last_chunk = None
+            try:
+                chunk_id, break_type, flags, locale, (propset_guid, prop_id), chunk_source_id, start, len =  filt.GetChunk()
+            except pythoncom.com_error, e:
+                error_code = e[0]
+                if error_code == FILTER_E_END_OF_CHUNKS:
+                    # normal situation when all chunks have been processed
+                    break
+                elif error_code in (FILTER_E_EMBEDDING_UNAVAILABLE,
+                                    FILTER_E_LINK_UNAVAILABLE,
+                                    FILTER_E_PASSWORD,
+                                    FILTER_E_ACCESS):
+                    # these errors mean we can't get hold of the
+                    # values in this chunk, but it should be OK to
+                    # continue.
+                    log.debug("Filtering %s, GetChunk reported error: %s, on or near chunk %d, skipping chunk." %
+                              (filename, str(e), chunk_id))
+                elif error_code == -2147467259:
+                    # this error is a generic com "unspecifed" error
+                    # code.  The Adobe ifilter seems to raise it quite
+                    # a bit, but apparently it's OK to continue, so we
+                    # log and move on. This might be a little risky,
+                    # since we don't really know what the error
+                    # situation is.
+                    log.warning("Filtering %s, GetChunk reported error: %s, skipping chunk and continuing" %
+                                (filename, str(e)))
+                else:
+                    # other exceptions: pass on up
+                    log.error("Filtering %s, GetChunk raised unknown error %s, on or near chunk %d, re-raising" %
+                              (filename, str(e), chunk_id))
+                    raise
+
+            if last_chunk == chunk_id:
+                # this shouldn't happen - but it's protection against
+                # possible repeated chunks since we might be tring to
+                # continue through an "unspecifed" error
+                log.error("Filtering %s, in do_chunks, repeated chunk: %d, abadonning document")
+                break
+
+            last_chunk = chunk_id
+            
             prop_name = prop_id_to_name(prop_id)
             if flags == CHUNK_TEXT:
-                for txt in text_for_current_chunk(filt):
+                for num, txt in enumerate(text_for_current_chunk(filt)):
+                    log.debug(u"Block %d of text follows from chunk_id: %d: \n %s \n" % (num,  chunk_id, txt))
                     yield prop_name, txt
 
-    return itertools.chain(start_fields(),
-                           util.gen_until_exception(do_chunks(),
-                                                    pythoncom.com_error,
-                                                    lambda e: e[0] == FILTER_E_END_OF_CHUNKS))
+    return itertools.chain(start_fields(), do_chunks())
 
 def load_ifilter(filename):
     try:
@@ -152,7 +190,7 @@ def load_ifilter(filename):
         if e[0] == FILTER_E_UNKNOWNFORMAT:
             log.warning("File %s is not a recognized format" % filename)
         else:
-            log.warning("File %s cannot be processed" % filename)
+            log.warning("LoadIFilter for file %s, raised error %s, file cannot be processed" % (filename, str(e)))
         raise
 
 
