@@ -5,6 +5,8 @@
 import unittest
 import os
 import sys
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 sys.path.append('..')
 sys.path.append('../indexserver')
