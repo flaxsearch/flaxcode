@@ -8,7 +8,7 @@ Introduction
 
 This document is a guide to Flax internals. As ever the code is
 definitive and the comments in the code can be used to automatically
-generate an `api reference`_ (see the comments in the file epydoc.conf
+generate an `API reference`_ (see the comments in the file epydoc.conf
 for how to do this). This is more of an overview and will hopefully
 help readers to understand how it all fits together. This document
 tries to avoid things that are (or should be) in the end user
@@ -17,20 +17,20 @@ how the software works from the user's point of view.
 
 Some of this document is taken from pages in the wiki.
 
-.. _`api reference`: file:api/index.html
+.. _`API reference`: file:api/index.html
 
 Overview
 ========
 
-The main process runs the webserver which provides a UI for modifying,
+The main process runs the web-server which provides a UI for modifying,
 creating and deleting document collections, as well as some other
-administritave details, and the search forms. It decides when
+administrative details, and the search forms. It decides when
 collections should be indexed and passes requests for indexing off to
 a separate indexing process. The indexing process calls filters on
 each file of the collection to extract text, which then gets passed to
-xapian.
+Xapian.
 
-On windows we use the windows indexing service infrastructure to do
+On Windows we use the Windows indexing service infrastructure to do
 the filtering, but we run the IFilters in yet another process, to
 guard against badly behaved IFilters bringing the whole system down.
 
@@ -49,33 +49,33 @@ Cherrypy
 
 Cherrypy is a web server framework. We use it for all the HTTP
 interaction with web browsers. The code in cpserver.py implements the
-"applications" (as cherrypy calls them) for this. http://www.cherrypy.org/.
+"applications" (as Cherrypy calls them) for this. http://www.cherrypy.org/.
 
 HTMLTemplate
 ~~~~~~~~~~~~
 
 This is a simple templating engine. The actual templates are the files
-with .html extentions in templates/, although they are not actually
-well formed html. The code in templates.py loads these templates and
-renders them. Calls on these are made from the webserving code in
+with .html extensions in templates/, although they are not actually
+well formed HTML. The code in templates.py loads these templates and
+renders them. Calls on these are made from the web-serving code in
 cpserver.py. http://freespace.virgin.net/hamish.sanderson/htmltemplate.html
 
 Processing
 ~~~~~~~~~~
 
-The processing module is used for creating processeses and dealing
+The processing module is used for creating processes and dealing
 with interprocess
 communication. http://developer.berlios.de/projects/pyprocessing
 
 HTMLToText
 ~~~~~~~~~~
 
-This is used to extract text from html. http://pypi.python.org/pypi/htmltotext/0.6.
+This is used to extract text from HTML. http://pypi.python.org/pypi/htmltotext/0.6.
 
 Xappy
 ~~~~~
 
-Xappy is a high level interface python interface to xapian. http://xappy.org/
+Xappy is a high level interface python interface to Xapian. http://xappy.org/
 
 Xapian
 ~~~~~~
@@ -85,7 +85,7 @@ Xapian is a search engine library. http://www.xapian.org/
 Py2exe.
 ~~~~~~~
 
-Python Windows extentions. http://sourceforge.net/projects/pywin32/
+Python Windows extensions. http://sourceforge.net/projects/pywin32/
 
 MochiKit
 ~~~~~~~~
@@ -102,13 +102,13 @@ DocCollection) - such has a number of purposes:
  - Specifying the set of documents that make up the document
    collection (see the class FileSpec).
 
- - Specifying how xapian databases for the collection are configured
+ - Specifying how Xapian databases for the collection are configured
    (see the class DBSpec)
 
  - Specifying when automatic indexing of the collection takes place
    (see the class ScheduleSpec).
 
- - Defining mapping for files in the collection to urls. (This should
+ - Defining mapping for files in the collection to URLs. (This should
    perhaps be part of FileSpec, but it's not done that way at the
    moment.)
 
@@ -141,7 +141,7 @@ configuration via the web UI (the levels of the top level loggers can
 be set). The class LogConf_ supports this by rewriting the logging
 configuration file when its .set_levels() method is invoked. Of course
 once the file has been written LogConfPub_ will ensure that the changes
-propogate to LogListener_ instances as described above.
+propagate to LogListener_ instances as described above.
 
 The class LogClientProcess_ does most of this for you, although
 subclasses must ensure that ``initialise_logging`` is called in their
@@ -163,12 +163,12 @@ use the (non-standard) ConfigObj_ module instead to address this.
 Cherrypy Logging
 ~~~~~~~~~~~~~~~~
 
-Cherrypy also uses the logging module but, by default, hardcodes some
-apsects of the logging configuration thereby limiting the scope for
+Cherrypy also uses the logging module but, by default, hard-codes some
+aspects of the logging configuration thereby limiting the scope for
 using the full flexibility of the logging module's configuration. We
-have therefore replaced the default cherrypy logging manager with a
+have therefore replaced the default Cherrypy logging manager with a
 custom one that integrates better with our scheme. This arranges for
-cherrypy logging calls to be logged to loggers "webserver.access" and
+Cherrypy logging calls to be logged to loggers "webserver.access" and
 "webserver.errors".
 
 
@@ -193,13 +193,13 @@ main web server. This has some advantages:
 
   * The indexer could run on a separate machine from the web server if
     desired to improve performance (this is not possible at the
-    moment, but could be acheived with small code changed).
+    moment, but could be achieved with small code changed).
 
-  * On mutlicore processors the indexing process can run on a
+  * On multi-core processors the indexing process can run on a
     different core from the web service process.
 
 This is no long term state held in the indexer, so that at worst the
-current indexing process can be forcably terminated and
+current indexing process can be forcibly terminated and
 restarted. Also the controlling logic for determining when and what to
 index depends on the state of document collections and we want to
 avoid cross process synchronization issues when such data changes.
@@ -221,8 +221,8 @@ If there is a collection eligible then one should be in the process of
 being indexed. Currently no more than one collection can be indexed at
 any one time. It would be relatively simple to adapt the code to
 control a pool of indexing processes and allow for multiple
-simulatanous indexings, which might improve performance, especially on
-multicore processors, or if we allowed for indexing processes to run
+simultaneous indexing, which might improve performance, especially on
+multi-core processors, or if we allowed for indexing processes to run
 on separate machines.
 
 .. _IndexServer: file:api/indexserver.indexer.IndexServer-class.html
@@ -325,7 +325,7 @@ nametext
 mtime
    The time at which the file was last modified (note: this is not the
    time when it was last indexed), as returned by the standard python
-   funtion ``os.path.getmtime``.
+   function ``os.path.getmtime``.
 
 size
    The size of the file (in bytes).
@@ -401,7 +401,7 @@ mime type of the data) to filter mapping.
 
 
 For version 1.0 we intend to support at least the following document
-formats on windows:
+formats on Windows:
 
 
   * Plain text.
@@ -413,7 +413,7 @@ formats on windows:
 
 
 It is possible to do this on Windows with a single filter that hooks
-into the Windows Indexing Service infrastuture.
+into the Windows Indexing Service infrastructure.
 
 
 IFilter Background
@@ -432,7 +432,7 @@ There is a mechanism for determining which filter to use on a given
 file. The SDK functions LoadIFilter_, BindIFilterFromStorage_ and
 BindIFilterFromStream_ all use information in the registry to
 determine which registered filter to use with a particular file. (It
-is possible to directly load the dlls, but we do not need to do so now
+is possible to directly load the DLLs, but we do not need to do so now
 so this is not discussed further.)
 
 .. _LoadIFilter: http://msdn2.microsoft.com/en-us/library/ms691002.aspx
@@ -449,7 +449,7 @@ chunk. (Note that each chunk of text can have a different locale , so
 from this perspective language is not per-document, but per-chunk.)
 STAT_CHUNK_ also has a property `attribute` which gives more
 information about the chunk, which provides for mapping chunk contents
-to particular xapian fields.
+to particular Xapian fields.
 
 .. _STAT_CHUNK: http://msdn2.microsoft.com/en-us/library/ms691016.aspx
 .. _CHUNKSTATE: http://msdn2.microsoft.com/en-us/library/ms691020.aspx
@@ -467,7 +467,7 @@ and see what kind of results we get by just looking at text chunks.
 .. _GetValue: http://msdn2.microsoft.com/en-us/library/ms690927.aspx
 
 There are some code generic code samples_ that demonstrating using
-this api some of this infrastucture
+this API some of this infrastructure
 
 .. _samples: http://msdn2.microsoft.com/en-us/library/ms689723.aspx
 
@@ -475,22 +475,22 @@ IFilter filter
 ~~~~~~~~~~~~~~
 
 
-The current `ifilter filter`_ started out as a modified verion of the
-an example_ of using IFilters via COM in the `python windows
+The current `IFilter filter`_ started out as a modified verion of the
+an example_ of using IFilters via COM in the `Python Windows
 extensions`_.
 
 .. _example: http://pywin32.cvs.sourceforge.net/pywin32/pywin32/com/win32comext/ifilter/demo/filterDemo.py?view=markup
-.. _`python windows extensions`: http://sourceforge.net/projects/pywin32/
-.. _`ifilter filter`: file:api/indexserver.w32com_ifilter-module.html#ifilter_filter
+.. _`Python Windows extensions`: http://sourceforge.net/projects/pywin32/
+.. _`IFilter filter`: file:api/indexserver.w32com_ifilter-module.html#ifilter_filter
 
 This works reasonably well, although we seem to get quite a few
-exceptions with pdf files for reasons that are not entirely clear.
+exceptions with PDF files for reasons that are not entirely clear.
 
 
 Simple Text Filter
 ~~~~~~~~~~~~~~~~~~
 
-For text documents, for testing, and for non-windows platforms it is
+For text documents, for testing, and for non-Windows platforms it is
 convenient to have a simple filter for text files. This has been
 implemented_.
 
@@ -501,7 +501,7 @@ HtmltoText Filter
 ~~~~~~~~~~~~~~~~~
 
 
-The Xapian html has been split off and packaged separately as the
+The Xapian HTML parser has been split off and packaged separately as the
 htmltotext_ package. This is used by the html_filter_.
 
 .. _htmltotext: http://pypi.python.org/pypi/htmltotext/0.6
