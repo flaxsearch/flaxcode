@@ -10,11 +10,30 @@ This document is a guide to Flax internals. As ever the code is
 definitive and the comments in the code can be used to automatically
 generate an `api reference`_ (see the comments in the file epydoc.conf
 for how to do this). This is more of an overview and will hopefully
-help readers to understand how it all fits together.
+help readers to understand how it all fits together. This document
+tries to avoid things that are (or should be) in the end user
+documentation, so we assume that readers already know the basics of
+how the software works from the user's point of view.
 
 Some of this document is taken from pages in the wiki.
 
 .. _`api reference`: file:api/index.html
+
+Overview
+========
+
+The main process runs the webserver which provides a UI for modifying,
+creating and deleting document collections, as well as some other
+administritave details, and the search forms. It decides when
+collections should be indexed and passes requests for indexing off to
+a separate indexing process. The indexing process calls filters on
+each file of the collection to extract text, which then gets passed to
+xapian.
+
+On windows we use the windows indexing service infrastructure to do
+the filtering, but we run the IFilters in yet another process, to
+guard against badly behaved IFilters bringing the whole system down.
+
 
 Components
 ==========
@@ -124,7 +143,9 @@ configuration file when its .set_levels() method is invoked. Of course
 once the file has been written LogConfPub_ will ensure that the changes
 propogate to LogListener_ instances as described above.
 
-The class LogClientProcess_ does most of this for you.
+The class LogClientProcess_ does most of this for you, although
+subclasses must ensure that ``initialise_logging`` is called in their
+run methods.
 
 .. _LogClientProcess: file:api/logclient.LogClientProcess-class.html
 
@@ -149,6 +170,15 @@ have therefore replaced the default cherrypy logging manager with a
 custom one that integrates better with our scheme. This arranges for
 cherrypy logging calls to be logged to loggers "webserver.access" and
 "webserver.errors".
+
+
+Persistence
+===========
+
+The main process save some of its state to a file on exiting, and
+every so often (to protect against abnormal termination). This is done
+simple by using the standard shelve module to pickle to a file. There
+is a separate thread for the periodic saving which 
 
 
 Indexing
@@ -236,14 +266,15 @@ guidelines then the quality of search results might be lessened. The
 filters that are distributed as part of Flax all comply with these
 guidelines.
 
-The fields that Flax notices are as follows:
+The fields that Flax will attempt to use at some point are as follows:
 
-title
-    The document title. Ideally there should be exactly one block for
-    this field. If there is no block for this then Flax will provide a
-    default block based on something like the filename, URI or first
-    content block emitted by the filter (but filter writers shouldn't
-    rely on any particular behaviour here).
+title The document title. 
+
+    Ideally there should be exactly one block for this field. This is
+    rendered in search results so that users have an idea what the
+    document might be. If the filter does not yield a block for title
+    then some other information relating to the file (e.g. the
+    filename, but this might change) will be used for this purpose.
 
 content
     Text for the main contents of the document. ``content`` blocks
@@ -272,7 +303,7 @@ should not emit blocks for these:
 
 filename
    The operating system filename for the file (only used for local
-   files)
+   files).
 
 filetype
     The file type of the file. Used when limiting searches to a
@@ -304,4 +335,206 @@ collection
    the same source file might form part of different document
    settings, but this will give rise to different (Xapian) documents
    within the document collection databases.)
+
+Separating internal and external fields
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+At the moment there is not check to see if filters are emitting data
+for the internal fields. 
+
+For tidiness, and to avoid a potential cause of confusing error
+messages, it would be nice to separate out internal fieldnames from
+external fieldnames.  This would mean that, even if a filter emitted
+an "mtime" field, the value would be indexed differently from the
+internal "mtime" field.  This could be achieved by e.g. indexing the
+internal fields with a special prefix to distinguish them.
+
+
+Efficiency
+~~~~~~~~~~
+
+Implementing filters as iterators allows for reasonable memory use for
+large files - there is no need for filter implementations to hold all
+of a file in memory, and there is no need for Flax to hold more than a
+block at a time in memory.  However, note that Xapian needs to build
+up a complete representation of a document in memory before it can be
+indexed, so very large documents are always going to require a
+reasonably large amount of memory.
+
+Multiple documents per file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+in the future it may be desirable to change the one-to-one mapping
+from files to Xapian documents that we currently have. For example, if
+a file is actually an archive of some sort we might want it to yield
+document data for each contained file (possibly recursively since an
+archive might contain other archives).  This could also be the
+situation if we support email mailboxes, in which each email message
+should be a separate document (possibly with attachments also as
+separate documents).
+
+The current design could be adapted to this kind of situation by
+specifying that a filter yields `(docname, docdata-iterator)` were
+each `docdata-generator` yields blocks as per the current
+specification.  This could be implemented in a backwards compatible
+manner in various ways, so doesn't need further investigation at
+present.
+
+Custom field types
+~~~~~~~~~~~~~~~~~~
+
+In the future a mechanism for defining the treatment of blocks for
+other fields may be provided. The issue is essentially one of
+determining what the appropriate Xapian field actions for each field,
+and providing user interface components to interact with fields that
+are not known in advance.
+
+Filter Implementations
+======================
+
+This section discusses the filters that have been implemented so
+far. Note that currently the file type to filtering mapping is
+hardcoded, so the only way to change the actual filter that gets used
+for a particular file is to change the code. In future we plan to
+include a configuration mechanism for the file type (more generally the
+mime type of the data) to filter mapping.
+
+
+For version 1.0 we intend to support at least the following document
+formats on windows:
+
+
+  * Plain text.
+  * HTML.
+  * MS Word.
+  * MS Excel.
+  * MS Power Point.
+  * PDF.
+
+
+It is possible to do this on Windows with a single filter that hooks
+into the Windows Indexing Service infrastuture.
+
+
+IFilter Background
+~~~~~~~~~~~~~~~~~~
+
+
+The IFilter_ interface is designed for this kind of application. There
+are some filters implementing this interface for a number of common
+document types. IFilters are part of the `Windows Indexing Service`_.
+
+.. _IFilter: http://msdn2.microsoft.com/en-us/library/ms691105.aspx
+.. _`Windows Indexing Service`: http://msdn2.microsoft.com/en-us/library/aa163263.aspx
+
+
+There is a mechanism for determining which filter to use on a given
+file. The SDK functions LoadIFilter_, BindIFilterFromStorage_ and
+BindIFilterFromStream_ all use information in the registry to
+determine which registered filter to use with a particular file. (It
+is possible to directly load the dlls, but we do not need to do so now
+so this is not discussed further.)
+
+.. _LoadIFilter: http://msdn2.microsoft.com/en-us/library/ms691002.aspx
+.. _BindIFilterFromStorage: http://msdn2.microsoft.com/en-us/library/ms690929.aspx
+.. _BindIFilterFromStream: http://msdn2.microsoft.com/en-us/library/ms690827.aspx
+
+The filter interface is flexible and appears to work roughly as
+follows. Repeated calls to GetChunk_ return STAT_CHUNK_ data. This
+provides some information about the current chunk, in particular the
+`flags` property, of type CHUNKSTATE_ tells you whether the chunk is
+text or some other kind of data. If it is text (`CHUNK_TEXT` is set)
+then you can call `GetText_ to get the text from the current
+chunk. (Note that each chunk of text can have a different locale , so
+from this perspective language is not per-document, but per-chunk.)
+STAT_CHUNK_ also has a property `attribute` which gives more
+information about the chunk, which provides for mapping chunk contents
+to particular xapian fields.
+
+.. _STAT_CHUNK: http://msdn2.microsoft.com/en-us/library/ms691016.aspx
+.. _CHUNKSTATE: http://msdn2.microsoft.com/en-us/library/ms691020.aspx
+.. _GetChunk: http://msdn2.microsoft.com/en-us/library/ms691080.aspx
+.. _GetText: http://msdn2.microsoft.com/en-us/library/ms690992.aspx
+
+The chunk may additionally, or alternatively have `CHUNK_VALUE`
+set. In this case calling GetValue_ gets the value. This can yield any
+kind of data.  It could be that there is useful text embedded with
+these chunks, but the practicability of extracting the text depends on
+determining the format of the data and having a filter for such
+data. In the first instance it might be wise to ignore value chunks
+and see what kind of results we get by just looking at text chunks.
+
+.. _GetValue: http://msdn2.microsoft.com/en-us/library/ms690927.aspx
+
+There are some code generic code samples_ that demonstrating using
+this api some of this infrastucture
+
+.. _samples: http://msdn2.microsoft.com/en-us/library/ms689723.aspx
+
+IFilter filter
+~~~~~~~~~~~~~~
+
+
+The current `ifilter filter`_ started out as a modified verion of the
+an example_ of using IFilters via COM in the `python windows
+extensions`_.
+
+.. _example: http://pywin32.cvs.sourceforge.net/pywin32/pywin32/com/win32comext/ifilter/demo/filterDemo.py?view=markup
+.. _`python windows extensions`: http://sourceforge.net/projects/pywin32/
+.. _`ifilter filter`: file:api/indexserver.w32com_ifilter-module.html#ifilter_filter
+
+This works reasonably well, although we seem to get quite a few
+exceptions with pdf files for reasons that are not entirely clear.
+
+
+Simple Text Filter
+~~~~~~~~~~~~~~~~~~
+
+For text documents, for testing, and for non-windows platforms it is
+convenient to have a simple filter for text files. This has been
+implemented_.
+
+.. _implemented: file:api/indexserver.simple_text_filter-module.html#simple_text_filter
+
+
+HtmltoText Filter
+~~~~~~~~~~~~~~~~~
+
+
+The Xapian html has been split off and packaged separately as the
+htmltotext_ package. This is used by the html_filter_.
+
+.. _htmltotext: http://pypi.python.org/pypi/htmltotext/0.6
+.. _html_filter: file:api/indexserver.htmltotext_filter-module.html#html_filter
+
+
+PyPdf Filter
+~~~~~~~~~~~~
+
+Here_ is a simple filter using PyPdf_, but in practice the current
+version throws rather too many exceptions to be generally useful.
+
+.. _Here: file:api/indexserver.pypdf_filter-module.html#pdf_filter
+.. _PyPdf: http://pybrary.net/pyPdf/
+
+Other document filters
+~~~~~~~~~~~~~~~~~~~~~~
+
+
+Eventually we will need non-IFilter mechanisms for parsing documents
+on non-Windows platforms. The formats that are likely to give the most
+trouble are MS Office.  Antiword_ is one way of extracting text from
+word documents. Also OpenOffice_ can parse MS Office documents and
+also has python bindings, which can be used to extract text - see
+this_ example.
+
+.. _Antiword: http://www.winfield.demon.nl/
+.. _OpenOffice: http://www.openoffice.org/
+.. _this: http://udk.openoffice.org/python/samples/ooextract.py 
+
+
+Xapian's "omindex" tool has support for indexing from lots of document
+formats using unix tools - we should copy at least some of the filter
+invocations it uses rather than figuring them out from scratch.  Mostly,
+these involve invoking a sub-process to perform the filtering.
 
