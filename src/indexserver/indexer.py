@@ -392,7 +392,6 @@ class IndexServer(object):
         self.start_indexing(collection)
 
     def set_due(self, collection):
-        print "setting due on: ", collection
         collection.indexing_due = True
         self.start_indexing(collection)
 
