@@ -309,7 +309,6 @@ class IndexServer(object):
         return self.indexing_process.logconfio[0]
 
     def do_indexing(self, collection):
-        assert not self.currently_indexing
         assert not self.stop_sv.value
         self.hints.discard(collection)
         collection.indexing_due = False
@@ -328,7 +327,11 @@ class IndexServer(object):
         self.start_indexing()
         
     def async_do_indexing(self, collection):
-        # call do_indexing in a separate thread and return.
+        # call do_indexing in a separate thread and return.  Must set
+        # currently indexing here, otherwise tests in the main thread
+        # might test it false before the thread has set it.
+        assert not self.currently_indexing
+        self.currently_indexing = collection
         util.AsyncFunc(self.do_indexing)(collection)
 
     def indexing_info(self, collection):
@@ -389,6 +392,7 @@ class IndexServer(object):
         self.start_indexing(collection)
 
     def set_due(self, collection):
+        print "setting due on: ", collection
         collection.indexing_due = True
         self.start_indexing(collection)
 
