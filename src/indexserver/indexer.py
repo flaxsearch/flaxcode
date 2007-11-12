@@ -35,7 +35,6 @@ import util
 import flax
 import logclient
 import doc_collection
-import pypdf_filter
 try:
     import w32com_ifilter
     windows = True
@@ -66,8 +65,7 @@ class Indexer(object):
     def __init__(self, file_count_holder, error_count_holder, stop_flag_holder):
 
         self._filter_map = {"Xapian": htmltotext_filter.html_filter,
-                            "Text": simple_text_filter.text_filter,
-                            "PyPdf": pypdf_filter.pdf_filter}
+                            "Text": simple_text_filter.text_filter}
         if windows:
             self._filter_map["IFilter"] =  w32com_ifilter.remote_ifilter
 
