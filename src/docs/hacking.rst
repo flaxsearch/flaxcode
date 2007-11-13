@@ -15,9 +15,12 @@ tries to avoid things that are (or should be) in the end user
 documentation, so we assume that readers already know the basics of
 how the software works from the user's point of view.
 
-Some of this document is taken from pages in the wiki.
+Some of this document has been taken from pages that lived on the
+wiki_, to avoid duplication and inconsistencies those pages have be
+replaced with a message referencing this document.
 
-.. _`API reference`: file:api/index.html
+.. _`API reference`: ./api/index.html
+.. _wiki: http://code.google.com/p/flaxcode/w/list
 
 Overview
 ========
@@ -40,57 +43,60 @@ Components
 
 Flax is implemented in python_ and uses a number of third party
 libraries, and some understanding of the way they work will aid
-understanding of Flax. These are detailed below.
+understanding of Flax. These are listed below (in no particular
+order).
 
 .. _python: http://www.python.org
 
-Cherrypy
-~~~~~~~~
+  - Cherrypy. Cherrypy_ is a web server framework. We use it for all
+    the HTTP interaction with web browsers. The code in cpserver.py
+    implements the "applications" (as Cherrypy calls them) for
+    this.
 
-Cherrypy is a web server framework. We use it for all the HTTP
-interaction with web browsers. The code in cpserver.py implements the
-"applications" (as Cherrypy calls them) for this. http://www.cherrypy.org/.
+  - HTMLTemplate_: This is a simple templating engine. The actual
+    templates are the files with .html extensions in templates/,
+    although they are not actually well formed HTML. The code in
+    templates.py loads these templates and renders them. Calls on
+    these are made from the web-serving code in cpserver.py.
 
-HTMLTemplate
-~~~~~~~~~~~~
+  - Processing_. The processing module is used for creating processes
+    and dealing with inter-process
+    communication. 
 
-This is a simple templating engine. The actual templates are the files
-with .html extensions in templates/, although they are not actually
-well formed HTML. The code in templates.py loads these templates and
-renders them. Calls on these are made from the web-serving code in
-cpserver.py. http://freespace.virgin.net/hamish.sanderson/htmltemplate.html
+  - HTMLToText_. This is used to extract text from
+    HTML. 
 
-Processing
-~~~~~~~~~~
+  - Xappy_. A high level interface python interface to
+    Xapian. 
 
-The processing module is used for creating processes and dealing
-with interprocess
-communication. http://developer.berlios.de/projects/pyprocessing
+  - Xapian_. A search engine library. 
 
-HTMLToText
-~~~~~~~~~~
+  - Py2exe_. Software to convert python programs to windows
+    executables.
 
-This is used to extract text from HTML. http://pypi.python.org/pypi/htmltotext/0.6.
+  - `Python Windows extensions`_. Python modules to hook into a lot of
+    the windows api, in particular allowing for fairly simple client
+    side COM programming in python.
 
-Xappy
-~~~~~
+  - MochiKit_. A javascript library
 
-Xappy is a high level interface python interface to Xapian. http://xappy.org/
+.. _CherryPy: http://www.cherrypy.org/
+.. _HTMLTemplate: http://freespace.virgin.net/hamish.sanderson/htmltemplate.html
+.. _Processing: http://developer.berlios.de/projects/pyprocessing
+.. _HTMLToText: http://pypi.python.org/pypi/htmltotext/0.6
+.. _Xappy: http://xappy.org/
+.. _`Python Windows extensions`: http://sourceforge.net/projects/pywin32/
+.. _Xapian: http://www.xapian.org/
+.. _MochiKit: http://www.mochikit.com/
+.. _Py2exe: http://www.py2exe.org/
 
-Xapian
-~~~~~~
-
-Xapian is a search engine library. http://www.xapian.org/
-
-Py2exe.
-~~~~~~~
-
-Python Windows extensions. http://sourceforge.net/projects/pywin32/
-
-MochiKit
-~~~~~~~~
-
-http://www.mochikit.com/
+These libraries are either included in the flax subversion repository,
+or else can be installed by running the script
+``utils\install_dependencies.py``. This will download and each of
+these libraries and place them in a location that the Flax code itself
+will add to ``sys.path``.  Flax has been developed using the versions
+of these libraries that this script installs; using other versions may
+lead to problems.
 
 
 Document Collections
@@ -100,17 +106,40 @@ The central object in Flax is the document collection (see the class
 DocCollection) - such has a number of purposes:
 
  - Specifying the set of documents that make up the document
-   collection (see the class FileSpec).
+   collection (see the class FileSpec_). The code is self explanatory
+   really; note that the ``.files()`` method of the class returns a
+   generator.
 
- - Specifying how Xapian databases for the collection are configured
-   (see the class DBSpec)
+ - Specifying how Xapian_ databases for the collection are configured
+   (see the class DBSpec_). The configuration possibilities provided
+   by the code are not exposed via the web UI in the current version.
 
  - Specifying when automatic indexing of the collection takes place
-   (see the class ScheduleSpec).
+   (see the class ScheduleSpec_). The current scheme is a simplified
+   cron style system.
 
  - Defining mapping for files in the collection to URLs. (This should
-   perhaps be part of FileSpec, but it's not done that way at the
-   moment.)
+   perhaps be part of FileSpec_, but it's not done that way at the
+   moment.) If there's not web server available to serve the files (or
+   it's inconvenient so configure one), then for testing and
+   development it's often useful to configure the mapping as a
+   "file://" url for the corresponding path.
+
+.. _FileSpec: ./api/filespec.FileSpec-class.html
+.. _DBSpec: ./api/dbspec.DBSpec-class.html
+.. _ScheduleSpec: ./api/schedulespec.ScheduleSpec-class.html
+
+Document collections are created and modified via the web UI. The
+scheduling is implemented via a very simple loop running in a separate
+thread that checks every minute to see which collections are due to be
+indexed - see the class ScheduleIndexing_. Obviously we could make
+this do this in a more efficient way, but it's probably not
+significant unless there are rather more document collections that we
+would normally expect.
+
+
+.. _ScheduleIndexing: ./api/scheduler.ScheduleIndexing-class.html
+
 
 Logging.
 ========
@@ -143,6 +172,18 @@ configuration file when its .set_levels() method is invoked. Of course
 once the file has been written LogConfPub_ will ensure that the changes
 propagate to LogListener_ instances as described above.
 
+If people configure loggers in via the configuration file then it is
+possible for the UI configuration to be a little misleading, since
+only the "first level" loggers (those immediately below the root
+logging in the hierarchy) appear in the UI, and the configuration file
+could change the setting for loggers below these so that they no
+longer follow the settings for the first level logger above them.
+However, since the same people should be responsible for both, the
+current arrangement is a reasonable compromise given the desires to
+provide the full configuration possibilities and also to have a
+relatively simple, yet useful, option available in the UI.
+
+
 The class LogClientProcess_ does most of this for you, although
 subclasses must ensure that ``initialise_logging`` is called in their
 run methods.
@@ -160,16 +201,25 @@ use the (non-standard) ConfigObj_ module instead to address this.
 .. _ConfigObj: http://www.voidspace.org.uk/python/configobj.html
 
 
+(The logging configuration is fairly self contained and could probably
+be split out into a separate python package to be used in other
+multi-process applications.)
+
 Cherrypy Logging
 ~~~~~~~~~~~~~~~~
 
-Cherrypy also uses the logging module but, by default, hard-codes some
+Cherrypy also uses the logging module but, by default, hard codes some
 aspects of the logging configuration thereby limiting the scope for
 using the full flexibility of the logging module's configuration. We
 have therefore replaced the default Cherrypy logging manager with a
 custom one that integrates better with our scheme. This arranges for
 Cherrypy logging calls to be logged to loggers "webserver.access" and
-"webserver.errors".
+"webserver.errors". (Note that this requires a small amount of
+duplication of some Cherrypy internals in our code, and if the way
+Cherrypy does its logging changes in future versions we might need
+change the implementation of the class cpLogger_.)
+
+.. _cpLogger: ./api/cplogger.cpLogger-class.html
 
 
 Persistence
@@ -178,7 +228,11 @@ Persistence
 The main process save some of its state to a file on exiting, and
 every so often (to protect against abnormal termination). This is done
 simple by using the standard shelve module to pickle to a file. There
-is a separate thread for the periodic saving which 
+is a separate thread for the periodic saving - code that changes data
+which is to be saved sets an event that the thread examines. The code
+for this is in the module persist_.
+
+.. _persist: ./api/persist-module.html
 
 
 Indexing
@@ -225,8 +279,8 @@ simultaneous indexing, which might improve performance, especially on
 multi-core processors, or if we allowed for indexing processes to run
 on separate machines.
 
-.. _IndexServer: file:api/indexserver.indexer.IndexServer-class.html
-.. _IndexProcess: file:api/indexserver.indexer.IndexServer-class.html
+.. _IndexServer: ./api/indexserver.indexer.IndexServer-class.html
+.. _IndexProcess: ./api/indexserver.indexer.IndexServer-class.html
 
 
 The actual indexing involves making calls on Xapian_ (via Xappy_) to
@@ -394,10 +448,12 @@ Filter Implementations
 
 This section discusses the filters that have been implemented so
 far. Note that currently the file type to filtering mapping is
-hardcoded, so the only way to change the actual filter that gets used
-for a particular file is to change the code. In future we plan to
-include a configuration mechanism for the file type (more generally the
-mime type of the data) to filter mapping.
+hard coded, so the only way to change the actual filter that gets used
+for a particular file is to change the code. On windows we use the
+`IFilter filter`_ wrapped up as a `Remote Filter`_ for all file
+types. In future we plan to include a configuration mechanism for the
+file type (more generally the mime type of the data) to filter
+mapping.
 
 
 For version 1.0 we intend to support at least the following document
@@ -475,13 +531,12 @@ IFilter filter
 ~~~~~~~~~~~~~~
 
 
-The current `IFilter filter`_ started out as a modified verion of the
+The current `IFilter filter`_ started out as a modified version of the
 an example_ of using IFilters via COM in the `Python Windows
 extensions`_.
 
 .. _example: http://pywin32.cvs.sourceforge.net/pywin32/pywin32/com/win32comext/ifilter/demo/filterDemo.py?view=markup
-.. _`Python Windows extensions`: http://sourceforge.net/projects/pywin32/
-.. _`IFilter filter`: file:api/indexserver.w32com_ifilter-module.html#ifilter_filter
+.. _`IFilter filter`: ./api/indexserver.w32com_ifilter-module.html#ifilter_filter
 
 This works reasonably well, although we seem to get quite a few
 exceptions with PDF files for reasons that are not entirely clear.
@@ -494,7 +549,7 @@ For text documents, for testing, and for non-Windows platforms it is
 convenient to have a simple filter for text files. This has been
 implemented_.
 
-.. _implemented: file:api/indexserver.simple_text_filter-module.html#simple_text_filter
+.. _implemented: ./api/indexserver.simple_text_filter-module.html#simple_text_filter
 
 
 HtmltoText Filter
@@ -505,7 +560,7 @@ The Xapian HTML parser has been split off and packaged separately as the
 htmltotext_ package. This is used by the html_filter_.
 
 .. _htmltotext: http://pypi.python.org/pypi/htmltotext/0.6
-.. _html_filter: file:api/indexserver.htmltotext_filter-module.html#html_filter
+.. _html_filter: ./api/indexserver.htmltotext_filter-module.html#html_filter
 
 
 PyPdf Filter
@@ -514,12 +569,35 @@ PyPdf Filter
 Here_ is a simple filter using PyPdf_, but in practice the current
 version throws rather too many exceptions to be generally useful.
 
-.. _Here: file:api/indexserver.pypdf_filter-module.html#pdf_filter
+.. _Here: ./api/indexserver.pypdf_filter-module.html#pdf_filter
 .. _PyPdf: http://pybrary.net/pyPdf/
+
+Remote Filter
+~~~~~~~~~~~~~
+
+The instances of the class RemoteFilterRunner run a particular filter
+(supplied at initialisation time) in a separate process. Exceptions
+get passed back to the main process, and there is a timeout (which
+default to 30 seconds) which is the maximum time for which the remote
+filter is permitted to finish filtering. If an exception is raised, or
+the timeout reached then the remote process is killed and a new one is
+started.
+
+There are some costs which we could perhaps address at some point. The
+remote process waits until the filtering of a document has finished
+before sending all the block back in one go. It could perhaps send
+blocks back as they become available. This might be preferable, but
+could also lead to more time spent context switching. We could also
+arrange to use some shared memory for the inter-process communication
+which would remove some copying overheads.
+
+The design is partly indented to accommodate running the remote filter
+on a different machine. Although this is not possible currently it
+would be straight forward to modify things to allow such.
+
 
 Other document filters
 ~~~~~~~~~~~~~~~~~~~~~~
-
 
 Eventually we will need non-IFilter mechanisms for parsing documents
 on non-Windows platforms. The formats that are likely to give the most
@@ -537,4 +615,3 @@ Xapian's "omindex" tool has support for indexing from lots of document
 formats using unix tools - we should copy at least some of the filter
 invocations it uses rather than figuring them out from scratch.  Mostly,
 these involve invoking a sub-process to perform the filtering.
-
