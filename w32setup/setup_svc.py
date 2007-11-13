@@ -107,11 +107,14 @@ class InnoScript:
         print >> ofi, r'Source: "%s\startflaxservice.bat"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\stopflaxservice.bat"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\zlib1.dll"; DestDir: "{app}\localinst"; Flags: ignoreversion' % self.this_dir
+        print >> ofi, r'Source: "%s\exampledocs\*"; DestDir: "{app}\exampledocs"; Flags: ignoreversion' % self.this_dir
+        print >> ofi, r'Source: "%s\gettingstarted\*"; DestDir: "{app}\gettingstarted"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'; NOTE: Do not use "Flags: ignoreversion" on any shared system files'
         print >> ofi, r""
         print >> ofi, r'[Icons]'
         print >> ofi, r'Name: "{group}\%s"; Filename: "{app}\startflax.exe"' % self.name
         print >> ofi, r'Name: "{group}\{cm:ProgramOnTheWeb,%s}"; Filename: "http://www.flax.co.uk"' % self.name
+        print >> ofi, r'Name: "{group}\Getting Started Guide"; Filename: "file://{app}\gettingstarted\GettingStartedOnWindows.htm"' 
         print >> ofi, r'Name: "{group}\{cm:UninstallProgram,%s}"; Filename: "{uninstallexe}"' % self.name
         print >> ofi, r'Name: "{commondesktop}\%s"; Filename: "{app}\startflax.exe"; Tasks: desktopicon' % self.name
         print >> ofi, r""
@@ -126,6 +129,7 @@ class InnoScript:
         print >> ofi, r'Filename: "{app}\startflax.exe"; StatusMsg: "Setting administration password"; Parameters: "--set-admin-password"; Flags: waituntilterminated'
         print >> ofi, r'; Install & run Service'
         print >> ofi, r'Filename: "{app}\startflaxservice.bat"; Description: "{cm:LaunchProgram,Flax Site Search as a Windows Service}"; Flags: postinstall waituntilterminated '
+        print >> ofi, r'Filename: "{app}\gettingstarted\GettingStartedOnWindows.htm"; Description: "Read the Getting Started guide"; Flags: postinstall shellexec'
         print >> ofi, r""
         print >> ofi, r'[Dirs]'
         print >> ofi, r'Name: {code:GetDataDir}; Flags: uninsneveruninstall'
