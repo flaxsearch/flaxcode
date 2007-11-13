@@ -1,0 +1,138 @@
+<html>
+<body>
+
+<h1>Getting Started with Flax Site Search (Microsoft Windows)</h1>
+
+<h2>Introduction</h2>
+
+<p>Flax Site Search is a basic enterprise search system, designed to allow you to build searchable indexes of files on your PC, intranet or website. It is based on the Flax enterprise search solution platform developed by Lemur Consulting Ltd. and is an open-source application (i.e., the source code is freely downloadable). As such, Flax Site Search (FSS) can be downloaded and installed at no charge on as many computers as required.</p>
+
+<p>FSS builds a high-performance custom database of the documents you choose, and allows you to search them very quickly and accurately. FSS can read documents in Microsoft Office format, web pages in HTML, Adobe Acrobat (PDF) documents and Rich Text Format (RTF) and automatically extract the text. FSS also provides automatic query spelling correction and ranks results in order of relevance.</p>
+
+<p>Unlike other products, FSS does not put a limit on how many documents can be indexed and this is only limited by the amount of disk space and memory available. FSS is controlled via a password-protected web page interface.</p>
+
+<h2>Installing Flax Site Search</h2>
+
+<p>Download the Flax Site Search package (setup.exe) from www.flax.co.uk and copy it to the computer which will host the searchable indexes. This computer will be running Microsoft Windows and should have at least 1GB available memory and enough disk space to hold the Flax database (as a rough guide this will be approximately the same size as the source documents). If possible, the computer should have more memory - the more of the database that can be held in memory, the faster the system will run.</p>
+
+<p>Run the setup.exe file and install it to a suitable location (usually C:\Program Files). Note that you will also be asked where the FSS data files should be located; make sure there is enough free space on the disk drive you choose.</p>
+
+<p>As part of the installation you will also be asked to set a password. This password controls access to the Administration section of Flax. You will be asked to enter the password twice to confirm it.</p>
+
+<p>At the end of the installation process you will be asked whether you want to install FSS as a Windows Service, a program that will run automatically in the background whenever you start Windows. Unless you want to start FSS manually every time the computer is restarted, it is recommended that you install FSS as a Windows Service. If you choose this option the Service is automatically started at the end of the installation process, and FSS is now running in the background.</p>
+
+<h2>Checking Flax Site Search is working</h2>
+
+<p>To see FSS working, start a web browser and enter the following address (if you're reading this guide on the same computer that you installed FSS on, just click the link below):</p>
+
+<p><a href=http://localhost:8090 target=_blank>http://localhost:8090</a></p>
+
+<p>You should see the main search page. Note that you won't be able to search anything yet as you haven't created any searchable indexes!</p>
+
+<h2>Viewing the Flax Site Search Administration system</h2>
+
+<p>To view the Administration system, start a web browser and enter the following address (if you're reading this guide on the same computer, just click the link below):</p>
+
+<p><a href=http://localhost:8090/admin target=_blank>http://localhost:8090/admin</a></p>
+
+<p>You will be asked for a username and password - the username should be 'admin' and the password you chose during installation.You should see a page similar to the one shown below:</p>
+
+<p><img src=admin1.jpg></p>
+
+<p>This page shows an (empty) list of Collections and a link to allow you to create a new Collection. A Collection is a central concept in FSS, and represents a group of files that a user may choose to search. For example, you might create two Collections of 'Sales Documents' and 'Technical Documents', and then allow users to choose whether to search either collection or both at the same time.</p>
+
+<p>Hyperlinks at the top of the page allow you to view the Search and Advanced Search pages (these are also visible to end users) and set various program Options, as well as seeing more information about FSS and the Flax system in general on the About page. </p>
+
+<h2>Creating your first Collection</h2>
+
+<p>Let's start by creating a Collection of some files you want to be searchable. These files can be of various formats and can be in several different places, and you can either build an index of them immediately or schedule automatic indexing at a regular time (the latter is useful if your files change regularly, for example if you publish news items).</p>
+
+<p>First, let's create a collection called 'MyFiles': Click the link on the page above marked 'Create a new collection'. Now we're going to give it a description and then enter the path to the files we want to use:</p>
+
+<p><img src=createcol1.jpg></p>
+
+<p>The name used for the collection should be relatively short ('Legal', 'Sales', 'New Products') but the description can be longer. Both are shown to the end user so they can choose which collections to search. </p>
+
+<h3>Deciding which files to include</h3>
+
+<p>You now have to decide which files should be included in this collection, using the 'File Specification' section. In this case we're going to use a path to some example files that are installed with Flax (you may need to modify these paths if you installed Flax somewhere other than the default folder):
+
+<p><img src=createcol2.jpg></p>
+
+<p>Type the following into the 'Path' box:</p>
+
+<p>C:\Program Files\Flax Site Search\exampledocs</p>
+
+<p>and the following into the 'Mapping' box:</p>
+
+<p>file://C:\Program Files\Flax Site Search\exampledocs</p>
+
+<p>You can enter any number of pairs of settings for a Path and associated Mapping. The Path is where the files you want to index are located, and the Mapping controls how an end user will access these files when they are shown as search results.</p>
+
+<p>If you are running FSS on a single computer, the Path and the Mapping will be the same. However, if you want to run FSS to allow users to search files shared across a Windows network, you will need to set up an appropriate Mapping. For example, some files might be held on a networked computer called 'FILEBOX' in a folder 'd:\PublicFiles\LegalStuff', which is set to be shared on the network as 'Legals'. Assuming FSS is running on the machine 'FILEBOX', you would use a Path of 'd:\PublicFiles\LegalStuff' and a mapping of '\\FILEBOX\Legals'.</p>
+
+<p>If you are running a webserver, you may want (for security purposes) files to be served via the webserver rather than by FSS. For example, let's say you run a web server for a site called 'www.anything.com' and you have some documents that are located in a folder on the webserver computer of 'c:\Inetpub\wwwroot\anypages\'. The web server is set up so that visiting a page such as 'http://www.anything.com/page1.html' will result in the document at 'c:\Inetpub\wwwroot\anypages\page1.html' being displayed to the end user. In this case, to build a searchable index using FSS, we would use a Path of 'C:\Inetpub\wwwroot\anypages' and a Mapping of 'http://www.anything.com'.</p>
+
+<p>The checkboxes below allow you to decide which file formats will be included in the index. FSS will only read those files that you select. If you leave all the boxes unchecked, FSS will assume that you want to index *all* of the file types shown. </p>
+
+<p>The final setting in this section allows you set the age of files in the index; use this to include only the files that were last modified in the period shown. </p>
+
+<h3>Setting indexing options</h3>
+
+<p><img src=createcol3.jpg></p>
+
+<p>The next section governs how the words in the files you have decided to include in the index are treated. If you select a particular language, then FSS will generate *stemmed* forms of the words in the files you use. This can help users find relevant documents as variations of their search terms are used; for example, a search for 'ringing' would also find documents that include the words 'ring' and 'ringer'. You can also enter some *stopwords* which will be ignored while building the index - for example in English such words as 'a', 'the', 'and' and 'to' are generally of little use when searching as they are so common. However, in most cases it is not necessary to enter stopwords and in some cases they may even cause problems (for example, while searching for the phrase 'To be or not to be'), so in most cases you can leave this box blank.</p>
+
+<p>Let's leave these settings as they are for now.</p>
+
+<h3>Scheduling the creation of an index</h3>
+
+<p><img src=createcol4.jpg></p>
+
+<p>This section governs how the index can be built automatically at a certain time of day, week or month. This is useful if you know the files you want to search change at a particular interval, or simply to make sure the index is up to date. If you want to rebuild the index manually, leave all the boxes blank. For example, we might want to rebuild the index at 3.30am each day; in that case enter 30,3,*,*,* in the boxes. Note that leaving any box blank will mean that indexing is not scheduled.</p>
+
+<p>The scheduling process works in a round-robin fashion; it checks every minute to see if a Collection has a matching specification, and if so will mark that Collection as 'Due'. If nothing is being indexed at that moment then that Collection is indexed immediately; otherwise it is indexed once other index operations are finished. </p>
+
+<p>Let's leave these settings as they are for now.</p>
+
+<h2>The Collection Status page</h2>
+
+<p>Now you have created a searchable index, you can watch the indexing progress. Click 'Apply' to save the collection details and return to the Collection Status page, which should show the new collection:</p>
+
+<img src=createcol6.jpg>
+
+<p>The Collection Status page shows all the available collections and their indexing status. The status is shown as 'Start' (collection has no scheduled index time, and must be started manually), 'In progress' (collection is being indexed currently) and 'Due' (collection will be indexed as soon as possible as its scheduled time has occurred). </p>
+
+<p>Click the 'Start' button and you should see the collection you just created move quickly to 'In progress'. While this is happening the number of Files found will increase, and a similar number of Documents will be created. You now have a searchable index - congratulations! </p>
+
+<h2>Searching the index</h2>
+
+<p>Click the 'Search' hyperlink at the top of the page, and type in the word 'contains', then click 'Search'. You will see that this word was found in two of the three documents in the collection. Short 'snippets' of each result are shown, together with a link to the document itself and size and modification date.</p>
+
+<p>Click the 'Advanced search' hyperlink at the top of the page. This gives you a way of refining your search by entering an exact phrase (try 'in the collection'), searching for documents without certain words (try 'geese'), and by restricting which types of file will be searched.<p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+FAQ: 
+
+How do I use Flax with IIS?
+
+http://www.isapirewrite.com/
+
+</body>
+</html>
+
+
+
+
+
