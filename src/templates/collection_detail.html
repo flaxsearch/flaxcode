@@ -63,6 +63,37 @@
         return false;      
       }
     }
+    
+    // check schedule fields
+    if (''.match)
+    {    
+      function vf (obj, label)
+      {
+         var s = strip(obj.value);
+         if (s == '' || s == '*')
+            return true;
+         
+         var bits = s.split(',');
+         for (var i = 0; i < bits.length; i++)
+         {         
+           if (! strip(bits[i]).match('\\d+'))
+           {
+             obj.focus();
+             alert ('Invalid value for ' + label + ' scheduling field.');
+             return false;
+           }
+         }
+         return true;
+      }
+    
+      if (!vf(fm.mins, 'Minutes')) return false;      
+      if (!vf(fm.hours, 'Hours')) return false;      
+      if (!vf(fm.weekdays, 'Weekdays')) return false;      
+      if (!vf(fm.monthdays, 'Monthdays')) return false;      
+      if (!vf(fm.months, 'Months')) return false;      
+    }
+    
+    return true;
   }
   </script>
 </div>
