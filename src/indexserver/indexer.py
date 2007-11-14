@@ -298,9 +298,9 @@ class IndexServer(object):
         log.debug("Stopping indexing_process")
         self.kill_indexer.value = 1
         
-    def join(self):
+    def join(self, timeout = None):
         log.debug("waiting to join indexing_process")
-        self.indexing_process.join()
+        self.indexing_process.join(timeout)
 
     def log_config_listener(self):
         "return a listener for log configuration changes in the remote indexing process"
