@@ -9,7 +9,8 @@
   function on_load()
   {
     make_mappings();  // written below by the server
-    document.forms[0].col.focus();
+    if (document.forms[0].col)
+        document.forms[0].col.focus();
   }
   
   function validate_form()
