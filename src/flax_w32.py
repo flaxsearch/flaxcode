@@ -24,7 +24,7 @@ import regutil
 import os
 import sys
 
-REGKEY_BASE = "SOFTWARE\\Lemur Consulting Ltd\\Flax Site Search\\"
+REGKEY_BASE = "SOFTWARE\\Lemur Consulting Ltd\\Flax Basic\\"
 DEFAULT_INSTALL_DIR = r"c:\Program Files\Flax"
 
 class FlaxRegistry(object):
