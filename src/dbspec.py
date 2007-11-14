@@ -35,10 +35,8 @@ class DBSpec(object):
 
     """
 
-    _default_stopwords = ['i', 'a', 'an', 'and', 'the']
 
-
-    def update(self, language="en", stopwords=_default_stopwords, **kwargs):
+    def update(self, language='', stopwords='', **kwargs):
         """Update the configuration:
 
          - `language` specifies the language to be used for a database.
