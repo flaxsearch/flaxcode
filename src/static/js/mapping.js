@@ -15,13 +15,13 @@ var add_mapping = function(path, mapping) {
         var div = document.createElement('div');
         
         var label = document.createElement('label');
-        label.setAttribute('class', 'main_label');
+        label.className = 'main_label';
         label.appendChild(document.createTextNode(txt) );
         div.appendChild(label);
         
         var input = document.createElement('input');
-        input.setAttribute('name', name);
-        input.setAttribute('value', value);
+        input.name = name;
+        input.value = value;
         div.appendChild(input);
         
         container.appendChild(div);
