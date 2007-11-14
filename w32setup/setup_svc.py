@@ -128,7 +128,7 @@ class InnoScript:
         print >> ofi, r'; Set admin password'
         print >> ofi, r'Filename: "{app}\startflax.exe"; StatusMsg: "Setting administration password"; Parameters: "--set-admin-password"; Flags: waituntilterminated'
         print >> ofi, r'; Install & run Service'
-        print >> ofi, r'Filename: "{app}\startflaxservice.bat"; Description: "{cm:LaunchProgram,%sas a Windows Service}"; Flags: postinstall waituntilterminated ' % self.name
+        print >> ofi, r'Filename: "{app}\startflaxservice.bat"; Description: "{cm:LaunchProgram,%s as a Windows Service}"; Flags: postinstall waituntilterminated ' % self.name
         print >> ofi, r'Filename: "{app}\gettingstarted\GettingStartedOnWindows.htm"; Description: "Read the Getting Started guide"; Flags: postinstall shellexec'
         print >> ofi, r""
         print >> ofi, r'[Dirs]'
