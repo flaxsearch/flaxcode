@@ -92,6 +92,8 @@ class FlaxAuth(object):
                 config.write(fd)
             finally:
                 fd.close()
+            if os.path.exists(conf_path):
+                os.unlink(conf_path)
             os.rename(conf_path_tmp, conf_path)
         except:
             if os.path.exists(conf_path_tmp):
