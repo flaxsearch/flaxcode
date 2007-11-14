@@ -18,6 +18,7 @@
 """
 __docformat__ = "restructuredtext en"
 
+import re
 import setuppaths
 import cherrypy
 import cplogger
@@ -46,6 +47,7 @@ class Collections(FlaxResource):
     """Controller for web pages dealing with document collections.
 
     """
+    _valid_colname_re = re.compile (r'[\w \.\-_]{1,100}$')
 
     def _bad_collection_name(self, name):
         """Return an error page describing a problem with a collection name.
@@ -175,6 +177,8 @@ class Collections(FlaxResource):
         if cherrypy.request.method == "POST":
             if col in self._flax_data.collections:
                 self._bad_request("The collection name is already in use")
+            elif not self._valid_colname_re.match(col):
+                self._bad_request("The collection name is not valid")            
             elif col:
                 self._flax_data.collections.new_collection(col, **kwargs)
                 self._signal_data_changed()
@@ -183,7 +187,7 @@ class Collections(FlaxResource):
                 self._bad_request("A collection name must be provided for new collections")
 
         else:
-            return self._detail_template(None, self._flax_data.formats, self._flax_data.languages)
+            return self._detail_template(None, self._flax_data.formats, self._flax_data.languages)        
 
     @cherrypy.expose
     def view(self, col=None, **kwargs):
