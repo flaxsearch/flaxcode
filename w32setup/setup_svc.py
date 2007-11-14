@@ -128,7 +128,7 @@ class InnoScript:
         print >> ofi, r'; Set admin password'
         print >> ofi, r'Filename: "{app}\startflax.exe"; StatusMsg: "Setting administration password"; Parameters: "--set-admin-password"; Flags: waituntilterminated'
         print >> ofi, r'; Install & run Service'
-        print >> ofi, r'Filename: "{app}\startflaxservice.bat"; Description: "{cm:LaunchProgram,Flax Site Search as a Windows Service}"; Flags: postinstall waituntilterminated '
+        print >> ofi, r'Filename: "{app}\startflaxservice.bat"; Description: "{cm:LaunchProgram,%sas a Windows Service}"; Flags: postinstall waituntilterminated ' % self.name
         print >> ofi, r'Filename: "{app}\gettingstarted\GettingStartedOnWindows.htm"; Description: "Read the Getting Started guide"; Flags: postinstall shellexec'
         print >> ofi, r""
         print >> ofi, r'[Dirs]'
@@ -143,7 +143,7 @@ class InnoScript:
         print >> ofi, r'begin'
         print >> ofi, r"{ Check if our registry key exists, in which case assume we're already installed }"
         print >> ofi, r"if RegKeyExists(HKLM, 'Software\%s\%s') then begin"  % (self.publisher, self.name)
-        print >> ofi, r"    MsgBox('Flax Site Search:'#13#13'Flax is already installed. Please uninstall the previous version before installing this version.'#13#13'There is an option to uninstall in Start, Programs, Flax Site Search', mbError, MB_OK);"
+        print >> ofi, r"    MsgBox('%s:'#13#13'Flax is already installed. Please uninstall the previous version before installing this version.'#13#13'There is an option to uninstall in Start, Programs, %s', mbError, MB_OK);" % (self.name, self.name)
         print >> ofi, r'    Result := False;'
         print >> ofi, r'  end else'
         print >> ofi, r'    Result := True;'
@@ -155,7 +155,7 @@ class InnoScript:
         print >> ofi, r''
         print >> ofi, r"DataDirPage := CreateInputDirPage(wpSelectDir,"
         print >> ofi, r"    'Select Data Directory', 'Where should data files be stored?',"
-        print >> ofi, r"    'Select the folder in which Flax Site Search should store its data files, then click Next. '#13#13 +"
+        print >> ofi, r"    'Select the folder in which %s should store its data files, then click Next. '#13#13 +" % self.name
         print >> ofi, r"    'Note that Flax data files can be very large, so you may want to store them on a separate ' +"
         print >> ofi, r"    'disk or partition.',"
         print >> ofi, r"    False, '');"
@@ -165,7 +165,7 @@ class InnoScript:
         print >> ofi, r""
         print >> ofi, r"LightMsgPage := CreateOutputMsgPage(wpPreparing,"
         print >> ofi, r"    'Set Administration Password', 'Set Administration Password',"
-        print >> ofi, r"    'After installation, Setup will ask you to enter a password for the Administration pages of Flax Site Search.'#13#13 +"
+        print >> ofi, r"    'After installation, Setup will ask you to enter a password for the Administration pages of %s.'#13#13 +" % self.name
         print >> ofi, r"    'To view these pages you will need to use a username of " + '"admin"' + " and the password you choose. '#13#13 +"
         print >> ofi, r"    'You will be asked to confirm the password by typing it twice.');"
         print >> ofi, r""
@@ -282,7 +282,7 @@ class build_installer(py2exe):
         py2exe.run(self)
         
         # create the Installer, using the files py2exe has created.
-        script = InnoScript(name="Flax Site Search",
+        script = InnoScript(name="Flax Basic",
                             this_dir=os.getcwd(),
                             versionA=version.get_major(),
                             versionB=version.get_minor(),
@@ -317,11 +317,11 @@ class Target:
         self.version = version.get_version_string()
         self.company_name = "Lemur Consulting Ltd"
         self.copyright = "Copyright (c) Lemur Consulting Ltd 2007"
-        self.name = "Flax Site Search"
+        self.name = "Flax Basic"
 # a NT service, modules is required
 flaxservice = Target(
     # used for the versioninfo resource
-    description = "Flax Site Search",
+    description = "Flax Basic",
     # what to build.  For a service, the module name (not the
     # filename) must be specified!
     modules = ["flaxservice"]
