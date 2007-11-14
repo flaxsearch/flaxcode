@@ -122,6 +122,7 @@ class FlaxMain(object):
                                  options.dbs_dir, options.log_dir,
                                  options.conf_dir, options.var_dir)
         flaxpaths.paths.makedirs()
+        self._stop_thread = None
         self._need_cleanup = False
 
     def _do_start(self, blocking):
@@ -149,7 +150,7 @@ class FlaxMain(object):
                                   flaxpaths.paths.templates_path,
                                   blocking)
 
-    def _do_cleanup(self):
+    def _do_stop(self):
         """Internal method to perform all necessary cleanup when shutting down.
 
         May safely be called when no cleanup is necessary.
@@ -158,7 +159,12 @@ class FlaxMain(object):
         if not self._need_cleanup:
             return
         self._need_cleanup = False
+        if self.index_server:
+            self.index_server.stop()
         persist.store_flax(flaxpaths.paths.flaxstate_path, flax.options)
+        cpserver.stop_web_server()
+        if self.index_server:
+            self.index_server.join()
 
     def start(self, blocking=True):
         """Start all the Flax threads and processes.
@@ -180,12 +186,13 @@ class FlaxMain(object):
         it's been restarted since the previous call).
 
         """
-        if self.index_server:
-            self.index_server.stop()
-        cpserver.stop_web_server()
+        self._stop_thread = threading.Thread(target=self._do_stop)
+        self._stop_thread.start()
 
     def join(self, timeout=None):
-        """Block until all the Flax threads and processes have finished.
+        """Block until all the Flax threads and processes have
+        finished.
+
 
         If timeout is specified, it is the maximum time (in seconds) which the
         call will block for.
@@ -194,10 +201,14 @@ class FlaxMain(object):
         returns False.
 
         """
-        self._do_cleanup()
-        if self.index_server:
-            self.index_server.join()
-        return True
+        if self._stop_thread:
+            self._stop_thread.join(timeout)
+            return self._stop_thread.isAlive()
+        else:
+            # there's no stop thread, so stop() has not been called yet.
+            # sleep here for a bit so something else can call stop if need be.
+            time.sleep(1)
+            return False
 
 def set_admin_password():
     """Get a new administrator password (from stdin) and store it.
