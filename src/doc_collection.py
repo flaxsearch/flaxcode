@@ -106,3 +106,15 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
 
     def dbpath(self):
         return os.path.join(flaxpaths.paths.dbs_dir, self.name + '.db')
+
+    def source_file_from_id(self, file_id):
+        "return the source file name given a document id."
+        conn = xappy.SearchConnection(self.dbpath())
+        try:
+            doc = conn.get_document(file_id)
+            filepath = doc.data['filename'][0]
+        except KeyError:
+            return None
+        conn.close()
+        return filepath
+
