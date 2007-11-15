@@ -6,11 +6,9 @@
 <title node="con:title">Collections</title>
 
 <div node="-con:heads">
-  <script type="text/javascript">
+  <script type="text/javascript">  
   function on_load() 
   {
-    // this will always call the AJAX stuff once, whether or not indexing is
-    // in progress or scheduled. But that's not a big deal.
     callLater (2, update_info);
   }
 
@@ -18,7 +16,6 @@
   {
     try {
       var onsuccess = function (json) {
-        var again = false;
         for (var i = 0; i < json.length; i++)
         {        
           try {
@@ -34,7 +31,6 @@
               var due = $('_due_button_' + json[i].name);
               if (json[i].status)
               {
-                again = true;
                 replaceChildNodes (due, 'In progress');
                 due.disabled = true;
               }
@@ -42,10 +38,6 @@
               {
                 replaceChildNodes (due, 'Due');
                 due.disabled = true;
-                if (scrapeText ($('_held_button_' + json[i].name)) == 'Hold')
-                { // indexing could start soon
-                  again = true;
-                }
               }
               else
               {
@@ -60,7 +52,7 @@
           }
         }
         
-        if (again) callLater (2, update_info);
+        callLater (2, update_info);
       };
 
       var onfailure = function (err) {
