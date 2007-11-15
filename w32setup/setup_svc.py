@@ -102,9 +102,9 @@ class InnoScript:
         print >> ofi, r'Source: "%s\flaxlog.conf"; DestDir: "{app}\conf"; Flags: onlyifdoesntexist ' % self.src_dir
         print >> ofi, r'Source: "%s\processing\_processing.pyd"; DestDir: "{app}\localinst"; Flags: ignoreversion' % self.localinst_dir
         print >> ofi, r'Source: "%s\htmltotext.pyd"; DestDir: "{app}\localinst"; Flags: ignoreversion' % self.localinst_dir
-        print >> ofi, r'Source: "%s\msvcp80.dll"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
-        print >> ofi, r'Source: "%s\msvcr80.dll"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
-        print >> ofi, r'Source: "%s\msvcp71.dll"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
+        print >> ofi, r'Source: "%s\msvcp80.dll"; DestDir: "{sys}"; Flags: onlyifdoesntexist sharedfile restartreplace uninsneveruninstall' % self.this_dir
+        print >> ofi, r'Source: "%s\msvcr80.dll"; DestDir: "{sys}"; Flags: onlyifdoesntexist sharedfile restartreplace uninsneveruninstall' % self.this_dir
+        print >> ofi, r'Source: "%s\msvcp71.dll"; DestDir: "{sys}"; Flags: onlyifdoesntexist sharedfile restartreplace uninsneveruninstall' % self.this_dir
         print >> ofi, r'Source: "%s\startflaxservice.bat"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\stopflaxservice.bat"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\zlib1.dll"; DestDir: "{app}\localinst"; Flags: ignoreversion' % self.this_dir
