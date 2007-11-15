@@ -92,7 +92,10 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
             self.log.error('Doc: %s has no path. Maybe the collection needs indexing' % doc_id)
             return "/"
         mapped = self.mappings[path[0]]
-        if mapped:
+        if mapped == 'FLAX':
+            return '/source/%s%s%s' % (self.name, 
+                '' if doc_id[0] == '/' else '/', doc_id.replace ('\\', '/'))              
+        elif mapped:
             return mapped + "/" + doc_id[len(path[0]):].replace('\\', '/')
         else:
             return ""

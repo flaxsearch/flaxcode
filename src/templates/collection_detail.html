@@ -12,7 +12,8 @@
     if (document.forms[0].col)
         document.forms[0].col.focus();
   }
-  
+
+  var _colname_re = /^[\w \.\-_]{1,100}$/;  
   function validate_form()
   {
     var fm = document.forms[0];
@@ -22,17 +23,14 @@
       alert ('Please enter a name for the collection.');
       return false;
     }
-    
+        
     // check validity of name
-    if (''.match)
+    if (! _colname_re.test (fm.col.value))
     {
-      if (fm.col.value.match ('^[\\w \\.\\-_]{1,100}$') == null)
-      {
-        fm.col.focus();
-        alert ('Collection name is not valid. Please enter a name up to 100 ' +
-               'characters long, using only alphanumerics and " .-_"');
-        return false;
-      }
+      fm.col.focus();
+      alert ('Collection name is not valid. Please enter a name up to 100 ' +
+             'characters long, using only alphanumerics and " .-_"');
+      return false;
     }
     
     // check paths
@@ -95,54 +93,7 @@
     
     return true;
   }
-  
-  function set_serve_mappings()
-  {
-    if (confirm ('Using Flax to serve files should be done for evaluation or private purposes only. Go ahead?') == false)
-      return;
-
-    var fm = document.forms[0];
-    var colname = get_collection_name();
-    if (colname == '')
-    {
-      alert ('Need to set collection name first.');
-      fm.col.focus();
-      return;
-    }
     
-    function _set_mapping (path, mapping)
-    {
-      if (path.value)
-      {
-        var tmp = ['/source', colname, path.value].join('/');
-        tmp = tmp.replace('\\', '/');
-        tmp = tmp.replace('//', '/');
-        mapping.value = tmp;
-      }
-    }
-    
-    if (fm.path.name)
-    { // one path
-      _set_mapping (fm.path, fm.mapping);
-    }
-    else
-    { // multiple paths
-      for (var i = 0; i < fm.path.length; i++)
-      {
-        _set_mapping (fm.path[i], fm.mapping[i]);
-      }
-    }
-  }
-
-  function get_collection_name()
-  {
-    if (document.forms[0].col)
-      return document.forms[0].col.value;
-
-    var tmp = window.location.pathname.split('/');
-    return tmp[tmp.length - 2];
-  }
-  
   </script>
 </div>
 
@@ -186,7 +137,8 @@
       <dt>Mappings</dt>
       <dd>Used to generate a URL for documents in the search results pages, so (for 
       example) they may be served by your main web server. The path specified in the
-      box above will be replaced with the mapping URL.
+      box above will be replaced with the mapping URL. Enter "FLAX" to serve files
+      with Flax (see reference manual for caveat.) 
       <dt>Formats</dt>
       <dd>Files of the selected formats will be included.</dd>
       <dt>Age</dt>
@@ -201,7 +153,6 @@
       
       <label class="main_label">&nbsp;</label>
       <button onClick="add_blank_mapping()" type="button">Add another path</button>
-      <button onClick="set_serve_mappings()" type="button">Serve files with Flax</button>
 
       <div style="margin-top:10px">
         <label class="main_label">Formats:</label>
