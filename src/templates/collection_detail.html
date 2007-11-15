@@ -95,9 +95,56 @@
     
     return true;
   }
+  
+  function set_serve_mappings()
+  {
+    if (confirm ('Using Flax to serve files should be done for evaluation or private purposes only. Go ahead?') == false)
+      return;
+
+    var fm = document.forms[0];
+    var colname = get_collection_name();
+    if (colname == '')
+    {
+      alert ('Need to set collection name first.');
+      fm.col.focus();
+      return;
+    }
+    
+    function _set_mapping (path, mapping)
+    {
+      if (path.value)
+      {
+        var tmp = ['/source', colname, path.value].join('/');
+        tmp = tmp.replace('\\', '/');
+        tmp = tmp.replace('//', '/');
+        mapping.value = tmp;
+      }
+    }
+    
+    if (fm.path.name)
+    { // one path
+      _set_mapping (fm.path, fm.mapping);
+    }
+    else
+    { // multiple paths
+      for (var i = 0; i < fm.path.length; i++)
+      {
+        _set_mapping (fm.path[i], fm.mapping[i]);
+      }
+    }
+  }
+
+  function get_collection_name()
+  {
+    if (document.forms[0].col)
+      return document.forms[0].col.value;
+
+    var tmp = window.location.pathname.split('/');
+    return tmp[tmp.length - 2];
+  }
+  
   </script>
 </div>
-
 
 <div node="-con:body">
   <script node="con:script" language='javascript'></script>
@@ -150,8 +197,12 @@
       <!-- mappings div is used by the javacript - it should remain here.-->
       <div id="mappings">
       </div>
+
+      
       <label class="main_label">&nbsp;</label>
       <button onClick="add_blank_mapping()" type="button">Add another path</button>
+      <button onClick="set_serve_mappings()" type="button">Serve files with Flax</button>
+
       <div style="margin-top:10px">
         <label class="main_label">Formats:</label>
         <div class="form_content">
