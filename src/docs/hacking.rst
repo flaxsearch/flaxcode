@@ -103,7 +103,7 @@ Document Collections
 ====================
 
 The central object in Flax is the document collection (see the class
-DocCollection) - such has a number of purposes:
+DocCollection_) - such has a number of purposes:
 
  - Specifying the set of documents that make up the document
    collection (see the class FileSpec_). The code is self explanatory
@@ -125,6 +125,7 @@ DocCollection) - such has a number of purposes:
    development it's often useful to configure the mapping as a
    "file://" url for the corresponding path.
 
+.. _DocCollection: ./api/doc_collection.DocCollection-class.html
 .. _FileSpec: ./api/filespec.FileSpec-class.html
 .. _DBSpec: ./api/dbspec.DBSpec-class.html
 .. _ScheduleSpec: ./api/schedulespec.ScheduleSpec-class.html
@@ -297,7 +298,7 @@ Filters
 ~~~~~~~
 
 A filter is a python callable (a function or an object that implements
-``__call__``) that takes a filename and returns an iterator that
+``__call__``) that takes a file name and returns an iterator that
 yields ``(fieldname, value)`` pairs, where ``fieldname`` names the
 field to which the ``value`` is to be added. Each such pair may be
 referred to as a "block" for ``fieldname``.
@@ -328,7 +329,7 @@ title The document title.
     rendered in search results so that users have an idea what the
     document might be. If the filter does not yield a block for title
     then some other information relating to the file (e.g. the
-    filename, but this might change) will be used for this purpose.
+    file name, but this might change) will be used for this purpose.
 
 content
     Text for the main contents of the document. ``content`` blocks
@@ -362,7 +363,7 @@ filename
 filetype
     The file type of the file. Used when limiting searches to a
     particular type of file. This will probably become obsolete when
-    we make use of mimetypes.
+    we make use of mime types.
 
 mimetype
     The mime type of the data. (Not currently used, but reserved for
@@ -373,7 +374,7 @@ uri
 
 nametext
    Text extracted from the filename.  Currently, this is just the
-   basename of the file, but later we may want to perform various word
+   base name of the file, but later we may want to perform various word
    splitting algorithms, and use other parts of the path.
 
 mtime
@@ -397,8 +398,8 @@ At the moment there is not check to see if filters are emitting data
 for the internal fields. 
 
 For tidiness, and to avoid a potential cause of confusing error
-messages, it would be nice to separate out internal fieldnames from
-external fieldnames.  This would mean that, even if a filter emitted
+messages, it would be nice to separate out internal field names from
+external field names.  This would mean that, even if a filter emitted
 an "mtime" field, the value would be indexed differently from the
 internal "mtime" field.  This could be achieved by e.g. indexing the
 internal fields with a special prefix to distinguish them.
@@ -615,3 +616,74 @@ Xapian's "omindex" tool has support for indexing from lots of document
 formats using unix tools - we should copy at least some of the filter
 invocations it uses rather than figuring them out from scratch.  Mostly,
 these involve invoking a sub-process to perform the filtering.
+
+
+Web User Interface
+==================
+
+The classes in the module cpserver_ provide implement the
+functionality that is exposed via HTTP. The rendering of web pages is
+achieved by making calls on into the templates_ module, which in turn
+uses the HTMLTemplates in the templates sub-directory. These templates
+also make some use of the images, css and javascript that lives under
+the static sub-directory.
+
+
+The main class in cpserver are Top_ and Admin_, providing respectively
+the functionality available to end users and to administrators. The
+search and advanced search pages are essentially the same for both
+classes of user and these are implemented in the SearchForm_ class.
+
+.. _cpserver: ./api/cpserver_module.html
+.. _templates: ./api/templates_module.html
+.. _Top: ./api/cpserver.Top-class.html
+.. _Admin: ./api/cpserver.Admin-class.html
+.. _SearchForm: ./api/cpserver.SearchForm-class.html
+
+
+The look and feel of the web UI can be changed by editing the
+templates and/or the css. Take care not to change the HTMLTemplate_
+structure of the pages (given by the 'node="con:...' and
+...'node="rep:...') attributes of elements in the templates - unless
+...you change the code in the templates_ module correspondingly.
+
+Note that each template has a "body" container - that is an element
+with the attribute "con:body", this is used to provide the main
+content and should not be removed. Some templates also have a "title"
+container, this used to provide the title for the page. Finally some
+templates have a separate "heads" container. This contains material
+that will be inserted into the "head" element of the resulting web
+page and is typically used for (references to) javascript or css
+specific to the page.
+
+Pages may be rendered either as user pages, or admin pages. In the
+former case the rendered page uses content from the user_banner
+template to provide features common to the user pages, and the
+admin_banner template plays a similar role for the admin pages.
+
+The template flax is a skeleton providing the content common across
+all the web pages served.
+
+The remaining templates provide the main content of each of the web
+pages served to users and are described briefly below.
+
+about.html 
+    This is used to provide the about pages served from "/about" and
+    "/admin/about" and is all static content.
+
+collection_detail.html 
+    This is the admin page for viewing and editing collections served
+    from "/admin/collections/new" and "/admin/collections/foo/view"
+    for each collection "foo".
+
+collections.html
+    The admin page listing all collections and allowing control of
+    indexing and navigation to the individual collection detail
+    pages. This is served from "/admin/collections".
+
+options.html
+    The setting pages available via "/admin/options".
+
+search.html 
+    The search and search results pages (for both admin and regular
+    users).
