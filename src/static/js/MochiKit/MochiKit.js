@@ -31,7 +31,7 @@ MochiKit.MochiKit.SUBMODULES = [
     "Iter",
 //    "Logging",
 //    "DateTime",
-//    "Format",
+    "Format",
     "Async",
     "DOM",
 //    "LoggingPane",
