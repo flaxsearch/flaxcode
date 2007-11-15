@@ -9,7 +9,8 @@
 <body>
 
 <img src="../static/img/flax.125trans.png" alt="Flax Logo" style="margin-right:15px;float:left;" />
-<h1>Getting Started with Flax Basic<h1><h2>(Microsoft Windows)</h2>
+<h1>Getting Started with Flax Basic</h1>
+<h2>(Microsoft Windows)</h2>
 
 <h2>Introduction</h2>
 
@@ -39,7 +40,7 @@
 
 <p>You should see the main search page. Note that you won't be able to search anything yet as you haven't created any searchable indexes!</p>
 
-<p>If you don't see anything, or get an error, it's possible that Flax is not running. If you decided <i>not</i> to install Flax as a service, you will have to run it manually - select Start, Programs, Flax Basic, Flax Basic (Manual Start). A box will pop up titled 'Flax Basic' - don't close this box until you have finished running Flax.</p>
+<p>If you don't see anything, or get an error, it's possible that Flax is not running. If you decided <i>not</i> to install Flax as a service, you will have to run it manually - select Start, Programs, Flax Basic, Flax Basic (Manual Start). A command box will pop up titled 'Flax Basic' - don't close this box until you have finished running Flax.</p>
 
 <h2>Viewing the Flax Basic Administration system</h2>
 
@@ -79,13 +80,13 @@
 
 <p>file://C:\Program Files\Flax Basic\exampledocs</p>
 
-<p>You can enter any number of pairs of settings for a Path and associated Mapping. The Path is where the files you want to index are located, and the Mapping controls how an end user will access these files when they are shown as search results.</p>
+<p>You can enter any number of pairs of settings for a Path and associated Mapping. The Path is where the 'source' files you want to index are located, and the Mapping controls how an end user will access these source files when they are shown as search results.</p>
 
-<p><b>If you are running Flax Basic on a single computer</b>, the Path and the Mapping will be the same. </p>
+<p><b>If you want to run Flax Basic to allow users to search files shared across a Windows network</b>, you will need to set up an appropriate Mapping. For example, some source files might be held on a networked computer called 'FILEBOX' in a folder 'd:\PublicFiles\LegalStuff', which is set to be shared on the network as 'Legals'. Assuming Flax Basic is running on the machine 'FILEBOX', you would use a Path of 'd:\PublicFiles\LegalStuff' and a mapping of '\\FILEBOX\Legals'.</p>
 
-<p>However, <b>if you want to run Flax Basic to allow users to search files shared across a Windows network</b>, you will need to set up an appropriate Mapping. For example, some files might be held on a networked computer called 'FILEBOX' in a folder 'd:\PublicFiles\LegalStuff', which is set to be shared on the network as 'Legals'. Assuming Flax Basic is running on the machine 'FILEBOX', you would use a Path of 'd:\PublicFiles\LegalStuff' and a mapping of '\\FILEBOX\Legals'.</p>
+<p><b>If you are running a webserver</b>, you should (for security purposes) serve source files via the webserver rather than by Flax Basic. For example, let's say you run a web server (using Microsoft IIS) for a site called 'www.anything.com' and you have some source files that are located in a folder on the webserver computer of 'c:\Inetpub\wwwroot\anypages\'. The web server is set up so that visiting a page such as 'http://www.anything.com/page1.html' will result in the source file at 'c:\Inetpub\wwwroot\anypages\page1.html' being displayed to the end user. In this case, to build a searchable index using Flax Basic, we would use a Path of 'C:\Inetpub\wwwroot\anypages' and a Mapping of 'http://www.anything.com'.</p>
 
-<p><b>If you are running a webserver</b>, you may want (for security purposes) files to be served via the webserver rather than by Flax Basic. For example, let's say you run a web server for a site called 'www.anything.com' and you have some documents that are located in a folder on the webserver computer of 'c:\Inetpub\wwwroot\anypages\'. The web server is set up so that visiting a page such as 'http://www.anything.com/page1.html' will result in the document at 'c:\Inetpub\wwwroot\anypages\page1.html' being displayed to the end user. In this case, to build a searchable index using Flax Basic, we would use a Path of 'C:\Inetpub\wwwroot\anypages' and a Mapping of 'http://www.anything.com'.</p>
+<p><b>You can also serve source files directly via Flax Basic.</b> However this can be slow and may pose a security risk; <b>you should do this only for testing purposes and not for production use</b>. For now, click the button 'Serve files with Flax' to allow this.<p>
 
 <p>The checkboxes below allow you to decide which file formats will be included in the index. Flax Basic will only read those files that you select. If you leave all the boxes unchecked, Flax Basic will assume that you want to index <i>all</i> of the file types shown. Leave them unchecked for now. </p>
 
