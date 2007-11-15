@@ -102,6 +102,7 @@ class InnoScript:
         print >> ofi, r'Source: "%s\flaxlog.conf"; DestDir: "{app}\conf"; Flags: onlyifdoesntexist ' % self.src_dir
         print >> ofi, r'Source: "%s\processing\_processing.pyd"; DestDir: "{app}\localinst"; Flags: ignoreversion' % self.localinst_dir
         print >> ofi, r'Source: "%s\htmltotext.pyd"; DestDir: "{app}\localinst"; Flags: ignoreversion' % self.localinst_dir
+        print >> ofi, r'Source: "%s\msvcp80.dll"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\msvcr80.dll"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\msvcp71.dll"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\startflaxservice.bat"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
@@ -112,7 +113,7 @@ class InnoScript:
         print >> ofi, r'; NOTE: Do not use "Flags: ignoreversion" on any shared system files'
         print >> ofi, r""
         print >> ofi, r'[Icons]'
-        print >> ofi, r'Name: "{group}\%s"; Filename: "{app}\startflax.exe"' % self.name
+        print >> ofi, r'Name: "{group}\%s (Manual Start)"; Filename: "{app}\startflax.exe"' % self.name
         print >> ofi, r'Name: "{group}\{cm:ProgramOnTheWeb,%s}"; Filename: "http://www.flax.co.uk"' % self.name
         print >> ofi, r'Name: "{group}\Getting Started Guide"; Filename: "file://{app}\gettingstarted\GettingStartedOnWindows.htm"' 
         print >> ofi, r'Name: "{group}\{cm:UninstallProgram,%s}"; Filename: "{uninstallexe}"' % self.name

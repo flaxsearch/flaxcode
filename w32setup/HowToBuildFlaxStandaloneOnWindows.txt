@@ -32,7 +32,8 @@ d. start a Visual C++ Express Edition command line and:
     nmake check
      
 12. Copy xapian-core/win32/Release/Python/xapian.py and _xapian.pyd to C:\Python25\lib\site-packages 
-13. Copy the following files into the same folder as this text file (the first one should have been installed with Visual Studio Express Edition and the second two by Python 2.5):
+13. Copy the following files into the same folder as this text file (the first two should have been installed with Visual Studio Express Edition and the second two by Python 2.5):
+    C:\Program Files\Microsoft Visual Studio 8\VC\redist\x86\Microsoft.VC80.CRT\msvcp80.dll
     C:\Program Files\Microsoft Visual Studio 8\VC\redist\x86\Microsoft.VC80.CRT\msvcr80.dll
     c:\windows\system32\msvcp71.dll
     c:\windows\system32\msvcr71.dll
