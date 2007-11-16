@@ -251,6 +251,9 @@ class IndexProcess(logclient.LogClientProcess):
                     if self.inpipe[1].poll(2):
                         collection, filter_settings = self.inpipe[1].recv()
                         self.outpipe[0].send(indexer.do_indexing(collection, filter_settings))
+            except SystemExit, e:
+                # this should be OK - normal process termination"
+                log.info("SystemExit: %s, caught - re-raising" % str(e))
             except:
                 # Running as a non-console windows application
                 # (e.g. windows service deployment) there's no proper
