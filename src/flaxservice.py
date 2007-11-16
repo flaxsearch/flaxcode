@@ -163,6 +163,8 @@ class FlaxService(win32serviceutil.ServiceFramework):
             tb=traceback.format_exc()
             LogErrorMsg('Exception during SvcDoRun, traceback follows:\n %s' % tb)            
 
+        self.ReportServiceStatus(win32service.SERVICE_STOPPED)
+
 def ctrlHandler(ctrlType):
     """A windows control message handler.
 
