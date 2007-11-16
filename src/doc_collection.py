@@ -94,7 +94,7 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
             return "/"
         mapped = self.mappings[path[0]]
         if mapped == 'FLAX':
-            return ('/source/%s/%s' % (self.name, urllib.quote_plus(doc_id))) 
+            return ('/source/%s/%s' % (self.name, urllib.quote(doc_id))) 
         elif mapped:
             return mapped + "/" + doc_id[len(path[0]):].replace('\\', '/')
         else:
