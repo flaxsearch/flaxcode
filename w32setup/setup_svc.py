@@ -88,6 +88,11 @@ class InnoScript:
         print >> ofi, r"OutputBaseFilename=setup"
         print >> ofi, r"Compression=lzma"
         print >> ofi, r"SolidCompression=yes"
+        print >> ofi, r"SetupIconFile=install.ico"
+        print >> ofi, r"WizardImageFile=install.bmp"
+        print >> ofi, r"WizardSmallImageFile=install_small.bmp"
+        print >> ofi, r"WizardImageStretch=no"
+        print >> ofi, r"WizardImageBackColor=$FFFFFF"
         print >> ofi, r""
         print >> ofi, r'[Languages]'
         print >> ofi, r'Name: "english"; MessagesFile: "compiler:Default.isl"'
@@ -110,13 +115,14 @@ class InnoScript:
         print >> ofi, r'Source: "%s\zlib1.dll"; DestDir: "{app}\localinst"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\exampledocs\*"; DestDir: "{app}\exampledocs"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\gettingstarted\*"; DestDir: "{app}\gettingstarted"; Flags: ignoreversion' % self.this_dir
+        print >> ofi, r'Source: "%s\*.ico"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'; NOTE: Do not use "Flags: ignoreversion" on any shared system files'
         print >> ofi, r""
         print >> ofi, r'[Icons]'
-        print >> ofi, r'Name: "{group}\%s (Manual Start)"; Filename: "{app}\startflax.exe"' % self.name
+        print >> ofi, r'Name: "{group}\%s (Manual Start)"; Filename: "{app}\startflax.exe"; IconFilename: "{app}\install.ico"' % self.name
         print >> ofi, r'Name: "{group}\{cm:ProgramOnTheWeb,%s}"; Filename: "http://www.flax.co.uk"' % self.name
         print >> ofi, r'Name: "{group}\Getting Started Guide"; Filename: "file://{app}\gettingstarted\GettingStartedOnWindows.htm"' 
-        print >> ofi, r'Name: "{group}\{cm:UninstallProgram,%s}"; Filename: "{uninstallexe}"' % self.name
+        print >> ofi, r'Name: "{group}\{cm:UninstallProgram,%s}"; Filename: "{uninstallexe}"; IconFilename: "{app}\uninstall.ico"' % self.name
         print >> ofi, r'Name: "{commondesktop}\%s"; Filename: "{app}\startflax.exe"; Tasks: desktopicon' % self.name
         print >> ofi, r""
         print >> ofi, r'[Registry]'
