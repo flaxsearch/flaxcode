@@ -187,7 +187,7 @@ class InnoScript:
         print >> ofi, r""
         print >> ofi, r"function GetDataDir(Param: String): String;"
         print >> ofi, r"begin"
-        print >> ofi, r'{ Return the selected DataDir } '
+        print >> ofi, r'{ Return the selected DataDir }'
         print >> ofi, r"Result := DataDirPage.Values[0];"
         print >> ofi, r"end;"        
         print >> ofi, r""
@@ -199,8 +199,7 @@ class InnoScript:
         print >> ofi, r"AlreadyStoppedSvc: Boolean;"
         print >> ofi, r"begin"
         print >> ofi, r"  AlreadyStoppedSvc := False;"
-        print >> ofi, r"  if MsgBox('Do you want to remove ALL %s data - be careful, this includes settings and all indexes! Click 'No' if you are upgrading to a newer version of %s'," % (self.name,self.name)
-        print >> ofi, r"             mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then begin" 
+        print >> ofi, r"  if MsgBox('Do you want to remove ALL %s data - be careful, this includes settings and all indexes! Click No if you are upgrading to a newer version of %s',mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then begin" % (self.name,self.name)
         print >> ofi, r"    { First stop the service, so we can delete files }"
         print >> ofi, r"    Exec(ExpandConstant('{app}\stopflaxservice.bat'), '', '', SW_SHOW,ewWaitUntilTerminated, ResultCode);"
         print >> ofi, r"    AlreadyStoppedSvc := True;"
@@ -215,8 +214,7 @@ class InnoScript:
         print >> ofi, r"    Result:=True"
         print >> ofi, r"  else begin"
         print >> ofi, r"    { We have to ask if they're going on to remove the program as if so, and we haven't stopped the svc, we should }"
-        print >> ofi, r"    if MsgBox('Do you want to remove the %s program? Click 'Yes' if you are upgrading to a newer version of %s'," % (self.name,self.name)
-        print >> ofi, r"               mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then begin" 
+        print >> ofi, r"    if MsgBox('Do you want to remove the %s program? Click Yes if you are upgrading to a newer version of %s',mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then begin" % (self.name,self.name)
         print >> ofi, r"      Exec(ExpandConstant('{app}\stopflaxservice.bat'), '', '', SW_SHOW,ewWaitUntilTerminated, ResultCode);"
         print >> ofi, r"      Result := True;"
         print >> ofi, r"      end"
