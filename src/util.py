@@ -35,13 +35,11 @@ def setup_sys_path():
     "Modify sys.path in order to find libraries"
     sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'localinst')))
 
+
+# disabled psyco - see http://code.google.com/p/flaxcode/issues/detail?id=125
 def setup_psyco():
-    "If psyco is available ensure that it is used"
-    try:
-        import psyco
-        psyco.background()
-    except ImportError:
-        pass
+    "Set up psyco if it's available."
+    pass
 
 td_re = re.compile(r'(?P<days>\d{0,3})\s+(?P<hours>\d{0,2})\s+(?P<minutes>\d{0,2})')
 
