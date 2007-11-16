@@ -23,6 +23,7 @@ import copy
 import logging
 import os
 import sys
+import urllib
 
 import setuppaths
 import xappy
@@ -93,8 +94,7 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
             return "/"
         mapped = self.mappings[path[0]]
         if mapped == 'FLAX':
-            return '/source/%s%s%s' % (self.name, 
-                '' if doc_id[0] == '/' else '/', doc_id.replace ('\\', '/'))              
+            return ('/source/%s/%s' % (self.name, urllib.quote_plus(doc_id))) 
         elif mapped:
             return mapped + "/" + doc_id[len(path[0]):].replace('\\', '/')
         else:
@@ -110,14 +110,13 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
     def dbpath(self):
         return os.path.join(flaxpaths.paths.dbs_dir, self.name + '.db')
 
-    def source_file_from_id(self, file_id):
+    def source_file_from_id(self, doc_id):
         "return the source file name given a document id."
         conn = xappy.SearchConnection(self.dbpath())
         try:
-            doc = conn.get_document(file_id)
-            filepath = doc.data['filename'][0]
+            doc = conn.get_document(doc_id)
         except KeyError:
             return None
         conn.close()
-        return filepath
+        return doc_id
 

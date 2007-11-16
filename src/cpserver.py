@@ -332,19 +332,18 @@ class Top(FlaxResource):
         return self._search.search(advanced=True, **kwargs )
 
     @cherrypy.expose
-    def source(self, col, *args):
+    def source(self, col, doc_id):
         """
         Serve the source file for the document in document collection
-        named by col with id obtained by joining the remaining args.
+        named by col with doc_id
         """
         # Quite possibly this is a security hole allowing any
         # documents to be accessed. Need to think carefully about how
         # we actually ensure that we're just serving from the document
         # collections. In any case I guess it makes sense for the
         # process running the web server to have limited read access.
-        file_id = os.path.join('/', *args)
         if col in self._flax_data.collections:
-            filename = self._flax_data.collections[col].source_file_from_id(file_id)
+            filename = self._flax_data.collections[col].source_file_from_id(doc_id)
             if filename:
                 return cherrypy.lib.static.serve_file(filename)
         # fall through we can't find either the collection or the file named by file_id
