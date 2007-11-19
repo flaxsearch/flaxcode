@@ -24,7 +24,7 @@ import types
 import doc_collection
 import search
 
-log = logging.getLogger("collection")
+log = logging.getLogger("collections")
 
 class CollectionList(object):
     """A list of collections.
