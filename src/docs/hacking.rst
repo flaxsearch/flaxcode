@@ -184,10 +184,25 @@ current arrangement is a reasonable compromise given the desires to
 provide the full configuration possibilities and also to have a
 relatively simple, yet useful, option available in the UI.
 
+At the time of writing the following loggers are used by the code,
+there is no point in configuring other loggers unless you add code
+that uses them:
+  - webserver
+  - webserver.errors
+  - webserver.access
+  - scheduling
+  - collections
+  - indexing
+  - filtering.ifilter
+  - indexing
+  - indexing
+  - searching
 
-The class LogClientProcess_ does most of this for you, although
-subclasses must ensure that ``initialise_logging`` is called in their
-run methods.
+
+
+The class LogClientProcess_ ensure that subclass processes receive
+updates to the global logging configuration, although subclasses must
+ensure that ``initialise_logging`` is called in their run methods.
 
 .. _LogClientProcess: file:api/logclient.LogClientProcess-class.html
 
