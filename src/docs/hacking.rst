@@ -307,7 +307,15 @@ text content of the file. In the current implementation the file type
 to filter mapping is fixed (for each operating system) but in the
 future we plan to allow this mapping to be configured.
 
+The type of the file is currently determined purely by examining the
+file extension, and as mentioned above, each file type maps to a
+specific filter. This has some limitations and will be addressed
+presently. See the `wiki page`_ on the subject for more discussion.
+
+
 .. __: Filters_
+.. _`wiki page`: http://code.google.com/p/flaxcode/wiki/FileTypeRepresentation
+
 
 Filters
 ~~~~~~~
