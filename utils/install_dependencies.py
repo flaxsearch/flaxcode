@@ -58,9 +58,9 @@ python_dependencies = (
      (),
     ),
     ('Processing process control module',
-     'http://flaxcode.googlecode.com/files/processing-0.38.zip',
+     'http://www.flax.co.uk/download/processing.zip',
      'processing.zip',
-     'b261b1b0db4581878920bec2ecc94a44765e6cda',
+     'cef1064ff7be195779b3638cf5ff1a7333a11d1c',
      (),
     ),
     ('HtmlToText text extractor',
@@ -176,11 +176,14 @@ def unpack_zip_archive(filename, tempdir):
             else:
                 if dirname != topdir:
                     raise ValueError('Archive has multiple toplevel directories: %s and %s' % (topdir, dirname))
-            data = zf.read(membername)
+            info = zf.getinfo(membername)
             outfile = os.path.join(tempdir, membername)
             outdir = os.path.dirname(outfile)
             if not os.path.exists(outdir):
                 os.makedirs(outdir)
+            if os.path.isdir(outfile):
+                continue
+            data = zf.read(membername)
             outfd = file(outfile, "wb")
             try:
                 outfd.write(data)
@@ -327,4 +330,3 @@ if __name__ == '__main__':
     finally:
         make_tree_writable(temp_dir)
         shutil.rmtree(temp_dir)
-
