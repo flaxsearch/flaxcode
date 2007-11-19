@@ -264,8 +264,9 @@ class InnoScript:
         print >> ofi, r"      {There is no IFilter registered for RTF files; this usually occurs on Windows 2000}"
         print >> ofi, r"      MsgBox('There is no IFilter registered for RTF files; this will mean you cannot build indexes of these files. You can download the free IFilter from the Microsoft website - see the FAQ for details.', mbInformation, MB_OK);"
         print >> ofi, r"    if not RegKeyExists(HKLM, 'SOFTWARE\Adobe\PDF IFilter 6.0') then "
-        print >> ofi, r"      {There is no IFilter registered for PDF files; this usually occurs on machines with no Acrobat installed}"
-        print >> ofi, r"      MsgBox('You may not have the correct IFilter installed for PDF files; this may mean you cannot build indexes of these files. You can download the free IFilter from the Adobe website - see the FAQ for details.', mbInformation, MB_OK);"
+        print >> ofi, r"      if not RegKeyExists(HKLM, 'SOFTWARE\Adobe\Acrobat Reader') then "
+        print >> ofi, r"        {There is no IFilter registered for PDF files; this usually occurs on machines with no Acrobat installed}"
+        print >> ofi, r"        MsgBox('You may not have the correct IFilter installed for PDF files; this may mean you cannot build indexes of these files. You can download the free IFilter from the Adobe website - see the FAQ for details.', mbInformation, MB_OK);"
         print >> ofi, r"    end;"
         print >> ofi, r"end;"
         
