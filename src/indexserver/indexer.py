@@ -192,22 +192,24 @@ class Indexer(object):
                 log.warn("Filter for %s is not valid, not filtering file: %s" % (ext, file_name))
                 return False
         else:
-            log.debug("File: %s has not changed since last indexing, not filtering" % file_name)
             return True
 
     def stale(self, file_name, conn):
         "Has the file named by file_name has changed since we last indexed it?"
 
         try:
+            log.debug("Checking if file %s needs (re)indexing" % file_name)
             doc = conn.get_document(file_name)
         except KeyError:
             # file not in the database, so has "changed"
+            log.debug("File %s has not yet been indexed" % file_name)
             return True
         try:
             rv =  os.path.getmtime(file_name) != float(doc.data['mtime'][0])
         except KeyError:
             log.error("Existing document %s has no mtime field" % doc.id)
             return True
+        log.debug("File %s %s reindexing" % (file_name, "needs" if rv else "doesn't need"))
         return rv
 
 
@@ -251,18 +253,18 @@ class IndexProcess(logclient.LogClientProcess):
                     if self.inpipe[1].poll(2):
                         collection, filter_settings = self.inpipe[1].recv()
                         self.outpipe[0].send(indexer.do_indexing(collection, filter_settings))
-            except SystemExit, e:
-                # this should be OK - normal process termination"
-                log.info("SystemExit: %s, caught - re-raising" % str(e))
+            except (SystemExit, KeyboardInterrupt), e:
+                # This happens on normal process termination, just log it as
+                # info.  Don't re-raise because we don't want it to be printed
+                # to stderr, and we're about to exit anyway.
+                log.info("Indexer process terminating")
             except:
-                # Running as a non-console windows application
-                # (e.g. windows service deployment) there's no proper
-                # stdout or stderr. We therefore what to avoid
-                # exceptions escaping which might result in out on
-                # those which we might lose. Since we're exiting this
-                # process anyway here we log the error.
+                # This process is about to exit, and there's no layer above us
+                # to handle exceptions.  Therefore, we just log the error.  We
+                # don't re-raise it because this would cause output to stderr,
+                # and stderr doesn't exist in some of the contexts we run in.
                 import traceback
-                tb=traceback.format_exc()
+                tb = traceback.format_exc()
                 log.critical('Unhandled exception in IndexerProcess.run(), traceback follows:\n %s' % tb)
         finally:
             log.info("Cleaning up child processes of indexer")
