@@ -32,11 +32,10 @@ d. start a Visual C++ Express Edition command line and:
     nmake check
      
 12. Copy xapian-core/win32/Release/Python/xapian.py and _xapian.pyd to C:\Python25\lib\site-packages 
-13. Copy the following files into the same folder as this text file (the first two should have been installed with Visual Studio Express Edition and the second two by Python 2.5):
-    C:\Program Files\Microsoft Visual Studio 8\VC\redist\x86\Microsoft.VC80.CRT\msvcp80.dll
-    C:\Program Files\Microsoft Visual Studio 8\VC\redist\x86\Microsoft.VC80.CRT\msvcr80.dll
-    c:\windows\system32\msvcp71.dll
-    c:\windows\system32\msvcr71.dll
+13. Download the Visual C redistributable files from
+http://www.microsoft.com/downloads/details.aspx?FamilyId=32BC1BEE-A3F9-4C13-9C99-220B62A191EE&displaylang=en
+and copy into the same folder as this text file.
+Also copy msvcp71.dll from the Visual C++ Express Edition folder into the same folder as this file.
 14. Start a command line window (Start|Run|cmd.exe), and run
     cd \work\Flax
     python utils/install_dependencies.py

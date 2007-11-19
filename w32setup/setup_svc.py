@@ -107,11 +107,10 @@ class InnoScript:
         print >> ofi, r'Source: "%s\flaxlog.conf"; DestDir: "{app}\conf"; Flags: onlyifdoesntexist ' % self.src_dir
         print >> ofi, r'Source: "%s\processing\_processing.pyd"; DestDir: "{app}\localinst"; Flags: ignoreversion' % self.localinst_dir
         print >> ofi, r'Source: "%s\htmltotext.pyd"; DestDir: "{app}\localinst"; Flags: ignoreversion' % self.localinst_dir
-        print >> ofi, r'Source: "%s\msvcp80.dll"; DestDir: "{sys}"; Flags: onlyifdoesntexist sharedfile restartreplace uninsneveruninstall' % self.this_dir
-        print >> ofi, r'Source: "%s\msvcr80.dll"; DestDir: "{sys}"; Flags: onlyifdoesntexist sharedfile restartreplace uninsneveruninstall' % self.this_dir
-        print >> ofi, r'Source: "%s\msvcp71.dll"; DestDir: "{sys}"; Flags: onlyifdoesntexist sharedfile restartreplace uninsneveruninstall' % self.this_dir
+        print >> ofi, r'Source: "%s\vcredist_x86.exe"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\startflaxservice.bat"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\stopflaxservice.bat"; DestDir: "{app}"; Flags: ignoreversion' % self.this_dir
+        print >> ofi, r'Source: "%s\msvcp71.dll"; DestDir: "{app}\localinst"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\zlib1.dll"; DestDir: "{app}\localinst"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\exampledocs\*"; DestDir: "{app}\exampledocs"; Flags: ignoreversion' % self.this_dir
         print >> ofi, r'Source: "%s\gettingstarted\*"; DestDir: "{app}\gettingstarted"; Flags: ignoreversion' % self.this_dir
@@ -132,6 +131,8 @@ class InnoScript:
         print >> ofi, r'Root: HKLM; Subkey: "Software\%s\%s\DataPath"; ValueType: string; ValueName: ""; ValueData: "{code:GetDataDir}"'  % (self.publisher, self.name)
         print >> ofi, r""
         print >> ofi, r'[Run]'
+        print >> ofi, r'; Install Visual C++ dependencies'
+        print >> ofi, r'Filename: "{app}\vcredist_x86.exe"; StatusMsg: "Installing Microsoft dependencies"; Parameters: "-q"; Flags: waituntilterminated shellexec'
         print >> ofi, r'; Set admin password'
         print >> ofi, r'Filename: "{app}\startflax.exe"; StatusMsg: "Setting administration password"; Parameters: "--set-admin-password"; Flags: waituntilterminated'
         print >> ofi, r'; Install & run Service'
