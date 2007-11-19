@@ -53,23 +53,33 @@ class FileSpec(object):
 
         logger_indexing = logging.getLogger('indexing')
 
+        def log_file_walked(f):
+            logger_indexing.debug("Walked to file %s" % f)
+        
         for p in self.paths:
-            for root, dirs, files in os.walk(p):
-                # Perhaps we want to warn here if any dirs are
-                # symlinks. os.walk will not traverse them. Don't do
-                # anything right now because we're targetting windows
-                # initially and therefore won't be hitting symlinks.
-                # Note that a symlink to a file will be included
-                # (assuming the file passes the other criteria for
-                # inclusion.)
-                for f in files:
-                    fname = os.path.realpath(os.path.join(root, f))
-                    logger_indexing.debug("Walked to file %s" % fname)
-                    if os.path.exists(fname):
-                        if self.included(fname, logger_indexing):
-                            yield fname
-                    else:
-                        logger_indexing.debug("Walked file %s, does not exist (dangling symlink?), skipping" % fname)
+            if os.path.isdir(p):
+                for root, dirs, files in os.walk(p):
+                    # Perhaps we want to warn here if any dirs are
+                    # symlinks. os.walk will not traverse them. Don't do
+                    # anything right now because we're targetting windows
+                    # initially and therefore won't be hitting symlinks.
+                    # Note that a symlink to a file will be included
+                    # (assuming the file passes the other criteria for
+                    # inclusion.)
+                    for f in files:
+                        fname = os.path.realpath(os.path.join(root, f))
+                        log_file_walked(fname)
+                        if os.path.exists(fname):
+                            if self.included(fname, logger_indexing):
+                                yield fname
+                        else:
+                            logger_indexing.debug("Walked file %s, does not exist (dangling symlink?), skipping" % fname)
+            elif os.path.isfile(p) and self.included(p, logger_indexing):
+                log_file_walked(p)
+                yield p
+            else:
+                logger_indexing.error("File path %s is neither a directory or a file" %s )
+
 
     def _get_oldest(self):
         return self._oldest
