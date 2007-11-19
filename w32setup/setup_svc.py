@@ -123,7 +123,7 @@ class InnoScript:
         print >> ofi, r'Name: "{group}\{cm:ProgramOnTheWeb,%s}"; Filename: "http://www.flax.co.uk"' % self.name
         print >> ofi, r'Name: "{group}\Getting Started Guide"; Filename: "file://{app}\gettingstarted\GettingStartedOnWindows.htm"' 
         print >> ofi, r'Name: "{group}\{cm:UninstallProgram,%s}"; Filename: "{uninstallexe}"; IconFilename: "{app}\uninstall.ico"' % self.name
-        print >> ofi, r'Name: "{commondesktop}\%s"; Filename: "{app}\startflax.exe"; Tasks: desktopicon' % self.name
+        print >> ofi, r'Name: "{commondesktop}\%s"; Filename: "{app}\startflax.exe"; Tasks: desktopicon; IconFilename: "{app}\install.ico"' % self.name
         print >> ofi, r""
         print >> ofi, r'[Registry]'
         print >> ofi, r'Root: HKLM; Subkey: "Software\%s"; Flags: uninsdeletekeyifempty' % self.publisher
@@ -167,8 +167,6 @@ class InnoScript:
         print >> ofi, r"    'disk or partition.',"
         print >> ofi, r"    False, '');"
         print >> ofi, r"DataDirPage.Add('');"
-        print >> ofi, r"{ Set initial value }"
-        print >> ofi, r"DataDirPage.Values[0] := 'C:\Program Files\%s\Data'" % self.name
         print >> ofi, r""
         print >> ofi, r"LightMsgPage := CreateOutputMsgPage(wpPreparing,"
         print >> ofi, r"    'Set Administration Password', 'Set Administration Password',"
@@ -183,9 +181,13 @@ class InnoScript:
         print >> ofi, r"I: Integer;"
         print >> ofi, r"begin"
         print >> ofi, r"{ Validate certain pages before allowing the user to proceed }"
+        print >> ofi, r"if CurPageID = wpSelectDir then begin"
+        print >> ofi, r"    { Set initial value }"
+        print >> ofi, r"    DataDirPage.Values[0] := ExpandConstant('{app}\Data')" 
+        print >> ofi, r"    end;"
         print >> ofi, r"if CurPageID = DataDirPage.ID then begin"
         print >> ofi, r"if DataDirPage.Values[0] = '' then"
-        print >> ofi, r"    DataDirPage.Values[0] := 'C:\Program Files\%s\Data'" % self.name
+        print >> ofi, r"    DataDirPage.Values[0] := ExpandConstant('{app}\Data')" 
         print >> ofi, r"    Result := True;"
         print >> ofi, r"    end;"
         print >> ofi, r"Result := True;"
@@ -241,8 +243,31 @@ class InnoScript:
         print >> ofi, r"  S := S + MemoTasksInfo + NewLine + NewLine;"
         print >> ofi, r"  Result := S;"
         print >> ofi, r"end;"
-
-
+        print >> ofi, r""
+        print >> ofi, r"procedure CurStepChanged(CurStep: TSetupStep); "
+        print >> ofi, r"var"
+        print >> ofi, r"  ResultCode: Integer;"
+        print >> ofi, r"begin"
+        print >> ofi, r"  if CurStep = ssPostInstall then"
+        print >> ofi, r"    begin"
+        print >> ofi, r"    if not RegKeyExists(HKLM, 'SOFTWARE\Classes\.htm\PersistentHandler') then "
+        print >> ofi, r"      {There is no IFilter registered for HTML files; this usually occurs on Windows 2000 Server}"
+        print >> ofi, r"      begin"
+        print >> ofi, r"      if MsgBox('There is no IFilter registered for HTML files; this will mean you cannot build indexes of these files. Do you want to try and register the default handler?',mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then"
+        print >> ofi, r"        begin"
+        print >> ofi, r"        if not Exec( ExpandConstant('{sys}\regsvr32.exe'),ExpandConstant('{sys}\nlhtml.dll'), '', SW_SHOW,ewWaitUntilTerminated, ResultCode) then"
+        print >> ofi, r"          MsgBox(SysErrorMessage(ResultCode),mbError, MB_OK)"
+        print >> ofi, r"        end;"
+        print >> ofi, r"      end;"
+        print >> ofi, r"    end;"
+        print >> ofi, r"    if not RegKeyExists(HKLM, 'SOFTWARE\Classes\.rtf\PersistentHandler') then "
+        print >> ofi, r"      {There is no IFilter registered for RTF files; this usually occurs on Windows 2000}"
+        print >> ofi, r"      MsgBox('There is no IFilter registered for RTF files; this will mean you cannot build indexes of these files. You can download the free IFilter from the Microsoft website - see the FAQ for details.', mbInformation, MB_OK);"
+        print >> ofi, r"    if not RegKeyExists(HKLM, 'SOFTWARE\Classes\.pdf\PersistentHandler') then "
+        print >> ofi, r"      {There is no IFilter registered for PDF files; this usually occurs on machines with no Acrobat installed}"
+        print >> ofi, r"      MsgBox('There is no IFilter registered for PDF files; this will mean you cannot build indexes of these files. You can download the free IFilter from the Adobe website - see the FAQ for details.', mbInformation, MB_OK);"
+        print >> ofi, r"end;"
+        
     def compile(self):
         try:
             import ctypes
