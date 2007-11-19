@@ -86,7 +86,7 @@
 
 <p><b>If you are running a webserver</b>, you should (for security purposes) serve source files via the webserver rather than by Flax Basic. For example, let's say you run a web server (using Microsoft IIS) for a site called 'www.anything.com' and you have some source files that are located in a folder on the webserver computer of 'c:\Inetpub\wwwroot\anypages\'. The web server is set up so that visiting a page such as 'http://www.anything.com/page1.html' will result in the source file at 'c:\Inetpub\wwwroot\anypages\page1.html' being displayed to the end user. In this case, to build a searchable index using Flax Basic, we would use a Path of 'C:\Inetpub\wwwroot\anypages' and a Mapping of 'http://www.anything.com'.</p>
 
-<p><b>You can also serve source files directly via Flax Basic.</b> However this can be slow and may pose a security risk; <b>you should do this only for testing purposes and not for production use</b>. For now, type 'FLAX' into the Mapping box to allow this.<p>
+<p><b>You can also serve source files directly via Flax Basic.</b> This is not likely to be as efficient as a dedicated web server. Also note that Flax will ignore any user access restrictions to files. <b>For these reasons, we advise against using this function for a public web site or in a security-critical application.</b>. For now, type 'FLAX' into the Mapping box to allow this.<p>
 
 <p>The checkboxes below allow you to decide which file formats will be included in the index. Flax Basic will only read those files that you select. If you leave all the boxes unchecked, Flax Basic will assume that you want to index <i>all</i> of the file types shown. Leave them unchecked for now. </p>
 
