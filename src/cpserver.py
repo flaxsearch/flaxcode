@@ -218,6 +218,10 @@ class Collections(FlaxResource):
         """Return collection information in JSON format.
         
         """
+        cherrypy.response.headers['Content-Type'] = 'text/plain'
+        # prevent IE caching
+        cherrypy.response.headers['Expires'] = 'Mon, 26 Jul 1997 05:00:00 GMT'
+
         if col:
             return '"NOT IMPLEMENTED"'
         else:
