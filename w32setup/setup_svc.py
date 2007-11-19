@@ -259,13 +259,13 @@ class InnoScript:
         print >> ofi, r"          MsgBox(SysErrorMessage(ResultCode),mbError, MB_OK)"
         print >> ofi, r"        end;"
         print >> ofi, r"      end;"
-        print >> ofi, r"    end;"
         print >> ofi, r"    if not RegKeyExists(HKLM, 'SOFTWARE\Classes\.rtf\PersistentHandler') then "
         print >> ofi, r"      {There is no IFilter registered for RTF files; this usually occurs on Windows 2000}"
         print >> ofi, r"      MsgBox('There is no IFilter registered for RTF files; this will mean you cannot build indexes of these files. You can download the free IFilter from the Microsoft website - see the FAQ for details.', mbInformation, MB_OK);"
         print >> ofi, r"    if not RegKeyExists(HKLM, 'SOFTWARE\Classes\.pdf\PersistentHandler') then "
         print >> ofi, r"      {There is no IFilter registered for PDF files; this usually occurs on machines with no Acrobat installed}"
         print >> ofi, r"      MsgBox('There is no IFilter registered for PDF files; this will mean you cannot build indexes of these files. You can download the free IFilter from the Adobe website - see the FAQ for details.', mbInformation, MB_OK);"
+        print >> ofi, r"    end;"
         print >> ofi, r"end;"
         
     def compile(self):
