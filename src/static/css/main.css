@@ -289,3 +289,8 @@ div.info_wide {
   padding-top: 10px;
   border-top: 1px dashed gray;
 }
+
+.warning_text {
+  color: red;
+  font-weight: bold;
+}

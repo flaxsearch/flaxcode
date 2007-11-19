@@ -194,7 +194,10 @@ def render_search(template, isAdmin, renderer, advanced, collections, results=No
 
 def render_collection_descriptions(node, collection):
     node.name.content = collection.name
-    node.description.content = collection.description
+    node.description.content = '%s (%d documents)' % (
+        collection.description, collection.document_count)
+    if collection.document_count:
+        node.warning.omit()
 
 def render_search_collection (node, collection, collection_len, selected=None):
     node.col_name.content = collection.name
