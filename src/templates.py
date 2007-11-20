@@ -156,7 +156,7 @@ def render_options(template, flax_data):
 
     def fill_log_events(node, event):
         # the empty string can be used to name the root logger
-        name = event if event else "default"
+        name = event if event else 'default'
         node.event_label.content = name
         node.event_select.atts['name'] = name
 
@@ -166,7 +166,10 @@ def render_options(template, flax_data):
             if log_settings[event] == level:
                 inp.atts['selected'] = 'selected'
 
-        node.event_select.event_option.repeat(fill_input, flax_data.log_levels)
+        if name == 'default':   # HACK!
+            node.event_select.event_option.repeat(fill_input, flax_data.log_levels[1:])
+        else:
+            node.event_select.event_option.repeat(fill_input, flax_data.log_levels)
 
     template.main.collection_events.repeat(fill_log_events, sorted(log_settings))
 
