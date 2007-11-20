@@ -290,6 +290,12 @@ div.info_wide {
   border-top: 1px dashed gray;
 }
 
+.corrected_info {
+  /* displayed when spelling correction has been automatically invoked */
+  color: darkred;
+  margin: 5px 0px 5px 0px;
+}
+
 .warning_text {
   color: red;
   font-weight: bold;
