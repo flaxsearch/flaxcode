@@ -207,6 +207,8 @@ def render_search_collection (node, collection, collection_len, selected=None):
     if collection_len == 1:
         node.col_select.omit()
     else:
+        node.col_select.atts['id'] = 'col_%s' % collection.name
+        node.col_name.atts['for'] = 'col_%s' % collection.name
         node.col_select.atts['value'] = collection.name
         if selected and collection.name in selected:
             node.col_select.atts['checked'] = 'true'
