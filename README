@@ -1,23 +1,23 @@
 Flax
 ----
 
-Flax is web based search system. See <http://www.flax.co.uk> for more
+Flax is a web based search system. See <http://www.flax.co.uk> for more
 information.
 
-If you are just interested in running flax on Windows then the easiest
-route is to use a prebuilt installer (availble from the web site).
+If you are just interested in running Flax on Windows then the easiest
+route is to use a prebuilt installer (available from the web site).
 
 The current version can also be run from the command line on any
-platform where the dependecies can be installed. This is known to work
-on at least Windows (XP, Server 2003) , linux (ubuntu 7.10 - but any
+platform where the dependencies can be installed. This is known to work
+on at least Windows (XP, Server 2003) , Linux (Ubuntu 7.10 - but any
 recent distribution should do) and Mac OS X.
 
-To build a windows installer see
+To build a Windows installer see
 w32setup/HowToBuildFlaxStandaloneOnWindows.txt
 
 To run from the command line first ensure that you have the required
-depencies available. We assume in the following that this file is
-containing in a directory 'flaxcode/' adjust paths and the this is the
+dependencies available. We assume in the following that this file is
+contained in a directory 'flaxcode/' and this is the
 current directory.
 
 Dependencies
@@ -35,31 +35,30 @@ This will install the dependencies locally (to a directory "localinst",
 which flax looks for when it starts up), so you won't need root or
 administrator privileges.
 
-Flax also depends on Xapian and its python bindings; as well as the
-processing module, which you currently need to install manually. See
+Flax also depends on Xapian, its python bindings and the Xappy interface to Xapian; 
+as well as the processing module, which you currently need to install manually. See
 http://www.xapian.org (you will need to use a recent snapshot) and
 http://cheeseshop.python.org/pypi/processing (currently we use the
 0.34 release).
 
-If you want to install the dependencies manually, then see the
-document flaxcode/src/docs/hacking.rst for a list of the require
-packages (or examine utils/install_dependecies to see what it does).
+If you want to install the dependencies manually, then examine 
+utils/install_dependecies to see what it does.
 
-The install_dependecies.py script places versions of these packages in
+The install_dependencies.py script places versions of these packages in
 subdirectory 'localinst' that is added to the python path in the
 code. It is not necessary that these packages are in this location,
-but they much be importable.
+but they must be importable.
 
 
 Running from the Command Line
 -----------------------------
 
-Change directories to the src/ subdirectory, and then then::
+Change directories to the src/ subdirectory, and then:
 
   python startflax.py
 
-On windows, if you have already run the windows installed some path
-will be taken from the registry, so if you want to run independently
+On Windows, if you have already run the Windows installer, some paths
+will be set in the registry, so if you want to run independently
 of the installed version then pass some command line options to
 override the registry settings, for example::
 
@@ -71,11 +70,11 @@ More information about the command line options can be obtained by running::
 
 By default the web server will run on port 8090, but you can change
 that by editing cp.conf. The server can be terminated by raising
-KeyboardInterupt (normally hitting Control-C).
+KeyboardInterrupt (normally hitting Control-C).
 
 Note that Flax will start some other processes. These should all die
 when the main process finishes, in the event of abnormal termination
-then it might be that (depending on operating system) that the other
+then (depending on operating system) it might be that the other
 processes are not terminated and will need to be killed manually.
 
 There is more information on the internals of Flax available in
