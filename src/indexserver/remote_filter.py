@@ -29,7 +29,8 @@ import logging
 
 import logclient
 
-log = logging.getLogger("indexing")
+log = logging.getLogger("filtering.remote_filter")
+remote_log = logging.getLogger("filtering.remote_filter.remote")
 
 class FilterRunner(logclient.LogClientProcess):
 
@@ -56,7 +57,7 @@ class FilterRunner(logclient.LogClientProcess):
                 if not isinstance(results, Exception):
                     results = list(results)
             except Exception, e:
-                log.warning("FilterRunner: %s caught exception: %s" % (str(self), str(e)))
+                remote_log.warning("FilterRunner: %s caught exception: %s" % (str(self), str(e)))
                 results = e
             self.o.send(results)
 

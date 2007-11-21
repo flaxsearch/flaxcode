@@ -44,11 +44,6 @@ except ImportError:
 import simple_text_filter
 import htmltotext_filter
 
-log = logging.getLogger('indexing')
-
-
-#util.setup_psyco()
-
 class Indexer(object):
     """Perform indexing of a xapian database on demand.
 
@@ -62,10 +57,12 @@ class Indexer(object):
        will terminate quickly (without processing all files).
     """
 
-    def __init__(self, file_count_holder, error_count_holder, stop_flag_holder):
+    def __init__(self, log, file_count_holder, error_count_holder, stop_flag_holder):
 
         self._filter_map = {"Xapian": htmltotext_filter.html_filter,
                             "Text": simple_text_filter.text_filter}
+        self.log = log
+        
         if windows:
             self._filter_map["IFilter"] =  w32com_ifilter.remote_ifilter
 
@@ -96,7 +93,7 @@ class Indexer(object):
         conn = None
         try:
             name = col.name
-            log.info("Indexing collection: %s with filter settings: %s" % (name, filter_settings))
+            self.log.info("Indexing collection: %s with filter settings: %s" % (name, filter_settings))
             dbname = col.dbpath()
 
             # This will error if the directory containing the databases has
@@ -118,25 +115,25 @@ class Indexer(object):
                 file_count += 1
                 docs_found[f]=True
                 if not self.continue_check(file_count, error_count):
-                    log.debug("Prematurely terminating indexing, stop flag is true")
+                    self.log.debug("Prematurely terminating indexing, stop flag is true")
                     return False
 
             for id, found in docs_found.iteritems():
                 if not found:
-                    log.info("Removing %s from %s" % (id, name))
+                    self.log.info("Removing %s from %s" % (id, name))
                     conn.delete(id)
 
-            log.info("Indexing of %s finished" % name)
+            self.log.info("Indexing of %s finished" % name)
             conn.close()
-            log.info("Changes to %s flushed" % name)
+            self.log.info("Changes to %s flushed" % name)
             return True
 
         except xappy.XapianDatabaseLockError, e:
-            log.error("Attempt to index locked database: %s, ignoring" % dbname)
+            self.log.error("Attempt to index locked database: %s, ignoring" % dbname)
         except Exception, e:
             import traceback
             tb = traceback.format_exc()
-            log.error("Unhandled error in do_indexing, traceback is: %s" % tb)
+            self.log.error("Unhandled error in do_indexing, traceback is: %s" % tb)
             raise
 
     def _find_filter(self, filter_name):
@@ -149,7 +146,7 @@ class Indexer(object):
 
         """
         if field_name in dbspec.internal_fields():
-            log.error("Filters are not permitted to add content to the field: %s, rejecting block" % field_name)
+            self.log.error("Filters are not permitted to add content to the field: %s, rejecting block" % field_name)
             return False
         else:
             return True
@@ -159,7 +156,7 @@ class Indexer(object):
         it to the database. Return True if complete succesfully, False
         otherwise.
         """
-        log.info("Indexing collection %s: processing file: %s" % (collection_name, file_name))
+        self.log.info("Indexing collection %s: processing file: %s" % (collection_name, file_name))
         unused, ext = os.path.splitext(file_name)
         ext = ext.lower()
         if self.stale(file_name, conn):
@@ -181,15 +178,15 @@ class Indexer(object):
                     doc = xappy.UnprocessedDocument(fields = fields)
                     doc.id = file_name
                     conn.replace(doc)
-                    log.debug("Added (or replaced) doc %s to collection %s with text from source file %s" %
+                    self.log.debug("Added (or replaced) doc %s to collection %s with text from source file %s" %
                                   (doc.id, collection_name, file_name))
                     return True
                 except Exception, e:
-                    log.error("Filtering file: %s with filter: %s raised exception %s, skipping"
+                    self.log.error("Filtering file: %s with filter: %s raised exception %s, skipping"
                                    % (file_name, filter, e))
                     return False
             else:
-                log.warn("Filter for %s is not valid, not filtering file: %s" % (ext, file_name))
+                self.log.warn("Filter for %s is not valid, not filtering file: %s" % (ext, file_name))
                 return False
         else:
             return True
@@ -198,18 +195,18 @@ class Indexer(object):
         "Has the file named by file_name has changed since we last indexed it?"
 
         try:
-            log.debug("Checking if file %s needs (re)indexing" % file_name)
+            self.log.debug("Checking if file %s needs (re)indexing" % file_name)
             doc = conn.get_document(file_name)
         except KeyError:
             # file not in the database, so has "changed"
-            log.debug("File %s has not yet been indexed" % file_name)
+            self.log.debug("File %s has not yet been indexed" % file_name)
             return True
         try:
             rv =  os.path.getmtime(file_name) != float(doc.data['mtime'][0])
         except KeyError:
-            log.error("Existing document %s has no mtime field" % doc.id)
+            self.log.error("Existing document %s has no mtime field" % doc.id)
             return True
-        log.debug("File %s %s reindexing" % (file_name, "needs" if rv else "doesn't need"))
+        self.log.debug("File %s %s reindexing" % (file_name, "needs" if rv else "doesn't need"))
         return rv
 
 
@@ -231,8 +228,9 @@ class Indexer(object):
 
 class IndexProcess(logclient.LogClientProcess):
 
-    def __init__(self, kill_self, *indexer_args):
+    def __init__(self, log, kill_self, *indexer_args):
         logclient.LogClientProcess.__init__(self)
+        self.log = log
         self.kill_self = kill_self
         self.setStoppable(True)
         self.logconfio = processing.Pipe()
@@ -245,7 +243,7 @@ class IndexProcess(logclient.LogClientProcess):
         self.initialise_logging()
         try:
             try:
-                indexer = Indexer(*self.indexer_args)
+                indexer = Indexer(self.log, *self.indexer_args)
                 while not self.kill_self.value:
                     # we poll with a timeout to allow for stopping the
                     # process, otherwise we can't check the kill_self
@@ -257,7 +255,7 @@ class IndexProcess(logclient.LogClientProcess):
                 # This happens on normal process termination, just log it as
                 # info.  Don't re-raise because we don't want it to be printed
                 # to stderr, and we're about to exit anyway.
-                log.info("Indexer process terminating")
+                self.log.info("Indexer process terminating")
             except:
                 # This process is about to exit, and there's no layer above us
                 # to handle exceptions.  Therefore, we just log the error.  We
@@ -265,9 +263,9 @@ class IndexProcess(logclient.LogClientProcess):
                 # and stderr doesn't exist in some of the contexts we run in.
                 import traceback
                 tb = traceback.format_exc()
-                log.critical('Unhandled exception in IndexerProcess.run(), traceback follows:\n %s' % tb)
+                self.log.critical('Unhandled exception in IndexerProcess.run(), traceback follows:\n %s' % tb)
         finally:
-            log.info("Cleaning up child processes of indexer")
+            self.log.info("Cleaning up child processes of indexer")
             processing.process._exit_func() 
 
 
@@ -282,6 +280,8 @@ class IndexServer(object):
     provides information about the state of the indexing process.
     """
 
+    log = logging.getLogger("indexing.control")
+
     def __init__(self):
         self.syncman = processing.Manager()
         self.error_count_sv = self.syncman.SharedValue('i',0)
@@ -292,19 +292,24 @@ class IndexServer(object):
         self.kill_indexer = self.syncman.SharedValue('i', 0)
         self.currently_indexing = None
         self.hints = set()
-        self.indexing_process = IndexProcess(self.kill_indexer, self.file_count_sv, self.error_count_sv, self.stop_sv)
-        log.info("Started the indexing process with pid: %d" % self.indexing_process.getPid())
+        remote_logger = logging.getLogger("indexing.remote")
+        self.indexing_process = IndexProcess(remote_logger,
+                                             self.kill_indexer,
+                                             self.file_count_sv,
+                                             self.error_count_sv,
+                                             self.stop_sv)
+        self.log.info("Started the indexing process with pid: %d" % self.indexing_process.getPid())
 
     def stop(self):
         # in order to stop in a timely fashion if something is
         # currently indexing we prematurely stop the indexing process
         if self.currently_indexing:
             self.stop_sv.value = 1
-        log.debug("Stopping indexing_process")
+        self.log.debug("Stopping indexing_process")
         self.kill_indexer.value = 1
         
     def join(self, timeout = None):
-        log.debug("waiting to join indexing_process")
+        self.log.debug("waiting to join indexing_process")
         self.indexing_process.join(timeout)
 
     def log_config_listener(self):
