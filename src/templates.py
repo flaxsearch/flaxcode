@@ -181,19 +181,17 @@ def render_options(template, flax_data):
 
 ##### Search Templates #####
 
-def render_search(template, isAdmin, renderer, advanced, collections, results=None, selcols=None, formats=[]):
+def render_search(template, isAdmin, renderer, advanced, collections, results=None, selcols=None, formats=[]):    
     if not advanced:
-        template.main.advanced_holder.omit()
+        template.main.search_form.advanced_holder.omit()
     cols = list(collections.itervalues())
-    template.main.collections.repeat(render_search_collection, cols, len(cols))
+    template.main.search_form.collections.repeat(render_search_collection, cols, len(cols))
     if results and cols:
         render_search_result(template.main, results, collections, selcols, formats)
         template.main.descriptions.omit()
     else:
         template.main.descriptions.col_descriptions.name_and_desc.repeat(render_collection_descriptions, cols)
         template.main.results.omit()
-
-
 
 def render_collection_descriptions(node, collection):
     node.name.content = collection.name
@@ -372,17 +370,18 @@ def render_search_result (node, results, collections, selcols, formats):
             urllib.quote_plus(results.exclusions or ""),
             ["format=%s" % urllib.quote_plus(f) for f in results.formats if f != 'htm'] if results.formats else ""
         )
-        node.query.atts['value'] = query
+        node.search_form.query.atts['value'] = query
         if results.exact:
-            node.advanced_holder.exact.atts['value'] = results.exact
+            node.search_form.advanced_holder.exact.atts['value'] = results.exact
         if results.exclusions:
-            node.advanced_holder.exclusions.atts['value'] = results.exclusions
+            node.search_form.advanced_holder.exclusions.atts['value'] = results.exclusions
 
         if results.formats:
             for format in util.listify(results.formats):
                 if format !='htm':
-                    getattr(node.advanced_holder, format).atts['checked'] = 'on'       
+                    getattr(node.search_form.advanced_holder, format).atts['checked'] = 'on'       
     else:
+        node.search_form.omit()
         q_or_ids = "?doc_id=%s&col_id=%s" % (
             urllib.quote_plus(query[1]),
             urllib.quote_plus(query[0].name),
@@ -400,7 +399,6 @@ def render_search_result (node, results, collections, selcols, formats):
         }
     else:
         node.results.corrected.omit()
-
 
     def fill_results(node, res):
         # res is xappy SearchResult object
@@ -430,7 +428,7 @@ def render_search_result (node, results, collections, selcols, formats):
         node.res_mtime.content = format_date (mtime[0]) if mtime else 'unknown'
 
     cols = list(collections.itervalues())
-    node.collections.repeat (render_search_collection, cols, len(cols), selcols)
+    node.search_form.collections.repeat (render_search_collection, cols, len(cols), selcols)
 
     xr = results.xap_results
     res_node = node.results
@@ -440,10 +438,11 @@ def render_search_result (node, results, collections, selcols, formats):
         res_node.nav.omit()
     elif xr.startrank < xr.endrank:
         res_node.results.repeat(fill_results, results.xap_results)
-        res_node.info.content = '%s to %s of %s%d matching documents' % (
+        res_node.info.content = '%s to %s of %s%d %s' % (
             xr.startrank + 1, xr.endrank,
             '' if xr.estimate_is_exact else 'about ',
-            xr.matches_human_readable_estimate)
+            xr.matches_human_readable_estimate,
+            'matching documents' if is_string_query else 'documents similar to %s' % query[1])
 
         if xr.startrank:
             res_node.nav.first_page.atts['href'] = q_or_ids
@@ -504,11 +503,19 @@ class Renderer(object):
 
     def admin_search_render(self, *args):
         "Render the administrator search page."
-        return self._tman.create_admin_template("search.html", render_search).render(True, self, False, *args)
+        # HACK to highlight Search link when similarity searching
+        nav_id = 'search'
+        if args[1] and not isinstance(args[1].query, types.StringType):
+            nav_id = 'similar'
+        return self._tman.create_admin_template("search.html", render_search, nav_id=nav_id).render(True, self, False, *args)
 
     def user_search_render(self, *args):
         "Render the user search page."
-        return self._tman.create_user_template("search.html", render_search).render(False, self, False, *args)
+        # HACK to highlight Search link when similarity searching
+        nav_id = 'search'
+        if args[1] and not isinstance(args[1].query, types.StringType):
+            nav_id = 'similar'
+        return self._tman.create_user_template("search.html", render_search, nav_id=nav_id).render(False, self, False, *args)
 
     def collection_list_render(self, *args):
         "Render the collection listing admin page."
