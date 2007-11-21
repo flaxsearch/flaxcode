@@ -1,6 +1,6 @@
 1. Make a folder for Flax, say c:\work\Flax
 2. Check out the Flax sources to this folder 
-3. Install Python 2.5 (to the default folder, C:\Python25) and add this folder to your Path (Control Panel, System, Advanced, Environment  Variables)
+3. Install Python 2.5.1 (to the default folder, C:\Python25) and add this folder to your Path (Control Panel, System, Advanced, Environment  Variables) [NOT Python 2.5, we have found at least one situation where this matters]
 4. Install a recent Perl (say 5.8.8 from Active State at http://www.activestate.com/Products/activeperl/) - make a note of the Path to this for config.mak later.
 5. Install Visual C++ 2005 Express Edition
 6. Install pywin32 for Python 2.5
