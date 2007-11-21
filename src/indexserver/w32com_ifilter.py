@@ -66,9 +66,7 @@ import sys
 sys.path.append('..')
 import util
 import logging
-
 log = logging.getLogger("filtering.ifilter")
-
 prop_id_map = { 19 : "content",
                  3 : "HtmlHeading1" }
 
@@ -103,9 +101,9 @@ _filter_init_flags = IFILTER_INIT_INDEXING_ONLY | \
 def decode_prop(prop):
     return prop.decode('mbcs') if prop else prop
 
-def ifilter_filter(filename, init_flags = _filter_init_flags):
+def ifilter_filter(filename, init_flags = _filter_init_flags, log=log):
     try:
-        filt, stg = get_ifilter_for_file(filename)
+        filt, stg = get_ifilter_for_file(filename, log)
     except pythoncom.com_error, e:
         return e
 
@@ -183,7 +181,7 @@ def ifilter_filter(filename, init_flags = _filter_init_flags):
 
     return itertools.chain(start_fields(), do_chunks())
 
-def load_ifilter(filename):
+def load_ifilter(filename, log=log):
     try:
         return ifilter.LoadIFilter(filename)
     except pythoncom.com_error, e:
@@ -194,7 +192,7 @@ def load_ifilter(filename):
         raise
 
 
-def get_ifilter_for_file(filename):
+def get_ifilter_for_file(filename, log=log):
     """
     Deal with structured storage file if possible.
     See http://msdn2.microsoft.com/en-us/library/aa380369.aspx
@@ -207,11 +205,11 @@ def get_ifilter_for_file(filename):
             filt = ifilter.BindIFilterFromStorage(stg)
         except pythoncom.com_error, e:
             if e[0] == -2147467262:
-                filt = load_ifilter(filename)
+                filt = load_ifilter(filename, log=log)
             else:
                 raise
     else:
-        filt = load_ifilter(filename)
+        filt = load_ifilter(filename, log=log)
         stg = None
     return (filt, stg)
 

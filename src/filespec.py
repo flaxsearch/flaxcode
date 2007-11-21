@@ -51,7 +51,7 @@ class FileSpec(object):
     def files(self):
         """Returns an iterator over the files defined by this FileSpec."""
 
-        logger_indexing = logging.getLogger('indexing')
+        logger_indexing = logging.getLogger('indexing.remote')
 
         def log_file_walked(f):
             logger_indexing.debug("Walked to file %s" % f)

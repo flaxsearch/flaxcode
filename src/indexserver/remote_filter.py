@@ -29,9 +29,6 @@ import logging
 
 import logclient
 
-log = logging.getLogger("filtering.remote_filter")
-remote_log = logging.getLogger("filtering.remote_filter.remote")
-
 class FilterRunner(logclient.LogClientProcess):
 
     def __init__(self, filter, i, o):
@@ -46,10 +43,11 @@ class FilterRunner(logclient.LogClientProcess):
         """Repeatedly receive a filename on `self.i`, run
         self.filter on that file, send output to `o`"""
         self.initialise_logging()
+        remote_log = logging.getLogger("filtering.remote_filter.remote")
         while 1:
             filename = self.i.recv()
             try:
-                results = self.filter(filename)
+                results = self.filter(filename, log=remote_log)
                 # because the filter returns an iterator we won't
                 # see all errors until we actually compute the
                 # values so this next needs to be in the try
@@ -64,6 +62,8 @@ class FilterRunner(logclient.LogClientProcess):
 class TimeOutError(Exception):
     "Signal that a remote filter is taking too long to process a file"
     pass
+
+log = logging.getLogger("filtering.remote_filter")
 
 class RemoteFilterRunner(object):
     """
