@@ -40,6 +40,8 @@ Also copy msvcp71.dll from the Visual C++ Express Edition folder into the same f
     cd \work\Flax
     python utils/install_dependencies.py
     cd w32setup
+    rd dist /s /q
+    rd build /s /q
     python setup_svc.py py2exe
 15. The packaged, standalone Flax should be in the package/ subfolder
 
