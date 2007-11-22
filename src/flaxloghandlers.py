@@ -38,3 +38,26 @@ class FlaxRotatingFileHandler(logging.handlers.RotatingFileHandler):
         else:
             filepath = os.path.join(flaxpaths.paths.log_dir, filename)
         logging.handlers.RotatingFileHandler.__init__(self, filepath, *args)
+
+
+class FlaxLazyRotatingFileHandler(FlaxRotatingFileHandler):
+    """
+    This class immediately closes it's stream on startup and re-opens
+    it if it needs to. This is to deal with cope with a global logging
+    configuration across processes where instances of this class in
+    different processes refer to the same file. By using this class
+    and ensuringing that only one process actually emits records to
+    the handler we do away with problems I/O problems across the
+    processes.
+    """
+    
+    def __init__(self, *args):
+        FlaxRotatingFileHandler.__init__(self, *args)
+        if self.stream and not self.stream.closed:
+            self.stream.close()
+
+    def emit(self, *args):
+        if self.stream.closed:
+            self.stream = open(self.stream.name, self.stream.mode)
+        FlaxRotatingFileHandler.emit(self, *args)
+

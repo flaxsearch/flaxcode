@@ -242,7 +242,6 @@ class IndexProcess(logclient.LogClientProcess):
         logclient.LogClientProcess.__init__(self)
         self.kill_self = kill_self
         self.setStoppable(True)
-        self.logconfio = processing.Pipe()
         self.inpipe = processing.Pipe()
         self.outpipe = processing.Pipe()
         self.indexer_args = indexer_args
