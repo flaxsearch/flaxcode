@@ -153,19 +153,26 @@ table.collection_list_table thead  {
 
 
 label.main_label {
-    float: left;
-    width: 150px;
-
+  float: left;
+  width: 150px;
 }
 
+input, select {
+  margin-bottom: 4px;
+}
+
+.input_long {
+  width: 320px;
+}
+  
 .form_content {
-    margin-left: 150px
+  margin-left: 150px
 }
 
 form {
-    border: 0px;
-    padding: 0px;
-    margin: 0px;
+  border: 0px;
+  padding: 0px;
+  margin: 0px;
 }
 
 fieldset {

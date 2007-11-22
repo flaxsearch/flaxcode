@@ -2,30 +2,27 @@
    document collection form
 */
 
-
 /* the 'mappings' container is hardcoded */
 
-
-
-var add_mapping = function(path, mapping) {
+function add_mapping(path, mapping) 
+{
     var container = document.getElementById('mappings')
 
-    var make_labelled_input = function (txt, name, value) {
-
+    function make_labelled_input(txt, name, value) 
+    {
         var div = document.createElement('div');
-        
         var label = document.createElement('label');
         label.className = 'main_label';
         label.appendChild(document.createTextNode(txt) );
         div.appendChild(label);
-        
+
         var input = document.createElement('input');
+        input.className = 'input_long';
         input.name = name;
         input.value = value;
         div.appendChild(input);
         
         container.appendChild(div);
-
     }
     
     make_labelled_input('Path:', 'path', path);
@@ -35,7 +32,8 @@ var add_mapping = function(path, mapping) {
 
 
 /* function suitable for use as an onclick action to add blank mapping inputs */
-var add_blank_mapping = function () {
+function add_blank_mapping() 
+{
     add_mapping('', '')
 }
 
