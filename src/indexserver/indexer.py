@@ -130,12 +130,12 @@ class Indexer(object):
 
             for id, found in docs_found.iteritems():
                 if not found:
-                    remote_log.info("Removing %s from %s" % (id, name))
+                    remote_log.debug("Removing %s from %s" % (id, name))
                     conn.delete(id)
 
             remote_log.info("Indexing of %s finished" % name)
             conn.close()
-            remote_log.info("Changes to %s flushed" % name)
+            remote_log.debug("Changes to %s flushed" % name)
             return True
 
         except xappy.XapianDatabaseLockError, e:
@@ -166,7 +166,7 @@ class Indexer(object):
         it to the database. Return True if complete succesfully, False
         otherwise.
         """
-        remote_log.info("Indexing collection %s: processing file: %s" % (collection_name, file_name))
+        remote_log.debug("Indexing collection %s: processing file: %s" % (collection_name, file_name))
         unused, ext = os.path.splitext(file_name)
         ext = ext.lower()
         if self.stale(file_name, conn):
