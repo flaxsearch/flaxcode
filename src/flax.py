@@ -100,6 +100,9 @@ def make_options():
     filter_settings = dict( (f, default_filter) for f in formats)
     if os.name != 'nt':
         filter_settings['html'] = filter_settings['htm'] = 'Xapian'
+    else:
+        filter_settings['html'] = filter_settings['htm'] = 'Xapian'
+        filter_settings['txt'] = 'Text'
 
 
     languages = [ ("none", "None"),
