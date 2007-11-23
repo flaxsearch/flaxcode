@@ -173,7 +173,7 @@ DataDirPage.Add('');
 LightMsgPage := CreateOutputMsgPage(wpPreparing,
     'Set Administration Password', 'Set Administration Password',
     'After installation, Setup will ask you to enter a password for the Administration pages of %(name)s.'#13#13 +
-    'To view these pages you will need to use a username of " + '"admin"' + " and the password you choose. '#13#13 +
+    'To view these pages you will need to use a username of ' + '"admin"' + ' and the password you choose. '#13#13 +
     'You will be asked to confirm the password by typing it twice.');
 
 end;
