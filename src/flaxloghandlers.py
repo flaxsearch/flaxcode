@@ -63,9 +63,9 @@ class FlaxLazyRotatingFileHandler(FlaxRotatingFileHandler):
 
     def flush(self):
         if not self.stream.closed:
-            FlaxRotatingFileHandler.flush()
+            FlaxRotatingFileHandler.flush(self)
 
     def close(self):
         if self.stream.closed:
             self.stream = open(self.stream.name, self.stream.mode)
-        FlaxRotatingFileHandler.close()
+        FlaxRotatingFileHandler.close(self)
