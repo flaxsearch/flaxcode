@@ -75,7 +75,7 @@ class InnoScript:
         print >> ofi, "; will be overwritten the next time py2exe is run!"
         print >> ofi, r"[Setup]"
         print >> ofi, r"AppName=%s" % self.name
-        print >> ofi, r"AppVerName=%s version %s.%s.%s.%s" % (self.name, self.versionA, self.versionB, self.versionC, self.versionD)
+        print >> ofi, r"AppVerName=%s PRERELEASE version %s.%s.%s.%s" % (self.name, self.versionA, self.versionB, self.versionC, self.versionD)
         print >> ofi, r"VersionInfoVersion=%s.%s.%s.%s" % (self.versionA, self.versionB, self.versionC, self.versionD)
         print >> ofi, r"DefaultDirName={pf}\%s" % self.name
         print >> ofi, r"DefaultGroupName=%s" % self.name
