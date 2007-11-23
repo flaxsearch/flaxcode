@@ -76,8 +76,8 @@ class InnoScript:
 ; will be overwritten the next time py2exe is run!
 [Setup]
 AppName=%(name)s
-AppVerName=%(name)s PRERELEASE version %(versionA)s.%(versionB)s.%(versonC)s.%(versonD)s
-VersionInfoVersion=%(versionA)s.%(versionB)s.%(versonC)s.%(versonD)s
+AppVerName=%(name)s PRERELEASE version %(versionA)s.%(versionB)s.%(versionC)s.%(versionD)s
+VersionInfoVersion=%(versionA)s.%(versionB)s.%(versionC)s.%(versionD)s
 DefaultDirName={pf}\%(name)s
 DefaultGroupName=%(name)s
 AppPublisher=%(publisher)s
