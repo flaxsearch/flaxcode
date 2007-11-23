@@ -25,6 +25,7 @@ import getpass
 import optparse
 import os
 import sys
+import threading
 
 import processing
 import cpserver
