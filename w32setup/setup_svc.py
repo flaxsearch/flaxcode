@@ -71,7 +71,7 @@ class InnoScript:
     def create(self):
         self.pathname = self.this_dir + self.name + ".iss"
         ofi = self.file = open(self.pathname, "w")
-        print >> ofi, """
+        print >> ofi, r"""
 ; WARNING: This script has been created by py2exe. Changes to this script
 ; will be overwritten the next time py2exe is run!
 [Setup]
