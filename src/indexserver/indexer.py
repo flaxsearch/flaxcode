@@ -55,6 +55,11 @@ import htmltotext_filter
 remote_log = logging.getLogger("indexing.remote")
 control_log = logging.getLogger("indexing.control")
 
+class DiskSpaceShortage(Exception):
+    
+    def __str__(self):
+        return "Disk space below safe minimum for indexing"
+
 class Indexer(object):
     """Perform indexing of a xapian database on demand.
 
@@ -68,6 +73,8 @@ class Indexer(object):
        will terminate quickly (without processing all files).
     """
 
+    minumum_disk_space = 500000000
+
     def __init__(self, file_count_holder, error_count_holder, stop_flag_holder):
 
         self._filter_map = {"Xapian": htmltotext_filter.html_filter,
@@ -80,10 +87,24 @@ class Indexer(object):
         self.error_count_holder = error_count_holder
         self.stop_flag_holder = stop_flag_holder
 
+
     def continue_check(self, file_count, error_count):
         self.file_count_holder.value = file_count
         self.error_count_holder.value = error_count
         return not self.stop_flag_holder.value
+
+    def disk_space_short(self, dir):
+        """ Return True if the disk space available on the volume that ``dir`` is
+        mounted on is low (i.e. less the minumum_disk_space) if it can
+        be determined. It may be that we can not determine the disk
+        space in which case False is returned, in which case it might
+        be that disk space is low, but we are unable to determine
+        that."""
+        free_space = util.volume_space_free_for_current_user(dir)
+        if free_space:
+            return free_space < self.minumum_disk_space
+        else:
+            return False
 
     def do_indexing(self, col, filter_settings):
         """Perform an indexing pass.
@@ -95,9 +116,9 @@ class Indexer(object):
 
         continue_check will be called before each file of the
         collection is about to be processed. If it returns False then
-        indexing will stop and do_indexing will return False.
-
-        If do_indexing attempt to index all the files then it will return True.
+        indexing will stop and do_indexing will return False.  If
+        do_indexing attempts to index all the files then it will
+        return True.
 
         """
         conn = None
@@ -120,6 +141,11 @@ class Indexer(object):
 
             error_count = file_count = 0
             for f in col.files():
+                if self.disk_space_short(dbname):
+                    # raise an exception rather than return False - we
+                    # don't want to keep trying to index in this
+                    # situation.
+                    raise DiskSpaceShortage
                 if not self._process_file(f, conn, name, filter_settings):
                     error_count += 1
                 file_count += 1

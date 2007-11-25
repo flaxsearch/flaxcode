@@ -72,6 +72,20 @@ def gen_until_exception(it, ex, test):
         else:
             raise
 
+
+def volume_space_free_for_current_user(directory):
+    """Return the free disk space, in bytes, available for the current
+    user on the volume that ``directory`` is mounted on, if
+    available. If that information is not available then None is returned."""
+    
+    try:
+        import win32api
+        info = win32api.GetDiskFreeSpaceEx(directory)
+        return info[0] if info else None
+    except ImportError:
+        return None
+
+
 class DelayThread(threading.Thread):
     """ A thread that runs it's action method periodically """
 
