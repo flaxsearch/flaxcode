@@ -156,8 +156,12 @@ class FlaxService(win32serviceutil.ServiceFramework):
             sys.stderr.close()
             sys.stdout.close()
             
-            # Tell windows that we've stopped.
+            # Log that we've stopped.
             LogInfoMsg('The Flax service has stopped.')
+
+            # The python service framework will tell windows that we've stopped
+            # when we return from this function, so we don't need to do that
+            # explicitly.
         except:
             import traceback
             tb=traceback.format_exc()
