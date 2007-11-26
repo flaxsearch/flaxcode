@@ -11,13 +11,13 @@ definitive and the comments in the code can be used to automatically
 generate an `API reference`_ (see the comments in the file epydoc.conf
 for how to do this). This is more of an overview and will hopefully
 help readers to understand how it all fits together. This document
-tries to avoid things that are (or should be) in the end user
+tries to avoid things that are (or should be) in the end user or api
 documentation, so we assume that readers already know the basics of
 how the software works from the user's point of view.
 
 Some of this document has been taken from pages that lived on the
-wiki_, to avoid duplication and inconsistencies those pages have be
-replaced with a message referencing this document.
+wiki_, to avoid duplication and inconsistencies those pages have been
+removed, but are still accessible via subversion.
 
 .. _`API reference`: ./api/index.html
 .. _wiki: http://code.google.com/p/flaxcode/w/list
@@ -25,9 +25,9 @@ replaced with a message referencing this document.
 Overview
 ========
 
-The main process runs the web-server which provides a UI for modifying,
-creating and deleting document collections, as well as some other
-administrative details, and the search forms. It decides when
+The main process runs the web server which provides a UI for
+modifying, creating and deleting document collections, as well as some
+other administrative details, and the search forms. It decides when
 collections should be indexed and passes requests for indexing off to
 a separate indexing process. The indexing process calls filters on
 each file of the collection to extract text, which then gets passed to
@@ -60,23 +60,21 @@ order).
     these are made from the web-serving code in cpserver.py.
 
   - Processing_. The processing module is used for creating processes
-    and dealing with inter-process
-    communication. 
+    and dealing with inter-process communication.
 
-  - HTMLToText_. This is used to extract text from
-    HTML. 
+  - HTMLToText_. This is used to extract text from HTML.
 
-  - Xappy_. A high level interface python interface to
-    Xapian. 
+  - Xappy_. A high level interface python interface to Xapian.
 
-  - Xapian_. A search engine library. 
+  - Xapian_. A search engine library.
 
   - Py2exe_. Software to convert python programs to windows
     executables.
 
   - `Python Windows extensions`_. Python modules to hook into a lot of
-    the windows api, in particular allowing for fairly simple client
-    side COM programming in python.
+    the Windows api, in particular allowing for fairly simple client
+    side COM programming in python. Obviously modules from this
+    package are only required when running on Windows.
 
   - MochiKit_. A javascript library
 
@@ -131,13 +129,12 @@ DocCollection_) - such has a number of purposes:
 .. _ScheduleSpec: ./api/schedulespec.ScheduleSpec-class.html
 
 Document collections are created and modified via the web UI. The
-scheduling is implemented via a very simple loop running in a separate
+scheduling is implemented via a simple loop running in a separate
 thread that checks every minute to see which collections are due to be
 indexed - see the class ScheduleIndexing_. Obviously we could make
 this do this in a more efficient way, but it's probably not
 significant unless there are rather more document collections that we
 would normally expect.
-
 
 .. _ScheduleIndexing: ./api/scheduler.ScheduleIndexing-class.html
 
@@ -146,7 +143,7 @@ Logging.
 ========
 
 Flax uses the standard `python logging module`_ for logging. A basic
-understanding of that module is assumed. 
+understanding of that module is assumed.
 
 .. _`python logging module`: http://docs.python.org/lib/module-logging.html
 
@@ -173,16 +170,16 @@ configuration file when its .set_levels() method is invoked. Of course
 once the file has been written LogConfPub_ will ensure that the changes
 propagate to LogListener_ instances as described above.
 
-If people configure loggers in via the configuration file then it is
+If people configure loggers via the configuration file then it is
 possible for the UI configuration to be a little misleading, since
 only the "first level" loggers (those immediately below the root
 logging in the hierarchy) appear in the UI, and the configuration file
 could change the setting for loggers below these so that they no
-longer follow the settings for the first level logger above them.
-However, since the same people should be responsible for both, the
-current arrangement is a reasonable compromise given the desires to
-provide the full configuration possibilities and also to have a
-relatively simple, yet useful, option available in the UI.
+longer follow the settings for the logger above them.  However, since
+the same people should be responsible for both, the current
+arrangement is a reasonable compromise given the desires to provide
+the full configuration possibilities and also to have a relatively
+simple, yet useful, option available in the UI.
 
 At the time of writing the following loggers are used by the code,
 there is no point in configuring other loggers unless you add code
@@ -216,6 +213,20 @@ use the (non-standard) ConfigObj_ module instead to address this.
 .. _`python configparser module`: http://docs.python.org/lib/module-ConfigParser.html
 .. _ConfigObj: http://www.voidspace.org.uk/python/configobj.html
 
+Note that the same configuration file is used to configure loggers in
+different processes, and there is no mechanism for synchronizing
+access to underlying IO across processes. The is typically not a
+problem except in the case of RotatingFileHandler_ or
+TimedRotatingFileHandler_, since (on windows at least) attempting to
+perform the rotation when other process have open file handles on the
+files will cause an exception. To deal with this we have implemented a
+subclass of RotatingFileHandler_ that does not actually open files
+until it has events to log. Provided the configuration is such that
+the same logger (i.e. loggers with a particular name) are not used
+from more than one process everything is OK.
+
+.. _RotatingFileHandler: http://docs.python.org/lib/node413.html
+.. _TimedRotatingFileHandler: http://docs.python.org/lib/node414.html
 
 (The logging configuration is fairly self contained and could probably
 be split out into a separate python package to be used in other
@@ -266,7 +277,10 @@ main web server. This has some advantages:
     moment, but could be achieved with small code changed).
 
   * On multi-core processors the indexing process can run on a
-    different core from the web service process.
+    different core from the web service process. (In practice it
+    appears that processes all, by default, run on the same CPU on
+    Windows at least, so far no testing has been carried out on
+    multicore machines running other OSs.)
 
 This is no long term state held in the indexer, so that at worst the
 current indexing process can be forcibly terminated and
@@ -346,13 +360,12 @@ guidelines.
 
 The fields that Flax will attempt to use at some point are as follows:
 
-title The document title. 
-
+title
     Ideally there should be exactly one block for this field. This is
     rendered in search results so that users have an idea what the
     document might be. If the filter does not yield a block for title
-    then some other information relating to the file (e.g. the
-    file name, but this might change) will be used for this purpose.
+    then some other information relating to the file (e.g. the file
+    name, but this might change) will be used for this purpose.
 
 content
     Text for the main contents of the document. ``content`` blocks
@@ -418,7 +431,7 @@ Separating internal and external fields
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 At the moment there is not check to see if filters are emitting data
-for the internal fields. 
+for the internal fields.
 
 For tidiness, and to avoid a potential cause of confusing error
 messages, it would be nice to separate out internal field names from
@@ -710,3 +723,29 @@ options.html
 search.html 
     The search and search results pages (for both admin and regular
     users).
+
+
+Running as a Windows Service.
+=============================
+
+When running as a Windows service there are a couple of points to
+note:
+
+  - stderr and stdout are not proper file handles (this is true for
+    any non-console windows application), so it's important that
+    things don't get written on them. We try to ensure that everything
+    goes through the logging system.
+
+  - The protocols for interacting with the service infrastracture does
+    not appear to be properly documented anywhere. Please let us know
+    if you know of a *definitive* description.
+
+  - It appears that sys.exitfunc is not called as part of the shutdown
+    protocol, so anything that is registered via the atexit module
+    does not run. We know that at least the third party processing
+    module and the standard logging module use atexit to do clean
+    up. We therefore have to manage (some) of these things in our own
+    code.
+
+
+
