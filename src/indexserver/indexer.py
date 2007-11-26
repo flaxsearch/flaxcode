@@ -218,8 +218,8 @@ class Indexer(object):
                                   (doc.id, collection_name, file_name))
                     return True
                 except Exception, e:
-                    remote_log.error("Filtering file: %s with filter: %s raised exception %s, skipping"
-                                   % (file_name, filter, e))
+                    remote_log.error("Filtering file: %s with filter: %s exception %s(%s), skipping"
+                                   % (file_name, filter, type(e).__name__, str(e)))
                     return False
             else:
                 remote_log.warn("Filter for %s is not valid, not filtering file: %s" % (ext, file_name))
