@@ -99,7 +99,13 @@ main collections list page.</p>
 <blockquote>
 <ol class="arabic">
 <li><p class="first"><strong>On Windows</strong></p>
-<p>Run the Flax Password utility from the Start menu (FIXME).</p>
+<p>First, make sure Flax Basic is not running. If you installed Flax Basic as a Service, you can stop it by running the file</p>
+<p><tt class="docutils literal"><span class="pre">C:\Program</span> <span class="pre">Files\Flax</span> <span class="pre">Basic\stopflaxservice.bat</span></tt></p>
+<p>or if it is running in a command window then close that window. Then open a command window (Start, Run, cmd) and type:</p>
+<p><tt class="docutils literal"><span class="pre">cd</span> <span class="pre">&quot;C:\Program</span> <span class="pre">files\Flax</span> <span class="pre">Basic&quot;</span></tt>
+<tt class="docutils literal"><span class="pre">startflax</span> <span class="pre">--set-admin-password</span></tt></p>
+<p>Enter a new password and close the window, then restart the Flax Basic service if necessary by running the file</p>
+<p><tt class="docutils literal"><span class="pre">C:\Program</span> <span class="pre">Files\Flax</span> <span class="pre">Basic\startflaxservice.bat</span></tt></p>
 </li>
 <li><p class="first"><strong>Linux/Unix/MacOS</strong></p>
 <p>First stop the Flax process, if it is running. Then enter the following on the
@@ -533,7 +539,7 @@ your own variants.</p>
 </div>
 <div class="section" id="troubleshooting">
 <h1>Troubleshooting</h1>
-<p>FIXME</p>
+<p>There is a Frequently Asked Questions (FAQ) file available for Windows which may also contain useful information for users running other operating systems. This file is available at <a class="reference external" href="http://code.google.com/p/flaxcode/w/list">http://code.google.com/p/flaxcode/w/list</a> .</p>
 </div>
 </div>
 </body>
