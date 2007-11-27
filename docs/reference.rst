@@ -81,7 +81,18 @@ Changing the Administration Password
 
     1.  **On Windows**
         
-        Run the Flax Password utility from the Start menu (FIXME).
+        First, make sure Flax Basic is not running. If you installed Flax Basic as a Service, you can stop it by running the file
+
+        ``C:\Program Files\Flax Basic\stopflaxservice.bat``
+
+        or if it is running in a command window then close that window. Then open a command window (Start, Run, cmd) and type:
+
+        ``cd "C:\Program files\Flax Basic"``
+        ``startflax --set-admin-password``
+
+        Enter a new password and close the window, then restart the Flax Basic service if necessary by running the file 
+        
+        ``C:\Program Files\Flax Basic\startflaxservice.bat``
         
     2.  **Linux/Unix/MacOS**
     
@@ -483,5 +494,6 @@ your own variants.
 
 Troubleshooting
 ===============
-FIXME
+
+There is a Frequently Asked Questions (FAQ) file available for Windows which may also contain useful information for users running other operating systems. This file is available at http://code.google.com/p/flaxcode/w/list .
 
