@@ -1,0 +1,540 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.5: http://docutils.sourceforge.net/" />
+<title>Flax Basic: Reference</title>
+<style type="text/css">
+
+/*
+:Author: Tom Mortimer
+:Contact: tom at lemur consulting
+:Copyright: This stylesheet has been placed in the public domain.
+
+Stylesheet for use with Docutils.
+*/
+
+@import url(html4css1.css);
+
+/* Your customizations go here.  For example: */
+
+img {
+  margin: 10px auto 10px 30px;
+  padding: 15px;
+  border: 1px dotted grey;
+}
+
+</style>
+</head>
+<body>
+<div class="document" id="flax-basic-reference">
+<h1 class="title">Flax Basic: Reference</h1>
+
+<div class="section" id="introduction">
+<h1>Introduction</h1>
+<p>Flax Basic is a simple enterprise search system, designed to allow you to build searchable
+indexes of files on your PC, intranet or website. It is based on the Flax enterprise search
+solution platform developed by Lemur Consulting Ltd. and is an open-source application
+(i.e., the source code is freely downloadable). As such, Flax Basic can be downloaded and
+installed at no charge on as many computers as required.</p>
+<p>Flax Basic builds a high-performance custom database of the documents you choose, and
+allows you to search them very quickly and accurately. Flax Basic can read documents in
+Microsoft Office format, web pages in HTML, Adobe Acrobat (PDF) documents and Rich Text
+Format (RTF) and automatically extract the text. Flax Basic also provides automatic
+query spelling correction and ranks results in order of relevance.</p>
+<p>Unlike other products, Flax Basic does not put a limit on how many documents can be
+indexed and this is only limited by the amount of disk space and memory available.
+Flax Basic is controlled via a password-protected web page interface.</p>
+<p>In the rest of this document, we refer to Flax Basic as simply &quot;Flax&quot;.</p>
+</div>
+<div class="section" id="system-requirements">
+<h1>System Requirements</h1>
+<p>Flax should run on a range of modern operating systems, including Windows, Mac OS X,
+Linux and other flavours of Unix. Lemur is currently concentrating on supporting
+Windows users. Users of other OSs can go to the Flax project page</p>
+<blockquote>
+<a class="reference external" href="http://code.google.com/p/flaxcode/">http://code.google.com/p/flaxcode/</a></blockquote>
+<p>to download the source code. Note that this will require some technical experience.</p>
+<p>In hardware terms, Flax requires a minimum of 1GB of RAM, and sufficient disk space to
+store any indexes created (as a rule of thumb, these will take up about as much space
+as the source data). The more memory is available, the faster Flax will run (for the
+same reason, avoid installing Flax on a machine that is already heavily loaded with
+other tasks).</p>
+</div>
+<div class="section" id="installation-and-running">
+<h1>Installation and Running</h1>
+<p>For installation, see the Getting Started document provided with the Windows distribution.</p>
+<div class="section" id="web-proxies">
+<h2>Web Proxies</h2>
+<p>When using Flax in conjunction with an existing web server (for example when adding search
+to a public web site), one of the simplest methods of integration is to configure the
+existing server as a <em>reverse proxy</em>. This means that the main web server will act as
+an intermediary between Flax and users, and Flax pages will appear to come from the main
+server. This also has the advantages of greater security and efficiency (due to caching
+static content etc.)</p>
+<p>There are several proxy modules available for Microsoft IIS, including ISAPI_Rewrite
+(<a class="reference external" href="http://www.isapirewrite.com/">http://www.isapirewrite.com/</a> ). ISAPI-based modules are likely to be more efficient
+than .NET or ASP solutions.  The Apache web server can be configured to act as a
+reverse proxy using the mod_proxy module
+(<a class="reference external" href="http://httpd.apache.org/docs/1.3/mod/mod_proxy.html">http://httpd.apache.org/docs/1.3/mod/mod_proxy.html</a> ). For other web servers, consult
+your documentation.</p>
+</div>
+</div>
+<div class="section" id="administrators">
+<h1>Administrators</h1>
+<div class="section" id="logging-in">
+<h2>Logging in</h2>
+<p>The administration interface is accessed through Flax's <tt class="docutils literal"><span class="pre">/admin</span></tt> URL. For example, if
+you are running your browser on the same machine that Flax is running on, enter:</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">http://localhost:8090/admin</span></tt></blockquote>
+<p>in your browser's address field. If this is a new session, you will then be prompted
+to enter the administration username and password.</p>
+<p>Enter <tt class="docutils literal"><span class="pre">&quot;admin&quot;</span></tt> as the username, and the password you set when installing Flax
+(for instructions on how to change the password, see below.) Flax will then display the
+main collections list page.</p>
+<div class="section" id="changing-the-administration-password">
+<h3>Changing the Administration Password</h3>
+<blockquote>
+<ol class="arabic">
+<li><p class="first"><strong>On Windows</strong></p>
+<p>Run the Flax Password utility from the Start menu (FIXME).</p>
+</li>
+<li><p class="first"><strong>Linux/Unix/MacOS</strong></p>
+<p>First stop the Flax process, if it is running. Then enter the following on the
+command line:  (FIXME)</p>
+<blockquote>
+<p><tt class="docutils literal"><span class="pre">$</span> <span class="pre">python</span> <span class="pre">startflax.py</span> <span class="pre">-d</span> <span class="pre">data</span> <span class="pre">--conf-dir=.</span> <span class="pre">--set-admin-password</span></tt></p>
+</blockquote>
+<p>You will then be prompted to enter and confirm a new password. After entering
+it, restart Flax as ususal.</p>
+</li>
+</ol>
+</blockquote>
+</div>
+</div>
+<div class="section" id="collections">
+<h2>Collections</h2>
+<p>A collection is a specification for a set of documents to index, together with parameters
+to control the indexing. A collection may be searched separately or together with other
+collections.</p>
+<p>Collections are a convenient way to organise your indexes when there are clear differences
+in the types of source documents. One example is when you have a set of &quot;reference&quot;
+documents that are rarely updated, and &quot;working&quot; documents which are updated several times
+a day. In this case, organising each set as a separate collection allows the indexing to
+be scheduled more frequently for the working documents than the reference set, with
+better indexing efficiency.</p>
+<p>Collections are also useful when you distinct sets of end users - for example, technical
+and marketing staff - who will generally only want to search documents in their own
+subject area. This leads to better, faster searches.</p>
+<div class="section" id="creating-a-collection">
+<h3>Creating a Collection</h3>
+<p>The Collections page is accessed by clicking the <em>Collections</em> link in the menu bar at
+the top of the page. When you run Flax for the first time, the collections list will
+be empty.</p>
+<img alt="img/reference-1.png" src="img/reference-1.png" />
+<p>To create a new collection, click the <strong>Create a new collection</strong> link. This takes you
+to the collection details page, with blank fields. The fields are arranged in four sections:</p>
+<blockquote>
+<ol class="arabic">
+<li><p class="first">Document Collection</p>
+<p>This section has two fields, <strong>Name</strong> and <strong>Description</strong>. The first is a short name
+which is used by Flax as a label for the collection, and is required. The
+description is optional, and can be of any length.</p>
+</li>
+<li><p class="first">Files Specification</p>
+<p>This section controls which files will be included in the collection. Currently,
+Flax can only index files on file systems attached to the computer running Flax,
+including network file systems/shared folders (other access methods will be
+added in a later release of Flax.)</p>
+<p>Each collection requires one or more <strong>Path</strong> fields, which specifies the parent
+directory which will be scanned for files. Subdirectories will also be scanned
+recursively. If you want to specify more than one path, click the <strong>Add another path</strong>
+button. Path fields can be left blank to be omitted from the collection, so
+long as at least one has a value.</p>
+<p>Each <strong>Path</strong> has a corresponding <strong>Mapping</strong> field, which is used to generate URLs
+for search result objects. Files are not served directly through Flax - mostly
+as this could be used to circumvent any access restrictions implemented through
+the file system or other means. Any value in the mapping field will replace the
+path prefix in the generated URL.</p>
+<p>Flax is generally intended to work alongside an existing web server, ideally
+using it as a proxy (see above), and using it to serve documents from Flax's
+search results page. For example, using the main web server as a proxy, if
+documents from the folder <tt class="docutils literal"><span class="pre">C:\foo\bar\recipes</span></tt> is served as the URL
+<tt class="docutils literal"><span class="pre">/main/recipes</span></tt>, then you should enter:</p>
+<blockquote>
+<p><tt class="docutils literal"><span class="pre">Path:</span>&nbsp;&nbsp;&nbsp;&nbsp; <span class="pre">C:\foo\bar\recipes</span></tt>
+<tt class="docutils literal"><span class="pre">Mapping:</span>&nbsp; <span class="pre">/main/recipes</span></tt></p>
+</blockquote>
+<p>If the main web server is not being used as a proxy for Flax, you should enter a
+fully-qualified URL which specifies the server, e.g.:</p>
+<blockquote>
+<p><tt class="docutils literal"><span class="pre">Path:</span>&nbsp;&nbsp;&nbsp;&nbsp; <span class="pre">C:\foo\bar\recipes</span></tt>
+<tt class="docutils literal"><span class="pre">Mapping:</span>&nbsp; <span class="pre">http://www.netveggie.foo/main/recipes</span></tt></p>
+</blockquote>
+<p>You can also serve indexed files directly from Flax, by entering &quot;FLAX&quot; (upper-case)
+into the Mapping field (for each Path if there is more than one.) This is not
+likely to be as efficient as a dedicated web server. Also note that Flax will
+ignore any user access restrictions to files. For these reasons, we advise against
+using this function for a public web site or in a security-critical application.</p>
+<p>The <strong>Formats</strong> list allows you to choose file types to be included in the index.
+If you leave all unselected, Flax will index all file types.</p>
+<p>Finally, the <strong>Age</strong> field lets you exclude files with a modification time greater
+than the period selected. When re-indexing a collection, any files that now
+exceed the Age field (if set) will be removed.</p>
+</li>
+<li><p class="first">Indexing Options</p>
+<p>Options controlling the way files are indexed. Currently, this is just a language
+selection and a list of <em>stopwords</em>.  The latter are words to exclude from the
+index (typically words such as &quot;the&quot;, &quot;or&quot;, &quot;and&quot; etc which have little to do
+with the topic of a document). There is generally little need to set stopwords
+except when trying to limit index size, so if in doubt, leave this field empty.
+Stopwords, if set, should be separated by spaces.</p>
+<p>The <strong>Language</strong> option primarily controls the <em>stemming</em>, or suffix-stripping, of
+indexed words. This technique improves searching by normalising inflected forms
+of words, so that, for example, &quot;cycle&quot; would match &quot;cycled&quot;, &quot;cycling&quot;, &quot;cycles&quot;
+etc. Since this is a language-dependent feature, the main language of a collection
+should be chosen if stemming is to be used.</p>
+<p>If you have documents in several different languages, you can either index and
+search them as separate collections, with the language field set accordingly, or
+index them all with language set to <em>None</em>, in which case stemming will not be
+performed.</p>
+</li>
+<li><p class="first">Scheduling</p>
+<p>Indexing can be initiated manually (see below) or at automatically at scheduled
+times (the Flax service must be running for this to work.) Scheduling works by
+matching the current time, once per minute, against the scheduling specification
+of a collection (if set). If <strong>all</strong> of the fields (<strong>Minutes</strong>, <strong>Hours</strong>,
+<strong>Weekdays</strong>, <strong>Monthdays</strong> and <strong>Months</strong>) matches the current time then the
+collection is
+scheduled for indexing. A blank field will never match, ensuring that no scheduled
+indexing will be performed if any field is blank. The &quot;*&quot; wildcard matches any
+value. Otherwise, the scheduler expects a comma-delimeted list of integers.</p>
+<p>For example, to schedule reindexing on the hour, every day, enter:</p>
+<blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Minutes:</th><td class="field-body">0</td>
+</tr>
+<tr class="field"><th class="field-name">Hours:</th><td class="field-body">*</td>
+</tr>
+<tr class="field"><th class="field-name">Weekdays:</th><td class="field-body">*</td>
+</tr>
+<tr class="field"><th class="field-name">Monthdays:</th><td class="field-body">*</td>
+</tr>
+<tr class="field"><th class="field-name">Months:</th><td class="field-body">*</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<p>To reindex at 3.30am every weekday (Mondays are 0, Sundays are 6):</p>
+<blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Minutes:</th><td class="field-body">30</td>
+</tr>
+<tr class="field"><th class="field-name">Hours:</th><td class="field-body">3</td>
+</tr>
+<tr class="field"><th class="field-name">Weekdays:</th><td class="field-body">0, 1, 2, 3, 4</td>
+</tr>
+<tr class="field"><th class="field-name">Monthdays:</th><td class="field-body">*</td>
+</tr>
+<tr class="field"><th class="field-name">Months:</th><td class="field-body">*</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+</li>
+</ol>
+</blockquote>
+<p>After entering details for the new collection, click the <strong>Apply</strong> button at the bottom
+of the page. Flax will create the new collection and return you to the collections list.</p>
+</div>
+<div class="section" id="indexing-a-collection">
+<h3>Indexing a Collection</h3>
+<p>Before searching a collection, it must be indexed. This scans all the documents defined
+by the collection, extracts text from them, and creates a index on disk for optimised
+searching. Flax will only index one collection at a time, as this is the most efficient
+use of machine resources. More than one collection may be due for indexing, in which case
+they will be indexed in an arbitrary order. This may be controlled, where necessary, with
+the manual controls described below.</p>
+<blockquote>
+<ol class="arabic">
+<li><p class="first">Unscheduled Indexing</p>
+<p>To index a collection immediately, assuming no other collections are being
+indexed, click the <strong>Start</strong> button in the <strong>Indexing</strong> column of the collections
+list. The button text will change to <strong>In progress</strong> and the information columns
+will update as the indexing progresses:</p>
+<blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Docs:</th><td class="field-body">is the number of indexed documents in the collection.</td>
+</tr>
+<tr class="field"><th class="field-name">Files:</th><td class="field-body">is the number of files processed on the indexing run.</td>
+</tr>
+<tr class="field"><th class="field-name">Errors:</th><td class="field-body">is the number of files that failed to be indexed due to errors.</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<p>When the indexing completes, the button text will change back to <strong>Start</strong>.</p>
+</li>
+<li><p class="first">Scheduled Indexing</p>
+<p>Scheduled indexing is defined with the Collection Details fields described above.
+When a scheduled time arrives, indexing will become due for the collection, and
+it will be indexed when the indexer is free (or immediately if no other indexing
+is taking place). The collections list display will update in the same way as
+for unscheduled indexing.</p>
+</li>
+<li><p class="first">Holding Indexing</p>
+<p>It is possible to <em>hold</em> a collection, which means that indexing is not started
+when it becomes due, either scheduled or unscheduled. To do this, click the <strong>Hold</strong>
+button in the collections list. The button text will change to <strong>Unhold</strong>, allowing
+the collection hold to be released when you decide. If a collection is already
+being indexed when held, it will be re-indexed from the start when it becomes
+unheld.</p>
+<p>Holding a collection could be useful when making significant changes to a set
+of documents (such as adding a large number from an archive) as it means indexing
+can be postponed until all changes are made. It also allows you to immediately
+index a collection even if other collections are currently being indexed - just
+put the other collections on hold.</p>
+</li>
+</ol>
+</blockquote>
+</div>
+<div class="section" id="editing-and-deleting-a-collection">
+<h3>Editing and Deleting a Collection</h3>
+<p>Any collection details (description, file specifications, indexing options, scheduling -
+everything apart from name) may be changed by clicking the collection name in the
+collections list. This opens the Collection Details page, where changes may be made and
+saved by clicking the <strong>Apply</strong> button. Changes to the file specifications and indexing
+options will not be reflected in the collection index until it is re-indexed.</p>
+<p>To permanently delete a collection, click the delete icon (a red X) in the collections
+list. You will be asked to confirm before Flax deletes the collection.</p>
+</div>
+</div>
+<div class="section" id="searching">
+<h2>Searching</h2>
+<p>When logged in as administrator, you have access to the same simple and advanced search
+pages as normal users, with the addition of the administration menu bar at the top of
+the page. The search pages are accessed by clicking <strong>Search</strong> or <strong>Advanced Search</strong>.
+See below for full descriptions.</p>
+</div>
+<div class="section" id="options">
+<h2>Options</h2>
+<p>This page allows you to set global options for the Flax application. Currently, these
+are limited to logging options, which allow you to control the level of logging for various
+classes of events:</p>
+<blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">collections:</th><td class="field-body">additions, changes and deletions to collections</td>
+</tr>
+<tr class="field"><th class="field-name">filtering:</th><td class="field-body">extraction of indexable text from collection files</td>
+</tr>
+<tr class="field"><th class="field-name">indexing:</th><td class="field-body">updates to searchable indexes</td>
+</tr>
+<tr class="field"><th class="field-name">scheduling:</th><td class="field-body">scheduled changes to a collection's indexable state</td>
+</tr>
+<tr class="field"><th class="field-name">searching:</th><td class="field-body">logging of user search events</td>
+</tr>
+<tr class="field"><th class="field-name">webserver:</th><td class="field-body">events from Flax's built-in web server</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<p>There is also a <strong>Default</strong> setting, which allows you to set a logging level for all event
+classes that are set to &quot;Default&quot;. The logging levels are:</p>
+<blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Debug:</th><td class="field-body">The most verbose and detailed output, intended to help with application debugging.</td>
+</tr>
+<tr class="field"><th class="field-name">Info:</th><td class="field-body">Less verbose than Debug, but includes all &quot;standard&quot; events.</td>
+</tr>
+<tr class="field"><th class="field-name">Warning:</th><td class="field-body">Only logs warning messages.</td>
+</tr>
+<tr class="field"><th class="field-name">Error:</th><td class="field-body">Only logs error messages (more serious than Warning).</td>
+</tr>
+<tr class="field"><th class="field-name">Critical:</th><td class="field-body">Only logs the most serious class of error.</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+<p>For general use we advice logging all event classes at a level of Info or Warning. As
+installed, Flax is set up to do the latter.</p>
+</div>
+<div class="section" id="logging">
+<h2>Logging</h2>
+<p>Flax writes log files into the <tt class="docutils literal"><span class="pre">logs`</span> <span class="pre">subdirectory</span> <span class="pre">of</span> <span class="pre">your</span> <span class="pre">Flax</span> <span class="pre">``data</span></tt> directory. The
+current log file is called <tt class="docutils literal"><span class="pre">flax.log</span></tt>. Older log files are labeled with the extensions
+&quot;.1&quot;, &quot;.2&quot; etc, each file being older than the previous. Flax will roll over the log file
+when it reaches 10MB in size. It will also delete the oldest log file if the total number
+exceeds 10 (this is configurable).</p>
+<p>Logged events are written in the following format:</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">&lt;date&gt;</span> <span class="pre">&lt;time&gt;:</span> <span class="pre">&lt;LEVEL&gt;:</span> <span class="pre">&lt;message&gt;</span></tt></blockquote>
+<p>e.g.:</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">2007-11-20</span> <span class="pre">14:39:21,638:</span> <span class="pre">INFO:</span> <span class="pre">Checking</span> <span class="pre">collections</span> <span class="pre">for</span> <span class="pre">(re-)indexing</span></tt></blockquote>
+<p><em>At 14:29 and 21.638s on 20th November 2007 an INFO level event occurred; the scheduler
+checked all collections to check whether any were due for indexing.</em></p>
+<p>Logging is fully configurable (beyond the event level options described above) by
+editing the file <tt class="docutils literal"><span class="pre">flaxlog.conf</span></tt> in your configuration directory
+(<tt class="docutils literal"><span class="pre">C:\Program</span> <span class="pre">Files\Flax</span> <span class="pre">Basic\conf</span></tt> on Windows, if that's where you installed Flax).
+This uses the standard Python logging configuration format. For details, see:</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">http://docs.python.org/lib/logging-config-fileformat.html</span></tt></blockquote>
+</div>
+</div>
+<div class="section" id="users">
+<h1>Users</h1>
+<p>The standard user interface is accessed from Flax's root page; e.g., on the installation
+machine, browse to:</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">http://localhost:8090/</span></tt></blockquote>
+<p>The standard interface provides three pages, accessible from the menu at the top right
+of the page. Simple and Advanced Search are described below. The third page, <em>About Flax</em>,
+has information about Flax, with external links to relation web sites.</p>
+<div class="section" id="simple-search">
+<h2>Simple Search</h2>
+<p>This page provides a simple search over all or any of the document collections.
+Flax will find documents which contain <em>all</em> the words entered in the search input,
+and return a list ordered by relevance.</p>
+<p>Each search result is comprised of the document
+title (if available - otherwise the filename is used), a highlighted summary of the
+document text, and the document size and modification time. The title is hyperlinked
+to the document itself, using the mapping mechanism set up in the collection details.
+If there are more than 10 matching documents, use the links at the bottom of the list
+to page through the results.</p>
+<img alt="img/reference-2.png" src="img/reference-2.png" />
+<p>Each search result has a link <strong>Find similar documents</strong> on the bottom information
+line. Clicking this will display documents on the same or related topics to the
+original document, ranked from most to least similar, which can be paged through
+in the same way as search results. Click <strong>Search</strong> or <strong>Advanced Search</strong> in the top
+menu bar to return.</p>
+<p>If there is only one collection in Flax, all searches will be over this collection.
+Otherwise you have the option to select which collections to search. Leave all the
+checkboxes unchecked to search over all (this is the same as checking all of them),
+or select the ones you want to search.</p>
+<img alt="img/reference-3.png" src="img/reference-3.png" />
+<p>When the search box is empty, Flax will display collection descriptions, with the
+indexed document count for each. If there are no documents, a warning will also be
+displayed.</p>
+<img alt="img/reference-4.png" src="img/reference-4.png" />
+<div class="section" id="spelling-correction">
+<h3>Spelling correction</h3>
+<p>If a search returns no results, Flax will attempt to correct the spelling of any
+words in the query that appear to be misspelled, by searching the index for the
+nearest match to the word. If it finds a query that returns results, it will display
+these results along with a warning message that the query has been spell-corrected.</p>
+<img alt="img/reference-5.png" src="img/reference-5.png" />
+</div>
+</div>
+<div class="section" id="advanced-search">
+<h2>Advanced Search</h2>
+<p>This page is accessed from the <strong>Advanced Search</strong> link in the top menu. It is similar
+to the basic search page (the main search box will still match all words entered)
+but adds three new optional fields to the search. These can be used together or alone:</p>
+<blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Exact Phrase:</th><td class="field-body">matches text exactly as entered.</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">Without the words:</th></tr>
+<tr><td>&nbsp;</td><td class="field-body">excludes any words entered here from the results.</td>
+</tr>
+<tr class="field"><th class="field-name">Formats:</th><td class="field-body">if any of the formats are selected, results will be restricted to files with those formats.</td>
+</tr>
+</tbody>
+</table>
+</blockquote>
+</div>
+<div class="section" id="searching-with-syntax">
+<h2>Searching with Syntax</h2>
+<p>It is possible to replicate most of the Advanced Search facilities using just the
+Simple Search page, by adding a bit of syntax to the query. For example to search
+for an exact phrase, use double quotes around the phrase, eg:</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">&quot;public</span> <span class="pre">sector&quot;</span></tt></blockquote>
+<p>to exclude words from a query, preface them with a '-' (minus) character. Note that
+this only works if there are other, non-negative words in the query:</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">&quot;public</span> <span class="pre">sector&quot;</span> <span class="pre">-transport</span></tt></blockquote>
+<p>returns all documents which include the phrase &quot;public sector&quot; but not the word
+&quot;transport&quot;. It is also possible to add optional words or phrases to the query using the OR
+operator:</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">nurse</span> <span class="pre">OR</span> <span class="pre">doctor</span> <span class="pre">OR</span> <span class="pre">teacher</span></tt></blockquote>
+<p>returns documents containing any of these words. Finally, you can use these query
+types together, optionally using parentheses to group terms together:</p>
+<blockquote>
+<tt class="docutils literal"><span class="pre">(&quot;public</span> <span class="pre">sector&quot;</span> <span class="pre">OR</span> <span class="pre">&quot;local</span> <span class="pre">authority&quot;)</span> <span class="pre">-transport</span> <span class="pre">(nurse</span> <span class="pre">OR</span> <span class="pre">doctor</span> <span class="pre">OR</span> <span class="pre">teacher)</span></tt></blockquote>
+<p>finds documents containing the phrase &quot;public sector&quot; or &quot;local authority&quot; but not the
+word &quot;transport&quot;, and also the word &quot;nurse&quot;, &quot;doctor&quot; or &quot;teacher&quot;.</p>
+</div>
+</div>
+<div class="section" id="changing-the-inteface-look-feel">
+<h1>Changing the Inteface Look &amp; Feel</h1>
+<p>Flax's HTML interface is generated from template files located in the <tt class="docutils literal"><span class="pre">templates</span></tt>
+subdirectory of the installation (e.g. <tt class="docutils literal"><span class="pre">C:\Program</span> <span class="pre">Files\Flax</span> <span class="pre">Basic\templates</span></tt>).
+You can modify these files to change the appearance and behaviour of the interface.
+The files are:</p>
+<blockquote>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">flax.html</span></tt></dt>
+<dd>This template defines the basic structure of all Flax pages. It has a <em>banner</em>
+element which is substituted with either the admin or user banner files,
+depending on the mode that Flax is being accessed in. The main content of
+the page is taken from one of the non-banner files listed below. These may
+also override the page title, and insert elements into the &lt;head&gt; element.</dd>
+<dt><tt class="docutils literal"><span class="pre">admin_banner.html</span></tt></dt>
+<dd>The top element common to all pages viewed by administrators, which displays
+the Flax logo and a menu of links.</dd>
+<dt><tt class="docutils literal"><span class="pre">user_banner.html</span></tt></dt>
+<dd>The top element common to all pages viewed by normal users, displaying
+the Flax logo and a menu of links.</dd>
+<dt><tt class="docutils literal"><span class="pre">search.html</span></tt></dt>
+<dd>Both the simple and advanced variant of search page (the advanced elements are
+contained in &lt;div&gt; which is suppressed for simple searches).</dd>
+<dt><tt class="docutils literal"><span class="pre">collections.html</span></tt></dt>
+<dd>The list of collections in Flax, with indexing controls.</dd>
+<dt><tt class="docutils literal"><span class="pre">collection_detail.html</span></tt></dt>
+<dd>Details for an existing or new collection.</dd>
+<dt><tt class="docutils literal"><span class="pre">options.html</span></tt></dt>
+<dd>Global options (currently just logging).</dd>
+<dt><tt class="docutils literal"><span class="pre">about.html</span></tt></dt>
+<dd>Information about Flax, Xapian, and Lemur Consulting.</dd>
+</dl>
+</blockquote>
+<p>These files are standard HTML, except that certain elements are tagged with the
+<em>node</em> attribute. This is used by Flax's template engine to insert or modify elements.
+You can change the HTML in any way, but these <em>node</em> elements must be retained, and
+have the same nested structure that they currently do.</p>
+<p>A great deal of customisation could be carried out without modifying the HTML templates.
+Flax uses CSS (Cascading Style Sheets) to define the style of pages. This is specified
+in one file, <tt class="docutils literal"><span class="pre">main.css</span></tt>, in the <tt class="docutils literal"><span class="pre">static\css</span></tt> folder
+(e.g. <tt class="docutils literal"><span class="pre">C:\Program</span> <span class="pre">Files\Flax</span> <span class="pre">Basic\static</span></tt>), and may be modified to customise the
+pages. There are also images in the <tt class="docutils literal"><span class="pre">static\img</span></tt> folder which may be replaced with
+your own variants.</p>
+</div>
+<div class="section" id="troubleshooting">
+<h1>Troubleshooting</h1>
+<p>FIXME</p>
+</div>
+</div>
+</body>
+</html>
