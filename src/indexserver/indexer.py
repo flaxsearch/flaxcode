@@ -301,8 +301,8 @@ class IndexProcess(logclient.LogClientProcess):
         finally:
             remote_log.info("Cleaning up child processes of indexer")
             processing.process._exit_func()
-            # safe to raise this - doesn't produceing stderr/stdoutput
-            # and needed for clean shutdown.
+            # safe to raise this - doesn't produce output on
+            # stderr/stdout and needed for clean shutdown.
             raise SystemExit
 
 
