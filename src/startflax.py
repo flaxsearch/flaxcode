@@ -250,4 +250,10 @@ if __name__ == "__main__":
     if options.set_admin_password:
         set_admin_password()
         sys.exit(0)
-    main.start(blocking=True)
+    try:
+        main.start(blocking=True)
+    except:
+        main.stop()
+        main.join()
+        raise
+    
