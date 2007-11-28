@@ -285,7 +285,7 @@ class IndexProcess(logclient.LogClientProcess):
                     if self.inpipe[1].poll(2):
                         collection, filter_settings = self.inpipe[1].recv()
                         self.outpipe[0].send(indexer.do_indexing(collection, filter_settings))
-            except (SystemExit, KeyboardInterrupt), e:
+            except KeyboardInterrupt:
                 # This happens on normal process termination, just log it as
                 # info.  Don't re-raise because we don't want it to be printed
                 # to stderr, and we're about to exit anyway.
@@ -300,7 +300,10 @@ class IndexProcess(logclient.LogClientProcess):
                 remote_log.critical('Unhandled exception in IndexerProcess.run(), traceback follows:\n %s' % tb)
         finally:
             remote_log.info("Cleaning up child processes of indexer")
-            processing.process._exit_func() 
+            processing.process._exit_func()
+            # safe to raise this - doesn't produceing stderr/stdoutput
+            # and needed for clean shutdown.
+            raise SystemExit
 
 
     # call do indexing in the remote process, block until return value is sent back
