@@ -243,7 +243,7 @@ against typing errors.
     flaxauth.set('admin', pw1)
     flaxauth.save()
 
-if __name__ == "__main__":
+def main():
     processing.freezeSupport()
     options = parse_cli_opts()
     main = FlaxMain(options)
@@ -256,4 +256,7 @@ if __name__ == "__main__":
         main.stop()
         main.join()
         raise
+
+if __name__ == "__main__":
+   main()
     
