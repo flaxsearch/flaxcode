@@ -72,7 +72,7 @@ If you see a message about the file "auth.conf" then run the same
 command but with the additional option "--set-admin-password", this
 will prompt you to specify the password for access to the
 administrator web UI and then exit. This need only be done once but
-not that the if you use a different location for "--conf-dir" then the
+note that the if you use a different location for "--conf-dir" then the
 file auth.conf must be moved, or else a new one created by resetting
 the password.
 
