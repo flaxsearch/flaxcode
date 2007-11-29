@@ -27,6 +27,7 @@ import os
 import sys
 import threading
 import time
+import atexit
 
 import processing
 import cpserver
@@ -136,7 +137,6 @@ class FlaxMain(object):
         if self._need_cleanup:
             self._do_cleanup()
         self._need_cleanup = True
-
         flaxauth.load()
         webserver_logconfio = processing.Pipe()
         self.index_server = indexer.IndexServer()
