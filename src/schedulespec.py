@@ -66,6 +66,6 @@ class ScheduleSpec(object):
         return all(itertools.starmap(self._matches,
                                      ((date_time.month, self.months),
                                       (date_time.day, self.monthdays),
-                                      (date_time.weekday, self.weekdays),
+                                      (date_time.weekday(), self.weekdays),
                                       (date_time.hour, self.hours),
                                       (date_time.minute, self.mins))))
