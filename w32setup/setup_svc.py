@@ -116,12 +116,14 @@ Source: "%(this_dir)s\zlib1.dll"; DestDir: "{app}\localinst"; Flags: ignoreversi
 Source: "%(this_dir)s\exampledocs\*"; DestDir: "{app}\exampledocs"; Flags: ignoreversion
 Source: "%(this_dir)s\gettingstarted\*"; DestDir: "{app}\gettingstarted"; Flags: ignoreversion
 Source: "%(this_dir)s\*.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "%(this_dir)s\..\docs\reference.html"; DestDir: "{app}\docs"; Flags: ignoreversion
 ; NOTE: Do not use "Flags: ignoreversion" on any shared system files
 
 [Icons]
 Name: "{group}\%(name)s (Manual Start)"; Filename: "{app}\startflax.exe"; IconFilename: "{app}\install.ico"
 Name: "{group}\{cm:ProgramOnTheWeb,%(name)s}"; Filename: "http://www.flax.co.uk"
 Name: "{group}\Getting Started Guide"; Filename: "file://{app}\gettingstarted\GettingStartedOnWindows.htm"
+Name: "{group}\Reference Manual"; Filename: "file://{app}\docs\reference.html"
 Name: "{group}\{cm:UninstallProgram,%(name)s}"; Filename: "{uninstallexe}"; IconFilename: "{app}\uninstall.ico"
 Name: "{commondesktop}\%(name)s"; Filename: "{app}\startflax.exe"; Tasks: desktopicon; IconFilename: "{app}\install.ico"
 
