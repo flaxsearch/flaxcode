@@ -213,7 +213,7 @@ class Indexer(object):
                     fields = itertools.starmap(xappy.Field, itertools.chain(fixed_fields, filtered_blocks))
                     doc = xappy.UnprocessedDocument(fields = fields)
                     doc.id = file_name
-                    conn.replace(doc)
+                    conn.replace(doc) # FIXME - if this raises an error, it's probably more serious (eg, database corruption) than if a filter raises an error.
                     remote_log.debug("Added (or replaced) doc %s to collection %s with text from source file %s" %
                                   (doc.id, collection_name, file_name))
                     return True
