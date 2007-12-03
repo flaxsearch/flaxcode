@@ -141,6 +141,7 @@ class Collections(FlaxResource):
         self._only_post()
 
         if col in self._flax_data.collections:
+            self._index_server.stop_indexing(self._flax_data.collections[col])
             self._flax_data.collections.remove_collection(col)
             # FIXME - should probably redirect here.
             return self.view()

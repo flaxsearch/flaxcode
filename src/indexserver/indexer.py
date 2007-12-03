@@ -408,8 +408,20 @@ class IndexServer(object):
                 else:
                     self.hints.discard(hint)
             return
+        
+        # self.hints needs to get rid of references to collections
+        # that have been deleted, so remove them here before
+        # considering which collection to index next.  (Possibly it
+        # would be better for hints to be some kind of collection of
+        # weak references and just discard the ones who's referent has
+        # gone, but since we don't know for sure whether anything else
+        # has a reference to a collection to keep it alive we'll leave
+        # it like this for now.)
 
-        for col in itertools.chain([hint] if hint else [], self.hints, flax.options.collections.itervalues()):
+        current_collections = set(flax.options.collections.itervalues())
+        self.hints = self.hints - current_collections
+
+        for col in itertools.chain([hint] if hint else [], self.hints, current_collections):
             if self.ok_to_index(col):
                 self.async_do_indexing(col)
                 break
@@ -417,7 +429,6 @@ class IndexServer(object):
     def stop_indexing(self, collection):
         """Stop indexing collection if it is currently indexing,
         otherwise do nothing"""
-
         with self.state_lock:
             if self.currently_indexing is collection:
                 self.stop_sv.value = True
