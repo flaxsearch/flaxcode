@@ -45,6 +45,7 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
     log = logging.getLogger('collections')
 
     def __init__(self, name, *args, **kwargs):
+        # The name of the collection.
         self.name = name
         self.mappings = {}
         self.update(*args, **kwargs)
@@ -62,9 +63,9 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
         filespec.FileSpec.update(self, **kwargs)
         dbspec.DBSpec.update(self, **kwargs)
         schedulespec.ScheduleSpec.update(self, **kwargs)
-        self.update_mappings(**kwargs)
+        self._update_mappings(**kwargs)
 
-    def update_mappings(self, path=None, mapping=None, **kwargs):
+    def _update_mappings(self, path=None, mapping=None, **kwargs):
         # This relies on the ordering of the form elements, I'm not
         # sure if it's safe to do so, although it seems to work fine.
         if (path == None or mapping == None):
@@ -77,9 +78,15 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
         self.paths = filter(None, self.paths)
 
     def url_for_doc(self, doc_id):
-        """ Use the mappings attribute of the collection to give the
-        url for the document.  If there is no mapping specified then
-        just return the empty string.
+        """Calculate the URL to display for a document.
+        
+        Uses the mappings attribute of the collection to give the url for the
+        document.  If there is no mapping specified then just return the empty
+        string.
+
+        If a file lives below more than one path which is mapped, the longest
+        such path is used (since it will be the most specific).
+
         """
         #Possibly a file lives below two separate paths, in which case
         #we're just taking the first mapping here. To really address
@@ -101,7 +108,9 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
             return ""
 
     def search_conn(self):
-        return xappy.SearchConnection(self.dbpath())
+        conn = xappy.SearchConnection(self.dbpath())
+        #FIXME - conn.append_close_handler(self.FIXME)
+        return conn
 
     @property
     def document_count(self):
