@@ -110,7 +110,7 @@ class Results (object):
         else:
             hq = conn.query_all()
         if exact:
-            hq = conn.query_composite(xappy.SearchConnection.OP_AND, (hq, conn.query_parse( '"%s"' % exact)))
+            hq = conn.query_composite(conn.OP_AND, (hq, conn.query_parse( '"%s"' % exact)))
 
         # Work out xq, which is the actual query to be executed, but adding the
         # filters and filetypes.
