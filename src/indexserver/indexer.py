@@ -53,7 +53,7 @@ import htmltotext_filter
 
 
 remote_log = logging.getLogger("indexing.remote")
-control_log = logging.getLogger("indexing.control")
+control_log = logging.getLogger("indexing")
 
 class DiskSpaceShortage(Exception):
     
@@ -301,6 +301,7 @@ class IndexProcess(logclient.LogClientProcess):
         finally:
             remote_log.info("Cleaning up child processes of indexer")
             processing.process._exit_func()
+            remote_log.info("Child processes of indexer stopped")
             # safe to raise this - doesn't produce output on
             # stderr/stdout and needed for clean shutdown.
             raise SystemExit
