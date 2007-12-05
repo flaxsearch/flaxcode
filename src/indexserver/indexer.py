@@ -300,7 +300,7 @@ class IndexProcess(logclient.LogClientProcess):
                 remote_log.critical('Unhandled exception in IndexerProcess.run(), traceback follows:\n %s' % tb)
         finally:
             remote_log.info("Cleaning up child processes of indexer")
-            processing.process._exit_func()
+            sys.exitfunc()
             remote_log.info("Child processes of indexer stopped")
             # safe to raise this - doesn't produce output on
             # stderr/stdout and needed for clean shutdown.

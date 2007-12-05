@@ -147,11 +147,11 @@ class FlaxService(win32serviceutil.ServiceFramework):
             # Perform cleanup.
             # This is needed because of a bug in PythonService.exe - it doesn't
             # call Py_Finalize(), so atexit handlers don't get called.  We call
-            # processing.process._exit_func() directly as a workaround.  When the
+            # sys.exit_func() directly as a workaround.  When the
             # bug is fixed, we should stop doing this.  See:
             # https://sourceforge.net/tracker/?func=detail&atid=551954&aid=1273738&group_id=78018
             # for details.
-            processing.process._exit_func()
+            sys.exitfunc()
 
             sys.stderr.close()
             sys.stdout.close()

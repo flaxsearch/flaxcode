@@ -217,7 +217,7 @@ class FlaxMain(object):
         if self._stop_thread:
 #            log.debug("FlaxMain.join: joining _stop_thread timeout is %d" % timeout)
             self._stop_thread.join(timeout)
-            return self._stop_thread.isAlive()
+            return not self._stop_thread.isAlive()
         else:
             # there's no stop thread, so stop() has not been called yet.
             # sleep here for a bit so something else can call stop if need be.
