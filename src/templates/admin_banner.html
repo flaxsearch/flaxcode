@@ -5,33 +5,61 @@
      page is being viewed -->
 
 <div class="banner" class="admin_banner" node="con:banner">
+  <script type="text/javascript">
+    function show_help()
+    {
+      var sect = '';
+      var i = window.location.pathname.lastIndexOf('/');
+      if (i != -1)
+        sect = window.location.pathname.slice(i+1);
+      
+      if (sect == 'collection_details')
+        sect = 'creating-a-collection';
+      else if (sect == 'search')
+        sect = 'simple-search';
+      else if (sect == 'advanced_search')
+        sect = 'advanced-search';
+      else if (sect == 'new')
+        sect = 'creating-a-collection';
+      else if (sect == 'view')
+        sect = 'editing-and-deleting-a-collection';
+        
+      window.open('/static/docs/reference.html#' + sect);
+    }
+  </script>
+
   <img src="/static/img/flax.125trans.png" alt="Flax Logo" 
    style="margin-right:15px;float:left;"/>
 
   <span class="navlist">
     <span class="navitem">
       <a href="/admin/collections" id="colnav">
-	<span class="navlabel">Collections</span>
+        <span class="navlabel">Collections</span>
       </a>
     </span>
     <span class="navitem">
       <a href="/admin/search" id="searchnav">
-	<span class="navlabel">Search</span>
+        <span class="navlabel">Search</span>
       </a>
     </span>
     <span class="navitem">
       <a href="/admin/advanced_search" id="advsearchnav">
-	<span class="navlabel">Advanced Search</span>
+        <span class="navlabel">Advanced Search</span>
       </a>
     </span>
     <span class="navitem">
       <a href="/admin/options" id="optnav">
-	<span class="navlabel">Options</span>
+        <span class="navlabel">Options</span>
       </a>
     </span>
     <span class="navitem">
       <a href="/admin/about" id="aboutnav">
-	<span class="navlabel">About Flax</span>
+        <span class="navlabel">About Flax</span>
+      </a>
+    </span>
+    <span class="navitem">
+      <a target="help" href="javascript:show_help()">
+        <span class="navlabel">Help</span>
       </a>
     </span>
   </span>
