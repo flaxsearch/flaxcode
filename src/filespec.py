@@ -78,7 +78,7 @@ class FileSpec(object):
                 log_file_walked(p)
                 yield p
             else:
-                logger_indexing.error("File path %s is neither a directory or a file" %s )
+                logger_indexing.error("File path %s is neither a directory or a file" % p )
 
 
     def _get_oldest(self):
