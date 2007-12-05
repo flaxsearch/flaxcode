@@ -493,5 +493,7 @@ your own variants.
 Troubleshooting
 ===============
 
-There is a Frequently Asked Questions (FAQ) file available for Windows which may also contain useful information for users running other operating systems. This file is available at http://code.google.com/p/flaxcode/w/list .
+There is a Frequently Asked Questions (FAQ) file available for Windows which may also contain 
+useful information for users running other operating systems. This file is available at
+http://code.google.com/p/flaxcode/w/list .
 
