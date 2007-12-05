@@ -22,6 +22,7 @@ __docformat__ = "restructuredtext en"
 import itertools
 import logging
 import os
+import sys
 import time
 import threading
 
