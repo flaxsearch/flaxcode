@@ -333,8 +333,8 @@ def render_collection_detail(template, collection, formats, languages):
             node.atts['selected'] = "selected"
 
     form.language_option.repeat(fill_languages, languages)
-    if collection:
-        form.stopwords.atts["value"] = " ".join(collection.stopwords)
+#    if collection:
+#        form.stopwords.atts["value"] = " ".join(collection.stopwords)
 
     if collection:
         def render_spec(spec):
