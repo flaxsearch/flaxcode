@@ -87,8 +87,12 @@ Changing the Administration Password
 
         or if it is running in a command window then close that window. Then open a command window (Start, Run, cmd) and type:
 
+
+
         ``cd "C:\Program files\Flax Basic"``
         ``startflax --set-admin-password``
+
+
 
         Enter a new password and close the window, then restart the Flax Basic service if necessary by running the file 
         
@@ -188,13 +192,7 @@ to the collection details page, with blank fields. The fields are arranged in fo
     3.  Indexing Options
     
         Options controlling the way files are indexed. Currently, this is just a language
-        selection and a list of *stopwords*.  The latter are words to exclude from the
-        index (typically words such as "the", "or", "and" etc which have little to do
-        with the topic of a document). There is generally little need to set stopwords
-        except when trying to limit index size, so if in doubt, leave this field empty.
-        Stopwords, if set, should be separated by spaces.
-        
-        The **Language** option primarily controls the *stemming*, or suffix-stripping, of
+        selection, which controls the *stemming*, or suffix-stripping, of
         indexed words. This technique improves searching by normalising inflected forms
         of words, so that, for example, "cycle" would match "cycled", "cycling", "cycles"
         etc. Since this is a language-dependent feature, the main language of a collection
