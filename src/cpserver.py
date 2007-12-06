@@ -449,4 +449,8 @@ def stop_web_server():
     """Stop the flax web server.
 
     """
-    cherrypy.server.stop()
+    #calling this blocks sometimes, whereas simply terminating the
+    #process without calling it seems to work fine, so we don't call
+    #it - see: http://code.google.com/p/flaxcode/issues/detail?id=153
+    #cherrypy.server.stop()
+    pass
