@@ -147,7 +147,7 @@ class FlaxMain(object):
                              [webserver_logconfio[0], self.index_server.log_config_listener()])
         logclient.LogListener(webserver_logconfio[1]).start()
         logclient.LogConf(flaxpaths.paths.logconf_path).update_log_config()
-        flax.options = persist.read_flax(flaxpaths.paths.flaxstate_path)
+        persist.read_flax(flaxpaths.paths.flaxstate_path, flax.options)
         scheduler.ScheduleIndexing(self.index_server).start()
         persist.DataSaver(flaxpaths.paths.flaxstate_path).start()
         cpserver.start_web_server(flax.options, self.index_server,

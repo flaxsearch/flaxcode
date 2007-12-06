@@ -45,7 +45,10 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
     log = logging.getLogger('collections')
 
     def __init__(self, name, *args, **kwargs):
-        # The name of the collection.
+        # deleted is set to True when the database is marked as deleted - it
+        # will then shortly actually be deleted.
+        self.deleted = False
+
         self.name = name
         self.mappings = {}
         self.update(*args, **kwargs)

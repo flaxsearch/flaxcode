@@ -22,6 +22,7 @@ import logging
 import types
 
 import doc_collection
+import flax
 import search
 
 log = logging.getLogger("collections")
@@ -31,9 +32,32 @@ class CollectionList(object):
 
     """
 
-    def __init__(self, formats):
+    def __init__(self):
         self._collections = {}
-        self.formats = formats
+
+    def to_dict(self):
+        """Get a dictionary containing the details of the collections."""
+        result = {}
+        for key, val in self._collections.iteritems():
+            # FIXME - convert the collection to a dict, so we just store
+            # the settings we want to be persistent.  Like so:
+            # result[key] = val.to_dict()
+            result[key] = val
+        return result
+
+    def from_dict(self, coldict):
+        """Update the collection list from a dictionary."""
+        # Note - this is currently only called at startup, so can assume the
+        # _collections dict is empty.  Assert that this is so, for robustness
+        # against future changes.
+        assert(len(self._collections) == 0)
+
+        for name, val in coldict.iteritems():
+            # FIXME - convert the collection from a dict.  Like so:
+            #col = doc_collection.DocCollection(name)
+            #col.from_dict(val)
+            #self._collections[name] = col
+            self._collections[name] = val
 
     def new_collection(self, name, **kwargs):
         if isinstance(name, types.StringType) and not self._collections.has_key(name):
@@ -41,7 +65,7 @@ class CollectionList(object):
             col = doc_collection.DocCollection(name)
             self._collections[name] = col
             if 'formats' not in kwargs:
-                kwargs['formats'] = self.formats
+                kwargs['formats'] = flax.options.formats
             col.update(**kwargs)
             return col
         else:

@@ -27,22 +27,53 @@ import flax
 import util
 
 def store_flax(filename, options):
+    """Store the flax options.
+
+    :Parameters:
+     - `filename`: The filename to read the options from.
+     - `options`: The FlaxOptions object to write the options to.
+
+    If the options are not yet initialised, nothing will be stored.
+
+    """
+    logging.getLogger().debug("Storing flax options")
+    if not options.initialised():
+        # Options weren't initialised - don't store anything.
+        return
+    options_dict = options.to_dict()
+    logging.getLogger().debug("Storing options: %r" % options_dict)
+
     d = shelve.open(filename)
-    d['flax'] = options
+    d['flax'] = options_dict
     d.close()
 
-def read_flax(filename):
+def read_flax(filename, options):
+    """Read the flax options.
+
+    :Parameters:
+     - `filename`: The filename to read the options from.
+     - `options`: The FlaxOptions object to write the options to.
+
+    If the file is invalid in any way, the options will be set to default
+    values.
+
+    """
     d = shelve.open(filename)
     try:
-        options = d['flax']
-        if options.version != flax.current_version:
-            log=logging.getLogger().warn("The version of %s is incompatible, reverting to default settings" % filename)
-            options = flax.make_options()
+        options_dict = d['flax']
+        logging.getLogger().debug("Got options: %r" % options_dict)
+        options_version = options_dict.get('version', None)
+        if options_version != flax.current_version:
+            logging.getLogger().warn("The version of %s is incompatible, reverting to default settings" % filename)
+            options.set_to_defaults()
+            data_changed.set()
+        else:
+            options.from_dict(options_dict)
     except (KeyError, AttributeError):
-        log=logging.getLogger().warn("There was a problem reading %s, reverting to default settings" % filename)
-        options = flax.make_options()
+        logging.getLogger().warn("There was a problem reading %s, reverting to default settings" % filename)
+        options.set_to_defaults()
+        data_changed.set()
     d.close()
-    return options
 
 data_changed = threading.Event()
 data_changed.clear()

@@ -25,22 +25,102 @@ import collection_list
 import flaxpaths
 import logclient
 
-current_version = 11
+# The current configuration file version - update this each time things change
+# incompatibly.
+current_version = 12
 
 class FlaxOptions(object):
     """Global options for Flax.
 
     """
-    def __init__(self, version, formats,
-                 logger_names, filters, filter_settings, languages):
 
-        self.version = version
-        self.formats = formats
-        self.collections = collection_list.CollectionList(self.formats)
-        self.logger_names = logger_names
-        self.filters = filters
+    # The formats which we support.
+    formats = sorted(["txt", "doc", "rtf", "html", "htm", "pdf", "xls", "ppt",])
+
+    # A list of the logger names in use.
+    # FIXME - this should probably be kept in the logclient module, and
+    # probably be generated from the loggers or the logging configuration
+    # automatically.
+    logger_names = ("",
+                    "collections",
+                    "indexing",
+                    "filtering",
+                    "searching",
+                    "scheduling",
+                    "webserver",
+                   )
+
+    # A list of the available languages - the first item in each tuple is the
+    # internal name, and the second item in the tuple is the (english) display
+    # name.
+    # FIXME - this should probably be read from xappy, which in turn should
+    # read it from Xapian, to ensure that the list is up-to-date with the
+    # version of Xapian in use.
+    languages = (("none", "None"),
+                 ("da", "Danish"),
+                 ("nl", "Dutch"),
+                 ("en", "English"),
+                 ("fi", "Finnish"),
+                 ("fr", "French"),
+                 ("de", "German"),
+                 ("it", "Italian"),
+                 ("no", "Norwegian"),
+                 ("pt", "Portuguese"),
+                 ("ru", "Russian"),
+                 ("es", "Spanish"),
+                 ("sv", "Swedish")
+                )
+
+    def __init__(self):
+        self.collections = None
+
+    def initialised(self):
+        """Check if this options object has been initialised."""
+        return self.collections is not None
+
+    def to_dict(self):
+        """Convert the settings to a dictionary.
+
+        Only those settings which should be preserved across invocations, and
+        versions, of Flax will be placed in the dictionary.
+
+        Returns the dictionary of settings.
+
+        """
+        return {
+            # The version of this configuration.
+            'version': current_version,
+
+            # The collections in use.
+            'collections': self.collections.to_dict(),
+
+            # These are the default filter settings.
+            'filter_settings': self.filter_settings,
+        }
+
+    def from_dict(self, settings):
+        """Update the settings from a dictionary.
+
+        """
+        if self.collections is None:
+            self.collections = collection_list.CollectionList()
+        self.collections.from_dict(settings['collections'])
+        self.filter_settings = settings['filter_settings']
+
+    def set_to_defaults(self):
+        """Set the settings to default values.
+
+        """
+        if os.name == 'nt':
+            default_filter = 'IFilter'
+        else:
+            default_filter = 'Text'
+        filter_settings = dict( (f, default_filter) for f in FlaxOptions.formats)
+        filter_settings['html'] = filter_settings['htm'] = 'Xapian'
+        filter_settings['txt'] = 'Text'
+
         self.filter_settings = filter_settings
-        self.languages = languages
+        self.collections = collection_list.CollectionList()
 
     def _set_log_settings(self, vals):
         new_levels = {}
@@ -79,52 +159,5 @@ class FlaxOptions(object):
         """
         return ('NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
 
-def make_options():
-    user = os.path.expanduser('~')
-    logger_names = ("",
-                    "collections",
-                    "indexing",
-                    "filtering",
-                    "searching",
-                    "scheduling",
-                    "webserver")
-    
-
-    filters = ["IFilter", "Xapian", "Text"]
-
-    formats = ["txt", "doc", "rtf", "html", "htm", "pdf", "xls", "ppt"]
-    formats.sort()
-
-    default_filter = filters[0] if os.name == 'nt' else filters[2]
-
-    filter_settings = dict( (f, default_filter) for f in formats)
-    if os.name != 'nt':
-        filter_settings['html'] = filter_settings['htm'] = 'Xapian'
-    else:
-        filter_settings['html'] = filter_settings['htm'] = 'Xapian'
-        filter_settings['txt'] = 'Text'
-
-
-    languages = [ ("none", "None"),
-                  ("da", "Danish"),
-                  ("nl", "Dutch"),
-                  ("en", "English"),
-                  ("fi", "Finnish"),
-                  ("fr", "French"),
-                  ("de", "German"),
-                  ("it", "Italian"),
-                  ("no", "Norwegian"),
-                  ("pt", "Portuguese"),
-                  ("ru", "Russian"),
-                  ("es", "Spanish"),
-                  ("sv", "Swedish")]
-
-    return FlaxOptions(current_version,
-                       formats,
-                       logger_names,
-                       filters,
-                       filter_settings,
-                       languages)
-
-# placeholder for global options object
-options = None
+# Global options object
+options = FlaxOptions()
