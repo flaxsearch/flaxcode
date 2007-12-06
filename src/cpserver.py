@@ -143,8 +143,7 @@ class Collections(FlaxResource):
         if col in self._flax_data.collections:
             self._index_server.stop_indexing(self._flax_data.collections[col])
             self._flax_data.collections.remove_collection(col)
-            # FIXME - should probably redirect here.
-            return self.view()
+            return self._redirect_to_view()
 
     def update(self, col=None, **kwargs):
         """Update the attributes of a document collection.
