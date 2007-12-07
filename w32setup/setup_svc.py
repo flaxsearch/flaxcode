@@ -111,6 +111,7 @@ Source: "%(localinst_dir)s\htmltotext.pyd"; DestDir: "{app}\localinst"; Flags: i
 Source: "%(this_dir)s\vcredist_x86.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "%(this_dir)s\startflaxservice.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "%(this_dir)s\stopflaxservice.bat"; DestDir: "{app}"; Flags: ignoreversion
+Source: "%(this_dir)s\WindowsInstaller-KB893803-v2-x86.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "%(this_dir)s\msvcp71.dll"; DestDir: "{app}\localinst"; Flags: ignoreversion
 Source: "%(this_dir)s\zlib1.dll"; DestDir: "{app}\localinst"; Flags: ignoreversion
 Source: "%(this_dir)s\exampledocs\*"; DestDir: "{app}\exampledocs"; Flags: ignoreversion
@@ -136,6 +137,8 @@ Root: HKLM; Subkey: "Software\%(publisher)s\%(name)s\RuntimePath"; ValueType: st
 Root: HKLM; Subkey: "Software\%(publisher)s\%(name)s\DataPath"; ValueType: string; ValueName: ""; ValueData: "{code:GetDataDir}"
 
 [Run]
+; Install new Microsoft Installer
+Filename: "{app}\WindowsInstaller-KB893803-v2-x86.exe"; StatusMsg: "Installing Microsoft Installer"; Parameters: "-quiet -norestart"; Flags: waituntilterminated shellexec
 ; Install Visual C++ dependencies
 Filename: "{app}\vcredist_x86.exe"; StatusMsg: "Installing Microsoft dependencies"; Parameters: "-q"; Flags: waituntilterminated shellexec
 ; Set admin password
