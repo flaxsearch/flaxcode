@@ -1,3 +1,12 @@
+Fri Dec 07 11:40:22 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/indexserver/indexer.py: Notify the collection list when an
+	  index connection is opened or closed.
+	* src/collection_list.py: Add the index connection information to
+	  the handle count kept for each collection; avoids attempting to
+	  delete underlying databases while a collection is finishing up
+	  its indexing.
+
 Fri Dec 07 11:16:21 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* src/collection_list.py: Delete the underlying database on disk

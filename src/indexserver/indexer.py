@@ -353,19 +353,24 @@ class IndexServer(object):
 
     def do_indexing(self, collection):
         assert not self.stop_sv.value
-        self.hints.discard(collection)
-        collection.indexing_due = False
-        self.currently_indexing = collection
-        self.error_count_sv.value = 0
-        self.file_count_sv.value = 0
-        # block here for a result
-        # the return value shows whether we finished, or were prematurely stopped
-        collection.indexing_due = not self.indexing_process.do_indexing(collection, flax.options.filter_settings)
-        collection.file_count = self.file_count_sv.value
-        collection.error_count = self.error_count_sv.value
-        with self.state_lock:
-            self.stop_sv.value = False
-            self.currently_indexing = None
+        name = collection.name
+        flax.options.collections.index_connection_opened(name)
+        try:
+            self.hints.discard(collection)
+            collection.indexing_due = False
+            self.currently_indexing = collection
+            self.error_count_sv.value = 0
+            self.file_count_sv.value = 0
+            # block here for a result
+            # the return value shows whether we finished, or were prematurely stopped
+            collection.indexing_due = not self.indexing_process.do_indexing(collection, flax.options.filter_settings)
+            collection.file_count = self.file_count_sv.value
+            collection.error_count = self.error_count_sv.value
+            with self.state_lock:
+                self.stop_sv.value = False
+                self.currently_indexing = None
+        finally:
+            flax.options.collections.index_connection_closed(name)
         # now that we've finished we can see if there's another collection due for indexing
         self.start_indexing()
         

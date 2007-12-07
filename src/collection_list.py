@@ -118,6 +118,38 @@ class CollectionList(object):
         finally:
             self._handle_count_condition.release()
 
+    def index_connection_opened(self, name):
+        """Register that an index connection to the database is open.
+
+        """
+        self._handle_count_condition.acquire()
+        try:
+            newcount = self._handle_count[name] + 1
+            self._handle_count[name] = newcount
+            log.debug('Opened indexer connection to %r: new connection count is %d' % (name, newcount))
+        finally:
+            self._handle_count_condition.release()
+
+    def index_connection_closed(self, name):
+        """Register that an index connection to the database has closed.
+
+        """
+        self._handle_count_condition.acquire()
+        try:
+            try:
+                newcount = self._handle_count[name] - 1
+                self._handle_count[name] = newcount
+                log.debug('Closed indexer connection to %r: new connection count is %d' % (name, newcount))
+                if newcount == 0:
+                    self._handle_count_condition.notifyAll()
+            except KeyError:
+                # The name of the connection wasn't known; shouldn't happen,
+                # but there's not much point in complaining.
+                log.warning('Got notification of closure of unknown indexer connection %r (at %r)' %
+                            (name, path))
+        finally:
+            self._handle_count_condition.release()
+
     def to_dict(self):
         """Get a dictionary containing the details of the collections."""
         cols = {}
