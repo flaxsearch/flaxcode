@@ -43,11 +43,11 @@ class FlaxRegistry(object):
         try:
             self.runtimepath = win32api.RegQueryValue(regutil.GetRootKey(),
                                             REGKEY_BASE + "RuntimePath")
-        except:
+        except Exception: # FIXME - should probably catch just the specific exception meaning that the key is missing
             self.runtimepath = DEFAULT_INSTALL_DIR
 
         try:
             self.datapath = win32api.RegQueryValue(regutil.GetRootKey(),
                                         REGKEY_BASE + "DataPath")
-        except:
+        except Exception: # FIXME - should probably catch just the specific exception meaning that the key is missing
             self.datapath = DEFAULT_INSTALL_DIR
