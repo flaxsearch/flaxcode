@@ -1,3 +1,1570 @@
+Fri Dec 07 11:11:06 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/flax_w32.py: Don't do "except:" - for now, just catch
+	  Exception, which will stop any ProcessExit type exceptions being
+	  stopped, but ideally we'd just catch the specific exception that
+	  means that a registry key wasn't found.
+
+Thu Dec 06 17:43:15 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/cpserver.py: Redirect after deleting a database, so that
+	  refresh doesn't cause errors.
+
+Thu Dec 06 13:23:00 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/collection_list.py,src/doc_collection.py,src/flax.py,
+	  src/persist.py,src/startflax.py: Rework the way in which flax
+	  settings are stored and restored from files. Instead of just
+	  pickling (well, shelving) the flax.options object, add a
+	  FlaxOptions::to_dict() method, which returns a dict which can
+	  then be pickled.  Currently, the DocCollection objects are still
+	  put into the dict natively, but everything else placed in the
+	  dict is one of (string, list, tuple, dict).  Once the
+	  DocCollection objects are resolved, we can start storing the
+	  settings as a human-readable format, and can also be more robust
+	  to change; we'll be able to read configuration files and upgrade
+	  them, since reading them won't rely on the code used to create
+	  them being the same as that used to read them. Update
+	  configuration version number to 12.  Remove FlaxOptions.filters
+	  property, which was never used (externally).  Change the
+	  FlaxOptions.formats, FlaxOptions.logger_names and
+	  FlaxOptions.languages to be class properties, since they're
+	  dependent on the modules available, not user configuration.
+	  (Really, they should be available as module properties, or
+	  something like that, but this is a convenient way to separate
+	  them for now, without requiring any of the code using them to be
+	  updated.)  Add FlaxOptions.to_dict() and from_dict(), and convert
+	  make_options() into a FlaxOptions.set_to_defaults() method. The
+	  flax.options object is now created at module import time, and
+	  never overwritten; this removes potential race conditions by
+	  stopping it being accessed before being created.  Instead, the
+	  persist module updates the options in-place. Add "deleted"
+	  attribute to DocCollection objects - this will be used to mark
+	  collections which are in the process of being deleted (but isn't
+	  yet used - I just wanted to get it in now so I don't have to bump
+	  the options file version number again). CollectionList no longer
+	  takes a "formats" object: this was just a reference to the
+	  formats object in flax.options, and as such can more cleanly be
+	  accessed directly (this also makes it obvious that changes in
+	  fax.options.formats will be reflected in any new databases
+	  created).
+
+Thu Dec 06 10:25:01 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=153 Don't call
+	  cherrypy.server.stop as it sometimes blocks indefinitely.
+
+Wed Dec 05 12:27:16 UTC 2007  charliejuggler
+
+	* src/templates/admin_banner.html: fix help link; doesn't need a
+	  target and correction to 'collections' page name
+
+Wed Dec 05 11:53:55 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: fix ref manual path
+
+Wed Dec 05 11:32:47 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/admin_banner.html: Added contextual help link. This
+	  needs the ../docs folder to be copied into ./static
+
+Wed Dec 05 11:22:28 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* docs/reference.html,docs/reference.rst: Minor tweaks
+
+Wed Dec 05 11:00:12 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/filespec.py: In FileSpec.files - fixed the log message when a
+	  file doesn't exist.
+
+Wed Dec 05 10:52:52 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/indexserver/indexer.py: Import sys so we can call
+	  sys.exitfunc()
+
+Wed Dec 05 10:49:51 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: add ref manual & styles
+
+Wed Dec 05 10:36:06 UTC 2007  charliejuggler
+
+	* src/flaxservice.py,src/indexserver/indexer.py,src/startflax.py:
+	  Call sys.exit_func rather than processing.exit_func to further
+	  ensure all atexit handlers are called; also make sure we return
+	  the correct code from FlaxMain.join() - fixes for #153
+
+Wed Dec 05 10:32:06 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* docs/reference.html,docs/reference.rst: Removed reference to
+	  stopwords
+
+Wed Dec 05 10:19:11 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/collection_detail.html,src/templates.py: Removed
+	  stopwords
+
+Wed Dec 05 09:39:07 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: imgs for ref manual
+
+Tue Dec 04 21:05:47 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexer.py: Used "indexing" rather than
+	  "indexing.control" as the logger for indexing control logging
+	  information since the latter isn't explicitly configured.
+
+Tue Dec 04 20:53:25 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/startflax.py: Added debugging log messages to monitor
+	  shutdown process.
+
+Tue Dec 04 16:36:42 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/doc_collection.py: Cosmetic changes: doccomment improvements
+	  and mark an internal method with a leading _.
+
+Tue Dec 04 16:32:01 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/search.py: Cosmetic change - use conn.OP_AND instead of
+	  xappy.SearchConnection.OP_AND. (Makes it easier for me when
+	  refactoring to be able to find all the places where
+	  SearchConnections are created)
+
+Mon Dec 03 13:29:13 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py,src/indexserver/indexer.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=146 Stop
+	  indexing a collection prior to deletion, ensure that we don't
+	  consider deleted collections as candidates for indexing.
+
+Mon Dec 03 09:30:37 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/indexserver/indexer.py: Add a comment, noting the place where
+	  serious errors are likely to be thrown.
+
+Fri Nov 30 16:17:33 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: added ref manual
+
+Thu Nov 29 12:25:32 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* README: Fix typo.
+
+Thu Nov 29 12:22:20 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* README: Added notes about setting the admin password.
+
+Thu Nov 29 11:13:24 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/startflax.py: removed test code that was inadvertently
+	  committed.
+
+Thu Nov 29 10:58:43 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/schedulespec.py,src/test/testschedulespec.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=150
+	  datetime.datetime.weekday is a method - so need to call it.
+
+Wed Nov 28 15:03:17 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/startflax.py: split startup code into separate function to
+	  facilitate testing.
+
+Wed Nov 28 14:58:14 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexer.py: corrected typos in comments
+
+Wed Nov 28 14:56:43 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexer.py: ## Lines starting with '## ' will be
+	  removed from the log message. ## File(s) to commit recursively:
+	  ## startflax.py FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=148 Ensure
+	  that SystemExit is raised.
+
+Wed Nov 28 14:37:05 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/startflax.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=148 When
+	  running from the command line, explicitly call our shutdown code
+	  on uncaught exceptions. This code isn't used when running as a
+	  windows service so it has no implications for logging issues in
+	  that circumstance.
+
+Tue Nov 27 16:17:44 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* docs/reference.html: Generated HTML
+
+Tue Nov 27 16:05:29 UTC 2007  charliejuggler
+
+	* docs/reference.rst: Added information about resetting passwords
+	  in Windows and a FAQ link to the Troubleshooting section.
+
+Tue Nov 27 15:26:15 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* docs/html4css1.css,docs/img,docs/img/reference-1.png,
+	  docs/img/reference-2.png,docs/img/reference-3.png,
+	  docs/img/reference-4.png,docs/img/reference-5.png,
+	  docs/reference.html,docs/reference.rst,docs/styles.css: Added
+	  images and generated HTML
+
+Mon Nov 26 14:44:24 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/docs/hacking.rst: Typos, formatting - some stuff on running
+	  as a windows service.
+
+Mon Nov 26 12:35:34 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/flaxservice.py: Update comments to reflect our understanding
+	  of why we don't need to tell the SCM that we've stopped.
+
+Mon Nov 26 12:13:09 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/indexserver/indexer.py: Display type of exceptions raised by
+	  filters, as well as their message.
+
+Sun Nov 25 17:46:40 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/indexserver/indexer.py,src/util.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=127 If
+	  available free disk space for a collection's database drops below
+	  500000000 bytes then we raise an exception indicating that this
+	  is a problem.
+
+Fri Nov 23 16:40:04 UTC 2007  charliejuggler
+
+	* w32setup/gettingstarted/GettingStartedOnWindows.htm: fixed email
+	  address
+
+Fri Nov 23 16:39:29 UTC 2007  charliejuggler
+
+	* src/templates/about.html: missed para end
+
+Fri Nov 23 16:38:44 UTC 2007  charliejuggler
+
+	* src/templates/about.html: make About page agree with website
+
+Fri Nov 23 15:50:18 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/flaxloghandlers.py: Oops - pass self when calling superclass
+	  methods.
+
+Fri Nov 23 15:47:56 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/flaxloghandlers.py: Override flush() and close() on the
+	  loghandler, to avoid errors due to accessing a closed file at
+	  shutdown.
+
+Fri Nov 23 13:44:29 UTC 2007  charliejuggler
+
+	* src/flaxservice.py: Attempting to call
+	  ReportServiceStatus(win32service.SERVICE_STOPPED)at the very end
+	  of SvcDoRun can cause an exception - removing it as it doesn't
+	  seem to be needed.
+
+Fri Nov 23 12:08:12 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/startflax.py: import time as it's used.
+
+Fri Nov 23 11:58:58 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/startflax.py: Add import of threading to fix bug #145.
+
+Fri Nov 23 11:28:27 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/flax.py: Change default filters on windows - use Xapian for
+	  HTML and Text for text.
+
+Fri Nov 23 10:55:45 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: fix quotes
+
+Fri Nov 23 10:14:46 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* w32setup/setup_svc.py: Use a raw multiline string, to avoid
+	  having to escape all the backslashes.
+
+Fri Nov 23 10:06:53 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: typos
+
+Fri Nov 23 10:00:55 UTC 2007  charliejuggler
+
+	* w32setup/gettingstarted/GettingStartedOnWindows.htm: smaller text
+	  for prerelease
+
+Fri Nov 23 09:59:01 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* w32setup/setup_svc.py: Convert multiple "print >> ofi" lines to a
+	  single print with a multiline string.  Use named parameter
+	  substitutions, and use self.__dict__ as the dictionary for these.
+
+Fri Nov 23 09:33:34 UTC 2007  charliejuggler
+
+	* w32setup/gettingstarted/GettingStartedOnWindows.htm,
+	  w32setup/setup_svc.py: Add "prerelease"
+
+Thu Nov 22 17:33:02 UTC 2007  charliejuggler
+
+	* src/templates/collections.html: slight change of detail about
+	  held collections
+
+Thu Nov 22 14:41:06 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/indexserver/indexer.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=140 Changed
+	  some log messages to debug so that "info" is less cluttered.
+
+Thu Nov 22 14:34:03 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/flaxlog.conf,src/flaxloghandlers.py,
+	  src/indexserver/indexer.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=134 Made a new
+	  rotating file handler that avoids some problems with fileio from
+	  handlers in different process that use the same file. Used this
+	  in the default configuration.
+
+Thu Nov 22 11:26:10 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/css/main.css,src/static/js/mapping.js,
+	  src/templates/collection_detail.html: Fix to issue 139, plus
+	  minor tweaks
+
+Wed Nov 21 19:10:36 UTC 2007  charliejuggler
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: extra bit to make
+	  sure distutils doesn't use bits from earlier versions of Python
+
+Wed Nov 21 18:34:48 UTC 2007  charliejuggler
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: added comment
+	  about Python 2.5.1 over 2.5
+
+Wed Nov 21 18:19:14 UTC 2007  charliejuggler
+
+	* src/flaxlog.conf: Remove space in loggers line - this breaks the
+	  whole thing on WindowsXP/Python2.5 !!
+
+Wed Nov 21 17:35:00 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/filespec.py,src/flaxlog.conf,src/indexserver/indexer.py,
+	  src/indexserver/remote_filter.py,
+	  src/indexserver/w32com_ifilter.py: Refactored the logging so that
+	  different processes don't use the same handler so that we don't
+	  use a rotated log file from different processes. However this is
+	  not working as I expect so I've temporarily disabled the rotation
+	  in flaxlog.conf until that problem is resolved.
+
+Wed Nov 21 10:33:33 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/search.html,src/templates.py: Fixes for issue 137
+
+Wed Nov 21 07:29:48 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/flaxlog.conf,src/indexserver/indexer.py,
+	  src/indexserver/remote_filter.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=134 Changed
+	  the logging so that the same rotating log handler is not used by
+	  different processes.
+
+Tue Nov 20 17:07:16 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/css/main.css,src/templates/search.html: Improved
+	  standoutness of spelling correction warning
+
+Tue Nov 20 16:43:32 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/flaxlog.conf: Just have one handler for all log messages.
+	  Remove consolehandler and indexhandler since they're not used.
+	  Give arguments to the main handler so that logs are rotated every
+	  10Mb and 10 old copies are kept.
+
+Tue Nov 20 15:26:06 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/cpserver.py: Allow multiple bits of the doc_id to be passed
+	  to source() to cope with unix style paths, which cherrypy will
+	  split on the '/'es.
+
+Tue Nov 20 15:12:00 UTC 2007  charliejuggler
+
+	* README: fix spelling mistakes
+
+Tue Nov 20 14:49:11 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/templates.py: Add "for" attributes to collection checkbox
+	  labels on the search pages, so that clicking on the names will
+	  toggle the checkboxes.
+
+Tue Nov 20 12:03:30 UTC 2007  charliejuggler
+
+	* w32setup/install.ico: added 16 colour versions; seems to have
+	  fixed #124
+
+Tue Nov 20 11:39:20 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* w32setup/install.ico: Added 32x32 image
+
+Tue Nov 20 11:26:51 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* w32setup/flax32x32.ico,w32setup/flax32x32.tif: 32x32 icon and
+	  source
+
+Tue Nov 20 11:14:21 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates.py: Fix for issue 131
+
+Mon Nov 19 16:32:10 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: slightly better check for PDF Ifilter
+
+Mon Nov 19 16:14:22 UTC 2007  charliejuggler
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt,
+	  w32setup/setup_svc.py: Use the Visual C++ Redistributable
+	  package, not individual DLLS - apart from msvcp71.dll which has
+	  to be done manually.
+
+Mon Nov 19 14:56:52 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: check for most recent PDF ifilter
+
+Mon Nov 19 14:53:30 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/filespec.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=130 Ensured
+	  that single file paths are treated correctly. Also logged an
+	  error if a path is neither a file or a directory.
+
+Mon Nov 19 14:18:39 UTC 2007  charliejuggler
+
+	* w32setup/gettingstarted/GettingStartedOnWindows.htm: add caveat
+	  about direct serving
+
+Mon Nov 19 13:22:38 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: prevent IFilter checker being after every
+	  page due to misplaced 'end;'
+
+Mon Nov 19 12:36:37 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: Make sure default data folder is subfolder
+	  of user's chosen install folder; also check for various IFilters
+	  and attempt to fix the HTML one, or inform about RTF and PDF.
+
+Mon Nov 19 12:03:58 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/css/main.css,src/templates/search.html,
+	  src/templates.py: User is warned when searching an empty
+	  collection (issue 119)
+
+Mon Nov 19 12:01:20 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/docs/hacking.rst: Added a link to the wiki page on file types
+	  representation.
+
+Mon Nov 19 11:26:09 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/docs/hacking.rst: Added a list of the loggers we actually
+	  use.
+
+Mon Nov 19 10:56:13 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/cpserver.py: Added Expires header to json response to prevent
+	  IE from caching data.
+
+Mon Nov 19 10:40:06 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/indexserver/indexer.py: Catch KeyboardInterrupt as well as
+	  SystemExit for neater log messages, and don't say that the
+	  exception is being re-raised when it isn't. Also add some
+	  debugging log lines, and tidy some comments.
+
+Mon Nov 19 10:31:58 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* utils/install_dependencies.py: Use a modified archive of
+	  processing 0.38 with a bug fix. Also modify
+	  install_dependencies.py to cope with directory entries in zip
+	  files, which this modified archive needs.
+
+Mon Nov 19 07:56:34 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/collection_list.py: used logger "collections" rather than
+	  "collection".
+
+Mon Nov 19 07:11:10 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* README: removed information that is now elsewhere, brought stuff
+	  up to date.
+
+Mon Nov 19 06:34:46 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/epydoc.conf: corrected comment
+
+Fri Nov 16 17:08:21 UTC 2007  charliejuggler
+
+	* src/templates/collections.html: minor clarification
+
+Fri Nov 16 17:00:50 UTC 2007  charliejuggler
+
+	* w32setup/install.bmp,w32setup/install.ico,
+	  w32setup/install_small.bmp,w32setup/setup_svc.py,
+	  w32setup/uninstall.ico: add icons and bitmaps for installation
+
+Fri Nov 16 16:32:33 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/doc_collection.py: changed the quoting of doc ids in
+	  url_for_doc so we don't get '+' in place of ' '.
+
+Fri Nov 16 16:16:41 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/indexserver/indexer.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=115 Caught and
+	  logged SystemExit (and subclasses like ProcessExit) at a lower
+	  severity level that other exceptions.
+
+Fri Nov 16 16:12:45 UTC 2007  charliejuggler
+
+	* w32setup/WindowsFAQ.txt: mistakenly committed, actually it's in
+	  the Wiki
+
+Fri Nov 16 16:12:10 UTC 2007  charliejuggler
+
+	* w32setup/WindowsFAQ.txt:
+
+Fri Nov 16 16:05:21 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/cpserver.py,src/doc_collection.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=115 Simplified
+	  FLAX serving to just quote the doc_id - since we're doing it this
+	  way we don't really need to treat the doc_id specially - just
+	  quote it and pass it through.
+
+Fri Nov 16 14:20:53 UTC 2007  charliejuggler
+
+	* w32setup/startflaxservice.bat,w32setup/stopflaxservice.bat:
+	  startflaxservice waits 3 seconds as before, stopflaxservice waits
+	  6 seconds to allow files to become free to delete
+
+Fri Nov 16 14:15:39 UTC 2007  charliejuggler
+
+	* w32setup/startflaxservice.bat,w32setup/stopflaxservice.bat: 5
+	  second delay as service may take this long to stop
+
+Fri Nov 16 14:08:16 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: fix typo
+
+Fri Nov 16 14:07:02 UTC 2007  charliejuggler
+
+	* src/flaxservice.py: Make sure that in all cases we tell the
+	  Service Manager when we stop
+
+Fri Nov 16 13:08:54 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/util.py: disabled psyco, see:
+	  http://code.google.com/p/flaxcode/issues/detail?id=125
+
+Fri Nov 16 10:59:24 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: change messages on uninstall re upgrading
+
+Fri Nov 16 10:58:44 UTC 2007  charliejuggler
+
+	* w32setup/gettingstarted/GettingStartedOnWindows.htm: change flax
+	  serving details
+
+Thu Nov 15 16:43:45 UTC 2007  charliejuggler
+
+	* src/templates/collections.html: buttons must have type="submit"
+	  to work on IE
+
+Thu Nov 15 16:37:25 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/doc_collection.py,src/templates/collection_detail.html,
+	  src/templates.py: Implemented FLAX file-serve mapping
+
+Thu Nov 15 15:44:21 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: install runtime DLLs to Windows system
+	  folder correctly
+
+Thu Nov 15 15:39:20 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/collections.html: IE6 needs type=submit
+
+Thu Nov 15 15:17:57 UTC 2007  charliejuggler
+
+	* w32setup/startflaxservice.bat,w32setup/stopflaxservice.bat: way
+	  of sleeping that works on Win2k upwards; better error handling
+
+Thu Nov 15 15:17:32 UTC 2007  charliejuggler
+
+	* w32setup/gettingstarted/GettingStartedOnWindows.htm: new way of
+	  serving files
+
+Thu Nov 15 15:03:35 UTC 2007  charliejuggler
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt,
+	  w32setup/setup_svc.py: missing DLL
+
+Thu Nov 15 14:33:38 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/collection_detail.html: Added button to generate
+	  Flax file-serve mapping
+
+Thu Nov 15 10:06:45 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* docs,docs/reference.rst: Start of reference manual
+
+Thu Nov 15 09:21:27 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/collections.html: Collections list now polls
+	  regardless of page content, so scheduled indexing is displayed
+
+Thu Nov 15 09:20:33 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/js/MochiKit/Format.js,
+	  src/static/js/MochiKit/MochiKit.js: Added Format module for
+	  string utils
+
+Thu Nov 15 08:30:27 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/docs/hacking.rst: added some notes on the templates.
+
+Wed Nov 14 15:10:17 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/collection_detail.html: Added Mon and Sun to
+	  helptext
+
+Wed Nov 14 14:55:14 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/collection_detail.html: Added validation code for
+	  scheduling
+
+Wed Nov 14 14:32:51 UTC 2007  charliejuggler
+
+	* src/flaxauth.py: make sure old auth file deleted before new one
+	  created; fixes #118
+
+Wed Nov 14 14:23:00 UTC 2007  charliejuggler
+
+	* w32setup/gettingstarted/GettingStartedOnWindows.htm,
+	  w32setup/gettingstarted/createcol7.jpg: add pic of search results
+
+Wed Nov 14 13:39:59 UTC 2007  charliejuggler
+
+	* src/templates/about.html: spellong misteack
+
+Wed Nov 14 13:24:27 UTC 2007  charliejuggler
+
+	* src/flax_w32.py: Change name
+
+Wed Nov 14 13:17:11 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: typo
+
+Wed Nov 14 13:13:22 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: change name
+
+Wed Nov 14 13:10:16 UTC 2007  charliejuggler
+
+	* src/templates/about.html: change name
+
+Wed Nov 14 13:04:15 UTC 2007  charliejuggler
+
+	* w32setup/gettingstarted/GettingStartedOnWindows.htm,
+	  w32setup/gettingstarted/createcol3.jpg,
+	  w32setup/gettingstarted/createcol4.jpg: simplified collection
+	  creation; use house style
+
+Wed Nov 14 12:18:20 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py,src/doc_collection.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=115
+	  Resurrected (and modified as necessary) code to serve source
+	  files from Flax directly. Changed the way the file is identified
+	  so that it's possible to access this just by putting in an
+	  appropriate mapping for a path.
+
+Wed Nov 14 12:11:01 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/dbspec.py: Tidied default values in update()
+
+Wed Nov 14 11:11:58 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/startflax.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=67 Refactored
+	  the way we stop and join so that the work involved in stopping
+	  happens in a separate thread so that we can correctly implemented
+	  the intended behaviour of join with a timeout.
+
+Wed Nov 14 11:08:33 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexer.py: Allowed for a timeout to the join
+	  method of IndexServer (although it's not used at the moment).
+
+Wed Nov 14 11:00:05 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/js/mapping.js: Fixed bug 116
+
+Wed Nov 14 10:47:33 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/collection_detail.html: Validates collection name
+	  in JS
+
+Wed Nov 14 10:30:07 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/cpserver.py: Added collection name validation to server
+
+Wed Nov 14 10:05:20 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/css/main.css,src/templates/admin_banner.html: Fixed
+	  issue 103, caused by incorrectly closed span
+
+Wed Nov 14 10:04:23 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/collection_detail.html: Prevent JS error message on
+	  edit details page
+
+Tue Nov 13 17:36:33 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: add link to getting started from final
+	  page
+
+Tue Nov 13 17:31:03 UTC 2007  charliejuggler
+
+	* w32setup/gettingstarted/GettingStartedOnWindows.htm:
+
+Tue Nov 13 17:19:03 UTC 2007  charliejuggler
+
+	* w32setup/gettingstarted,
+	  w32setup/gettingstarted/GettingStartedOnWindows.htm,
+	  w32setup/gettingstarted/admin1.jpg,
+	  w32setup/gettingstarted/createcol1.jpg,
+	  w32setup/gettingstarted/createcol2.jpg,
+	  w32setup/gettingstarted/createcol3.jpg,
+	  w32setup/gettingstarted/createcol4.jpg,
+	  w32setup/gettingstarted/createcol6.jpg: Draft Getting Started on
+	  Windows
+
+Tue Nov 13 16:44:48 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/img/flax.125trans.png,
+	  src/static/img/flax.250trans.png: Changed name to Flax Basic
+
+Tue Nov 13 15:46:01 UTC 2007  charliejuggler
+
+	* w32setup/exampledocs,w32setup/exampledocs/First document.txt,
+	  w32setup/exampledocs/Second document.htm,
+	  w32setup/exampledocs/Third document.doc: Some example data for
+	  use in the Getting Started guide
+
+Tue Nov 13 11:35:17 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/docs/hacking.rst: snapshot
+
+Mon Nov 12 22:17:04 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/docs/hacking.rst: Various spelling, typo and capitalisation
+	  corrections.
+
+Mon Nov 12 18:50:43 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/docs/hacking.rst: Moved the text from some wiki pages here
+	  and updated it.
+
+Mon Nov 12 12:09:50 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexer.py: removed references to the pypdf
+	  filter which were inadvertently left in.
+
+Mon Nov 12 06:50:41 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexer.py: removed a debugging print.
+
+Mon Nov 12 06:50:00 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexer.py: Fixed a potential problem with
+	  synchronisation between threads when starting up a new indexing.
+
+Mon Nov 12 06:25:52 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexer.py: corrected typo in log message
+
+Sun Nov 11 22:31:56 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/test/pdf_filtering.py: Added basic logging configuration so
+	  that log output can be seen during testing.
+
+Sun Nov 11 21:51:22 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/flaxlog.conf: Set the default propagation to 0 for all
+	  loggers to avoid repeated log messages at the default settings.
+
+Sun Nov 11 15:27:20 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/indexserver/w32com_ifilter.py:
+	  http://code.google.com/p/flaxcode/issues/detail?id=109 Added some
+	  logging (not that "DEBUG" level for this filter will now give all
+	  the text it's yielding") Continued through the "unspecified" com
+	  errors, since this seems to work. I've added a check that we
+	  don't try and repeat the same chunk in case this exception is
+	  raised in other situations where the same chunk might be repeated
+	  once this exception is raised.
+
+Fri Nov 09 17:15:00 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: minor fix to make sure we stop the service
+	  if the user doesn't want to remove the data
+
+Fri Nov 09 16:18:34 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: Now asks if you want to remove data and
+	  all other files (#94)
+
+Fri Nov 09 15:00:57 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/collection_detail.html,src/templates.py: Added file
+	  paths to form validation, also prevented extra blank path/mapping
+	  fields being added in edit
+
+Fri Nov 09 14:59:28 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: don't replace .conf files if they already
+	  exist - user may be trying to keep data and config
+
+Fri Nov 09 14:43:57 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: Added message about setting password to
+	  warn user, and page for choosing data directory (issue #74)
+
+Fri Nov 09 12:35:47 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/uistrings.py: Fix a warning from epydoc.
+
+Fri Nov 09 12:32:47 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/collection_detail.html,src/templates.py: Increased
+	  size of description input
+
+Fri Nov 09 12:06:47 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/docs/hacking.rst,src/epydoc.conf: snapshot.
+
+Fri Nov 09 12:05:36 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/cpserver.py,src/templates/collection_detail.html: Fixed
+	  cpserver.py to detect empty collection name, and added JS form
+	  validation to the template. (issue 104).
+
+Fri Nov 09 09:19:18 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* w32setup/setup_svc.py: Put back the rules for the MochiKit dir -
+	  they were removed by the last commit, but I assume that was a
+	  mistake, because the log message didn't mention removing them.
+
+Fri Nov 09 08:07:16 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/indexserver/indexer.py,src/startflax.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=90 Implemented
+	  a DIY process stopping strategy. There are still things I don't
+	  entirely understand about why other mechanisms failed to work -
+	  see the comments in the code.
+
+Thu Nov 08 17:19:59 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/doc_collection.py: Remove unused "source_file_from_id"
+	  method.  Stop caching _search_conn, since it's not threadsafe.
+	  Remove __getstate__ method, since we no longer have to do
+	  anything special in it.
+
+Thu Nov 08 16:55:19 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/startflax.py: Make FlaxMain into a new-style class, for
+	  consistency with all our other classes.
+
+Thu Nov 08 16:33:20 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/doc_collection.py: Only try to open the connection once -
+	  don't create a new (empty) database if the database is missing.
+
+Thu Nov 08 16:32:26 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/collection_list.py: Rename dbs_to_search to
+	  dbpaths_to_search, for clarity.
+
+Thu Nov 08 16:30:52 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/search.py: Rename dbs to dbpaths for clarity, and fix an out
+	  of date documentation comment.
+
+Thu Nov 08 16:19:33 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/templates/collections.html: Fix spelling of independent.
+
+Thu Nov 08 16:14:51 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/templates/user_banner.html: Don't let individual labels get
+	  split over lines.  Improves the appearance if the user fiddles
+	  with font sizes.
+
+Thu Nov 08 14:55:50 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/pypdf_filter.py: simple filter for pdfs using
+	  pypdf
+
+Thu Nov 08 13:35:01 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/collections.html: Changed help wording a bit
+
+Thu Nov 08 13:06:46 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/indexserver/w32com_ifilter.py: Took out the call to
+	  pythoncom.CoInitializeEx(pythoncom.COINIT_APARTMENTTHREADED) and
+	  associated paraphanelia, since it's apparently only needed in
+	  threads other than the main thread. Added a comment about
+	  circumstances under which it may need to be called.
+
+Thu Nov 08 12:46:07 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/collections.html,src/templates.py: Changed indexing
+	  state back to Due, to avoid confusion with timed scheduling
+
+Thu Nov 08 12:07:51 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/test/pdf_filtering.py: added a test for repeatedly filtering
+	  a problem pdf remotely
+
+Thu Nov 08 12:05:13 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/css/main.css,src/templates/collections.html: Unified
+	  the look of inline help
+
+Thu Nov 08 11:06:14 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/css/main.css,src/templates/search.html: Beautified
+	  advanced options
+
+Thu Nov 08 10:42:25 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/test/pdf_filtering.py,
+	  src/test/sampledocs/problem_docs/ukpga_19960008_en.pdf: Simple
+	  test to illustrate a problem with filtering some pdfs.
+
+Thu Nov 08 09:58:17 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/docs/hacking.rst: snapshot
+
+Thu Nov 08 09:08:44 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/docs/hacking.rst: snapshot
+
+Thu Nov 08 08:20:05 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cplogger.py: added a module docstring
+
+Thu Nov 08 07:16:10 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* docs,src/docs,src/docs/hacking.rst: moving to facilitate
+	  integration with epydoc generated output
+
+Thu Nov 08 07:11:20 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* docs/hacking.rst: snapshot
+
+Thu Nov 08 06:00:09 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/epydoc.conf: add comments, and one missing file
+
+Thu Nov 08 05:56:21 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/epydoc.conf: include all the current code in the modules
+	  list.
+
+Thu Nov 08 05:07:33 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py,src/templates.py: Brought comments into line with
+	  code.
+
+Wed Nov 07 19:40:37 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* docs,docs/hacking.rst:
+	  http://code.google.com/p/flaxcode/issues/detail?id=79 Start on
+	  overview docs.
+
+Wed Nov 07 18:03:54 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/templates.py: Use highlight query, to fix issue 85.
+
+Wed Nov 07 17:45:56 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/search.py: Calculate the query to use for highlighting, and
+	  store it separately from the query to run.
+
+Wed Nov 07 17:15:19 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates.py: Lists more of collection description, now we
+	  have more room
+
+Wed Nov 07 17:12:09 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates.py: Tweak to JS text
+
+Wed Nov 07 17:09:45 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates.py: Fix for issue 84
+
+Wed Nov 07 16:55:56 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/templates/search.html: Move labels to the right of the check
+	  boxes. Also, fix a dodgy SGML comment (had some -- markers in it)
+
+Wed Nov 07 16:53:09 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/templates/search.html: Add "for" attributes for the format
+	  labels on this page, too.
+
+Wed Nov 07 16:50:20 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/templates/collection_detail.html: Added "for" attributes to
+	  the collection detail, so that the labels are clickable.
+
+Wed Nov 07 16:44:24 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/collection_detail.html: Neater formats list
+
+Wed Nov 07 16:37:01 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/collection_detail.html,src/templates.py: JS tweak
+	  to put focus in first field
+
+Wed Nov 07 16:26:58 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py: Removed automatic setting of indexing due after
+	  changes to a collection, and redirected to the collection list
+	  view.
+
+Wed Nov 07 16:24:40 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/indexserver/indexer.py: Log any unhandled exception from the
+	  indexer process (as a critical error) before exiting, rather than
+	  sending it to stderr or stdout.
+
+Wed Nov 07 16:13:38 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/collections.html: Properly fixed this time
+
+Wed Nov 07 16:07:13 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/collections.html: JS now checks for collection row
+	  existence before updating, to prevent back-button error
+
+Wed Nov 07 15:48:19 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/collections.html: More tolerant of AJAX errors
+
+Wed Nov 07 15:46:45 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexer.py:
+	  http://code.google.com/p/flaxcode/issues/detail?id=95 Added a
+	  call to start_indexing at the end of IndexServer.do_indexing() to
+	  ensure that if there is another collection due for indexing we
+	  kick it off immediately.
+
+Wed Nov 07 15:39:05 UTC 2007  charliejuggler
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt,
+	  w32setup/setup_svc.py: don't need to explicitly copy _xapian.pyd,
+	  distutils should pick it up
+
+Wed Nov 07 15:30:09 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/search.py:
+	  http://code.google.com/p/flaxcode/issues/detail?id=72 Chnaged the
+	  code for dealing with specific filetypes to build a query using
+	  query_field and query_composite.
+
+Wed Nov 07 14:45:43 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/collections.html,src/templates.py: Changed Held
+	  wording
+
+Wed Nov 07 14:38:43 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* LICENSE: Mention the MochiKit files.
+
+Wed Nov 07 14:34:25 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/collections.html: Slight correction to help text
+
+Wed Nov 07 14:32:52 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* w32setup/setup_svc.py: Add the MochiKit directory.
+
+Wed Nov 07 14:30:11 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/cpserver.py,src/static/css/main.css,
+	  src/templates/collections.html,src/templates/flax.html,
+	  src/templates.py: Changes to Collections page, including AJAX
+	  update of status info
+
+Wed Nov 07 14:28:15 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/js/MochiKit,src/static/js/MochiKit/Async.js,
+	  src/static/js/MochiKit/Base.js,src/static/js/MochiKit/DOM.js,
+	  src/static/js/MochiKit/Iter.js,
+	  src/static/js/MochiKit/MochiKit.js,
+	  src/static/js/MochiKit/__package__.js: Cut down version of
+	  MochiKit with just the bits we use
+
+Wed Nov 07 14:10:45 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/indexserver/indexer.py: Move the "conn.close()" call out of
+	  the finally block, so that it's not called if an error occurs.
+	  This should allow a faster shutdown if KeyboardError is raised,
+	  and we don't really need to keep the unflushed changes if an
+	  error has occurred. Also, add a try:finally clause to
+	  IndexProcess.run() which calls processing.process._exit_func(),
+	  to try and ensure that children get cleaned up when running as a
+	  service (to work around the "exit handlers not being called when
+	  run as a service" bug).
+
+Wed Nov 07 14:04:53 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/indexserver/indexer.py: Trivial fix to a comment.
+
+Wed Nov 07 12:38:12 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/indexserver/indexer.py: Added a logging info call to show the
+	  pid of the indexer process.
+
+Wed Nov 07 12:15:43 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: Abort with message if Flax is already
+	  installed
+
+Wed Nov 07 11:57:30 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* w32setup/setup_svc.py: Add some vague attribution to the start of
+	  the file.
+
+Wed Nov 07 10:27:43 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/test/issue72.py: Fix to work.
+
+Wed Nov 07 09:04:55 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/indexserver/indexer.py:
+	  http://code.google.com/p/flaxcode/issues/detail?id=62 In
+	  Indexer.do_indexing logged the traceback rather than printing it.
+
+Wed Nov 07 08:59:30 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/flaxlog.conf:
+	  http://code.google.com/p/flaxcode/issues/detail?id=62 Ensured
+	  that consolehandler is not used by default. It's not compatible
+	  with running as a non-console windows application (e.g. running
+	  as a windows service).
+
+Wed Nov 07 08:56:45 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cplogger.py: Made logging __call__ process arguments
+	  appropriately.
+
+Wed Nov 07 08:22:18 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/cpserver.py: Reinstated commented out line for webserver
+	  logging config.
+
+Wed Nov 07 06:55:46 UTC 2007  paul.x.rudin@gmail.com
+
+	* w32setup/setup_svc.py: removed spurious double quotes after
+	  "[UninstallRun]" that cause an error when processing Flax Site
+	  Search.iss. (You could tell that that was a file name if it
+	  didn't have spaces in it :))
+
+Tue Nov 06 17:41:19 UTC 2007  charliejuggler
+
+	* src/templates/about.html: another feature
+
+Tue Nov 06 17:06:59 UTC 2007  charliejuggler
+
+	* src/version.py: fix typo, so correct format revision number
+	  returned
+
+Tue Nov 06 17:03:02 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: put extra .pyds in localinst/
+
+Tue Nov 06 17:00:48 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/flaxservice.py: Add setuppaths import to start of
+	  flaxservice, just to ensure that everything gets found.
+
+Tue Nov 06 16:54:49 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* utils/install_dependencies.py: Update version of processing.
+
+Tue Nov 06 16:44:35 UTC 2007  charliejuggler
+
+	* src/static/img/xapian-powered.png: for about page
+
+Tue Nov 06 16:44:04 UTC 2007  charliejuggler
+
+	* src/templates/about.html: first stab at a better About page
+
+Tue Nov 06 13:15:55 UTC 2007  charliejuggler
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: more details of
+	  where DLLs come from and removed second mention of zlib1.dll
+
+Tue Nov 06 12:58:45 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: set password on installation
+
+Tue Nov 06 12:09:06 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/flax.html: Re-added onload event
+
+Tue Nov 06 11:34:23 UTC 2007  charliejuggler
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: added notes on
+	  Perl and SVN
+
+Tue Nov 06 11:04:32 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates.py: no banner_search element now
+
+Tue Nov 06 11:02:25 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/css/main.css,src/templates/about.html,
+	  src/templates/admin_banner.html,src/templates/search.html,
+	  src/templates/user_banner.html: Fixed issue 77
+
+Tue Nov 06 09:53:50 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/flaxlog.conf: workaround for Mac python
+
+Tue Nov 06 06:47:12 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/indexserver/htmltotext_filter.py: Added setuppaths import
+
+Mon Nov 05 23:34:56 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: I'm pretty sure
+	  we want the "py2exe" command, not the "install" command.
+
+Mon Nov 05 23:33:31 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/auth.conf,src/startflax.py: Remove auth.conf from SVN, and
+	  make startflax.py work fine if auth.conf is missing when the
+	  --set-admin-password option is supplied (for other invocations,
+	  the auth.conf file is required and will cause a fatal error if
+	  it's missing).
+
+Mon Nov 05 23:32:16 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/getsvnrev.py,src/version.py: Tweak format of version numbers
+	  to be suitable for passing to distutils.
+
+Mon Nov 05 23:31:26 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src: Ignore auth.conf
+
+Mon Nov 05 23:03:03 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* w32setup/setup_svc.py: Update the version.py file before freezing
+	  it, so the SVN revision reported by it will be correct.
+
+Mon Nov 05 13:00:20 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: Some more minor
+	  corrections.
+
+Mon Nov 05 12:41:24 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: Further hack
+	  needed.
+
+Mon Nov 05 12:20:09 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: Update numbering
+
+Mon Nov 05 12:17:03 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: Add another step
+	  which is currently needed.
+
+Mon Nov 05 12:14:06 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cplogger.py,src/cpserver.py,src/flax.py,src/flaxlog.conf:
+	  Made a special logging manager for the cherrpy infrastructure
+	  that intergrates well with the rest of the logging system.
+
+Mon Nov 05 12:07:35 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: Corrections.
+
+Mon Nov 05 10:57:11 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/auth.conf,src/cp.conf,src/flaxauth.py,src/flaxpaths.py,
+	  src/startflax.py: Store authentication tokens (ie,
+	  username/password) in a separate file.  Add flaxauth module to
+	  manage them, and reference this from the cp.conf file to get the
+	  passwords.  Finish implementation of --set-admin-password option.
+
+Mon Nov 05 09:31:29 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cp.conf: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=52 Disable
+	  cherrypy autoreload in cp.conf. If people want to work with it
+	  turned on locally then just modify your local copy.
+
+Mon Nov 05 09:26:51 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/templates/collection_detail.html,src/templates/options.html:
+	  Fixes: http://code.google.com/p/flaxcode/issues/detail?id=70
+	  Renamed submit buttons to "Apply".
+
+Mon Nov 05 08:32:21 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/test/issue72.py: added comments/diagnostic print.
+
+Mon Nov 05 08:24:20 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/test/issue72.py,src/test/sampledocs/issue72,
+	  src/test/sampledocs/issue72/bar.htm,
+	  src/test/sampledocs/issue72/foo.html: Added a test for issue 72
+
+Sun Nov 04 11:57:35 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/doc_collection.py,src/filespec.py,src/search.py,
+	  src/templates/collection_detail.html:
+	  http://code.google.com/p/flaxcode/issues/detail?id=72 Changes to
+	  support issue 72.
+
+Sat Nov 03 08:28:47 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/indexer.py: Don't include the '.' in the
+	  filetype.
+
+Fri Nov 02 16:23:23 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/cpserver.py,src/filespec.py,src/static/css/main.css,
+	  src/templates/collection_detail.html,src/templates/search.html,
+	  src/templates.py: More changes for
+	  http://code.google.com/p/flaxcode/issues/detail?id=72
+
+Fri Nov 02 13:21:09 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/startflax.py: Keep asking for a password until a valid one is
+	  entered, twice.
+
+Fri Nov 02 12:08:03 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/getsvnrev.py,src/version.py: Fix a fix issues when running
+	  getsvnrev (including better handling of errors when running the
+	  svn tools). Make version.py use getsvnrev, or the stored
+	  svnrevision.py file, to get the svn revision, instead of using an
+	  SVN keyword.
+
+Fri Nov 02 11:48:35 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/css/main.css,src/templates/collections.html: table
+	  border faked for IE7, ugh
+
+Fri Nov 02 11:38:49 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src,src/getsvnrev.py: Add a script to generate a svnrevision.py
+	  file, and add ignores for that file.
+
+Fri Nov 02 11:27:26 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/css/main.css,src/templates/collections.html,
+	  src/templates.py: fix for issue 51
+
+Fri Nov 02 10:50:51 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/css/main.css,src/templates/collections.html: styled
+	  del collection button better
+
+Fri Nov 02 04:49:03 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/test/sampledocs/Ukpga_19880002_en_1.htm: for testing
+
+Fri Nov 02 04:48:38 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/collection_list.py,src/cpserver.py,src/dbspec.py,
+	  src/indexserver/indexer.py,src/search.py,
+	  src/templates/search.html,src/templates.py:
+	  http://code.google.com/p/flaxcode/issues/detail?id=72
+	  Snapshotting progress for issue 72 work. Still need to change the
+	  way formats are displayed in the UI, and verify that it actually
+	  filters as intended.
+
+Thu Nov 01 16:58:27 UTC 2007  charliejuggler
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: further comments
+	  on building Xapian
+
+Thu Nov 01 11:27:59 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/indexserver/remote_filter.py: implemented a restart limit for
+	  the remote_filter process - this is to partially address the
+	  problem of filters that leak memory. Also in FilterRunner.run -
+	  took the generation of the results inside the try block. Formerly
+	  the actual iteration was outside the try so exceptions were not
+	  necessailry caught if they were raised during the generation of
+	  blocks rather than setting up the filter.
+
+Thu Nov 01 10:54:47 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/indexserver/remote_filter.py: more logging.
+
+Thu Nov 01 09:38:59 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/indexserver/remote_filter.py:
+	  http://code.google.com/p/flaxcode/issues/detail?id=56
+	  http://code.google.com/p/flaxcode/issues/detail?id=71 Added
+	  additional checks to see whether the remote process is still
+	  running and to deal with exceptions raised by a filter running in
+	  a remote process. If the remote process raises an uncaught
+	  exception kill it and restart. This ensures that the next
+	  document won't timeout because the remote process has become
+	  unresponsive. It also deal partially with the problem of growing
+	  memory use due (we think) to a problem with the adobe IFilter.
+	  Added some logging calls.
+
+Wed Oct 31 18:25:02 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/test/issue71.py: added more comments.
+
+Wed Oct 31 18:18:02 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/test/issue71.py: More simple experiments - suggesting that
+	  the problem might be specifically to do with the pdf IFilter.
+
+Wed Oct 31 18:09:15 UTC 2007  charliejuggler
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: note about M$
+	  redistributable files
+
+Wed Oct 31 17:34:53 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/test/issue71.py: added a function to repeatedly call a remote
+	  ifilter on a pdf
+
+Wed Oct 31 17:32:40 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: remove Windows dir
+
+Wed Oct 31 16:47:15 UTC 2007  charliejuggler
+
+	* w32setup/setup_svc.py: make sure setup.exe has correct version
+	  information
+
+Wed Oct 31 16:24:45 UTC 2007  charliejuggler
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt,w32setup/flax.iss,
+	  w32setup/makew32svc.bat,w32setup/setup_svc.py: Now setup_svc.py
+	  does all the hard work, remove handcoded .iss and .bat files
+
+Wed Oct 31 16:23:53 UTC 2007  charliejuggler
+
+	* src/flaxservice.py: close files opened for stdout and stderr, for
+	  tidyness
+
+Wed Oct 31 15:54:42 UTC 2007  paul.x.rudin@gmail.com
+
+	* src/test/sampledocs,src/test/sampledocs/Changes.txt,
+	  src/test/sampledocs/problem_docs,
+	  src/test/sampledocs/ukpga_20060041_en.pdf: moving
+
+Wed Oct 31 15:54:17 UTC 2007  paul.x.rudin@gmail.com
+
+	* tests: moving
+
+Wed Oct 31 15:51:22 UTC 2007  paul.x.rudin@gmail.com
+
+	* tests/sampledocs/problem_docs,
+	  tests/sampledocs/problem_docs/ukpga_20060042_en.pdf:
+
+Wed Oct 31 15:50:50 UTC 2007  paul.x.rudin@gmail.com
+
+	* tests/sampledocs/ukpga_20060041_en.pdf: a pdf from the hmso for
+	  testing.
+
+Wed Oct 31 12:45:48 UTC 2007  charliejuggler
+
+	* src/flaxservice.py: Added exception handlers in attempt to fix
+	  #67
+
+Wed Oct 31 11:58:24 UTC 2007  charliejuggler
+
+	* w32setup/flax.iss,w32setup/makew32svc.bat,
+	  w32setup/startflaxservice.bat,w32setup/stopflaxservice.bat: Can
+	  now add/remove/start/stop Service during (un)installation
+
+Wed Oct 31 11:13:21 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/test/issue71.py: issue 71 related code snippets.
+
+Wed Oct 31 10:26:20 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/flaxpaths.py: Added a call to paths.set_dirs to facilitate
+	  testing.
+
+Tue Oct 30 18:47:09 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/static/css/main.css,src/templates/about.html,
+	  src/templates/admin_banner.html,src/templates/search.html,
+	  src/templates/user_banner.html,src/templates.py: Link to the
+	  "about" pages, and integrate them with the navigation stuff.
+
+Tue Oct 30 16:43:41 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/cpserver.py,src/templates/about.html,
+	  src/templates/index.html,src/templates.py: Add an about page (to
+	  both admin and user pages).  Not yet linked in.  Add lots of
+	  documentation comments, and reformat a few bits of messy code and
+	  whitespace.  Also, rename "real_id" to "nav_id", since it's only
+	  used for navigation, and add a documentation comment describing
+	  it.
+
+Tue Oct 30 15:39:22 UTC 2007  Paul Rudin <paul@rudin.co.uk>
+
+	* src/indexserver/remote_filter.py: FIXES:
+	  http://code.google.com/p/flaxcode/issues/detail?id=63 Fixed
+	  indentation error in FilterRunner.
+
+Tue Oct 30 14:25:25 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/startflax.py: Add --version option to display the version,
+	  and --set-admin-password option which reads a new admin password
+	  from stdin.  Still need to implement a method in cpserver.py to
+	  actually store the new admin password.
+
+Tue Oct 30 12:29:10 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/templates.py: Remove all XML comments from the generated HTML
+	  pages.
+
+Tue Oct 30 12:22:36 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/templates/collection_detail.html,src/templates/flax.html:
+	  Tidy up some of the comments.
+
+Tue Oct 30 12:07:20 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/templates/admin_banner.html,
+	  src/templates/collection_detail.html,
+	  src/templates/collections.html,src/templates/flax.html,
+	  src/templates/index.html,src/templates/options.html,
+	  src/templates/search.html,src/templates/user_banner.html: Remove
+	  the $ID: keyword things.
+
 Tue Oct 30 11:48:05 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* src/templates/flax.html: Correct a typo and set the character set
