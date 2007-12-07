@@ -1,3 +1,40 @@
+Fri Dec 07 11:16:21 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/collection_list.py: Delete the underlying database on disk
+	  when the collection is deleted.  This involves several steps:
+	   - first, we maintain a "handle count" of the number of handles
+	     which are open on databases.  This is incremented whenever a
+	     search connection is opened, and decremented when the
+	     connection is closed again.  All access to this count is
+	     protected by a Condition, which is signalled whenever the
+	     count drops to zero.
+	   - When a database is deleted, it is marked as deleted (to stop
+	     any new connections being made), deleted from the _collections
+	     member, and the path of the database is added to the
+	     _collections_being_deleted member.
+	   - When a database is deleted, a separate thread is started which
+	     waits on the condition, and checks for the handle count of the
+	     database being deleted dropping to zero.  When it does, the
+	     database is deleted from disk.
+	   - If the server is stopped before the database is deleted from
+	     disk, the _collections_being_deleted entries will be read in
+	     when the server is next started, and the database will then be
+	     deleted.
+	* src/doc_collection.py: Add a ready_to_be_indexed() method, which
+	  checks that the collection is due and not held, and not deleted.
+	  Change search_conn() uses CollectionList.get_search_connection()
+	  to get the connection to the database, rather than doing it
+	  directly, so that the connection gets registered.
+	* src/indexserver/indexer.py: Remove ok_to_index() - call
+	  DocCollection.ready_to_be_indexed() instead.
+	* src/cpserver.py: Now that CollectionList.new_collection() returns
+	  an error message if the collection name is already in use, use
+	  that rather than testing ourselves.
+	* src/search.py: Refer to the databases to be searched by names,
+	  rather than paths.  Call CollectionList.get_search_connection()
+	  to get the connection to the databases, rather than doing it
+	  ourself, so that the connection gets registered.
+
 Fri Dec 07 11:11:06 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* src/flax_w32.py: Don't do "except:" - for now, just catch

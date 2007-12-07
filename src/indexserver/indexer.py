@@ -393,10 +393,6 @@ class IndexServer(object):
         else:
             return False, collection.file_count, collection.error_count
 
-    def ok_to_index(self, collection):
-        assert isinstance(collection, doc_collection.DocCollection)
-        return collection.indexing_due and not collection.indexing_held
-
     def start_indexing(self, hint = None):
         """ Select a collection for indexing and start indexing
         it. Prefer the collection passed in hint (if any). If there is
@@ -424,7 +420,7 @@ class IndexServer(object):
         self.hints = self.hints - current_collections
 
         for col in itertools.chain([hint] if hint else [], self.hints, current_collections):
-            if self.ok_to_index(col):
+            if col.ready_to_be_indexed():
                 self.async_do_indexing(col)
                 break
 

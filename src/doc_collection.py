@@ -30,6 +30,7 @@ import xappy
 
 import dbspec
 import filespec
+import flax
 import flaxpaths
 import schedulespec
 import util
@@ -80,6 +81,12 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
         self.mappings = dict(filter (lambda (x, y): x !='', pairs))
         self.paths = filter(None, self.paths)
 
+    def ready_to_be_indexed(self):
+        """Return True iff this collection is ready to be indexed.
+
+        """
+        return self.indexing_due and not self.indexing_held and not self.deleted
+
     def url_for_doc(self, doc_id):
         """Calculate the URL to display for a document.
         
@@ -111,9 +118,7 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
             return ""
 
     def search_conn(self):
-        conn = xappy.SearchConnection(self.dbpath())
-        #FIXME - conn.append_close_handler(self.FIXME)
-        return conn
+        return flax.options.collections.get_search_connection(self.name)
 
     @property
     def document_count(self):
@@ -124,7 +129,7 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
 
     def source_file_from_id(self, doc_id):
         "return the source file name given a document id."
-        conn = xappy.SearchConnection(self.dbpath())
+        conn = self.search_conn()
         try:
             doc = conn.get_document(doc_id)
         except KeyError:
