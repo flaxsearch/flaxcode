@@ -1,3 +1,10 @@
+Fri Dec 07 12:22:07 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/collection_list.py: If deleting the database fails, return
+	  after a short break.  Report failure due to other exceptions
+	  better, and don't mark a database as deleted if the deletion
+	  fails.
+
 Fri Dec 07 11:40:22 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* src/indexserver/indexer.py: Notify the collection list when an

@@ -194,24 +194,37 @@ class CollectionList(object):
     def _delete_database_from_disk(self, dbpath):
         """Delete a database from disk, given its path.
 
+        Returns True if the database was deleted successfully.
+
+        Return False if the deletion failed: this probably means that some
+        other process was accessing the database directory when we tried to
+        delete it, or the permissions are wrong somehow.
+
         """
         try:
             shutil.rmtree(dbpath)
-        except IOError, e:
+            return True
+        except Exception, e:
             log.error("Failed to delete database at %r: %s" % (dbpath, str(e)))
+        return False
 
     def _wait_to_delete_database(self, (name, dbpath)):
         """Wait until there are no handles on a database, then delete it."""
         self._handle_count_condition.acquire()
         try:
             log.debug("Waiting for all handles on database %r to be dropped" % name)
-            while self._handle_count[name] > 0:
-                self._handle_count_condition.wait()
-            log.debug("Deleting database %r from disk (path was %r)" % (name, dbpath))
-            self._delete_database_from_disk(dbpath)
-            del self._collections_being_deleted[name]
-            del self._handle_count[name]
-            persist.data_changed.set()
+            while True:
+                while self._handle_count[name] > 0:
+                    self._handle_count_condition.wait()
+                log.debug("Deleting database %r from disk (path was %r)" % (name, dbpath))
+                if self._delete_database_from_disk(dbpath):
+                    del self._collections_being_deleted[name]
+                    del self._handle_count[name]
+                    persist.data_changed.set()
+                    log.debug("Deleted database %r from disk (path was %r)" % (name, dbpath))
+                    return
+                # Wait for a bit longer, then try the delete again.
+                time.sleep(1)
         finally:
             self._handle_count_condition.release()
 
