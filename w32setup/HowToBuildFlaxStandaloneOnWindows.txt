@@ -35,7 +35,7 @@ d. start a Visual C++ Express Edition command line and:
 13. a. Download the Visual C redistributable files from
 http://www.microsoft.com/downloads/details.aspx?FamilyId=32BC1BEE-A3F9-4C13-9C99-220B62A191EE&displaylang=en
 and copy into the same folder as this text file.
-b. Download the Windows Installer update (WindowsInstaller-KB893803-v2-x86.exe) from http://www.microsoft.com/downloads/details.aspx?FamilyID=889482fc-5f56-4a38-b838-de776fd4138c&displaylang=en
+b. Download the Windows Installer 3.0 update (WindowsInstaller-KB884016-v2-x86.exe) from http://www.microsoft.com/downloads/details.aspx?familyid=5FBC5470-B259-4733-A914-A956122E08E8&displaylang=en
 and copy into the same folder as this text file.
 c. Also copy msvcp71.dll from the Visual C++ Express Edition folder into the same folder as this file.
 14. Start a command line window (Start|Run|cmd.exe), and run

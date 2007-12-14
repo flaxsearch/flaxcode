@@ -111,7 +111,7 @@ Source: "%(localinst_dir)s\htmltotext.pyd"; DestDir: "{app}\localinst"; Flags: i
 Source: "%(this_dir)s\vcredist_x86.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "%(this_dir)s\startflaxservice.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "%(this_dir)s\stopflaxservice.bat"; DestDir: "{app}"; Flags: ignoreversion
-Source: "%(this_dir)s\WindowsInstaller-KB893803-v2-x86.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "%(this_dir)s\WindowsInstaller-KB884016-v2-x86.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "%(this_dir)s\msvcp71.dll"; DestDir: "{app}\localinst"; Flags: ignoreversion
 Source: "%(this_dir)s\zlib1.dll"; DestDir: "{app}\localinst"; Flags: ignoreversion
 Source: "%(this_dir)s\exampledocs\*"; DestDir: "{app}\exampledocs"; Flags: ignoreversion
@@ -138,14 +138,11 @@ Root: HKLM; Subkey: "Software\%(publisher)s\%(name)s\DataPath"; ValueType: strin
 
 [Run]
 ; Install new Microsoft Installer
-Filename: "{app}\WindowsInstaller-KB893803-v2-x86.exe"; StatusMsg: "Installing Microsoft Installer"; Parameters: "-quiet -norestart"; Flags: waituntilterminated shellexec
+Filename: "{app}\WindowsInstaller-KB884016-v2-x86.exe"; StatusMsg: "Installing Windows Installer 3.0"; Parameters: "/quiet /norestart"; Flags: waituntilterminated shellexec
 ; Install Visual C++ dependencies
 Filename: "{app}\vcredist_x86.exe"; StatusMsg: "Installing Microsoft dependencies"; Parameters: "-q"; Flags: waituntilterminated shellexec
 ; Set admin password
 Filename: "{app}\startflax.exe"; StatusMsg: "Setting administration password"; Parameters: "--set-admin-password"; Flags: waituntilterminated
-; Install & run Service
-Filename: "{app}\startflaxservice.bat"; Description: "{cm:LaunchProgram,%(name)s as a Windows Service}"; Flags: postinstall waituntilterminated
-Filename: "{app}\gettingstarted\GettingStartedOnWindows.htm"; Description: "Read the Getting Started guide"; Flags: postinstall shellexec
 
 [Dirs]
 Name: {code:GetDataDir}; Flags: uninsneveruninstall
@@ -154,6 +151,9 @@ Name: {code:GetDataDir}; Flags: uninsneveruninstall
 var
 DataDirPage: TInputDirWizardPage;
 LightMsgPage: TOutputMsgWizardPage;
+OtherOptPage: TInputOptionWizardPage;
+IsService: Boolean;
+ShowGettingStarted: Boolean;
 
 function InitializeSetup(): Boolean;
 begin
@@ -169,20 +169,33 @@ procedure InitializeWizard;
 begin
 { Create the pages }
 
+
+
+LightMsgPage := CreateOutputMsgPage(wpPreparing,
+    'Set Administration Password', 'Set Administration Password',
+    'During installation, Setup will ask you to enter a password for the Administration pages of %(name)s.'#13#13 +
+    'To view these pages you will need to use a username of ' + '"admin"' + ' and the password you choose. '#13#13 +
+    'You will be asked to confirm the password by typing it twice.');
+
+OtherOptPage := CreateInputOptionPage(wpSelectDir,
+  'Select extra options', 'Select extra installation options below:',
+  'You can install Flax as a Windows Service, which means it will run automatically in the background when you start Windows.'#13#13 + 'You can also open a Getting Started guide in your web browser. If it necessary to restart the computer at the end of installation, the Getting Started guide is also available in the Programs menu.',
+  False, False);
+OtherOptPage.Add('Install Flax as a Windows Service');
+OtherOptPage.Add('Open the Getting Started guide in your web browser');
+OtherOptPage.Values[0] := True;
+OtherOptPage.Values[1] := True;
+    
 DataDirPage := CreateInputDirPage(wpSelectDir,
     'Select Data Directory', 'Where should data files be stored?',
     'Select the folder in which %(name)s should store its data files, then click Next. '#13#13 +
     'Note that Flax data files can be very large, so you may want to store them on a separate ' +
-    'disk or partition.',
+    'disk or partition.'#13#13 + 
+    'If you are upgrading from a previous version of Flax, you should use the same data directory ' +
+    'as the previous installation.',
     False, '');
 DataDirPage.Add('');
-
-LightMsgPage := CreateOutputMsgPage(wpPreparing,
-    'Set Administration Password', 'Set Administration Password',
-    'After installation, Setup will ask you to enter a password for the Administration pages of %(name)s.'#13#13 +
-    'To view these pages you will need to use a username of ' + '"admin"' + ' and the password you choose. '#13#13 +
-    'You will be asked to confirm the password by typing it twice.');
-
+    
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
@@ -195,9 +208,13 @@ if CurPageID = wpSelectDir then begin
     DataDirPage.Values[0] := ExpandConstant('{app}\Data')
     end;
 if CurPageID = DataDirPage.ID then begin
-if DataDirPage.Values[0] = '' then
-    DataDirPage.Values[0] := ExpandConstant('{app}\Data')
-    Result := True;
+    if DataDirPage.Values[0] = '' then begin
+        DataDirPage.Values[0] := ExpandConstant('{app}\Data')
+        end;
+    end;
+if CurPageID = OtherOptPage.ID then begin
+    IsService := OtherOptPage.Values[0];
+    ShowGettingStarted := OtherOptPage.Values[1];
     end;
 Result := True;
 end;
@@ -249,7 +266,11 @@ begin
   S := S + MemoDirInfo + NewLine;
   S := S + Space + DataDirPage.Values[0] + ' (Data files)' + NewLine + NewLine;
   S := S + MemoGroupInfo + NewLine + NewLine;
-  S := S + MemoTasksInfo + NewLine + NewLine;
+  S := S + MemoTasksInfo + NewLine;
+  if IsService then 
+    S := S + 'Install Flax as Windows Service' + NewLine + NewLine;
+  if ShowGettingStarted then
+    S := S + 'Open Getting Started guide' + NewLine + NewLine;
   Result := S;
 end;
 
@@ -259,6 +280,15 @@ var
 begin
   if CurStep = ssPostInstall then
     begin
+    { Install as Service }
+    if IsService then begin
+        Exec(ExpandConstant('{app}\startflaxservice.bat'), '', '', SW_SHOW,ewWaitUntilTerminated, ResultCode);
+        end;
+    { Try and open the Getting Started page}
+    if ShowGettingStarted then begin
+        ShellExec('open',ExpandConstant('{app}\gettingstarted\GettingStartedOnWindows.htm'),'', '', SW_HIDE, ewNoWait, ResultCode);
+        end;
+    { Check IFilters }
     if not RegKeyExists(HKLM, 'SOFTWARE\Classes\.htm\PersistentHandler') then
       {There is no IFilter registered for HTML files; this usually occurs on Windows 2000 Server}
       begin
