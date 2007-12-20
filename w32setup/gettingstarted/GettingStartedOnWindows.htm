@@ -80,17 +80,15 @@
 
 <p>C:\Program Files\Flax Basic\exampledocs</p>
 
-<p>and the following into the 'Mapping' box:</p>
-
-<p>file://C:\Program Files\Flax Basic\exampledocs</p>
-
 <p>You can enter any number of pairs of settings for a Path and associated Mapping. The Path is where the 'source' files you want to index are located, and the Mapping controls how an end user will access these source files when they are shown as search results.</p>
+
+<p>You can serve source files directly via Flax Basic by typing 'FLAX' into the Mapping box. This is not likely to be as efficient as a dedicated web server. Also note that Flax will ignore any user access restrictions to files. <b>For these reasons, we advise against using this function for a public web site or in a security-critical application.</b></p>
 
 <p><b>If you want to run Flax Basic to allow users to search files shared across a Windows network</b>, you will need to set up an appropriate Mapping. For example, some source files might be held on a networked computer called 'FILEBOX' in a folder 'd:\PublicFiles\LegalStuff', which is set to be shared on the network as 'Legals'. Assuming Flax Basic is running on the machine 'FILEBOX', you would use a Path of 'd:\PublicFiles\LegalStuff' and a mapping of '\\FILEBOX\Legals'.</p>
 
 <p><b>If you are running a webserver</b>, you should (for security purposes) serve source files via the webserver rather than by Flax Basic. For example, let's say you run a web server (using Microsoft IIS) for a site called 'www.anything.com' and you have some source files that are located in a folder on the webserver computer of 'c:\Inetpub\wwwroot\anypages\'. The web server is set up so that visiting a page such as 'http://www.anything.com/page1.html' will result in the source file at 'c:\Inetpub\wwwroot\anypages\page1.html' being displayed to the end user. In this case, to build a searchable index using Flax Basic, we would use a Path of 'C:\Inetpub\wwwroot\anypages' and a Mapping of 'http://www.anything.com'.</p>
 
-<p><b>You can also serve source files directly via Flax Basic.</b> This is not likely to be as efficient as a dedicated web server. Also note that Flax will ignore any user access restrictions to files. <b>For these reasons, we advise against using this function for a public web site or in a security-critical application.</b>. For now, type 'FLAX' into the Mapping box to allow this.<p>
+<p> For now, type 'FLAX' into the Mapping box.<p>
 
 <p>The checkboxes below allow you to decide which file formats will be included in the index. Flax Basic will only read those files that you select. If you leave all the boxes unchecked, Flax Basic will assume that you want to index <i>all</i> of the file types shown. Leave them unchecked for now. </p>
 
