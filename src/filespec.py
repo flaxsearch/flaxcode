@@ -57,6 +57,11 @@ class FileSpec(object):
             logger_indexing.debug("Walked to file %s" % f)
         
         for p in self.paths:
+            # Test "p + os.path.sep" here instead of just "p" here to fix a
+            # problem on windows: NT shared directories, and windows drive
+            # letters, don't return true for isdir unless followed by '\'.  See
+            # http://code.google.com/p/flaxcode/issues/detail?id=167 for
+            # details.
             if os.path.isdir(p + os.path.sep):
                 for root, dirs, files in os.walk(p):
                     # Perhaps we want to warn here if any dirs are
