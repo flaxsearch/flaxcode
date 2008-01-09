@@ -359,10 +359,10 @@ class Top(FlaxResource):
         # collections. In any case I guess it makes sense for the
         # process running the web server to have limited read access.
         if col in self._flax_data.collections:
-            filename = self._flax_data.collections[col].source_file_from_id(doc_id)
-            if filename:
-                return cherrypy.lib.static.serve_file(filename)
-        # fall through we can't find either the collection or the file named by file_id
+            if self._flax_data.collections[col].path_is_within_collection(doc_id):
+                return cherrypy.lib.static.serve_file(doc_id)
+
+        # We can't find either the collection or the file named by file_id
         raise cherrypy.NotFound()
 
     @cherrypy.expose

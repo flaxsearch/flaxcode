@@ -130,13 +130,28 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
     def dbpath(self):
         return os.path.join(flaxpaths.paths.dbs_dir, self.name + '.db')
 
-    def source_file_from_id(self, doc_id):
-        "return the source file name given a document id."
-        conn = self.search_conn()
-        try:
-            doc = conn.get_document(doc_id)
-        except KeyError:
-            return None
-        conn.close()
-        return doc_id
+    def path_is_within_collection(self, path):
+        """Check whether a particular file path is in the collection.
+
+        This is used to check whether a file should be served to the user on
+        request, so must be careful to check the current set of directories
+        which are allowed to be served carefully.
+
+        """
+        # Build up a list of all the real paths of the start of the mappings
+        basepaths = {}
+        for basepath in self.mappings:
+            basepath = os.path.realpath(basepath)
+            basepaths[basepath] = None
+
+        # Check all the parents of the path, to see if they're in the list of
+        # base paths.
+        testpath = os.path.realpath(path)
+        prevtestpath = ''
+        while testpath != prevtestpath:
+            prevtestpath = testpath
+            if testpath in basepaths:
+                return True
+            testpath, file = os.path.split(testpath)
+        return False
 
