@@ -57,7 +57,7 @@ class FileSpec(object):
             logger_indexing.debug("Walked to file %s" % f)
         
         for p in self.paths:
-            if os.path.isdir(p):
+            if os.path.isdir(p) or os.path.isdir(p + os.path.sep):
                 for root, dirs, files in os.walk(p):
                     # Perhaps we want to warn here if any dirs are
                     # symlinks. os.walk will not traverse them. Don't do
