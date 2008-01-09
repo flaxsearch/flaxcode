@@ -111,7 +111,10 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
             return "/"
         mapped = self.mappings[path[0]]
         if mapped == 'FLAX':
-            return ('/source/%s/%s' % (self.name, urllib.quote(doc_id))) 
+            # Change separators in the path from os.path.sep to '/', so that
+            # relative links will respect the directory layout.
+            path_as_url = '/'.join(urllib.quote(doc_id).split(os.path.sep))
+            return ('/source/%s/%s' % (self.name, path_as_url))
         elif mapped:
             return mapped + "/" + doc_id[len(path[0]):].replace('\\', '/')
         else:

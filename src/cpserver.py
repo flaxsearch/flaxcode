@@ -336,19 +336,22 @@ class Top(FlaxResource):
         return self._search.search(advanced=True, **kwargs )
 
     @cherrypy.expose
-    def source(self, col, *doc_id):
-        """
-        Serve the source file for the document in document collection
-        named by col with doc_id.
-        """
+    def source(self, col, *unused):
+        """Serve a source file for a document.
+        
+        The document collection is specified in the first part of the path,
+        followed by the filename of the document.
 
-        # Rather than rebuild doc_id by joining the pieces with '/', we
-        # read the path_id from the unprocessed path_info string.  This
+        """
+        # Read the path from the unprocessed path_info string, rather than the
+        # value supplied to us in the function arguments by cherrypy. This
         # avoids problems with repeated slashes being removed.
-        pathbits = cherrypy.request.path_info.split('/', 3)
+        pathbits = cherrypy.request.path_info.split('/')
         if len(pathbits) < 4:
             raise cherrypy.NotFound()
-        doc_id = pathbits[3]
+
+        # Build doc_id by joining the pieces with os.path.sep.
+        doc_id = os.path.sep.join(pathbits[3:])
 
         # Quite possibly this is a security hole allowing any
         # documents to be accessed. Need to think carefully about how
