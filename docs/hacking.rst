@@ -184,6 +184,7 @@ simple, yet useful, option available in the UI.
 At the time of writing the following loggers are used by the code,
 there is no point in configuring other loggers unless you add code
 that uses them:
+
   - webserver
   - webserver.errors
   - webserver.access
@@ -748,4 +749,28 @@ note:
     code.
 
 
+Release checklist
+=================
+
+The following list contains all the steps which need to be taken to prepare for
+a new release of Flax.
+
+One person needs to be nominated for each release as the release maintainer, to
+ensure that all the tasks are done, and done in the right order.
+
+ - Update version numbers in src/version.py.  Remember to set _is_release to
+   True there.
+ - Edit documentation to update any version numbers and remove any
+   'pre-release' notes in them.  Add any new locations in the documentation
+   where version numbers are found to the following list so that they won't be
+   missed in the next release.
+   - TODO - add items to this list as you find them.
+ - Commit all source files and tag the release in SVN.  For example, to tag the
+   1.0.0 release, you would run::
+
+       svn copy https://flaxcode.googlecode.com/svn/trunk https://flaxcode.googlecode.com/svn/tags/release-1.0.0
+
+ - Create new build and add to Googlecode downloads.
+ - Create new documentation snapshots and put on flax.co.uk
+ - Update link on flax.co.uk
 
