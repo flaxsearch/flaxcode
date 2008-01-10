@@ -134,7 +134,9 @@ setup(name = "htmltotext",
 
       ext_modules = [Extension("htmltotext",
                                htmltotext_sources,
-                               include_dirs=['src'],
+                               include_dirs=['src','c:\program files\gnuwin32\include'],
+                               library_dirs=['c:\program files\gnuwin32\lib'],
+                               libraries=['libiconv']
                               )],
                               
       **extra_kwargs)

@@ -8,7 +8,9 @@
 #define PACKAGE htmlparser
 
 /* Define if iconv() should be used for converting character sets. */
-#undef USE_ICONV
+/*#undef USE_ICONV*/
+#define USE_ICONV 1
+#define ICONV_INPUT_TYPE const char *
 
 /* Define to 1 if you have the <sys/errno.h> header file. */
 #undef HAVE_SYS_ERRNO_H
