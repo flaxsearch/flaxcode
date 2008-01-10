@@ -21,6 +21,10 @@
 
 import sys
 
+# FIXME - use some kind of configure step to determine these.
+extra_include_dirs='c:\program files\gnuwin32\include'
+extra_library_dirs='c:\program files\gnuwin32\lib'
+
 # Use setuptools if we're part of a larger build system which is already using
 # it.
 if ('setuptools' in sys.modules):
@@ -107,7 +111,6 @@ that library).
 
 """
 
-
 setup(name = "htmltotext",
       version = "0.6",
       author = "Richard Boulton",
@@ -134,8 +137,8 @@ setup(name = "htmltotext",
 
       ext_modules = [Extension("htmltotext",
                                htmltotext_sources,
-                               include_dirs=['src','c:\program files\gnuwin32\include'],
-                               library_dirs=['c:\program files\gnuwin32\lib'],
+                               include_dirs=['src'] + extra_include_dirs,
+                               library_dirs=extra_library_dirs,
                                libraries=['libiconv']
                               )],
                               
