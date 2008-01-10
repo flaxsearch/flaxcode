@@ -236,7 +236,7 @@ Enter a new administrator password.  This is needed to allow access to the
 administrator section of the Flax interface.
 
 The password is case sensitive.  You will be asked to enter it twice, to guard
-against typing errors.
+against typing errors. Note that the password *will not appear as you type it*.
 
 """.strip() + '\n'
     while True:
