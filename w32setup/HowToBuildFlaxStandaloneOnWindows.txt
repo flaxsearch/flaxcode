@@ -9,6 +9,7 @@
         http://www.selenic.com/pipermail/mercurial-devel/2006-November/000353.html
 8. Install InnoSetup and add its folder to your path
 9. Install Zlib from http://www.zlib.net/ - extract zlib1.dll from the ZIP file and put it in the same folder as this text file. Make a note of the path to the rest of Zlib for putting into config.mak later.
+9a. Install libiconv from http://gnuwin32.sourceforge.net/downlinks/libiconv.php and install to C:\Program Files\GnuWin32  and add the folder to /bin to your Path (i.e. C:\Program Files\GnuWin32\bin)
 10. Install SVN (download and unzip the Windows binary ' svn-win32-1.4.5.zip' from http://subversion.tigris.org/servlets/ProjectDocumentList?folderID=91 and add the folder to /bin to your Path (i.e. c:\work\svn-win32-1.4.5\bin)
 11. Build Xapian from the snapshots provided in Xappy: 
 a. unpack the tarballs in ..\libs\xappy\libs and rename the folders to xapian-core and xapian-bindings
