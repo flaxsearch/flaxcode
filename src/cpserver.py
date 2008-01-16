@@ -441,6 +441,11 @@ def start_web_server(flax_data, index_server, conf_path, templates_path, blockin
 
     admin.collections = collections
     top.admin = admin
+    
+    # HACK - customise the generic error template
+    cherrypy._cperror._HTTPErrorTemplate = open(
+        os.path.join(templates_path, 'cp_http_error.html')).read()
+    
     cherrypy.config.update(conf_path)
     cherrypy.tree.mount(top, '/', config=conf_path)
     cherrypy.server.quickstart()
