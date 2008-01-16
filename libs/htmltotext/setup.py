@@ -26,10 +26,12 @@ import platform
 if platform.system() == 'Windows':
     extra_include_dirs = [r'c:\program files\gnuwin32\include']
     extra_library_dirs = [r'c:\program files\gnuwin32\lib']
+    extra_libraries    = ['libiconv']
 else:
     extra_include_dirs = ['/usr/local/include']
     extra_library_dirs = ['/usr/local/lib']
-
+    extra_libraries    = ['iconv']
+    
 # Use setuptools if we're part of a larger build system which is already using it.
 if ('setuptools' in sys.modules):
     import setuptools
@@ -143,7 +145,7 @@ setup(name = "htmltotext",
                                htmltotext_sources,
                                include_dirs=['src'] + extra_include_dirs,
                                library_dirs=extra_library_dirs,
-                               libraries=['iconv']
+                               libraries=extra_libraries
                               )],
                               
       **extra_kwargs)
