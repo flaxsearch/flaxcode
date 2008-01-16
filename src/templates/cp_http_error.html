@@ -4,15 +4,17 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>
     <title>%(status)s</title>
     <style type="text/css">
+      body { font-family:  Verdana, sans-serif; }
+      h1 { font-size: 18px; }
       #traceback { color: darkred; font-size: small; }
-      a { text-decoration: none; color: darkblue; }
+      a { text-decoration: none; color: darkblue; font-size: 15px; }
       a:hover {color: darkred; }
     </style>
   </head>
   <body>
     <img src="/static/img/flax.125trans.png"/>
-    <h2>Error: %(message)s</h2>
-    <h3><a href="javascript:history.back()">Go back to previous page</a></h3>
+    <h1>Error: %(message)s</h1>
+    <a href="javascript:history.back()">Go back to previous page</a>
 
 <!--
 Details: %(status)s
