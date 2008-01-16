@@ -20,13 +20,17 @@
 """
 
 import sys
+import platform
 
 # FIXME - use some kind of configure step to determine these.
-extra_include_dirs='c:\program files\gnuwin32\include'
-extra_library_dirs='c:\program files\gnuwin32\lib'
+if platform.system() == 'Windows':
+    extra_include_dirs = [r'c:\program files\gnuwin32\include']
+    extra_library_dirs = [r'c:\program files\gnuwin32\lib']
+else:
+    extra_include_dirs = ['/usr/local/include']
+    extra_library_dirs = ['/usr/local/lib']
 
-# Use setuptools if we're part of a larger build system which is already using
-# it.
+# Use setuptools if we're part of a larger build system which is already using it.
 if ('setuptools' in sys.modules):
     import setuptools
     from setuptools import setup, Extension
@@ -139,7 +143,7 @@ setup(name = "htmltotext",
                                htmltotext_sources,
                                include_dirs=['src'] + extra_include_dirs,
                                library_dirs=extra_library_dirs,
-                               libraries=['libiconv']
+                               libraries=['iconv']
                               )],
                               
       **extra_kwargs)
