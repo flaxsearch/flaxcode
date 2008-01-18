@@ -26,7 +26,8 @@ class BrowserServer (object):
             ret = []
             for f in os.listdir(fpath):
                 fp = os.path.join(fpath, f)
-                ret.append ([fp, f, int(os.path.isdir(fp))])
+                if os.access(fp, os.R_OK):
+                    ret.append ([fp, f, int(os.path.isdir(fp))])
             
             print ret
             return repr(ret)
