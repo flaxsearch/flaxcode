@@ -53,6 +53,13 @@ body {
     height: 11px;
 }
 
+.togN {
+    color: white;
+    margin: 2px 1px 0px 0px;
+    width: 11px;
+    height: 11px;
+}
+
 .prophead {
     color: #303060;
 }
@@ -101,7 +108,7 @@ function toggle(fpath)
             var nodes = [];
             for (var i = 0; i < data.length; i++)
             {
-                nodes.push (makeItem (data[i][0], data[i][1]));
+                nodes.push (makeItem (data[i]));
             }
             
             appendChildNodes (item, DIV ({'class': 'children'}, nodes));
@@ -122,11 +129,20 @@ function toggle(fpath)
     }
 }
 
-function makeItem(fpath, fname)
+function makeItem(row)
 {
-    return DIV ({'class': 'item', 'id': fpath}, 
-        SPAN ({'class': 'togE', 'onclick': 'toggle("' + fpath + '")'}, '_'), 
-        SPAN ({'class': 'itemTitle'}, fname));
+    if (row[2])
+    {
+        return DIV ({'class': 'item', 'id': row[0]}, 
+            SPAN ({'class': 'togE', 'onclick': 'toggle("' + row[0] + '")'}, '_'), 
+            SPAN ({'class': 'itemTitle'}, row[1]));
+    }
+    else
+    {
+        return DIV ({'class': 'item', 'id': row[0]}, 
+            SPAN ({'class': 'togN'}, '_'), 
+            SPAN ({'class': 'itemTitle'}, row[1]));
+    }
 }
 
 function addRoots()
@@ -136,7 +152,7 @@ function addRoots()
     {
         for (var i = 0; i < data.length; i++)
         {
-            var item = makeItem (data[i][0], data[i][1]);
+            var item = makeItem (data[i]);
             $('root').appendChild (item);
         }
         document.body.style.cursor = 'auto';

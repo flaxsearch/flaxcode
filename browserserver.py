@@ -2,8 +2,11 @@
 # copyright 2006/2007 Lemur Consulting Limited. All rights reserved.
 #
 
+import platform
 import os, os.path
 import cherrypy
+
+_is_windows = platform.system() == 'Windows'
 
 class BrowserServer (object):
     @cherrypy.expose
@@ -19,9 +22,23 @@ class BrowserServer (object):
         # prevent IE caching
         cherrypy.response.headers['Expires'] = 'Mon, 26 Jul 1997 05:00:00 GMT'
 
-        return "[[%s, 'fixme', true], [%s, 'wibble', false]]" % (
-            repr(os.path.join(fpath, 'fixme')), 
-            repr(os.path.join(fpath, 'wibble')))
+        if fpath:
+            ret = []
+            for f in os.listdir(fpath):
+                fp = os.path.join(fpath, f)
+                ret.append ([fp, f, int(os.path.isdir(fp))])
+            
+            print ret
+            return repr(ret)
+        
+        else:
+            # special case - return list of filesystem roots
+            if _is_windows:
+                return "[['C:\\\\', 'C:\\\\', true], ['FIXME', 'FIXME', false]]"
+                # FIXME - get list of drive letters and network shares, using
+                # win32api and win32com
+            else:
+                return "[['/', '/', true]]"                
 
 config = {
     'global': {
@@ -30,7 +47,7 @@ config = {
     },
     '/static': {
         'tools.staticdir.on'  : True,
-        'tools.staticdir.dir' : '/Users/maky/src/flaxcode/filebrowser/static/'
+        'tools.staticdir.dir' : '/Users/maky/src/flax/branches/filebrowser/static/'
     }}
 
 cherrypy.config.update(config)
