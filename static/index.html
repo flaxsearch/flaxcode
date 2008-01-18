@@ -1,0 +1,161 @@
+<html>
+<head>
+
+<style type="text/css">
+body {
+    font-family: helvetica;
+    font-size: 14px;
+}
+
+.item {
+    margin: 0px;
+    border-top: 1px solid #E0E0E8;
+    border-left: 1px solid white;
+    vertical-align: top;
+}
+
+.itemC {
+    margin: 0px;
+    border-top: 1px solid #E0E0E8;
+    border-left: 1px solid #C0C0CA;
+    vertical-align: top;
+}
+
+.itemTitle {
+    margin: 1px 1px 1px 2px;
+}
+
+.summary {
+    margin: 1px 0px 0px 14px;
+    padding: 2px 2px 2px 12px;
+    background-color: #FAFAFF;
+}
+
+.children {
+    margin: 0px 0px 0px 14px;
+}
+
+.togE {
+    background-image: url(img/expand.png);
+    background-repeat: no-repeat;
+    color: white;
+    margin: 2px 1px 0px 0px;
+    width: 11px;
+    height: 11px;
+}
+
+.togC {
+    background-image: url(img/collapse.png);
+    background-repeat: no-repeat;
+    color: white;
+    margin: 2px 1px 0px 0px;
+    width: 11px;
+    height: 11px;
+}
+
+.prophead {
+    color: #303060;
+}
+
+
+</style>
+
+<script type="text/javascript" src="MochiKit/MochiKit.js"></script>
+<script type="text/javascript">
+
+var _open_nodes = {};  // keep track of open nodes
+    
+function getChildByClass(parent, clas)
+{
+    for (var i = 0; i < parent.childNodes.length; i++)
+    {
+        if (parent.childNodes[i].className == clas)
+            return parent.childNodes[i]
+    }
+}
+
+function alertError(err)
+{
+    document.body.style.cursor = 'auto';
+    alert (err.name + ': ' + err.message);
+}
+
+function toggle(fpath)
+{
+    var item = $(fpath);
+    var c = getChildByClass (item, 'children');
+    if (c)
+    {
+        item.className = 'item';    
+        item.childNodes[0].className = 'togE';
+        item.removeChild (c);
+        _open_nodes[fpath] = false;
+    }
+    else
+    {
+        var cb = function (data) 
+        {
+            item.className = 'itemC';
+            item.childNodes[0].className = 'togC';
+            
+            var nodes = [];
+            for (var i = 0; i < data.length; i++)
+            {
+                nodes.push (makeItem (data[i][0], data[i][1]));
+            }
+            
+            appendChildNodes (item, DIV ({'class': 'children'}, nodes));
+            _open_nodes[fpath] = true;
+
+            // are child nodes open?
+            for (var i = 0; i < data.length; i++)
+            {
+                var fpath2 = data[i][0];
+                if (_open_nodes[fpath2]) toggle(fpath2);
+            }
+            document.body.style.cursor = 'auto';
+        };
+
+        var dfrd = loadJSONDoc ('/listfiles', {'fpath': fpath});
+        dfrd.addCallbacks (cb, alertError);
+        document.body.style.cursor = 'wait';
+    }
+}
+
+function makeItem(fpath, fname)
+{
+    return DIV ({'class': 'item', 'id': fpath}, 
+        SPAN ({'class': 'togE', 'onclick': 'toggle("' + fpath + '")'}, '_'), 
+        SPAN ({'class': 'itemTitle'}, fname));
+}
+
+function addRoots()
+{
+    // callback function for async success
+    var cb = function (data) 
+    {
+        for (var i = 0; i < data.length; i++)
+        {
+            var item = makeItem (data[i][0], data[i][1]);
+            $('root').appendChild (item);
+        }
+        document.body.style.cursor = 'auto';
+    };
+
+    var dfrd = loadJSONDoc ('/listfiles', {'fpath': ''});
+    dfrd.addCallbacks (cb, alertError);
+    document.body.style.cursor = 'wait';
+}
+
+</script>
+</head>
+
+<body onload="addRoots()">
+
+<div id="root">
+</div>
+
+<hr/>
+
+</body>
+</html>
