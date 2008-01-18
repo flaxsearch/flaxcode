@@ -35,11 +35,8 @@ This will install the dependencies locally (to a directory "localinst",
 which flax looks for when it starts up), so you won't need root or
 administrator privileges.
 
-Flax also depends on Xapian, its python bindings and the Xappy interface to Xapian; 
-as well as the processing module, which you currently need to install manually. See
-http://www.xapian.org (you will need to use a recent snapshot) and
-http://cheeseshop.python.org/pypi/processing (currently we use the
-0.34 release).
+Flax also depends on Xapian and its python bindings.
+See http://www.xapian.org (you will need to use a recent snapshot)
 
 If you want to install the dependencies manually, then examine 
 utils/install_dependecies to see what it does.
