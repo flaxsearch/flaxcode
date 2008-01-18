@@ -7,6 +7,15 @@ body {
     font-size: 14px;
 }
 
+a {
+    color: darkblue;
+    text-decoration: none;
+}
+
+a:hover {
+    color: darkred;
+}
+
 .item {
     margin: 0px;
     border-top: 1px solid #E0E0E8;
@@ -131,17 +140,18 @@ function toggle(fpath)
 
 function makeItem(row)
 {
+    var sel_link = "javascript:selectPath('" + escape(row[0]) + "')";
     if (row[2])
     {
         return DIV ({'class': 'item', 'id': row[0]}, 
             SPAN ({'class': 'togE', 'onclick': 'toggle("' + row[0] + '")'}, '__'), 
-            SPAN ({'class': 'itemTitle'}, A({'href': 'foo'}, row[1])));
+            SPAN ({'class': 'itemTitle'}, A({'href': sel_link}, row[1])));
     }
     else
     {
         return DIV ({'class': 'item', 'id': row[0]}, 
             SPAN ({'class': 'togN'}, '__'), 
-            SPAN ({'class': 'itemTitle'}, A({'href': 'foo'}, row[1])));
+            SPAN ({'class': 'itemTitle'}, A({'href': sel_link}, row[1])));
     }
 }
 
@@ -161,6 +171,11 @@ function addRoots()
     var dfrd = loadJSONDoc ('/listfiles', {'fpath': ''});
     dfrd.addCallbacks (cb, alertError);
     document.body.style.cursor = 'wait';
+}
+
+function selectPath(path)
+{
+    alert ('path is ' + unescape(path));
 }
 
 </script>
