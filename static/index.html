@@ -135,13 +135,13 @@ function makeItem(row)
     {
         return DIV ({'class': 'item', 'id': row[0]}, 
             SPAN ({'class': 'togE', 'onclick': 'toggle("' + row[0] + '")'}, '__'), 
-            SPAN ({'class': 'itemTitle'}, row[1]));
+            SPAN ({'class': 'itemTitle'}, A({'href': 'foo'}, row[1])));
     }
     else
     {
         return DIV ({'class': 'item', 'id': row[0]}, 
             SPAN ({'class': 'togN'}, '__'), 
-            SPAN ({'class': 'itemTitle'}, row[1]));
+            SPAN ({'class': 'itemTitle'}, A({'href': 'foo'}, row[1])));
     }
 }
 
