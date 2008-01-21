@@ -3,8 +3,10 @@
 #
 
 import platform
+import sys
 import os, os.path
 import cherrypy
+import string
 
 _is_windows = platform.system() == 'Windows'
 if _is_windows:
@@ -24,10 +26,11 @@ class BrowserServer (object):
         # prevent IE caching
         cherrypy.response.headers['Expires'] = 'Mon, 26 Jul 1997 05:00:00 GMT'
 
+        print '--', fpath
         if fpath:
             ret = []
             for f in os.listdir(fpath):
-                fp = os.path.join(fpath, f)
+                fp = os.path.join(fpath, f).replace('\\', '/')
                 canread = int(os.access(fp, os.R_OK))
                 if os.path.isdir(fp):
                     ret.append ([fp, f + os.path.sep, 1, canread])
@@ -41,7 +44,9 @@ class BrowserServer (object):
             if _is_windows:
                 drives = win32api.GetLogicalDriveStrings()
                 drives = string.splitfields(drives,'\000')
-                return repr([[d, d, 1, 1] for d in drives])
+                drives = [[d.replace('\\', '/'), d, 1, 1] for d in drives if d]
+                print '-- drives:', drives
+                return repr(drives)
             else:
                 return "[['/', '/', 1, 1]]"                
 
@@ -52,7 +57,7 @@ config = {
     },
     '/static': {
         'tools.staticdir.on'  : True,
-        'tools.staticdir.dir' : '/Users/maky/src/flax/branches/filebrowser/static/'
+        'tools.staticdir.dir' : os.path.abspath('static')
     }}
 
 cherrypy.config.update(config)

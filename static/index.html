@@ -151,11 +151,11 @@ function makeItem(row)
     if (row[3])
     {        
         title_span = SPAN ({'class': 'itemTitle'}, A({'href': 
-            "javascript:selectPath('" + escape(row[0]) + "')"}, row[1]));
+            "javascript:selectPath('" + myesc(row[0]) + "')"}, row[1]));
             
         if (row[2])
         {
-            tog_props = {'class': 'togE', 'onclick': 'toggle("' + row[0] + '")'};
+            tog_props = {'class': 'togE', 'onclick': 'toggle("' + myesc(row[0]) + '")'};
         }
     }
     else
@@ -184,9 +184,14 @@ function addRoots()
     document.body.style.cursor = 'wait';
 }
 
+function myesc(s)
+{
+    return s.replace('"', '\\"').replace("'", "\\'");
+}
+
 function selectPath(path)
 {
-    alert ('path is ' + unescape(path));
+    alert ('path is ' + path);
 }
 
 </script>
