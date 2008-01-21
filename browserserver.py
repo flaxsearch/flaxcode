@@ -7,7 +7,9 @@ import os, os.path
 import cherrypy
 
 _is_windows = platform.system() == 'Windows'
-
+if _is_windows:
+    import win32api
+    
 class BrowserServer (object):
     @cherrypy.expose
     def listfiles(self, fpath=''):
@@ -15,7 +17,7 @@ class BrowserServer (object):
         
         Returns a JSON list:
         
-        [[filepath, filename, is-dir], ...]
+        [[filepath, filename, is-dir, is-readable], ...]
 
         """
         cherrypy.response.headers['Content-Type'] = 'text/plain'
@@ -26,22 +28,22 @@ class BrowserServer (object):
             ret = []
             for f in os.listdir(fpath):
                 fp = os.path.join(fpath, f)
-                if os.access(fp, os.R_OK):
-                    if os.path.isdir(fp):
-                        ret.append ([fp, f + os.path.sep, 1])
-                    else:
-                        ret.append ([fp, f, 0])
+                canread = int(os.access(fp, os.R_OK))
+                if os.path.isdir(fp):
+                    ret.append ([fp, f + os.path.sep, 1, canread])
+                else:
+                    ret.append ([fp, f, 0, canread])
             
             return repr(ret)
         
         else:
             # special case - return list of filesystem roots
             if _is_windows:
-                return "[['C:\\\\', 'C:\\\\', true], ['FIXME', 'FIXME', false]]"
-                # FIXME - get list of drive letters and network shares, using
-                # win32api and win32com
+                drives = win32api.GetLogicalDriveStrings()
+                drives = string.splitfields(drives,'\000')
+                return repr([[d, d, 1, 1] for d in drives])
             else:
-                return "[['/', '/', true]]"                
+                return "[['/', '/', 1, 1]]"                
 
 config = {
     'global': {

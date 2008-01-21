@@ -34,6 +34,11 @@ a:hover {
     margin: 1px 1px 1px 2px;
 }
 
+.itemDisabled {
+    margin: 1px 1px 1px 2px;
+    color: gray;
+}
+
 .summary {
     margin: 1px 0px 0px 14px;
     padding: 2px 2px 2px 12px;
@@ -140,19 +145,25 @@ function toggle(fpath)
 
 function makeItem(row)
 {
-    var sel_link = "javascript:selectPath('" + escape(row[0]) + "')";
-    if (row[2])
-    {
-        return DIV ({'class': 'item', 'id': row[0]}, 
-            SPAN ({'class': 'togE', 'onclick': 'toggle("' + row[0] + '")'}, '__'), 
-            SPAN ({'class': 'itemTitle'}, A({'href': sel_link}, row[1])));
+    var tog_props = {'class': 'togN'};
+    var title_span;
+    
+    if (row[3])
+    {        
+        title_span = SPAN ({'class': 'itemTitle'}, A({'href': 
+            "javascript:selectPath('" + escape(row[0]) + "')"}, row[1]));
+            
+        if (row[2])
+        {
+            tog_props = {'class': 'togE', 'onclick': 'toggle("' + row[0] + '")'};
+        }
     }
     else
     {
-        return DIV ({'class': 'item', 'id': row[0]}, 
-            SPAN ({'class': 'togN'}, '__'), 
-            SPAN ({'class': 'itemTitle'}, A({'href': sel_link}, row[1])));
+        title_span = SPAN ({'class': 'itemDisabled'}, row[1]);
     }
+
+    return DIV ({'class': 'item', 'id': row[0]}, SPAN (tog_props, '__'), title_span);
 }
 
 function addRoots()
