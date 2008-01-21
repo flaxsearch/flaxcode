@@ -164,6 +164,14 @@ input, select {
 .input_long {
   width: 320px;
 }
+
+.input_lesslong {
+  width: 270px;
+}
+
+.browse_link {
+  font-size: 11px;
+}
   
 .form_content {
   margin-left: 150px
