@@ -130,8 +130,19 @@ function toggle(fpath)
             for (var i = 0; i < data.length; i++)
             {
                 var fpath2 = data[i][0];
+
+                // scroll to open node?
+                if (fpath2 == window._open_path)
+                {
+                    try {
+                        $(fpath2).scrollIntoView();
+                    } catch (err) {}
+                    window._open_path = null;
+                }
+
                 if (_open_nodes[fpath2]) toggle(fpath2);
             }
+            
             document.body.style.cursor = 'auto';
         };
 
@@ -202,13 +213,6 @@ function add_roots()
             toggle(win_drive);
         }
 
-        // scroll to open node
-        if (window._open_path)
-        {
-            var o = $(window._open_path);
-            if (o && o.scrollIntoView) o.scrollIntoView();
-        }
-        
         document.body.style.cursor = 'auto';
     };
 
