@@ -15,7 +15,8 @@ cd makedepend
 nmake -f makedepend.mak
 copy makedepend.exe ..
 cd ..
-nmake check
+rem nmake check
+nmake
 if errorlevel 0 goto cont2
 echo ERROR: could not build Xapian
 cd ..\..\..\..\..\
@@ -23,7 +24,8 @@ goto end
 
 :cont2
 cd ..\..\xapian-bindings\python
-nmake check
+rem nmake check
+nmake
 if errorlevel 0 goto cont21
 echo ERROR: could not build Xapian Bindings
 cd ..\..\..\..\..\
