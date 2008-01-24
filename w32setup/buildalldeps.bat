@@ -48,3 +48,4 @@ goto end
 :cont5
 :end
 cd w32setup
+pause
