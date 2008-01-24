@@ -3,7 +3,7 @@ rem .
 rem first make sure the Visual C++ environment is set up correctly 
 call setupvc.bat
 cd ..\libs\xappy\libs
-python get_xapian.py
+rem python get_xapian.py
 if errorlevel 0 goto cont1
 echo ERROR: could not get the latest Xapian
 cd ..\..\..\
