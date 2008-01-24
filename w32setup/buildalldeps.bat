@@ -24,10 +24,18 @@ goto end
 :cont2
 cd ..\..\xapian-bindings\python
 nmake check
-if errorlevel 0 goto cont3
+if errorlevel 0 goto cont21
 echo ERROR: could not build Xapian Bindings
 cd ..\..\..\..\..\
 goto end
+
+:cont21
+cd..\..\xapian-core\release\Python
+del C:\Python25\lib\site-packages\xapian.*
+del C:\Python25\lib\site-packages\_xapian.*
+copy xapian.py C:\Python25\lib\site-packages
+copy _xapian.pyd C:\Python25\lib\site-packages
+cd ..\..\..\..\..\..\..
 
 :cont3
 rem These are necessary to force Distutils to use Visual C++ Express Edition and the Platform SDK
