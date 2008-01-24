@@ -44,7 +44,7 @@ rem These are necessary to force Distutils to use Visual C++ Express Edition and
 set DISTUTILS_USE_SDK=1
 set MSSDK=1
 python utils/install_dependencies.py
-rem Must wedge a manifest into the processing tool, otherwise it won't load the VC library correctly
+rem Must wedge a manifest into processing and htmltotext, otherwise they won't load the VC library correctly
 cd localinst/processing
 mt.exe -outputresource:_processing.pyd;#2 -manifest _processing.pyd.manifest
 cd ..
