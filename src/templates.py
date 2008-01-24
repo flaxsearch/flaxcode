@@ -541,3 +541,6 @@ class Renderer(object):
         "Render the user About page."
         return self._tman.create_user_template("about.html", render_about).render(False, *args)
 
+    def filebrowser_render(self):
+        "Render the file browser."
+        return self._tman.make_template(self._tman.dummy_render, "filebrowser.html").render()

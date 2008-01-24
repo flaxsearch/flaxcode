@@ -1,0 +1,243 @@
+<html>
+<head>
+
+<style type="text/css">
+body {
+    font-family: helvetica;
+    font-size: 14px;
+}
+
+h1 {
+    font-size: 18px;
+}
+
+a {
+    color: darkblue;
+    text-decoration: none;
+}
+
+a:hover {
+    color: darkred;
+}
+
+.item {
+    margin: 0px;
+    border-top: 1px solid #E0E0E8;
+    border-left: 1px solid white;
+    vertical-align: top;
+}
+
+.itemC {
+    margin: 0px;
+    border-top: 1px solid #E0E0E8;
+    border-left: 1px solid #C0C0CA;
+    vertical-align: top;
+}
+
+.itemTitle {
+    margin: 1px 1px 1px 2px;
+}
+
+.itemDisabled {
+    margin: 1px 1px 1px 2px;
+    color: gray;
+}
+
+.children {
+    margin: 0px 0px 0px 14px;
+}
+
+.togE {
+    background-image: url(/static/img/expand.png);
+    background-repeat: no-repeat;
+    color: white;
+    margin: 2px 1px 0px 0px;
+    width: 11px;
+    height: 11px;
+}
+
+.togC {
+    background-image: url(/static/img/collapse.png);
+    background-repeat: no-repeat;
+    color: white;
+    margin: 2px 1px 0px 0px;
+    width: 11px;
+    height: 11px;
+}
+
+.togN {
+    color: white;
+    margin: 2px 1px 0px 0px;
+    width: 11px;
+    height: 11px;
+}
+
+
+
+</style>
+
+<script language="javascript" type="text/javascript" src="/static/js/MochiKit/MochiKit.js"></script>
+
+<script type="text/javascript">
+
+var _open_nodes = {};      // keep track of open nodes
+
+function get_child_by_class(parent, clas)
+{
+    for (var i = 0; i < parent.childNodes.length; i++)
+    {
+        if (parent.childNodes[i].className == clas)
+            return parent.childNodes[i]
+    }
+}
+
+function alert_error(err)
+{
+    document.body.style.cursor = 'auto';
+    alert (err.name + ': ' + err.message);
+}
+
+function toggle(fpath)
+{
+    var item = $(fpath);
+    if (item.className == 'togN') return;  // don't toggle plain/disabled files
+    
+    var c = get_child_by_class (item, 'children');
+    if (c)
+    {
+        item.className = 'item';    
+        item.childNodes[0].className = 'togE';
+        item.removeChild (c);
+        _open_nodes[fpath] = false;
+    }
+    else
+    {
+        var cb = function (data) 
+        {
+            item.className = 'itemC';
+            item.childNodes[0].className = 'togC';
+            
+            var nodes = [];
+            for (var i = 0; i < data.length; i++)
+            {
+                nodes.push (make_item (data[i]));
+            }
+            
+            appendChildNodes (item, DIV ({'class': 'children'}, nodes));
+            _open_nodes[fpath] = true;
+
+            // are child nodes open?
+            for (var i = 0; i < data.length; i++)
+            {
+                var fpath2 = data[i][0];
+
+                // scroll to open node?
+                if (fpath2 == window._open_path)
+                {
+                    try {
+                        $(fpath2).scrollIntoView();
+                    } catch (err) {}
+                    window._open_path = null;
+                }
+
+                if (_open_nodes[fpath2]) toggle(fpath2);
+            }
+            
+            document.body.style.cursor = 'auto';
+        };
+
+        var dfrd = loadJSONDoc ('listfiles', {'fpath': fpath});
+        dfrd.addCallbacks (cb, alert_error);
+        document.body.style.cursor = 'wait';
+    }
+}
+
+function make_item(row)
+{
+    var tog_props = {'class': 'togN'};
+    var title_span;
+    
+    if (row[3])
+    {        
+        title_span = SPAN ({'class': 'itemTitle'}, A({'href': 
+            "javascript:select_path('" + myesc(row[0]) + "')"}, row[1]));
+            
+        if (row[2])
+        {
+            tog_props = {'class': 'togE', 'onclick': 'toggle("' + myesc(row[0]) + '")'};
+        }
+    }
+    else
+    {
+        title_span = SPAN ({'class': 'itemDisabled'}, row[1]);
+    }
+
+    return DIV ({'class': 'item', 'id': row[0]}, SPAN (tog_props, '__'), title_span);
+}
+
+function add_roots()
+{
+    // callback function for async success
+    var cb = function (data) 
+    {
+        for (var i = 0; i < data.length; i++)
+        {
+            var item = make_item (data[i]);
+            $('root').appendChild (item);
+        }
+
+        var is_unix = data.length == 1 && data[0][0] == '/';        
+        var win_drive = null;
+        
+        // open any existing path
+        if (window._open_path)
+        {
+            var op = window._open_path;
+            for (var i = 0; i < op.length; i++)
+            {
+                if (i && op.charAt(i) == '/')
+                {
+                    _open_nodes[op.slice(0, i)] = true;
+                    if (win_drive == null)
+                        win_drive = op.slice(0, i+1);
+                }
+            }
+        }        
+
+        if (is_unix)
+        {
+            toggle('/');
+        }
+        else
+        {
+            toggle(win_drive);
+        }
+
+        document.body.style.cursor = 'auto';
+    };
+
+    var dfrd = loadJSONDoc ('listfiles', {'fpath': ''});
+    dfrd.addCallbacks (cb, alert_error);
+    document.body.style.cursor = 'wait';
+}
+
+function myesc(s)
+{
+    return s.replace('"', '\\"').replace("'", "\\'");
+}
+
+function select_path(path)
+{
+    window._input_object.value = path;
+    close();
+}
+
+</script>
+</head>
+
+<body onload="add_roots()">
+<h1>Browse files:</h1>
+<div id="root">
+</div>
+</body>
+</html>

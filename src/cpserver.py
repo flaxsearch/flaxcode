@@ -27,6 +27,11 @@ import templates
 import persist
 import util
 
+import platform
+_is_windows = platform.system() == 'Windows'
+if _is_windows:
+    import win32api
+
 class FlaxResource(object):
     "Abstract class supporting common error handling across all Flax web pages"
 
@@ -383,7 +388,8 @@ class Admin(Top):
                  search_template,
                  advanced_template,
                  about_template,
-                 options_template):
+                 options_template,
+                 filebrowser_template):
         """Constructor.
 
         :Parameters:
@@ -395,6 +401,7 @@ class Admin(Top):
 
         """
         self._options_template = options_template
+        self._filebrowser_template = filebrowser_template
         super(Admin, self).__init__(flax_data,
                                     search_template, advanced_template,
                                     about_template)
@@ -417,6 +424,50 @@ class Admin(Top):
         """
         raise cherrypy.HTTPRedirect('collections')
 
+    @cherrypy.expose
+    def filebrowser(self):
+        """Return a file browser. 
+        
+        This is under Admin so that normal users cannot access it.
+        
+        """
+        return self._filebrowser_template()
+
+    @cherrypy.expose
+    def listfiles(self, fpath=''):
+        """List files in fpath (assuming it is a directory).
+        
+        Returns a JSON list:
+        
+        [[filepath, filename, is-dir, is-readable], ...]
+
+        """
+        cherrypy.response.headers['Content-Type'] = 'text/plain'
+        # prevent IE caching
+        cherrypy.response.headers['Expires'] = 'Mon, 26 Jul 1997 05:00:00 GMT'
+
+        if fpath:
+            ret = []
+            for f in os.listdir(fpath):
+                fp = os.path.join(fpath, f).replace('\\', '/')
+                canread = int(os.access(fp, os.R_OK))
+                if os.path.isdir(fp):
+                    ret.append ([fp, f + os.path.sep, 1, canread])
+                else:
+                    ret.append ([fp, f, 0, canread])
+            
+            return repr(ret)
+        
+        else:
+            # special case - return list of filesystem roots
+            if _is_windows:
+                drives = win32api.GetLogicalDriveStrings()
+                drives = string.splitfields(drives,'\000')
+                drives = [[d.replace('\\', '/'), d, 1, 1] for d in drives if d]
+                return repr(drives)
+            else:
+                return "[['/', '/', 1, 1]]"                
+
 
 def start_web_server(flax_data, index_server, conf_path, templates_path, blocking=True):
     """Start the web server.
@@ -432,7 +483,8 @@ def start_web_server(flax_data, index_server, conf_path, templates_path, blockin
                   renderer.admin_search_render,
                   renderer.admin_advanced_search_render,
                   renderer.admin_about_render,
-                  renderer.options_render)
+                  renderer.options_render,
+                  renderer.filebrowser_render)
 
     top = Top(flax_data,
               renderer.user_search_render,
