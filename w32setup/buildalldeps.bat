@@ -32,7 +32,7 @@ cd ..\..\..\..\..\
 goto end
 
 :cont21
-cd ..\..\xapian-core\release\Python
+cd ..\..\xapian-core\win32\release\Python
 del C:\Python25\lib\site-packages\xapian.*
 del C:\Python25\lib\site-packages\_xapian.*
 copy xapian.py C:\Python25\lib\site-packages
@@ -43,13 +43,13 @@ cd ..\..\..\..\..\..\..
 rem These are necessary to force Distutils to use Visual C++ Express Edition and the Platform SDK
 set DISTUTILS_USE_SDK=1
 set MSSDK=1
-cd ..
 python utils/install_dependencies.py
 if errorlevel 0 goto cont4
 echo ERROR: could not build Flax dependencies
 goto end
 
 :cont4
+cd w32setup
 call buildflaxonly.bat
 if errorlevel 0 goto cont5
 echo ERROR: could not build Flax 
