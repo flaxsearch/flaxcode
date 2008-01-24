@@ -47,7 +47,9 @@ python utils/install_dependencies.py
 rem Must wedge a manifest into the processing tool, otherwise it won't load the VC library correctly
 cd localinst/processing
 mt.exe -outputresource:_processing.pyd;#2 -manifest _processing.pyd.manifest
-cd ..\..
+cd ..
+mt.exe -outputresource:htmltotext.pyd;#2 -manifest htmltotext.pyd.manifest
+cd ..
 if errorlevel 0 goto cont4
 echo ERROR: could not build Flax dependencies
 goto end
