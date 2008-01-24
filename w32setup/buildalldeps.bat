@@ -32,7 +32,7 @@ cd ..\..\..\..\..\
 goto end
 
 :cont21
-cd..\..\xapian-core\release\Python
+cd ..\..\xapian-core\release\Python
 del C:\Python25\lib\site-packages\xapian.*
 del C:\Python25\lib\site-packages\_xapian.*
 copy xapian.py C:\Python25\lib\site-packages
