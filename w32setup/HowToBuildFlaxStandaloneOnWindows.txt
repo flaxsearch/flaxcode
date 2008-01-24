@@ -2,28 +2,23 @@
 2. Check out the Flax sources to this folder 
 3. Install Python 2.5.1 (to the default folder, C:\Python25) and add this folder to your Path (Control Panel, System, Advanced, Environment  Variables) [NOT Python 2.5, we have found at least one situation where this matters]
 4. Install a recent Perl (say 5.8.8 from Active State at http://www.activestate.com/Products/activeperl/) - make a note of the Path to this for config.mak later.
-5. Install Visual C++ 2005 Express Edition
+5. Install Visual C++ 2005 Express Edition (or 2008 Express Edition, either will work)
 6. Install pywin32 for Python 2.5
 7. Install py2exe for Python 2.5
         HACK: py2exe currently needs patching:
         http://www.selenic.com/pipermail/mercurial-devel/2006-November/000353.html
 8. Install InnoSetup and add its folder to your path
 9. Install Zlib from http://www.zlib.net/ - extract zlib1.dll from the ZIP file and put it in the same folder as this text file. Make a note of the path to the rest of Zlib for putting into config.mak later.
-9a. Install libiconv from http://gnuwin32.sourceforge.net/downlinks/libiconv.php and install to C:\Program Files\GnuWin32  and add the folder to /bin to your Path (i.e. C:\Program Files\GnuWin32\bin)
+9a. Install libiconv from http://gnuwin32.sourceforge.net/downlinks/libiconv.php and install to C:\Program Files\GnuWin32  and add the folder to /bin to your Path (i.e. C:\Program Files\GnuWin32\bin). Copy libiconv.dll from this folder to the same folder as this text file.
 10. Install SVN (download and unzip the Windows binary ' svn-win32-1.4.5.zip' from http://subversion.tigris.org/servlets/ProjectDocumentList?folderID=91 and add the folder to /bin to your Path (i.e. c:\work\svn-win32-1.4.5\bin)
 11. Build Xapian from the snapshots provided in Xappy: 
-a. unpack the tarballs in ..\libs\xappy\libs and rename the folders to xapian-core and xapian-bindings
-b. modify win32msvc\config.mak to match your system (Python path, Perl path, path to the folders in a. above, Zlib path)
-c. modify win32msvc\win32_bindings_python.mak to comment out lines 70-77 (the block that starts with 'modern/xapian_wrap.cc...'
-TEMP: patch xapian-core\net\remoteconnection.cc with the patch in
-http://svn.xapian.org/trunk/xapian-core/net/remoteconnection.cc?r1=9463&r2=9558
+a. cd to ..\libs\xappy\libs and run 'python get_xapian.py' to obtain the correct version of Xapian.
+b. modify xapian-core\win32\config.mak to match your system (Python path, Perl path, path to the folders in a. above, Zlib path)
+c. modify xapian-core\win32\win32_bindings_python.mak to comment out lines 70-77 (the block that starts with 'modern/xapian_wrap.cc...'
 TEMP: change the first line of win32msvc\version.rc.python to
 #include "winresrc.h"
 d. start a Visual C++ Express Edition command line and:
     cd ..\libs\xappy\libs\xapian-core
-    md win32
-    cd win32
-    xcopy ..\..\win32msvc\*.* /s
     cd makedepend
     nmake -f makedepend.mak
     copy makedepend.exe ..
