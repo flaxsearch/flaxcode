@@ -76,7 +76,7 @@ class InnoScript:
 ; will be overwritten the next time py2exe is run!
 [Setup]
 AppName=%(name)s
-AppVerName=%(name)s PRERELEASE version %(versionA)s.%(versionB)s.%(versionC)s.%(versionD)s
+AppVerName=%(name)s version %(versionA)s.%(versionB)s.%(versionC)s.%(versionD)s
 VersionInfoVersion=%(versionA)s.%(versionB)s.%(versionC)s.%(versionD)s
 DefaultDirName={pf}\%(name)s
 DefaultGroupName=%(name)s
@@ -108,7 +108,7 @@ Source: "%(src_dir)s\cp.conf"; DestDir: "{app}\conf"; Flags: onlyifdoesntexist
 Source: "%(src_dir)s\flaxlog.conf"; DestDir: "{app}\conf"; Flags: onlyifdoesntexist
 Source: "%(localinst_dir)s\processing\_processing.pyd"; DestDir: "{app}\localinst"; Flags: ignoreversion
 Source: "%(localinst_dir)s\htmltotext.pyd"; DestDir: "{app}\localinst"; Flags: ignoreversion
-Source: "%(dist_dir)s\libiconv2.dll"; DestDir: "{app}\localinst"; Flags: ignoreversion
+Source: "%(this_dir)s\libiconv2.dll"; DestDir: "{app}\localinst"; Flags: ignoreversion
 Source: "%(this_dir)s\vcredist_x86.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "%(this_dir)s\startflaxservice.bat"; DestDir: "{app}"; Flags: ignoreversion
 Source: "%(this_dir)s\stopflaxservice.bat"; DestDir: "{app}"; Flags: ignoreversion
