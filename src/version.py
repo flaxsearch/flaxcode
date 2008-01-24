@@ -22,8 +22,8 @@ import re
 import getsvnrev
 
 # The various parts of the version number
-_version_number_major = 0
-_version_number_minor = 9
+_version_number_major = 1
+_version_number_minor = 0
 _version_number_revision = 0
 
 # Set to True if this is an official release.
