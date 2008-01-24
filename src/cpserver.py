@@ -31,6 +31,7 @@ import platform
 _is_windows = platform.system() == 'Windows'
 if _is_windows:
     import win32api
+    import string
 
 class FlaxResource(object):
     "Abstract class supporting common error handling across all Flax web pages"
