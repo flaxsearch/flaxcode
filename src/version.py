@@ -27,7 +27,7 @@ _version_number_minor = 0
 _version_number_revision = 0
 
 # Set to True if this is an official release.
-_is_release = True
+_is_release = False
 
 def _calc_svn_revision():
     """Calculate the SVN revision part of the version number.
