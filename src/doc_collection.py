@@ -75,6 +75,8 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
         if (path == None or mapping == None):
             return
         self.paths = util.listify(path)
+        # Normalise all path separators to system specific versions.
+        self.paths = [path.replace('/', os.path.sep) for path in self.paths]
         mappings = util.listify(mapping)
         # be careful with the order here
         pairs = zip(self.paths, mappings)
