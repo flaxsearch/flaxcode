@@ -48,7 +48,8 @@ rem Must wedge a manifest into processing and htmltotext, otherwise they won't l
 cd localinst/processing
 mt.exe -outputresource:_processing.pyd;#2 -manifest _processing.pyd.manifest
 cd ..
-mt.exe -outputresource:htmltotext.pyd;#2 -manifest htmltotext.pyd.manifest
+rem TODO check whether this one is needed!
+rem mt.exe -outputresource:htmltotext.pyd;#2 -manifest htmltotext.pyd.manifest
 cd ..
 if errorlevel 0 goto cont4
 echo ERROR: could not build Flax dependencies

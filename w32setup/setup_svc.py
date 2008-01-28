@@ -44,18 +44,12 @@ class InnoScript:
                  publisher,
                  homepage,
                  licensefile,
-                 versionA,
-                 versionB,
-                 versionC,
-                 versionD):
+                 versionstring):
         self.this_dir = this_dir
         if not self.this_dir[-1] in "\\/":
             self.this_dir += "\\"
         self.name = name
-        self.versionA = versionA
-        self.versionB = versionB
-        self.versionC = versionC
-        self.versionD = versionD
+        self.versionstring = versionstring
         self.publisher = publisher
         self.homepage = homepage
         self.licensefile = licensefile
@@ -76,8 +70,8 @@ class InnoScript:
 ; will be overwritten the next time py2exe is run!
 [Setup]
 AppName=%(name)s
-AppVerName=%(name)s version %(versionA)s.%(versionB)s.%(versionC)s.%(versionD)s
-VersionInfoVersion=%(versionA)s.%(versionB)s.%(versionC)s.%(versionD)s
+AppVerName=%(name)s version %(versionstring)s
+VersionInfoVersion=%(versionstring)s
 DefaultDirName={pf}\%(name)s
 DefaultGroupName=%(name)s
 AppPublisher=%(publisher)s
@@ -356,10 +350,7 @@ class build_installer(py2exe):
         # create the Installer, using the files py2exe has created.
         script = InnoScript(name="Flax Basic",
                             this_dir=os.getcwd(),
-                            versionA=version.get_major(),
-                            versionB=version.get_minor(),
-                            versionC=version.get_revision(),
-                            versionD=version.get_svn(),
+                            versionstring=version.get_version_string(),
                             publisher="Lemur Consulting Ltd",
                             homepage="http://www.flax.co.uk",
                             licensefile="gpl.txt")
