@@ -54,6 +54,7 @@ a:hover {
     margin: 2px 1px 0px 0px;
     width: 11px;
     height: 11px;
+    cursor: pointer;
 }
 
 .togC {
@@ -63,6 +64,7 @@ a:hover {
     margin: 2px 1px 0px 0px;
     width: 11px;
     height: 11px;
+    cursor: pointer;
 }
 
 .togN {
@@ -208,7 +210,7 @@ function add_roots()
         {
             toggle('/');
         }
-        else
+        else if (win_drive)
         {
             toggle(win_drive);
         }
