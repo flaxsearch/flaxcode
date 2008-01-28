@@ -26,12 +26,14 @@ import cplogger
 import templates
 import persist
 import util
+import logging
 
 import platform
 _is_windows = platform.system() == 'Windows'
 if _is_windows:
     import win32api
     import string
+
 
 class FlaxResource(object):
     "Abstract class supporting common error handling across all Flax web pages"
@@ -458,10 +460,10 @@ class Admin(Top):
                     else:
                         ret.append ([fp, f, 0, canread])
 
-            # HACK - ignore device not ready errors
+            # in the case of errors, log them but return an empty list to the browser
             except Exception, e:
-                if not 'Error 21' in str(e):
-                    raise
+                logging.getLogger('collection').error('error file-listing %s: %s' % 
+                    (fpath, e))
 
             return repr(ret)
         
