@@ -1,3 +1,306 @@
+Tue Jan 29 14:45:50 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* ChangeLog: Update for 1.0.0 release.
+	* utils/log2cl.py: Add Charlie and Tom to the list of known
+	  developer accounts.
+	* docs/hacking.rst: Add a few more items to the release checklist,
+	  and documentat how the issue tracker should be being used. 
+
+Tue Jan 29 14:16:55 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* docs/hacking.rst: Fix recommended way of tagging
+
+Mon Jan 28 14:44:04 UTC 2008  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/cpserver.py: Filebrowser is now tolerant of all error types,
+	  but logs them to 'collection' log.
+
+Mon Jan 28 14:19:01 UTC 2008  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/static/css/main.css: Changed link colour to 'flax blue' for
+	  better visibility and aesthetics
+
+Mon Jan 28 13:40:23 UTC 2008  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/cpserver.py: Fixed issue 178 by filtering out floppy drives,
+	  and handling device-not-ready exceptions.
+
+Mon Jan 28 13:38:20 UTC 2008  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/filebrowser.html: fixed cursor problems, including
+	  issue 180
+
+Mon Jan 28 11:44:50 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* src/version.py: version for release
+
+Mon Jan 28 11:44:28 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/buildalldeps.bat,w32setup/setup_svc.py: use correct
+	  version string logic; minor mod to build process for htmltotext
+
+Fri Jan 25 17:48:19 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* src/version.py:
+
+Fri Jan 25 16:05:19 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* src/version.py: version 1.0.0
+
+Fri Jan 25 15:33:26 UTC 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/doc_collection.py: Possible fix to current FLAX bug when / is
+	  in paths on windows.
+
+Thu Jan 24 17:24:48 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/gettingstarted/GettingStartedOnWindows.htm,
+	  w32setup/gettingstarted/createcol2.jpg,
+	  w32setup/gettingstarted/createcol3.jpg: Add help on the
+	  filebrowser
+
+Thu Jan 24 17:17:14 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/buildalldeps.bat: minor comment change
+
+Thu Jan 24 17:06:54 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/buildalldeps.bat,w32setup/buildit.bat: manifest for
+	  htmltotext
+
+Thu Jan 24 17:00:19 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt,
+	  w32setup/buildalldeps.bat: fix manifest issues
+
+Thu Jan 24 16:13:28 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/buildalldeps.bat:
+
+Thu Jan 24 16:10:57 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/buildalldeps.bat:
+
+Thu Jan 24 16:09:45 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/buildalldeps.bat:
+
+Thu Jan 24 16:08:27 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/buildalldeps.bat: copy files to Python install folder
+
+Thu Jan 24 15:40:27 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/buildalldeps.bat: remove 'get xapian' step until no
+	  patching is required.
+
+Thu Jan 24 15:37:08 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/buildalldeps.bat: add a pause at the end
+
+Thu Jan 24 15:35:40 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/buildalldeps.bat,w32setup/buildflaxonly.bat: batch files
+	  for different parts of system
+
+Thu Jan 24 15:26:44 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/buildit.bat: set up Visual C++ environment
+
+Thu Jan 24 15:25:05 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/setupvc.bat: sets up Visual C paths assuming a default
+	  installation
+
+Thu Jan 24 14:57:32 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/buildit.bat: make sure distutils works when compiling
+	  'processing' module
+
+Thu Jan 24 12:35:11 UTC 2008  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/cpserver.py: fix for Windows
+
+Thu Jan 24 12:15:11 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/buildit.bat: Simple batch file to ease building of Flax
+
+Thu Jan 24 12:11:40 UTC 2008  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/cpserver.py,src/static/css/main.css,
+	  src/static/img/collapse.png,src/static/img/expand.png,
+	  src/static/js/mapping.js,src/templates/filebrowser.html,
+	  src/templates.py: Added filebrowser
+
+Thu Jan 24 11:49:22 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* src/version.py: 1.0 release
+
+Thu Jan 24 11:48:56 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: changes due to
+	  Xappy build process changes
+
+Thu Jan 24 11:48:31 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/gettingstarted/GettingStartedOnWindows.htm,
+	  w32setup/setup_svc.py: version information for 1.0 release
+
+Fri Jan 18 09:06:47 UTC 2008  Paul Rudin <paul@rudin.co.uk>
+
+	* README: Updated information about dependencies.
+
+Wed Jan 16 13:18:32 UTC 2008  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/templates/cp_http_error.html: tweaked fonts
+
+Wed Jan 16 13:14:27 UTC 2008  Tom Mortimer <tom@lemurconsulting.com>
+
+	* src/cpserver.py,src/templates/cp_http_error.html: Hacked cherrypy
+	  internal error template to display friendlier error messages -
+	  status code and traceback are hidden from user, but still
+	  accessible in HTML source.
+
+Wed Jan 16 12:19:06 UTC 2008  Tom Mortimer <tom@lemurconsulting.com>
+
+	* libs/htmltotext/setup.py: fixed again for Windows (I hope)
+
+Wed Jan 16 12:12:50 UTC 2008  Tom Mortimer <tom@lemurconsulting.com>
+
+	* libs/htmltotext/setup.py: fixed to build on Mac
+
+Fri Jan 11 10:49:08 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/gettingstarted/GettingStartedOnWindows.htm:
+	  clarification of password entry
+
+Thu Jan 10 15:37:03 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/setup_svc.py: libiconv2.dll must be in /localinst
+	  (because html2text uses it) - part of fix for #162
+
+Thu Jan 10 15:34:11 UTC 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* libs/htmltotext/ChangeLog,libs/htmltotext/setup.py: setup.py:
+	  Move hardcoded, but system dependent, paths to separate variables
+	  at start of script, and mark with a FIXME - we'll need to write a
+	  configure step to determine this sort of thing at some point.
+
+Thu Jan 10 15:31:13 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* src/startflax.py: clearer text
+
+Thu Jan 10 15:27:13 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: Added iconv (for
+	  fix to #162)
+
+Thu Jan 10 15:26:25 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* libs/htmltotext/setup.py,libs/htmltotext/src/config.h: Now uses
+	  iconv to fix issues with different character sets (#162)
+
+Thu Jan 10 15:17:30 UTC 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/test/sampledocs/problem_docs/geertz1tx_utf8.htm: Add other
+	  sample document - this is a utf-8 version of geertz1tx.htm
+
+Thu Jan 10 12:48:19 UTC 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/hacking.rst: Add release checklist to hacking guide.
+
+Thu Jan 10 12:45:59 UTC 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/docs: Remove the "src/docs" subdirectory altogether.
+
+Thu Jan 10 12:45:08 UTC 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/hacking.rst,src/docs/hacking.rst: Move the hackers
+	  documentation from src/docs/ to docs/
+
+Thu Jan 10 12:43:48 UTC 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/epydoc.conf: Generate the output documentation as docs/api,
+	  rather than as src/docs/api.
+
+Thu Jan 10 10:19:08 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* src/startflax.py: More informative text when entering a password.
+
+Wed Jan 09 17:44:45 UTC 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/cpserver.py,src/doc_collection.py: Change the method of
+	  testing whether a file should be served to users.  Now, instead
+	  of requiring that the file is found in the index, it simply has
+	  to be in the set of directories included in the collection.  This
+	  means that ancillary files for HTML pages (and any other formats
+	  which require them) will work, and also that browsing within the
+	  collection will work even if not all of it has yet been indexed.
+
+Wed Jan 09 16:51:13 UTC 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/doc_collection.py: Quote after changing \ to /, instead of
+	  before, since the quoting was stopping the \ being recognised.
+
+Wed Jan 09 16:30:18 UTC 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/cpserver.py,src/doc_collection.py: Fix bug #163, by changing
+	  \ in paths to / on windows when linking to search results, and
+	  translating these back again when serving documents.
+
+Wed Jan 09 11:54:37 UTC 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/filespec.py: Add a comment to explain the slightly weird
+	  isdir test.
+
+Wed Jan 09 11:46:51 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* src/filespec.py: Tidier way of checking if a filespec is a
+	  directory.
+
+Wed Jan 09 11:22:17 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* src/filespec.py: Add path separator to end when looking for
+	  directories: see 8.6 of http://mail.python.org/pipermail/python-
+	  announce-list/1999-July/000106.html for details
+
+Thu Dec 20 14:49:58 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/gettingstarted/GettingStartedOnWindows.htm: fix what to
+	  type in Mapping box
+
+Mon Dec 17 16:17:23 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/test/sampledocs/relativelinks,
+	  src/test/sampledocs/relativelinks/bar.html,
+	  src/test/sampledocs/relativelinks/foo.html: Some test files for
+	  testing relative links in the search results.
+
+Mon Dec 17 15:56:53 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/test/sampledocs/problem_docs/geertz1tx.htm: Add a document in
+	  windows-1252 charset - this doesn't get displayed properly in the
+	  summaries.
+
+Fri Dec 14 13:36:24 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt,
+	  w32setup/setup_svc.py: Make sure we still start the service even
+	  if we have to restart; use Windows Installer 3.0 not 3.1 (more
+	  backwards compatible); better messages during installation
+
+Fri Dec 07 15:16:45 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt,
+	  w32setup/setup_svc.py: yet more MS redistributable files
+
+Fri Dec 07 12:25:04 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
+
+	* ChangeLog,src/collection_list.py: If deleting the database fails,
+	  return after a short break.  Report failure due to other
+	  exceptions better, and don't mark a database as deleted if the
+	  deletion fails.
+
 Fri Dec 07 12:22:07 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* src/collection_list.py: If deleting the database fails, return
@@ -19,23 +322,23 @@ Fri Dec 07 11:16:21 GMT 2007  Richard Boulton <richard@lemurconsulting.com>
 	* src/collection_list.py: Delete the underlying database on disk
 	  when the collection is deleted.  This involves several steps:
 	   - first, we maintain a "handle count" of the number of handles
-	     which are open on databases.  This is incremented whenever a
-	     search connection is opened, and decremented when the
-	     connection is closed again.  All access to this count is
-	     protected by a Condition, which is signalled whenever the
-	     count drops to zero.
+	 which are open on databases.  This is incremented whenever a
+	 search connection is opened, and decremented when the
+	 connection is closed again.  All access to this count is
+	 protected by a Condition, which is signalled whenever the
+	 count drops to zero.
 	   - When a database is deleted, it is marked as deleted (to stop
-	     any new connections being made), deleted from the _collections
-	     member, and the path of the database is added to the
-	     _collections_being_deleted member.
+	 any new connections being made), deleted from the _collections
+	 member, and the path of the database is added to the
+	 _collections_being_deleted member.
 	   - When a database is deleted, a separate thread is started which
-	     waits on the condition, and checks for the handle count of the
-	     database being deleted dropping to zero.  When it does, the
-	     database is deleted from disk.
+	 waits on the condition, and checks for the handle count of the
+	 database being deleted dropping to zero.  When it does, the
+	 database is deleted from disk.
 	   - If the server is stopped before the database is deleted from
-	     disk, the _collections_being_deleted entries will be read in
-	     when the server is next started, and the database will then be
-	     deleted.
+	 disk, the _collections_being_deleted entries will be read in
+	 when the server is next started, and the database will then be
+	 deleted.
 	* src/doc_collection.py: Add a ready_to_be_indexed() method, which
 	  checks that the collection is due and not held, and not deleted.
 	  Change search_conn() uses CollectionList.get_search_connection()
@@ -108,12 +411,12 @@ Thu Dec 06 10:25:01 UTC 2007  Paul Rudin <paul@rudin.co.uk>
 	  http://code.google.com/p/flaxcode/issues/detail?id=153 Don't call
 	  cherrypy.server.stop as it sometimes blocks indefinitely.
 
-Wed Dec 05 12:27:16 UTC 2007  charliejuggler
+Wed Dec 05 12:27:16 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/templates/admin_banner.html: fix help link; doesn't need a
 	  target and correction to 'collections' page name
 
-Wed Dec 05 11:53:55 UTC 2007  charliejuggler
+Wed Dec 05 11:53:55 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: fix ref manual path
 
@@ -136,11 +439,11 @@ Wed Dec 05 10:52:52 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 	* src/indexserver/indexer.py: Import sys so we can call
 	  sys.exitfunc()
 
-Wed Dec 05 10:49:51 UTC 2007  charliejuggler
+Wed Dec 05 10:49:51 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: add ref manual & styles
 
-Wed Dec 05 10:36:06 UTC 2007  charliejuggler
+Wed Dec 05 10:36:06 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flaxservice.py,src/indexserver/indexer.py,src/startflax.py:
 	  Call sys.exit_func rather than processing.exit_func to further
@@ -157,7 +460,7 @@ Wed Dec 05 10:19:11 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
 	* src/templates/collection_detail.html,src/templates.py: Removed
 	  stopwords
 
-Wed Dec 05 09:39:07 UTC 2007  charliejuggler
+Wed Dec 05 09:39:07 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: imgs for ref manual
 
@@ -196,7 +499,7 @@ Mon Dec 03 09:30:37 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 	* src/indexserver/indexer.py: Add a comment, noting the place where
 	  serious errors are likely to be thrown.
 
-Fri Nov 30 16:17:33 UTC 2007  charliejuggler
+Fri Nov 30 16:17:33 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: added ref manual
 
@@ -249,7 +552,7 @@ Tue Nov 27 16:17:44 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
 
 	* docs/reference.html: Generated HTML
 
-Tue Nov 27 16:05:29 UTC 2007  charliejuggler
+Tue Nov 27 16:05:29 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* docs/reference.rst: Added information about resetting passwords
 	  in Windows and a FAQ link to the Troubleshooting section.
@@ -285,16 +588,16 @@ Sun Nov 25 17:46:40 UTC 2007  paul.x.rudin@gmail.com
 	  500000000 bytes then we raise an exception indicating that this
 	  is a problem.
 
-Fri Nov 23 16:40:04 UTC 2007  charliejuggler
+Fri Nov 23 16:40:04 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/gettingstarted/GettingStartedOnWindows.htm: fixed email
 	  address
 
-Fri Nov 23 16:39:29 UTC 2007  charliejuggler
+Fri Nov 23 16:39:29 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/templates/about.html: missed para end
 
-Fri Nov 23 16:38:44 UTC 2007  charliejuggler
+Fri Nov 23 16:38:44 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/templates/about.html: make About page agree with website
 
@@ -309,7 +612,7 @@ Fri Nov 23 15:47:56 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 	  loghandler, to avoid errors due to accessing a closed file at
 	  shutdown.
 
-Fri Nov 23 13:44:29 UTC 2007  charliejuggler
+Fri Nov 23 13:44:29 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flaxservice.py: Attempting to call
 	  ReportServiceStatus(win32service.SERVICE_STOPPED)at the very end
@@ -329,7 +632,7 @@ Fri Nov 23 11:28:27 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 	* src/flax.py: Change default filters on windows - use Xapian for
 	  HTML and Text for text.
 
-Fri Nov 23 10:55:45 UTC 2007  charliejuggler
+Fri Nov 23 10:55:45 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: fix quotes
 
@@ -338,11 +641,11 @@ Fri Nov 23 10:14:46 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 	* w32setup/setup_svc.py: Use a raw multiline string, to avoid
 	  having to escape all the backslashes.
 
-Fri Nov 23 10:06:53 UTC 2007  charliejuggler
+Fri Nov 23 10:06:53 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: typos
 
-Fri Nov 23 10:00:55 UTC 2007  charliejuggler
+Fri Nov 23 10:00:55 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/gettingstarted/GettingStartedOnWindows.htm: smaller text
 	  for prerelease
@@ -353,12 +656,12 @@ Fri Nov 23 09:59:01 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 	  single print with a multiline string.  Use named parameter
 	  substitutions, and use self.__dict__ as the dictionary for these.
 
-Fri Nov 23 09:33:34 UTC 2007  charliejuggler
+Fri Nov 23 09:33:34 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/gettingstarted/GettingStartedOnWindows.htm,
 	  w32setup/setup_svc.py: Add "prerelease"
 
-Thu Nov 22 17:33:02 UTC 2007  charliejuggler
+Thu Nov 22 17:33:02 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/templates/collections.html: slight change of detail about
 	  held collections
@@ -384,17 +687,17 @@ Thu Nov 22 11:26:10 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
 	  src/templates/collection_detail.html: Fix to issue 139, plus
 	  minor tweaks
 
-Wed Nov 21 19:10:36 UTC 2007  charliejuggler
+Wed Nov 21 19:10:36 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: extra bit to make
 	  sure distutils doesn't use bits from earlier versions of Python
 
-Wed Nov 21 18:34:48 UTC 2007  charliejuggler
+Wed Nov 21 18:34:48 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: added comment
 	  about Python 2.5.1 over 2.5
 
-Wed Nov 21 18:19:14 UTC 2007  charliejuggler
+Wed Nov 21 18:19:14 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flaxlog.conf: Remove space in loggers line - this breaks the
 	  whole thing on WindowsXP/Python2.5 !!
@@ -439,7 +742,7 @@ Tue Nov 20 15:26:06 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 	  to source() to cope with unix style paths, which cherrypy will
 	  split on the '/'es.
 
-Tue Nov 20 15:12:00 UTC 2007  charliejuggler
+Tue Nov 20 15:12:00 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* README: fix spelling mistakes
 
@@ -449,7 +752,7 @@ Tue Nov 20 14:49:11 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 	  labels on the search pages, so that clicking on the names will
 	  toggle the checkboxes.
 
-Tue Nov 20 12:03:30 UTC 2007  charliejuggler
+Tue Nov 20 12:03:30 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/install.ico: added 16 colour versions; seems to have
 	  fixed #124
@@ -467,18 +770,18 @@ Tue Nov 20 11:14:21 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
 
 	* src/templates.py: Fix for issue 131
 
-Mon Nov 19 16:32:10 UTC 2007  charliejuggler
+Mon Nov 19 16:32:10 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: slightly better check for PDF Ifilter
 
-Mon Nov 19 16:14:22 UTC 2007  charliejuggler
+Mon Nov 19 16:14:22 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt,
 	  w32setup/setup_svc.py: Use the Visual C++ Redistributable
 	  package, not individual DLLS - apart from msvcp71.dll which has
 	  to be done manually.
 
-Mon Nov 19 14:56:52 UTC 2007  charliejuggler
+Mon Nov 19 14:56:52 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: check for most recent PDF ifilter
 
@@ -489,17 +792,17 @@ Mon Nov 19 14:53:30 UTC 2007  Paul Rudin <paul@rudin.co.uk>
 	  that single file paths are treated correctly. Also logged an
 	  error if a path is neither a file or a directory.
 
-Mon Nov 19 14:18:39 UTC 2007  charliejuggler
+Mon Nov 19 14:18:39 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/gettingstarted/GettingStartedOnWindows.htm: add caveat
 	  about direct serving
 
-Mon Nov 19 13:22:38 UTC 2007  charliejuggler
+Mon Nov 19 13:22:38 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: prevent IFilter checker being after every
 	  page due to misplaced 'end;'
 
-Mon Nov 19 12:36:37 UTC 2007  charliejuggler
+Mon Nov 19 12:36:37 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: Make sure default data folder is subfolder
 	  of user's chosen install folder; also check for various IFilters
@@ -554,11 +857,11 @@ Mon Nov 19 06:34:46 UTC 2007  Paul Rudin <paul@rudin.co.uk>
 
 	* src/epydoc.conf: corrected comment
 
-Fri Nov 16 17:08:21 UTC 2007  charliejuggler
+Fri Nov 16 17:08:21 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/templates/collections.html: minor clarification
 
-Fri Nov 16 17:00:50 UTC 2007  charliejuggler
+Fri Nov 16 17:00:50 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/install.bmp,w32setup/install.ico,
 	  w32setup/install_small.bmp,w32setup/setup_svc.py,
@@ -576,12 +879,12 @@ Fri Nov 16 16:16:41 UTC 2007  paul.x.rudin@gmail.com
 	  logged SystemExit (and subclasses like ProcessExit) at a lower
 	  severity level that other exceptions.
 
-Fri Nov 16 16:12:45 UTC 2007  charliejuggler
+Fri Nov 16 16:12:45 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/WindowsFAQ.txt: mistakenly committed, actually it's in
 	  the Wiki
 
-Fri Nov 16 16:12:10 UTC 2007  charliejuggler
+Fri Nov 16 16:12:10 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/WindowsFAQ.txt:
 
@@ -593,22 +896,22 @@ Fri Nov 16 16:05:21 UTC 2007  paul.x.rudin@gmail.com
 	  way we don't really need to treat the doc_id specially - just
 	  quote it and pass it through.
 
-Fri Nov 16 14:20:53 UTC 2007  charliejuggler
+Fri Nov 16 14:20:53 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/startflaxservice.bat,w32setup/stopflaxservice.bat:
 	  startflaxservice waits 3 seconds as before, stopflaxservice waits
 	  6 seconds to allow files to become free to delete
 
-Fri Nov 16 14:15:39 UTC 2007  charliejuggler
+Fri Nov 16 14:15:39 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/startflaxservice.bat,w32setup/stopflaxservice.bat: 5
 	  second delay as service may take this long to stop
 
-Fri Nov 16 14:08:16 UTC 2007  charliejuggler
+Fri Nov 16 14:08:16 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: fix typo
 
-Fri Nov 16 14:07:02 UTC 2007  charliejuggler
+Fri Nov 16 14:07:02 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flaxservice.py: Make sure that in all cases we tell the
 	  Service Manager when we stop
@@ -618,16 +921,16 @@ Fri Nov 16 13:08:54 UTC 2007  Paul Rudin <paul@rudin.co.uk>
 	* src/util.py: disabled psyco, see:
 	  http://code.google.com/p/flaxcode/issues/detail?id=125
 
-Fri Nov 16 10:59:24 UTC 2007  charliejuggler
+Fri Nov 16 10:59:24 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: change messages on uninstall re upgrading
 
-Fri Nov 16 10:58:44 UTC 2007  charliejuggler
+Fri Nov 16 10:58:44 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/gettingstarted/GettingStartedOnWindows.htm: change flax
 	  serving details
 
-Thu Nov 15 16:43:45 UTC 2007  charliejuggler
+Thu Nov 15 16:43:45 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/templates/collections.html: buttons must have type="submit"
 	  to work on IE
@@ -637,7 +940,7 @@ Thu Nov 15 16:37:25 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
 	* src/doc_collection.py,src/templates/collection_detail.html,
 	  src/templates.py: Implemented FLAX file-serve mapping
 
-Thu Nov 15 15:44:21 UTC 2007  charliejuggler
+Thu Nov 15 15:44:21 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: install runtime DLLs to Windows system
 	  folder correctly
@@ -646,17 +949,17 @@ Thu Nov 15 15:39:20 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
 
 	* src/templates/collections.html: IE6 needs type=submit
 
-Thu Nov 15 15:17:57 UTC 2007  charliejuggler
+Thu Nov 15 15:17:57 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/startflaxservice.bat,w32setup/stopflaxservice.bat: way
 	  of sleeping that works on Win2k upwards; better error handling
 
-Thu Nov 15 15:17:32 UTC 2007  charliejuggler
+Thu Nov 15 15:17:32 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/gettingstarted/GettingStartedOnWindows.htm: new way of
 	  serving files
 
-Thu Nov 15 15:03:35 UTC 2007  charliejuggler
+Thu Nov 15 15:03:35 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt,
 	  w32setup/setup_svc.py: missing DLL
@@ -695,37 +998,37 @@ Wed Nov 14 14:55:14 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
 	* src/templates/collection_detail.html: Added validation code for
 	  scheduling
 
-Wed Nov 14 14:32:51 UTC 2007  charliejuggler
+Wed Nov 14 14:32:51 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flaxauth.py: make sure old auth file deleted before new one
 	  created; fixes #118
 
-Wed Nov 14 14:23:00 UTC 2007  charliejuggler
+Wed Nov 14 14:23:00 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/gettingstarted/GettingStartedOnWindows.htm,
 	  w32setup/gettingstarted/createcol7.jpg: add pic of search results
 
-Wed Nov 14 13:39:59 UTC 2007  charliejuggler
+Wed Nov 14 13:39:59 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/templates/about.html: spellong misteack
 
-Wed Nov 14 13:24:27 UTC 2007  charliejuggler
+Wed Nov 14 13:24:27 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flax_w32.py: Change name
 
-Wed Nov 14 13:17:11 UTC 2007  charliejuggler
+Wed Nov 14 13:17:11 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: typo
 
-Wed Nov 14 13:13:22 UTC 2007  charliejuggler
+Wed Nov 14 13:13:22 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: change name
 
-Wed Nov 14 13:10:16 UTC 2007  charliejuggler
+Wed Nov 14 13:10:16 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/templates/about.html: change name
 
-Wed Nov 14 13:04:15 UTC 2007  charliejuggler
+Wed Nov 14 13:04:15 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/gettingstarted/GettingStartedOnWindows.htm,
 	  w32setup/gettingstarted/createcol3.jpg,
@@ -781,16 +1084,16 @@ Wed Nov 14 10:04:23 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
 	* src/templates/collection_detail.html: Prevent JS error message on
 	  edit details page
 
-Tue Nov 13 17:36:33 UTC 2007  charliejuggler
+Tue Nov 13 17:36:33 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: add link to getting started from final
 	  page
 
-Tue Nov 13 17:31:03 UTC 2007  charliejuggler
+Tue Nov 13 17:31:03 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/gettingstarted/GettingStartedOnWindows.htm:
 
-Tue Nov 13 17:19:03 UTC 2007  charliejuggler
+Tue Nov 13 17:19:03 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/gettingstarted,
 	  w32setup/gettingstarted/GettingStartedOnWindows.htm,
@@ -807,7 +1110,7 @@ Tue Nov 13 16:44:48 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
 	* src/static/img/flax.125trans.png,
 	  src/static/img/flax.250trans.png: Changed name to Flax Basic
 
-Tue Nov 13 15:46:01 UTC 2007  charliejuggler
+Tue Nov 13 15:46:01 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/exampledocs,w32setup/exampledocs/First document.txt,
 	  w32setup/exampledocs/Second document.htm,
@@ -867,12 +1170,12 @@ Sun Nov 11 15:27:20 UTC 2007  paul.x.rudin@gmail.com
 	  raised in other situations where the same chunk might be repeated
 	  once this exception is raised.
 
-Fri Nov 09 17:15:00 UTC 2007  charliejuggler
+Fri Nov 09 17:15:00 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: minor fix to make sure we stop the service
 	  if the user doesn't want to remove the data
 
-Fri Nov 09 16:18:34 UTC 2007  charliejuggler
+Fri Nov 09 16:18:34 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: Now asks if you want to remove data and
 	  all other files (#94)
@@ -883,12 +1186,12 @@ Fri Nov 09 15:00:57 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
 	  paths to form validation, also prevented extra blank path/mapping
 	  fields being added in edit
 
-Fri Nov 09 14:59:28 UTC 2007  charliejuggler
+Fri Nov 09 14:59:28 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: don't replace .conf files if they already
 	  exist - user may be trying to keep data and config
 
-Fri Nov 09 14:43:57 UTC 2007  charliejuggler
+Fri Nov 09 14:43:57 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: Added message about setting password to
 	  warn user, and page for choosing data directory (issue #74)
@@ -1126,7 +1429,7 @@ Wed Nov 07 15:46:45 UTC 2007  Paul Rudin <paul@rudin.co.uk>
 	  ensure that if there is another collection due for indexing we
 	  kick it off immediately.
 
-Wed Nov 07 15:39:05 UTC 2007  charliejuggler
+Wed Nov 07 15:39:05 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt,
 	  w32setup/setup_svc.py: don't need to explicitly copy _xapian.pyd,
@@ -1193,7 +1496,7 @@ Wed Nov 07 12:38:12 UTC 2007  paul.x.rudin@gmail.com
 	* src/indexserver/indexer.py: Added a logging info call to show the
 	  pid of the indexer process.
 
-Wed Nov 07 12:15:43 UTC 2007  charliejuggler
+Wed Nov 07 12:15:43 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: Abort with message if Flax is already
 	  installed
@@ -1238,16 +1541,16 @@ Wed Nov 07 06:55:46 UTC 2007  paul.x.rudin@gmail.com
 	  Search.iss. (You could tell that that was a file name if it
 	  didn't have spaces in it :))
 
-Tue Nov 06 17:41:19 UTC 2007  charliejuggler
+Tue Nov 06 17:41:19 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/templates/about.html: another feature
 
-Tue Nov 06 17:06:59 UTC 2007  charliejuggler
+Tue Nov 06 17:06:59 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/version.py: fix typo, so correct format revision number
 	  returned
 
-Tue Nov 06 17:03:02 UTC 2007  charliejuggler
+Tue Nov 06 17:03:02 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: put extra .pyds in localinst/
 
@@ -1260,20 +1563,20 @@ Tue Nov 06 16:54:49 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* utils/install_dependencies.py: Update version of processing.
 
-Tue Nov 06 16:44:35 UTC 2007  charliejuggler
+Tue Nov 06 16:44:35 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/static/img/xapian-powered.png: for about page
 
-Tue Nov 06 16:44:04 UTC 2007  charliejuggler
+Tue Nov 06 16:44:04 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/templates/about.html: first stab at a better About page
 
-Tue Nov 06 13:15:55 UTC 2007  charliejuggler
+Tue Nov 06 13:15:55 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: more details of
 	  where DLLs come from and removed second mention of zlib1.dll
 
-Tue Nov 06 12:58:45 UTC 2007  charliejuggler
+Tue Nov 06 12:58:45 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: set password on installation
 
@@ -1281,7 +1584,7 @@ Tue Nov 06 12:09:06 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
 
 	* src/templates/flax.html: Re-added onload event
 
-Tue Nov 06 11:34:23 UTC 2007  charliejuggler
+Tue Nov 06 11:34:23 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: added notes on
 	  Perl and SVN
@@ -1457,7 +1760,7 @@ Fri Nov 02 04:48:38 UTC 2007  paul.x.rudin@gmail.com
 	  way formats are displayed in the UI, and verify that it actually
 	  filters as intended.
 
-Thu Nov 01 16:58:27 UTC 2007  charliejuggler
+Thu Nov 01 16:58:27 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: further comments
 	  on building Xapian
@@ -1499,7 +1802,7 @@ Wed Oct 31 18:18:02 UTC 2007  paul.x.rudin@gmail.com
 	* src/test/issue71.py: More simple experiments - suggesting that
 	  the problem might be specifically to do with the pdf IFilter.
 
-Wed Oct 31 18:09:15 UTC 2007  charliejuggler
+Wed Oct 31 18:09:15 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt: note about M$
 	  redistributable files
@@ -1509,22 +1812,22 @@ Wed Oct 31 17:34:53 UTC 2007  paul.x.rudin@gmail.com
 	* src/test/issue71.py: added a function to repeatedly call a remote
 	  ifilter on a pdf
 
-Wed Oct 31 17:32:40 UTC 2007  charliejuggler
+Wed Oct 31 17:32:40 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: remove Windows dir
 
-Wed Oct 31 16:47:15 UTC 2007  charliejuggler
+Wed Oct 31 16:47:15 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/setup_svc.py: make sure setup.exe has correct version
 	  information
 
-Wed Oct 31 16:24:45 UTC 2007  charliejuggler
+Wed Oct 31 16:24:45 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt,w32setup/flax.iss,
 	  w32setup/makew32svc.bat,w32setup/setup_svc.py: Now setup_svc.py
 	  does all the hard work, remove handcoded .iss and .bat files
 
-Wed Oct 31 16:23:53 UTC 2007  charliejuggler
+Wed Oct 31 16:23:53 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flaxservice.py: close files opened for stdout and stderr, for
 	  tidyness
@@ -1549,12 +1852,12 @@ Wed Oct 31 15:50:50 UTC 2007  paul.x.rudin@gmail.com
 	* tests/sampledocs/ukpga_20060041_en.pdf: a pdf from the hmso for
 	  testing.
 
-Wed Oct 31 12:45:48 UTC 2007  charliejuggler
+Wed Oct 31 12:45:48 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flaxservice.py: Added exception handlers in attempt to fix
 	  #67
 
-Wed Oct 31 11:58:24 UTC 2007  charliejuggler
+Wed Oct 31 11:58:24 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup/flax.iss,w32setup/makew32svc.bat,
 	  w32setup/startflaxservice.bat,w32setup/stopflaxservice.bat: Can
@@ -1930,7 +2233,7 @@ Fri Oct 26 16:23:27 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 	  removed reference to flaxpaths from inside doc_collection, since
 	  this now works even in the subprocess.
 
-Fri Oct 26 16:19:00 UTC 2007  charliejuggler
+Fri Oct 26 16:19:00 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* w32setup,w32setup/HowToBuildFlaxStandaloneOnWindows.txt,
 	  w32setup/flax.iss,w32setup/gpl.txt,w32setup/makew32svc.bat,
@@ -1942,7 +2245,7 @@ Fri Oct 26 16:18:43 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 	* src/indexserver/indexer.py: Put flaxpaths into object which gets
 	  pickled and passed across to subprocess on windows.
 
-Fri Oct 26 15:59:04 UTC 2007  charliejuggler
+Fri Oct 26 15:59:04 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flaxservice.py: Added some extra comments about how to run in
 	  a non-frozen environment
@@ -2025,7 +2328,7 @@ Fri Oct 26 12:02:24 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 	* src/cpserver.py: Correct a comment typo and remove an unnecessary
 	  test.
 
-Fri Oct 26 08:57:58 UTC 2007  charliejuggler
+Fri Oct 26 08:57:58 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flaxservice.py: make sure stdout and stderr end up in logs/
 	  subfolder
@@ -2063,25 +2366,25 @@ Thu Oct 25 16:05:00 UTC 2007  Paul Rudin <paul@rudin.co.uk>
 	  include one. (Fixes
 	  http://code.google.com/p/flaxcode/issues/detail?id=30)
 
-Thu Oct 25 12:33:56 UTC 2007  charliejuggler
+Thu Oct 25 12:33:56 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flax_w32.py: fix Registry path
 
-Thu Oct 25 12:02:52 UTC 2007  charliejuggler
+Thu Oct 25 12:02:52 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flaxservice.py: Rename for easier typing of eventual
 	  executable!
 
-Thu Oct 25 12:02:02 UTC 2007  charliejuggler
+Thu Oct 25 12:02:02 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flax_w32.py: Remove executable path as no longer needed
 
-Thu Oct 25 12:01:30 UTC 2007  charliejuggler
+Thu Oct 25 12:01:30 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flax_service.py: Change the way we set sys.executable to work
 	  better in a Py2exe Service
 
-Thu Oct 25 11:59:04 UTC 2007  charliejuggler
+Thu Oct 25 11:59:04 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/startflax.py: Allow src_dir to be set (on Windows we must be
 	  able to set it otherwise /static won't work)
@@ -2107,19 +2410,19 @@ Thu Oct 25 01:26:46 UTC 2007  Paul Rudin <paul@rudin.co.uk>
 	  start on the advanced search form functionality. It doesn't yet
 	  do the right thing...
 
-Wed Oct 24 15:48:10 UTC 2007  charliejuggler
+Wed Oct 24 15:48:10 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flax_service.py: Removed Registry stuff to a different
 	  module; tidied debug prints to use LogInfoMsg; tied stdout and
 	  stderr handling; added some more EventLog messages (temporarily)
 
-Wed Oct 24 15:46:27 UTC 2007  charliejuggler
+Wed Oct 24 15:46:27 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flax_w32.py: New class encapsulating data read from Registry,
 	  and a new main() loop for when running as a Windows command line
 	  application
 
-Wed Oct 24 15:41:36 UTC 2007  charliejuggler
+Wed Oct 24 15:41:36 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flaxpaths.py: Removed src_dir as no longer needed in Win32
 	  startup
@@ -2147,18 +2450,18 @@ Tue Oct 23 05:18:56 UTC 2007  Paul Rudin <paul@rudin.co.uk>
 	* src/flaxpaths.py,src/start.py: Ensured that the path options are
 	  used correctly when running from the command line.
 
-Mon Oct 22 14:17:14 UTC 2007  charliejuggler
+Mon Oct 22 14:17:14 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/start.py: Put freezeSupport() back in - we need it for Py2exe
 	  (and it's in the Service anyway, and shouldn't have any ill
 	  effects)
 
-Mon Oct 22 14:00:00 UTC 2007  charliejuggler
+Mon Oct 22 14:00:00 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flax_service.py: Set src_dir from Registry so static\ paths
 	  etc are correct
 
-Mon Oct 22 13:59:18 UTC 2007  charliejuggler
+Mon Oct 22 13:59:18 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flaxpaths.py: Make it possible to set src_dir (we need this
 	  when running frozen under Py2exe)
@@ -2175,7 +2478,7 @@ Mon Oct 22 11:28:09 UTC 2007  Paul Rudin <paul@rudin.co.uk>
 	  b) holding/stopping indexing can seem very unresponsive if there
 	  is still a lot of work outstanding when the stop flag is set.
 
-Mon Oct 22 10:22:09 UTC 2007  charliejuggler
+Mon Oct 22 10:22:09 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/indexserver/indexer.py,src/start.py: Must set logconfpath for
 	  the index server at creation, because the indexserver runs in a
@@ -2272,7 +2575,7 @@ Thu Oct 18 15:43:46 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* src/indexserver/remote_filter.py: Correct trivial typos.
 
-Thu Oct 18 15:16:10 UTC 2007  charliejuggler
+Thu Oct 18 15:16:10 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flax_service.py: Add another Event Log message for after
 	  everything has shut down successfully
@@ -2319,21 +2622,21 @@ Wed Oct 17 21:01:26 UTC 2007  Paul Rudin <paul@rudin.co.uk>
 	  and used the facilities provided by cp to run start without
 	  blocking, then used an explicit call to stop cp.
 
-Wed Oct 17 14:37:13 UTC 2007  charliejuggler
+Wed Oct 17 14:37:13 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flax_service.py: some extra debug
 
-Wed Oct 17 11:20:08 UTC 2007  charliejuggler
+Wed Oct 17 11:20:08 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flax_service.py: remove subprocess which was used for
 	  debugging
 
-Wed Oct 17 11:14:58 UTC 2007  charliejuggler
+Wed Oct 17 11:14:58 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flax_service.py: Make sure sys.executable is set correctly,
 	  and some service logging tidyups
 
-Wed Oct 17 10:05:47 UTC 2007  charliejuggler
+Wed Oct 17 10:05:47 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flax_service.py: make sure Windows EventLog knows where our
 	  messages are coming from
@@ -2362,7 +2665,7 @@ Mon Oct 15 14:55:53 UTC 2007  Tom Mortimer <tom@lemurconsulting.com>
 	* src/templates/collection_detail.html: simple readability tweak to
 	  collection details
 
-Mon Oct 15 14:17:26 UTC 2007  charliejuggler
+Mon Oct 15 14:17:26 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flax_service.py: truncate stderr and stdout log files
 
@@ -2373,7 +2676,7 @@ Mon Oct 15 14:12:57 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 	  paths for databases - the database path configured by flaxpaths
 	  is now respected.
 
-Mon Oct 15 14:01:58 UTC 2007  charliejuggler
+Mon Oct 15 14:01:58 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flax_service.py: Fixed to use new paths interface in start.py
 
@@ -2424,7 +2727,7 @@ Mon Oct 15 11:34:29 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 	* src/cpserver.py,src/indexserver/indexer.py,src/start.py: Revert
 	  commits 441 and 443 - I have a better fix.
 
-Mon Oct 15 11:09:52 UTC 2007  charliejuggler
+Mon Oct 15 11:09:52 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/cpserver.py,src/indexserver/indexer.py: Use a passed in path
 
@@ -2432,12 +2735,12 @@ Mon Oct 15 11:05:33 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 
 	* src/indexserver/indexer.py: Tiny typo in comment.
 
-Mon Oct 15 11:05:01 UTC 2007  charliejuggler
+Mon Oct 15 11:05:01 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/start.py: Attempt to pass the correct paths to other modules
 	  at startup
 
-Mon Oct 15 11:04:27 UTC 2007  charliejuggler
+Mon Oct 15 11:04:27 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flax_service.py: Use the default installation folder if we
 	  can't read the Registry; use regutils to try and find the
@@ -2662,7 +2965,7 @@ Fri Oct 12 15:18:00 UTC 2007  Richard Boulton <richard@lemurconsulting.com>
 	  now need to run "python start.py" instead of "python
 	  cpserver.py".
 
-Fri Oct 12 15:04:08 UTC 2007  charliejuggler
+Fri Oct 12 15:04:08 UTC 2007  Charlie Hull <charlie@lemurconsulting.com>
 
 	* src/flax_service.py: prototype service wrapper
 
