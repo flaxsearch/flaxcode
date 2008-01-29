@@ -768,7 +768,7 @@ ensure that all the tasks are done, and done in the right order.
  - Commit all source files and tag the release in SVN.  For example, to tag the
    1.0.0 release, you would run::
 
-       svn copy https://flaxcode.googlecode.com/svn/trunk https://flaxcode.googlecode.com/svn/tags/release-1.0.0
+       svn copy https://flaxcode.googlecode.com/svn/trunk https://flaxcode.googlecode.com/svn/tags/release-1.0.0 -m "Tag 1.0.0 release"
 
  - Create new build and add to Googlecode downloads.
  - Create new documentation snapshots and put on flax.co.uk
