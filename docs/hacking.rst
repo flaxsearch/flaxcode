@@ -2,6 +2,8 @@
 A Guide to the Flax code.
 =========================
 
+.. contents:: Table of contents
+
 
 Introduction
 ============
@@ -757,7 +759,7 @@ tracker doesn't enforce how we use them very well, but here's how it should
 work.
 
 New issues
---------
+~~~~~~~~~~
 
 A new issue should usually be given a status of "New".  This means that no
 technical person has yet investigated it; we don't know whether it's a genuine
@@ -765,7 +767,7 @@ issue yet at all.  A new issue should also usually be assigned to "flaxdevs" -
 indicating that no specific person has taken responsibility for it yet.
 
 Accepting issues
-----------------
+~~~~~~~~~~~~~~~~
 
 Whenever a technical developer has a moment to check the issue tracker, he
 should investigate the issues marked as "New", and accept or discard them.  At
@@ -804,7 +806,7 @@ The following search will display all issues marked as New::
  http://code.google.com/p/flaxcode/issues/list?can=1&q=status%3ANew&colspec=ID+Type+Status+Priority+Milestone+Owner+Summary&cells=tiles
 
 Fixing issues
--------------
+~~~~~~~~~~~~~
 
 When a developer starts work on an issue, he should ensure that the issue is
 assigned to himself, and mark the status of the issue as "Started".  This
@@ -816,7 +818,7 @@ status from "Assigned" to "Fixed", and add a comment to the issue saying how
 it's been fixed, and what revision of the code the issue was fixed in.
 
 Verifying issues
-----------------
+~~~~~~~~~~~~~~~~
 
 Periodically (and certainly before every release) other developers should go
 through the list of fixed issues, and verify that the fix has worked for them -
