@@ -2,8 +2,6 @@
 A Guide to the Flax code.
 =========================
 
-.. contents:: Table of contents
-
 
 Introduction
 ============
@@ -751,167 +749,28 @@ note:
     code.
 
 
-Lifecycle of an issue
-=====================
-
-Issues in our tracker have several states (stored in the "Status" field) - the
-tracker doesn't enforce how we use them very well, but here's how it should
-work.
-
-New issues
-~~~~~~~~~~
-
-A new issue should usually be given a status of "New".  This means that no
-technical person has yet investigated it; we don't know whether it's a genuine
-issue yet at all.  A new issue should also usually be assigned to "flaxdevs" -
-indicating that no specific person has taken responsibility for it yet.
-
-Accepting issues
-~~~~~~~~~~~~~~~~
-
-Whenever a technical developer has a moment to check the issue tracker, he
-should investigate the issues marked as "New", and accept or discard them.  At
-this stage, the following actions are appropriate:
-
- - If a "New" issue looks like a plausible issue, and there are no obvious
-   duplicate reports for it, the status should be changed to "Accepted".
-
- - If there's a duplicate for the issue, it should be marked as "Duplicate",
-   and a comment added to say what issue it's a duplicate of.  The original
-   issue (ie, the issue which has been duplicated) should be updated with any
-   additional information contained in the new issue.
-
- - If the issue is nonsensical, or due to a misconception, the issue should be
-   marked as "Invalid", with a comment added to say why it makes no sense.
-
- - If the issue may be a valid problem, but there's insufficient detail to know
-   whether it is, or no clear way to fix it, the issue should be marked as
-   "Clarify".  This can be thought of as a call to other developers to help
-   discuss the issue.
-
- - If the issue is a valid problem, but we have no intention of fixing it (eg,
-   it's outside the scope of the project), it should be marked as "WontFix",
-   with a comment explaining why we're not going to fix it.
-
- - If the issue has already been addressed, it should be marked as "Fixed",
-   with a comment saying in which version of the software (possibly an SVN
-   revision) it was addressed.
-
- - Otherwise, the issue should be marked as "Accepted".  If there is an obvious
-   developer who should fix it, change the assignment to him at that point.
-   Otherwise, leave it as "flaxdevs".
-
-The following search will display all issues marked as New::
-
- http://code.google.com/p/flaxcode/issues/list?can=1&q=status%3ANew&colspec=ID+Type+Status+Priority+Milestone+Owner+Summary&cells=tiles
-
-Fixing issues
-~~~~~~~~~~~~~
-
-When a developer starts work on an issue, he should ensure that the issue is
-assigned to himself, and mark the status of the issue as "Started".  This
-avoids duplicating effort by having two developers working on the same thing at
-once.
-
-When an issue has been fixed, the developer who fixed it should change the
-status from "Assigned" to "Fixed", and add a comment to the issue saying how
-it's been fixed, and what revision of the code the issue was fixed in.
-
-Verifying issues
-~~~~~~~~~~~~~~~~
-
-Periodically (and certainly before every release) other developers should go
-through the list of fixed issues, and verify that the fix has worked for them -
-this ensures that common mistakes (such as missing a file which needs to be
-committed) don't go unnoticed, and provides a layer of QA.  When a second
-developer (ie, someone other than the developer who originally fixed the issue)
-has verified that the issue is fixed for them, the second developer should mark
-the issue as "Verified".  (If the issue isn't fixed for the second developer,
-he should mark the issue as "Reopened", and give details of the problem they're
-now seeing.)  The following search will display all issues marked as Fixed::
-
- http://code.google.com/p/flaxcode/issues/list?can=1&q=status%3AFixed&colspec=ID+Type+Status+Priority+Milestone+Owner+Summary&cells=tiles
-
-The same developer who fixed an issue should not usually mark the issue as
-Verified - and should certainly not do so unless they've checked the issue has
-been fixed on a separate machine.
-
-When a release is made, the release manager should go through the list of
-issues and mark all Verified issues as "Released".  This should be done whilst
-updating the release notes with the details of all the issues fixed in the new
-release.
-
-
 Release checklist
 =================
 
-The following list contains all the steps which need to be taken, in this
-order, to prepare for a new release of Flax.
+The following list contains all the steps which need to be taken to prepare for
+a new release of Flax.
 
 One person needs to be nominated for each release as the release maintainer, to
 ensure that all the tasks are done, and done in the right order.
 
- - Ensure that all changes to the source and documentation are committed.
-
- - Ensure that all issues marked with a milestone tag for the release you're
-   about to make are closed, or changed to be for a later milestone (with an
-   explanation for why it's okay to let them slip for now).
-
- - Ensure that all issues which have been fixed during this release have been
-   verified: the following URL is useful for getting a list of issues which
-   need to be verified::
-
-	http://code.google.com/p/flaxcode/issues/list?can=1&q=status%3AFixed&colspec=ID+Type+Status+Priority+Milestone+Owner+Summary&cells=tiles
-
- - Test build of packages and documentation from a fresh checkout of SVN:
-   IMPORTANT - after this step, we're committed to associating the current
-   state of SVN with a release.  If any problems are found with the build of
-   packages or documentation, go back and fix them before proceeding.
-
- - Update (and commit) the NEWS file, to list all significant changes between
-   this release and the last one.  This produces the release notes, which users
-   can use to decide whether an update to the new version is appropriate for
-   them or not.
-
- - Go through the list of all issues which have been verified, adding a summary
-   (and the issue number) of any which are relevant to users to the NEWS file.
-   After committing these updates to the NEWS file, mark the issues as
-   "Released".  The following URL is useful for getting a list of issues which
-   have been verified.
-
- - Update ChangeLog file in flax, using the "log2cl" script, so that the
-   ChangeLog included in the distribution is up-to-date.  To do this, simply
-   run "python utils/log2cl.py", and then manually add a changelog entry with a
-   comment of the form::
-
-        * ChangeLog: Update for 1.0.0 release.
-
- - Increase version numbers in src/version.py to the new release number.
-   Remember to set _is_release to True there.
-
+ - Update version numbers in src/version.py.  Remember to set _is_release to
+   True there.
  - Edit documentation to update any version numbers and remove any
    'pre-release' notes in them.  Add any new locations in the documentation
    where version numbers are found to the following list so that they won't be
    missed in the next release.
    - TODO - add items to this list as you find them.
+ - Commit all source files and tag the release in SVN.  For example, to tag the
+   1.0.0 release, you would run::
 
- - Tag the release in SVN.  For example, to tag the 1.0.0 release, you would
-   run::
+       svn copy https://flaxcode.googlecode.com/svn/trunk https://flaxcode.googlecode.com/svn/tags/release-1.0.0
 
-        svn copy https://flaxcode.googlecode.com/svn/trunk https://flaxcode.googlecode.com/svn/tags/release1.0.0 -m "Tag 1.0.0 release"
+ - Create new build and add to Googlecode downloads.
+ - Create new documentation snapshots and put on flax.co.uk
+ - Update link on flax.co.uk
 
- - Set _is_release to False in src/version.py.  (This ensures that any further
-   development done does not result in builds which have the same version
-   information as the official release.)
-
- - Create new build, from the tagged sources, and add to Googlecode downloads.
-
- - Create new documentation snapshots, from the tagged sources, and put on
-   http://flax.co.uk/.
-
- - Update links on http://flax.co.uk
-   - FIXME - put a list of the links which need updating here.
-
- - Send announcement mail to flax-announce mailing list.
-
- - Tell anyone else about the release that we feel should know.
