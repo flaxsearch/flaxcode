@@ -18,7 +18,7 @@
 """
 __docformat__ = "restructuredtext en"
 
-import os
+import os, os.path
 import re
 import setuppaths
 import cherrypy
@@ -27,13 +27,14 @@ import templates
 import persist
 import util
 import logging
+import time
+import shutil
 
 import platform
 _is_windows = platform.system() == 'Windows'
 if _is_windows:
     import win32api
     import string
-
 
 class FlaxResource(object):
     "Abstract class supporting common error handling across all Flax web pages"
@@ -57,6 +58,7 @@ class Collections(FlaxResource):
 
     """
     _valid_colname_re = re.compile (r'[\w \.\-_]{1,100}$')
+    _extn_map = {'text/plain':'txt', 'text/xml':'xml', 'text/json':'json'}
 
     def _bad_collection_name(self, name):
         """Return an error page describing a problem with a collection name.
@@ -80,6 +82,7 @@ class Collections(FlaxResource):
         self._list_template = list_template
         self._detail_template = detail_template
         self._index_server = index_server
+        self._seqnum = 1
 
     def _redirect_to_view(self, col=None):
         """Redirect to a view page.
@@ -98,7 +101,7 @@ class Collections(FlaxResource):
         """Default handler.
         
         Calls the appropriate sub handler based on the action parameter.
-
+        (Remember that "default" is a magic CP method which unpacks the request path.)
         """
         if col_id and action:
             if action == 'toggle_due':
@@ -111,6 +114,8 @@ class Collections(FlaxResource):
                 return self.update(col_id, **kwargs)
             elif action == 'view':
                 return self.view(col_id, **kwargs)
+            elif action == 'docadd':
+                return self.docadd(col_id, **kwargs)
         elif col_id:
             return self.view(col_id)
         else:
@@ -248,6 +253,29 @@ class Collections(FlaxResource):
                              "file_count":  fc, 
                              "error_count": ec })
             return repr (ret)
+
+    def docadd (self, col, **kwargs):
+        """Add (or re-index) the document POSTed with this request.
+        
+        HACK: this just writes the request into a temporary file in a spool dir.
+        """
+        if cherrypy.request.method != 'POST':
+            self._bad_request ('docadd requires POST method')
+
+        ctype = cherrypy.request.headers['Content-Type'].split(';')[0]
+        extn = self._extn_map.get(ctype)
+        if extn:
+            tmpnm = os.path.join(self._flax_data.collections[col].paths[0],
+                'flaxtmp.%s.%s.%s' % (int(time.time() * 10), self._seqnum, extn))
+            self._seqnum += 1
+            tmpf = open(tmpnm + '.tmp', 'w')
+            shutil.copyfileobj(cherrypy.request.body, tmpf)
+            tmpf.close()
+        
+            # rename the file atomically so it can be indexed
+            os.rename (tmpnm + '.tmp', tmpnm)
+
+        return 'ok'
 
 
 class SearchForm(object):

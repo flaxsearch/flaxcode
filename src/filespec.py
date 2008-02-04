@@ -75,7 +75,8 @@ class FileSpec(object):
                         fname = os.path.realpath(os.path.join(root, f))
                         log_file_walked(fname)
                         if os.path.exists(fname):
-                            if self.included(fname, logger_indexing):
+                            if self.included(fname, logger_indexing) or\
+                                fname.endswith('.xml'):  # HACK!
                                 yield fname
                         else:
                             logger_indexing.debug("Walked file %s, does not exist (dangling symlink?), skipping" % fname)

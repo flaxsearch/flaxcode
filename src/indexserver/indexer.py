@@ -44,6 +44,7 @@ except ImportError:
 
 import simple_text_filter
 import htmltotext_filter
+import xml_filter
 
 # We use a different logger for the indexing process because there can
 # be a problem with synchronizing IO if we e.g. use the same handlers
@@ -142,6 +143,7 @@ class Indexer(object):
 
             error_count = file_count = 0
             for f in col.files():
+                print '-- indexer.py f:', f
                 if self.disk_space_short(dbname):
                     # raise an exception rather than return False - we
                     # don't want to keep trying to index in this
@@ -197,11 +199,17 @@ class Indexer(object):
         unused, ext = os.path.splitext(file_name)
         ext = ext.lower()
         if self.stale(file_name, conn):
-            filter = self._find_filter(filter_settings[ext[1:]])
+            # HACK!
+            if ext == '.xml':
+                filter = xml_filter.xml_filter
+            else:
+                filter = self._find_filter(filter_settings[ext[1:]])
+
             if filter:
                 remote_log.debug("Filtering file %s using filter %s" % (file_name, filter))
+                basename = os.path.basename(file_name)
                 fixed_fields = ( ("filename", file_name),
-                                 ("nametext", os.path.basename(file_name)),
+                                 ("nametext", basename),
                                  ("filetype", os.path.splitext(file_name)[1][1:]),
                                  ("collection", collection_name),
                                  ("mtime", str(os.path.getmtime(file_name))),
@@ -210,15 +218,34 @@ class Indexer(object):
                 for field, value in fixed_fields:
                     assert(field in dbspec.internal_fields())
                 try:
-                    filtered_blocks = itertools.ifilter(self._accept_block, filter(file_name))
-                    fields = itertools.starmap(xappy.Field, itertools.chain(fixed_fields, filtered_blocks))
-                    doc = xappy.UnprocessedDocument(fields = fields)
-                    doc.id = file_name
+                    # HACK! for service branch
+                    if ext == '.xml':
+                        fields = filter(file_name)
+                        doc = xappy.UnprocessedDocument(fields = 
+                            itertools.starmap(xappy.Field, fields))
+                        doc.id = dict(fields)['_docid']
+                    else:
+                        # original code
+                        filtered_blocks = itertools.ifilter(self._accept_block, filter(file_name))
+                        fields = itertools.starmap(xappy.Field, itertools.chain(fixed_fields, filtered_blocks))
+                        doc = xappy.UnprocessedDocument(fields = fields)
+                        doc.id = file_name
+
+                    # HACK! for service branch
+                    if basename.startswith('flaxtmp.'):
+                        #os.unlink(file_name)
+                        pass
+                    
                     conn.replace(doc) # FIXME - if this raises an error, it's probably more serious (eg, database corruption) than if a filter raises an error.
+                    print '-- added doc'
                     remote_log.debug("Added (or replaced) doc %s to collection %s with text from source file %s" %
                                   (doc.id, collection_name, file_name))
                     return True
                 except Exception, e:
+                    print '-- error:', e
+                    import traceback
+                    traceback.print_exc()
+                    
                     remote_log.error("Filtering file: %s with filter: %s exception %s(%s), skipping"
                                    % (file_name, filter, type(e).__name__, str(e)))
                     return False
