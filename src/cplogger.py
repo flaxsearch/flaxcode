@@ -47,7 +47,7 @@
 """Replacement for the default cherrypy logmanager to better integrate
 with Flax logging configuration."""
 
-import logging
+import flaxlog
 import datetime
 import rfc822
 
@@ -58,13 +58,8 @@ class cpLogger(object):
        facilitate integration with using the log configuration file to
        update logging configuration on the fly"""
 
-    def __init__(self):
-        self.logger_root = logging.getLogger('webserver')
-        self.error_log=logging.getLogger('webserver.errors')
-        self.access_log=logging.getLogger('webserver.access')
-
     def __call__(self, msg='', context='', severity=logging.DEBUG, traceback=False):
-        self.error_log.log(severity, ' '.join((self.time(), context, msg)))
+        flaxlog.log(severity, 'webserver', ' '.join((context, msg)))
 
     # access string generation from cherrypy._cplogger.LogManager.access
     def access(self):
@@ -83,7 +78,7 @@ class cpLogger(object):
                     'f': outheaders.get('referer', ''),
                     'a': outheaders.get('user-agent', ''),
                     }
-        self.access_log.info(s)
+        flaxlog.info('webserver', s)
 
     # from cherrypy._cplogger.LogManager
     def time(self):

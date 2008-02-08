@@ -18,10 +18,10 @@
 """
 __docformat__ = "restructuredtext en"
 
-import logging
 import threading
 import types
 
+import flaxlog
 import doc_collection
 import flax
 import persist
@@ -30,8 +30,6 @@ import shutil
 import util
 import xappy
 import xapian
-
-log = logging.getLogger("collections")
 
 class CollectionList(object):
     """A list of collections.
@@ -71,7 +69,7 @@ class CollectionList(object):
         # FIXME - handle the case of a collection not being found more gracefully.
         col = self._collections[names[0]]
         result = xappy.SearchConnection(col.dbpath())
-        log.debug('Search connection to %r opened' % (names[0],))
+        flaxlog.debug('collections', 'Search connection to %r opened' % (names[0],))
 
         # Add the remaining databases to the connection in Result.
         # FIXME - this should really be done by xappy.  Currently, we have to
@@ -80,7 +78,7 @@ class CollectionList(object):
         for name in names[1:]:
             col = self._collections[name]
             result._index.add_database(xapian.Database(col.dbpath()))
-            log.debug('Added %r to search connection' % (name,))
+            flaxlog.debug('collections', 'Added %r to search connection' % (name,))
 
         self._handle_count_condition.acquire()
         try:
@@ -91,7 +89,7 @@ class CollectionList(object):
             for name in names:
                 newcount = self._handle_count.get(name, 0) + 1
                 self._handle_count[name] = newcount
-                log.debug('New connection count for %r is %d' % (name, newcount))
+                flaxlog.debug('collections', 'New connection count for %r is %d' % (name, newcount))
         finally:
             self._handle_count_condition.release()
 
@@ -107,13 +105,13 @@ class CollectionList(object):
                 try:
                     newcount = self._handle_count[name] - 1
                     self._handle_count[name] = newcount
-                    log.debug('Search connection to %r closed - new connection count is %d' % (name, newcount))
+                    flaxlog.debug('collections', 'Search connection to %r closed - new connection count is %d' % (name, newcount))
                     if newcount == 0:
                         self._handle_count_condition.notifyAll()
                 except KeyError:
                     # The name of the connection wasn't known; shouldn't happen,
                     # but there's not much point in complaining.
-                    log.warning('Got notification of closure of unknown connection %r (at %r)' %
+                    flaxlog.warning('collections', 'Got notification of closure of unknown connection %r (at %r)' %
                                 (name, path))
         finally:
             self._handle_count_condition.release()
@@ -126,7 +124,7 @@ class CollectionList(object):
         try:
             newcount = self._handle_count[name] + 1
             self._handle_count[name] = newcount
-            log.debug('Opened indexer connection to %r: new connection count is %d' % (name, newcount))
+            flaxlog.debug('collections', 'Opened indexer connection to %r: new connection count is %d' % (name, newcount))
         finally:
             self._handle_count_condition.release()
 
@@ -139,13 +137,13 @@ class CollectionList(object):
             try:
                 newcount = self._handle_count[name] - 1
                 self._handle_count[name] = newcount
-                log.debug('Closed indexer connection to %r: new connection count is %d' % (name, newcount))
+                flaxlog.debug('collections', 'Closed indexer connection to %r: new connection count is %d' % (name, newcount))
                 if newcount == 0:
                     self._handle_count_condition.notifyAll()
             except KeyError:
                 # The name of the connection wasn't known; shouldn't happen,
                 # but there's not much point in complaining.
-                log.warning('Got notification of closure of unknown indexer connection %r (at %r)' %
+                flaxlog.warning('collections', 'Got notification of closure of unknown indexer connection %r (at %r)' %
                             (name, path))
         finally:
             self._handle_count_condition.release()
@@ -205,23 +203,23 @@ class CollectionList(object):
             shutil.rmtree(dbpath)
             return True
         except Exception, e:
-            log.error("Failed to delete database at %r: %s" % (dbpath, str(e)))
+            flaxlog.error('collections', "Failed to delete database at %r: %s" % (dbpath, str(e)))
         return False
 
     def _wait_to_delete_database(self, (name, dbpath)):
         """Wait until there are no handles on a database, then delete it."""
         self._handle_count_condition.acquire()
         try:
-            log.debug("Waiting for all handles on database %r to be dropped" % name)
+            flaxlog.debug('collections', "Waiting for all handles on database %r to be dropped" % name)
             while True:
                 while self._handle_count[name] > 0:
                     self._handle_count_condition.wait()
-                log.debug("Deleting database %r from disk (path was %r)" % (name, dbpath))
+                flaxlog.debug('collections', "Deleting database %r from disk (path was %r)" % (name, dbpath))
                 if self._delete_database_from_disk(dbpath):
                     del self._collections_being_deleted[name]
                     del self._handle_count[name]
                     persist.data_changed.set()
-                    log.debug("Deleted database %r from disk (path was %r)" % (name, dbpath))
+                    flaxlog.debug('collections', "Deleted database %r from disk (path was %r)" % (name, dbpath))
                     return
                 # Wait for a bit longer, then try the delete again.
                 time.sleep(1)
@@ -240,7 +238,7 @@ class CollectionList(object):
         if self._collections_being_deleted.has_key(name):
             return "A collection of this name is currently being deleted"
 
-        log.info("Creating new collection: %s" % name)
+        flaxlog.info('collections', "Creating new collection: %s" % name)
         col = doc_collection.DocCollection(name)
         self._collections[name] = col
         self._handle_count[name] = 0
@@ -251,7 +249,7 @@ class CollectionList(object):
     def remove_collection(self, name):
         assert isinstance(name, types.StringType)
         if self._collections.has_key(name):
-            log.info("Deleting collection %s" % name)
+            flaxlog.info('collections', "Deleting collection %s" % name)
             col = self._collections[name]
             dbpath = col.dbpath()
             self._collections_being_deleted[name] = dbpath
@@ -259,7 +257,7 @@ class CollectionList(object):
             util.AsyncFunc(self._wait_to_delete_database)((name, dbpath))
             persist.data_changed.set()
         else:
-            log.error("Failed attempt to delete collection %s, which does not"
+            flaxlog.error('collections', "Failed attempt to delete collection %s, which does not"
                       " exist" % name)
 
     def search(self, query=None, col_id=None, doc_id=None, cols=None, format=None,

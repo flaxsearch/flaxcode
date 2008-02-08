@@ -26,7 +26,7 @@ import cplogger
 import templates
 import persist
 import util
-import logging
+import flaxlog
 
 import platform
 _is_windows = platform.system() == 'Windows'
@@ -462,8 +462,7 @@ class Admin(Top):
 
             # in the case of errors, log them but return an empty list to the browser
             except Exception, e:
-                logging.getLogger('collection').error('error file-listing %s: %s' % 
-                    (fpath, e))
+                flaxlog.error('collection', 'error file-listing %s: %s' % (fpath, e))
 
             return repr(ret)
         
