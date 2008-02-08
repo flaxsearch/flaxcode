@@ -519,10 +519,8 @@ if __name__ == '__main__':
         'paul.x.rudin': 'Paul Rudin <paul@rudin.co.uk>',
         'boulton.rj': 'Richard Boulton <richard@lemurconsulting.com>',
         'banoffi': 'Tom Mortimer <tom@lemurconsulting.com>',
-        'banoffi@gmail.com': 'Tom Mortimer <tom@lemurconsulting.com>',
         'rbolton': 'Richard Boulton <richard@lemurconsulting.com>',
         'alex.bowley': 'Alex Bowley',
-        'charliejuggler': 'Charlie Hull <charlie@lemurconsulting.com>',
     }
     path_prefix = ''
 
