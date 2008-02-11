@@ -19,12 +19,13 @@
 from __future__ import with_statement
 __docformat__ = "restructuredtext en"
 
-import logging
 import shelve
 import threading
 import time
 import flax
 import util
+
+import flaxlog
 
 def store_flax(filename, options):
     """Store the flax options.
@@ -36,12 +37,12 @@ def store_flax(filename, options):
     If the options are not yet initialised, nothing will be stored.
 
     """
-    logging.getLogger().debug("Storing flax options")
+    flaxlog.debug('flax', "Storing flax options")
     if not options.initialised():
         # Options weren't initialised - don't store anything.
         return
     options_dict = options.to_dict()
-    logging.getLogger().debug("Storing options: %r" % options_dict)
+    flaxlog.debug('flax', "Storing options: %r" % options_dict)
 
     d = shelve.open(filename)
     d['flax'] = options_dict
@@ -61,16 +62,16 @@ def read_flax(filename, options):
     d = shelve.open(filename)
     try:
         options_dict = d['flax']
-        logging.getLogger().debug("Got options: %r" % options_dict)
+        flaxlog.debug('flax', "Got options: %r" % options_dict)
         options_version = options_dict.get('version', None)
         if options_version != flax.current_version:
-            logging.getLogger().warn("The version of %s is incompatible, reverting to default settings" % filename)
+            flaxlog.warn('flax', "The version of %s is incompatible, reverting to default settings" % filename)
             options.set_to_defaults()
             data_changed.set()
         else:
             options.from_dict(options_dict)
     except (KeyError, AttributeError):
-        logging.getLogger().warn("There was a problem reading %s, reverting to default settings" % filename)
+        flaxlog.warn('flax', "There was a problem reading %s, reverting to default settings" % filename)
         options.set_to_defaults()
         data_changed.set()
     d.close()

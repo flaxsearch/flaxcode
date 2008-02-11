@@ -47,10 +47,11 @@
 """Replacement for the default cherrypy logmanager to better integrate
 with Flax logging configuration."""
 
-import flaxlog
+import logging
 import datetime
 import rfc822
 
+import flaxlog
 import cherrypy
 
 class cpLogger(object):

@@ -18,12 +18,11 @@
 """
 __docformat__ = "restructuredtext en"
 
-import logging
 import os
 
 import collection_list
 import flaxpaths
-import logclient
+import flaxlog
 
 # The current configuration file version - update this each time things change
 # incompatibly.
@@ -36,19 +35,6 @@ class FlaxOptions(object):
 
     # The formats which we support.
     formats = sorted(["txt", "doc", "rtf", "html", "htm", "pdf", "xls", "ppt",])
-
-    # A list of the logger names in use.
-    # FIXME - this should probably be kept in the logclient module, and
-    # probably be generated from the loggers or the logging configuration
-    # automatically.
-    logger_names = ("",
-                    "collections",
-                    "indexing",
-                    "filtering",
-                    "searching",
-                    "scheduling",
-                    "webserver",
-                   )
 
     # A list of the available languages - the first item in each tuple is the
     # internal name, and the second item in the tuple is the (english) display
@@ -123,34 +109,37 @@ class FlaxOptions(object):
         self.collections = collection_list.CollectionList()
 
     def _set_log_settings(self, vals):
-        new_levels = {}
-        for name in self.logger_names:
-            if name in vals:
-                new_levels[name] = vals[name]
-        if "default" in vals:
-            new_levels[""] = vals["default"]
-
-        lq = logclient.LogConf(flaxpaths.paths.logconf_path)
-        lq.set_levels(new_levels)
-        
-        # This is here so that the web page that people see after
-        # setting a new option reflects the change that they've just
-        # made. See
-        # http://code.google.com/p/flaxcode/issues/detail?id=55
-        lq.update_log_config()
+        pass
+#       FIXME
+#        new_levels = {}
+#        for name in self.logger_names:
+#            if name in vals:
+#                new_levels[name] = vals[name]
+#        if "default" in vals:
+#            new_levels[""] = vals["default"]
+#
+#        lq = logclient.LogConf(flaxpaths.paths.logconf_path)
+#        lq.set_levels(new_levels)
+#        
+#        # This is here so that the web page that people see after
+#        # setting a new option reflects the change that they've just
+#        # made. See
+#        # http://code.google.com/p/flaxcode/issues/detail?id=55
+#        lq.update_log_config()
 
     def _get_log_settings(self):
-        # is .level part of the public api for logger objects?
-        # FIXME - check
-        return dict((name, logging.getLevelName(logging.getLogger(name).level)) for name in self.logger_names)
+        return None # FIXME
+#        # is .level part of the public api for logger objects?
+#        # FIXME - check
+#        return dict((name, logging.getLevelName(logging.getLogger(name).level)) for name in self.logger_names)
 
-    log_settings = property(fset=_set_log_settings, fget=_get_log_settings, doc=
-        """A dictionary mapping log event names to log levels.
-
-        It is permitted for the dictionary to contain names that do not name a log
-        event, such will be silently ignored.
-
-        """)
+#    log_settings = property(fset=_set_log_settings, fget=_get_log_settings, doc=
+#        """A dictionary mapping log event names to log levels.
+#
+#        It is permitted for the dictionary to contain names that do not name a log
+#        event, such will be silently ignored.
+#
+#        """)
 
     @property
     def log_levels(self):

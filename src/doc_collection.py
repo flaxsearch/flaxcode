@@ -20,7 +20,6 @@ from __future__ import with_statement
 __docformat__ = "restructuredtext en"
 
 import copy
-import logging
 import os
 import sys
 import urllib
@@ -28,6 +27,7 @@ import urllib
 import setuppaths
 import xappy
 
+import flaxlog
 import dbspec
 import filespec
 import flax
@@ -42,8 +42,6 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
     with some properties describing the collection.
 
     """
-
-    log = logging.getLogger('collections')
 
     def __init__(self, name, *args, **kwargs):
         # deleted is set to True when the database is marked as deleted - it
@@ -107,9 +105,9 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
 
         path = [ p for p in self.paths if os.path.commonprefix([doc_id, p]) == p]
         if len(path) > 1:
-            self.log.warning('Doc: %s has more than one path, using first' % doc_id)
+            flaxlog.warning('collections', 'Doc: %s has more than one path, using first' % doc_id)
         if len(path) == 0:
-            self.log.error('Doc: %s has no path. Maybe the collection needs indexing' % doc_id)
+            flaxlog.error('collections', 'Doc: %s has no path. Maybe the collection needs indexing' % doc_id)
             return "/"
         mapped = self.mappings[path[0]]
         if mapped == 'FLAX':

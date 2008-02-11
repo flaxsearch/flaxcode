@@ -25,14 +25,12 @@ __docformat__ = "restructuredtext en"
 import sys
 import processing
 import functools
-import logging
+import flaxlog
 
-import logclient
-
-class FilterRunner(logclient.LogClientProcess):
+class FilterRunner(processing.Process):
 
     def __init__(self, filter, i, o):
-        logclient.LogClientProcess.__init__(self)
+        processing.Process.__init__(self)
         self.i = i
         self.o = o
         self.filter = filter
@@ -42,12 +40,10 @@ class FilterRunner(logclient.LogClientProcess):
     def run(self):
         """Repeatedly receive a filename on `self.i`, run
         self.filter on that file, send output to `o`"""
-        self.initialise_logging()
-        remote_log = logging.getLogger("filtering.remote_filter.remote")
         while 1:
             filename = self.i.recv()
             try:
-                results = self.filter(filename, log=remote_log)
+                results = self.filter(filename)
                 # because the filter returns an iterator we won't
                 # see all errors until we actually compute the
                 # values so this next needs to be in the try
@@ -55,15 +51,13 @@ class FilterRunner(logclient.LogClientProcess):
                 if not isinstance(results, Exception):
                     results = list(results)
             except Exception, e:
-                remote_log.warning("FilterRunner: %s caught exception: %s" % (str(self), str(e)))
+                flaxlog.warning('filtering', "FilterRunner: %s caught exception: %s" % (str(self), str(e)))
                 results = e
             self.o.send(results)
 
 class TimeOutError(Exception):
     "Signal that a remote filter is taking too long to process a file"
     pass
-
-log = logging.getLogger("filtering.remote_filter")
 
 class RemoteFilterRunner(object):
     """
@@ -91,7 +85,7 @@ class RemoteFilterRunner(object):
                 # restart the remote process immediately
                 # otherwise the next document may timeout because the
                 # remote process is not responding
-                log.warning("Killing remote filter - it raised the exception: %s" %
+                flaxlog.warning('filtering', "Killing remote filter - it raised the exception: %s" %
                           str(blocks))
                 self.kill_server()
                 raise blocks

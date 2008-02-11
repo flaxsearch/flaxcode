@@ -18,11 +18,11 @@
 """
 __docformat__ = "restructuredtext en"
 
-import logging
 import types
 
 import flax
 import util
+import flaxlog
 
 class Results (object):
     """ Make search results from supplied query information.
@@ -38,8 +38,6 @@ class Results (object):
     `tophit`: rank of the first result in results
     `maxhits`: max number of results
     """
-
-    log = logging.getLogger("searching")
 
     def __init__(self, query, exact, exclusions, formats, dbnames, tophit, maxhits):
 
@@ -116,7 +114,7 @@ class Results (object):
         return xq, hq
 
     def do_search(self, conn):
-        self.log.info("Search databases %s with query %s" % (self.dbnames, self.xap_query))
+        flaxlog.info('searching', "Search databases %s with query %s" % (self.dbnames, self.xap_query))
         self.xap_results = conn.search(self.xap_query,
                                        self.tophit,
                                        self.tophit + self.maxhits,

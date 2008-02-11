@@ -27,7 +27,6 @@ import os
 import sys
 import threading
 import time
-import logging
 
 import processing
 import cpserver
@@ -35,16 +34,13 @@ import flax
 import flaxauth
 import flaxpaths
 from indexserver import indexer
-import logclient
 import persist
 import scheduler
 import version
 import util
+import flaxlog
 
 util.setup_psyco()
-
-
-log = logging.getLogger()
 
 class StartupOptions(object):
     """Options passed at startup time.
@@ -130,6 +126,7 @@ class FlaxMain(object):
         flaxpaths.paths.makedirs()
         self._stop_thread = None
         self._need_cleanup = False
+        self.index_server = None
 
     def _do_start(self, blocking):
         """Internal method to actually start all the required processes.
@@ -141,12 +138,12 @@ class FlaxMain(object):
             self._do_cleanup()
         self._need_cleanup = True
         flaxauth.load()
-        webserver_logconfio = processing.Pipe()
+#        webserver_logconfio = processing.Pipe()
         self.index_server = indexer.IndexServer()
-        logclient.LogConfPub(flaxpaths.paths.logconf_path,
-                             [webserver_logconfio[0], self.index_server.log_config_listener()])
-        logclient.LogListener(webserver_logconfio[1]).start()
-        logclient.LogConf(flaxpaths.paths.logconf_path).update_log_config()
+#        logclient.LogConfPub(flaxpaths.paths.logconf_path,
+#                             [webserver_logconfio[0], self.index_server.log_config_listener()])
+#        logclient.LogListener(webserver_logconfio[1]).start()
+#        logclient.LogConf(flaxpaths.paths.logconf_path).update_log_config()
         persist.read_flax(flaxpaths.paths.flaxstate_path, flax.options)
         scheduler.ScheduleIndexing(self.index_server).start()
         persist.DataSaver(flaxpaths.paths.flaxstate_path).start()
@@ -162,20 +159,20 @@ class FlaxMain(object):
 
         """
         if not self._need_cleanup:
-            log.debug("_do_stop: no cleanup needed, returning")
+            flaxlog.debug('flax', "_do_stop: no cleanup needed, returning")
             return
         self._need_cleanup = False
         if self.index_server:
-            log.debug("_do_stop: Telling index_server to stop")
+            flaxlog.debug('flax', "_do_stop: Telling index_server to stop")
             self.index_server.stop()
-        log.debug("_do_stop: storing persistent data")
+        flaxlog.debug('flax', "_do_stop: storing persistent data")
         persist.store_flax(flaxpaths.paths.flaxstate_path, flax.options)
-        log.debug("_do_stop: stopping web server")
+        flaxlog.debug('flax', "_do_stop: stopping web server")
         cpserver.stop_web_server()
         if self.index_server:
-            log.debug("_do_stop: joining index_server")
+            flaxlog.debug('flax', "_do_stop: joining index_server")
             self.index_server.join()
-            log.debug("FlaxMain._do_stop: joined index_server")
+            flaxlog.debug('flax', "FlaxMain._do_stop: joined index_server")
 
     def start(self, blocking=True):
         """Start all the Flax threads and processes.
@@ -197,10 +194,10 @@ class FlaxMain(object):
         it's been restarted since the previous call).
 
         """
-        log.debug("Creating stopping thread")
+        flaxlog.debug('flax', "Creating stopping thread")
         self._stop_thread = threading.Thread(target=self._do_stop)
         self._stop_thread.start()
-        log.debug("Stopping thread started")
+        flaxlog.debug('flax', "Stopping thread started")
 
     def join(self, timeout=None):
         """Block until all the Flax threads and processes have
@@ -221,7 +218,7 @@ class FlaxMain(object):
         else:
             # there's no stop thread, so stop() has not been called yet.
             # sleep here for a bit so something else can call stop if need be.
-            log.debug("FlaxMain.join: no stop thread, not sure we should be here")
+            flaxlog.debug('flax', "FlaxMain.join: no stop thread, not sure we should be here")
             time.sleep(1)
             return False
 

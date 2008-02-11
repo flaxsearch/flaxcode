@@ -22,8 +22,8 @@ import os
 import stat
 import datetime
 import fnmatch
-import logging
 
+import flaxlog
 import util
 
 class FileSpec(object):
@@ -51,10 +51,8 @@ class FileSpec(object):
     def files(self):
         """Returns an iterator over the files defined by this FileSpec."""
 
-        logger_indexing = logging.getLogger('indexing.remote')
-
         def log_file_walked(f):
-            logger_indexing.debug("Walked to file %s" % f)
+            flaxlog.debug('indexing', "Walked to file %s" % f)
         
         for p in self.paths:
             # Test "p + os.path.sep" here instead of just "p" here to fix a
@@ -75,15 +73,15 @@ class FileSpec(object):
                         fname = os.path.realpath(os.path.join(root, f))
                         log_file_walked(fname)
                         if os.path.exists(fname):
-                            if self.included(fname, logger_indexing):
+                            if self.included(fname):
                                 yield fname
                         else:
-                            logger_indexing.debug("Walked file %s, does not exist (dangling symlink?), skipping" % fname)
-            elif os.path.isfile(p) and self.included(p, logger_indexing):
+                            flaxlog.debug('indexing', "Walked file %s, does not exist (dangling symlink?), skipping" % fname)
+            elif os.path.isfile(p) and self.included(p):
                 log_file_walked(p)
                 yield p
             else:
-                logger_indexing.error("File path %s is neither a directory or a file" % p )
+                flaxlog.error('indexing', "File path %s is neither a directory or a file" % p )
 
 
     def _get_oldest(self):
@@ -106,12 +104,12 @@ class FileSpec(object):
         else:
             raise ValueError("Value must be None, a string or a datetime.timedelta")
 
-    def included(self, fname, logger_indexing):
+    def included(self, fname):
         """ is the file name by fname included in this spec? """
 
         # is this file one of the permitted formats?
         if not any ((fnmatch.fnmatch(fname, '*.'+e) for e in self.formats)):
-            logger_indexing.debug("File %s is not included in format list" % fname)
+            flaxlog.debug('indexing', "File %s is not included in format list" % fname)
             return False
 
         # format is ok, are we with the permitted range of dates.
@@ -119,8 +117,8 @@ class FileSpec(object):
 
         age = datetime.datetime.now() - mtime
         if self.oldest and self.oldest >= age:
-            logger_indexing.debug("File %s is too old" % fname)
+            flaxlog.debug('indexing', "File %s is too old" % fname)
             return False
 
-        logger_indexing.debug("File %s is included" % fname)
+        flaxlog.debug('indexing', "File %s is included" % fname)
         return True

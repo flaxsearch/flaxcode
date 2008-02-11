@@ -56,8 +56,10 @@ def debug(logger, msg, *args, **kwargs):
 def info(logger, msg, *args, **kwargs):
     log(logging.INFO, logger, msg, *args, **kwargs)
 
-def warning(logger, msg, *args, **kwargs):
+def warn(logger, msg, *args, **kwargs):
     log(logging.WARNING, logger, msg, *args, **kwargs)
+
+warning = warn
 
 def error(logger, msg, *args, **kwargs):
     log(logging.ERROR, logger, msg, *args, **kwargs)
