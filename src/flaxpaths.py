@@ -94,13 +94,6 @@ class FlaxPaths(object):
             os.makedirs(self.var_dir)
 
     @property
-    def logconf_path(self):
-        """The path of the logging configuration file.
-
-        """
-        return os.path.join(self.conf_dir, 'flaxlog.conf')
-
-    @property
     def cpconf_path(self):
         """The path of the cherrypy configuration file.
 

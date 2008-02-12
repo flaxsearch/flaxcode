@@ -35,6 +35,8 @@ import flaxpaths
 import schedulespec
 import util
 
+_log = flaxlog.getLogger('collections')
+
 class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec):
     """Representation of a collection of documents.
 
@@ -105,9 +107,9 @@ class DocCollection(filespec.FileSpec, dbspec.DBSpec, schedulespec.ScheduleSpec)
 
         path = [ p for p in self.paths if os.path.commonprefix([doc_id, p]) == p]
         if len(path) > 1:
-            flaxlog.warning('collections', 'Doc: %s has more than one path, using first' % doc_id)
+            _log.warning('Doc: %s has more than one path, using first' % doc_id)
         if len(path) == 0:
-            flaxlog.error('collections', 'Doc: %s has no path. Maybe the collection needs indexing' % doc_id)
+            _log.error('Doc: %s has no path. Maybe the collection needs indexing' % doc_id)
             return "/"
         mapped = self.mappings[path[0]]
         if mapped == 'FLAX':

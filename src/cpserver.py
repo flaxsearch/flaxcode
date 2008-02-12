@@ -34,6 +34,7 @@ if _is_windows:
     import win32api
     import string
 
+_log = flaxlog.getLogger('collection')
 
 class FlaxResource(object):
     "Abstract class supporting common error handling across all Flax web pages"
@@ -462,7 +463,7 @@ class Admin(Top):
 
             # in the case of errors, log them but return an empty list to the browser
             except Exception, e:
-                flaxlog.error('collection', 'error file-listing %s: %s' % (fpath, e))
+                _log.error('error file-listing %s: %s' % (fpath, e))
 
             return repr(ret)
         

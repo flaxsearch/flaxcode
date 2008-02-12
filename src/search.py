@@ -24,6 +24,8 @@ import flax
 import util
 import flaxlog
 
+_log = flaxlog.getLogger('searching')
+
 class Results (object):
     """ Make search results from supplied query information.
 
@@ -114,7 +116,7 @@ class Results (object):
         return xq, hq
 
     def do_search(self, conn):
-        flaxlog.info('searching', "Search databases %s with query %s" % (self.dbnames, self.xap_query))
+        _log.info("Search databases %s with query %s" % (self.dbnames, self.xap_query))
         self.xap_results = conn.search(self.xap_query,
                                        self.tophit,
                                        self.tophit + self.maxhits,

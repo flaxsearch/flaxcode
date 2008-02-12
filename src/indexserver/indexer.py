@@ -51,6 +51,7 @@ import htmltotext_filter
 # See http://code.google.com/p/flaxcode/issues/detail?id=134 for more
 # discussion.
 
+_log = flaxlog.getLogger('indexing')
 
 class DiskSpaceShortage(Exception):
     
@@ -121,7 +122,7 @@ class Indexer(object):
         conn = None
         try:
             name = col.name
-            flaxlog.info('indexing', "Indexing collection: %s with filter settings: %s" % (name, filter_settings))
+            _log.info("Indexing collection: %s with filter settings: %s" % (name, filter_settings))
             dbname = col.dbpath()
 
             # This will error if the directory containing the databases has
@@ -148,25 +149,25 @@ class Indexer(object):
                 file_count += 1
                 docs_found[f]=True
                 if not self.continue_check(file_count, error_count):
-                    flaxlog.debug('indexing', "Prematurely terminating indexing, stop flag is true")
+                    _log.debug("Prematurely terminating indexing, stop flag is true")
                     return False
 
             for id, found in docs_found.iteritems():
                 if not found:
-                    flaxlog.debug('indexing', "Removing %s from %s" % (id, name))
+                    _log.debug("Removing %s from %s" % (id, name))
                     conn.delete(id)
 
-            flaxlog.info('indexing', "Indexing of %s finished" % name)
+            _log.info("Indexing of %s finished" % name)
             conn.close()
-            flaxlog.debug('indexing', "Changes to %s flushed" % name)
+            _log.debug("Changes to %s flushed" % name)
             return True
 
         except xappy.XapianDatabaseLockError, e:
-            flaxlog.error('indexing', "Attempt to index locked database: %s, ignoring" % dbname)
+            _log.error("Attempt to index locked database: %s, ignoring" % dbname)
         except Exception, e:
             import traceback
             tb = traceback.format_exc()
-            flaxlog.error('indexing', "Unhandled error in do_indexing, traceback is: %s" % tb)
+            _log.error("Unhandled error in do_indexing, traceback is: %s" % tb)
             raise
 
     def _find_filter(self, filter_name):
@@ -179,7 +180,7 @@ class Indexer(object):
 
         """
         if field_name in dbspec.internal_fields():
-            flaxlog.error('indexing', "Filters are not permitted to add content to the field: %s, rejecting block" % field_name)
+            _log.error("Filters are not permitted to add content to the field: %s, rejecting block" % field_name)
             return False
         else:
             return True
@@ -189,13 +190,13 @@ class Indexer(object):
         it to the database. Return True if complete succesfully, False
         otherwise.
         """
-        flaxlog.debug('indexing', "Indexing collection %s: processing file: %s" % (collection_name, file_name))
+        _log.debug("Indexing collection %s: processing file: %s" % (collection_name, file_name))
         unused, ext = os.path.splitext(file_name)
         ext = ext.lower()
         if self.stale(file_name, conn):
             filter = self._find_filter(filter_settings[ext[1:]])
             if filter:
-                flaxlog.debug('indexing', "Filtering file %s using filter %s" % (file_name, filter))
+                _log.debug("Filtering file %s using filter %s" % (file_name, filter))
                 fixed_fields = ( ("filename", file_name),
                                  ("nametext", os.path.basename(file_name)),
                                  ("filetype", os.path.splitext(file_name)[1][1:]),
@@ -211,15 +212,15 @@ class Indexer(object):
                     doc = xappy.UnprocessedDocument(fields = fields)
                     doc.id = file_name
                     conn.replace(doc) # FIXME - if this raises an error, it's probably more serious (eg, database corruption) than if a filter raises an error.
-                    flaxlog.debug('indexing', "Added (or replaced) doc %s to collection %s with text from source file %s" %
+                    _log.debug("Added (or replaced) doc %s to collection %s with text from source file %s" %
                                   (doc.id, collection_name, file_name))
                     return True
                 except Exception, e:
-                    flaxlog.error('indexing', "Filtering file: %s with filter: %s exception %s(%s), skipping"
+                    _log.error("Filtering file: %s with filter: %s exception %s(%s), skipping"
                                    % (file_name, filter, type(e).__name__, str(e)))
                     return False
             else:
-                flaxlog.warn('indexing', "Filter for %s is not valid, not filtering file: %s" % (ext, file_name))
+                _log.warn("Filter for %s is not valid, not filtering file: %s" % (ext, file_name))
                 return False
         else:
             return True
@@ -228,18 +229,18 @@ class Indexer(object):
         "Has the file named by file_name has changed since we last indexed it?"
 
         try:
-            flaxlog.debug('indexing', "Checking if file %s needs (re)indexing" % file_name)
+            _log.debug("Checking if file %s needs (re)indexing" % file_name)
             doc = conn.get_document(file_name)
         except KeyError:
             # file not in the database, so has "changed"
-            flaxlog.debug('indexing', "File %s has not yet been indexed" % file_name)
+            _log.debug("File %s has not yet been indexed" % file_name)
             return True
         try:
             rv =  os.path.getmtime(file_name) != float(doc.data['mtime'][0])
         except KeyError:
-            flaxlog.error('indexing', "Existing document %s has no mtime field" % doc.id)
+            _log.error("Existing document %s has no mtime field" % doc.id)
             return True
-        flaxlog.debug('indexing', "File %s %s reindexing" % (file_name, "needs" if rv else "doesn't need"))
+        _log.debug("File %s %s reindexing" % (file_name, "needs" if rv else "doesn't need"))
         return rv
 
 
@@ -285,7 +286,7 @@ class IndexProcess(processing.Process):
                 # This happens on normal process termination, just log it as
                 # info.  Don't re-raise because we don't want it to be printed
                 # to stderr, and we're about to exit anyway.
-                flaxlog.info('indexing', "Indexer process terminating")
+                _log.info("Indexer process terminating")
             except:
                 # This process is about to exit, and there's no layer above us
                 # to handle exceptions.  Therefore, we just log the error.  We
@@ -293,10 +294,10 @@ class IndexProcess(processing.Process):
                 # and stderr doesn't exist in some of the contexts we run in.
                 import traceback
                 tb = traceback.format_exc()
-                flaxlog.critical('indexing', 'Unhandled exception in IndexerProcess.run(), traceback follows:\n %s' % tb)
+                _log.critical('Unhandled exception in IndexerProcess.run(), traceback follows:\n %s' % tb)
         finally:
             sys.exitfunc()
-            flaxlog.info('indexing', "Child processes of indexer stopped")
+            _log.info("Child processes of indexer stopped")
             # safe to raise this - doesn't produce output on
             # stderr/stdout and needed for clean shutdown.
             raise SystemExit
@@ -327,18 +328,18 @@ class IndexServer(object):
                                              self.file_count_sv,
                                              self.error_count_sv,
                                              self.stop_sv)
-        flaxlog.info('indexing', "Started the indexing process with pid: %d" % self.indexing_process.getPid())
+        _log.info("Started the indexing process with pid: %d" % self.indexing_process.getPid())
 
     def stop(self):
         # in order to stop in a timely fashion if something is
         # currently indexing we prematurely stop the indexing process
         if self.currently_indexing:
             self.stop_sv.value = 1
-        flaxlog.debug('indexing', "Stopping indexing_process")
+        _log.debug("Stopping indexing_process")
         self.kill_indexer.value = 1
         
     def join(self, timeout = None):
-        flaxlog.debug('indexing', "waiting to join indexing_process")
+        _log.debug("waiting to join indexing_process")
         self.indexing_process.join(timeout)
 
 #    def log_config_listener(self):

@@ -54,13 +54,15 @@ import rfc822
 import flaxlog
 import cherrypy
 
+_log = flaxlog.getLogger('webserver')
+
 class cpLogger(object):
     """A class to replace the cherrypy global log manager to
        facilitate integration with using the log configuration file to
        update logging configuration on the fly"""
 
     def __call__(self, msg='', context='', severity=logging.DEBUG, traceback=False):
-        flaxlog.log(severity, 'webserver', ' '.join((context, msg)))
+        _log.log(severity, ' '.join((context, msg)))
 
     # access string generation from cherrypy._cplogger.LogManager.access
     def access(self):
@@ -79,7 +81,7 @@ class cpLogger(object):
                     'f': outheaders.get('referer', ''),
                     'a': outheaders.get('user-agent', ''),
                     }
-        flaxlog.info('webserver', s)
+        _log.info(s)
 
     # from cherrypy._cplogger.LogManager
     def time(self):

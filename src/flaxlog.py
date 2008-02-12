@@ -16,13 +16,7 @@
 """New logging module.
 
 Simplified logging for Flax. This uses the standard logging module, but hides it for client
-code (as the standard framework gets confused by multiple processes.)  Client code should import
-flaxlog and then call 
-
-    flaxlog.debug('indexing', 'we indexed a file', *args, **kwargs)
-    
-Where 'indexing' is the name of the log category (we anticipate 'indexing', 'searching' and 
-'other'.)  These are implemented as separate loggers.
+code (as the standard framework gets confused by multiple processes.)
 """
 
 from __future__ import with_statement

@@ -40,7 +40,7 @@ import version
 import util
 import flaxlog
 
-util.setup_psyco()
+_log = flaxlog.getLogger('flax')
 
 class StartupOptions(object):
     """Options passed at startup time.
@@ -159,20 +159,20 @@ class FlaxMain(object):
 
         """
         if not self._need_cleanup:
-            flaxlog.debug('flax', "_do_stop: no cleanup needed, returning")
+            _log.debug("_do_stop: no cleanup needed, returning")
             return
         self._need_cleanup = False
         if self.index_server:
-            flaxlog.debug('flax', "_do_stop: Telling index_server to stop")
+            _log.debug("_do_stop: Telling index_server to stop")
             self.index_server.stop()
-        flaxlog.debug('flax', "_do_stop: storing persistent data")
+        _log.debug("_do_stop: storing persistent data")
         persist.store_flax(flaxpaths.paths.flaxstate_path, flax.options)
-        flaxlog.debug('flax', "_do_stop: stopping web server")
+        _log.debug("_do_stop: stopping web server")
         cpserver.stop_web_server()
         if self.index_server:
-            flaxlog.debug('flax', "_do_stop: joining index_server")
+            _log.debug("_do_stop: joining index_server")
             self.index_server.join()
-            flaxlog.debug('flax', "FlaxMain._do_stop: joined index_server")
+            _log.debug("FlaxMain._do_stop: joined index_server")
 
     def start(self, blocking=True):
         """Start all the Flax threads and processes.
@@ -194,10 +194,10 @@ class FlaxMain(object):
         it's been restarted since the previous call).
 
         """
-        flaxlog.debug('flax', "Creating stopping thread")
+        _log.debug("Creating stopping thread")
         self._stop_thread = threading.Thread(target=self._do_stop)
         self._stop_thread.start()
-        flaxlog.debug('flax', "Stopping thread started")
+        _log.debug("Stopping thread started")
 
     def join(self, timeout=None):
         """Block until all the Flax threads and processes have
@@ -218,7 +218,7 @@ class FlaxMain(object):
         else:
             # there's no stop thread, so stop() has not been called yet.
             # sleep here for a bit so something else can call stop if need be.
-            flaxlog.debug('flax', "FlaxMain.join: no stop thread, not sure we should be here")
+            _log.debug("FlaxMain.join: no stop thread, not sure we should be here")
             time.sleep(1)
             return False
 

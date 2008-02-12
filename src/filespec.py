@@ -26,6 +26,8 @@ import fnmatch
 import flaxlog
 import util
 
+_log = flaxlog.getLogger('indexing')
+
 class FileSpec(object):
     """Filespec: define a set of files and then do things with them.
 
@@ -52,7 +54,7 @@ class FileSpec(object):
         """Returns an iterator over the files defined by this FileSpec."""
 
         def log_file_walked(f):
-            flaxlog.debug('indexing', "Walked to file %s" % f)
+            _log.debug("Walked to file %s" % f)
         
         for p in self.paths:
             # Test "p + os.path.sep" here instead of just "p" here to fix a
@@ -76,12 +78,12 @@ class FileSpec(object):
                             if self.included(fname):
                                 yield fname
                         else:
-                            flaxlog.debug('indexing', "Walked file %s, does not exist (dangling symlink?), skipping" % fname)
+                            _log.debug("Walked file %s, does not exist (dangling symlink?), skipping" % fname)
             elif os.path.isfile(p) and self.included(p):
                 log_file_walked(p)
                 yield p
             else:
-                flaxlog.error('indexing', "File path %s is neither a directory or a file" % p )
+                _log.error("File path %s is neither a directory or a file" % p )
 
 
     def _get_oldest(self):
@@ -109,7 +111,7 @@ class FileSpec(object):
 
         # is this file one of the permitted formats?
         if not any ((fnmatch.fnmatch(fname, '*.'+e) for e in self.formats)):
-            flaxlog.debug('indexing', "File %s is not included in format list" % fname)
+            _log.debug("File %s is not included in format list" % fname)
             return False
 
         # format is ok, are we with the permitted range of dates.
@@ -117,8 +119,8 @@ class FileSpec(object):
 
         age = datetime.datetime.now() - mtime
         if self.oldest and self.oldest >= age:
-            flaxlog.debug('indexing', "File %s is too old" % fname)
+            _log.debug("File %s is too old" % fname)
             return False
 
-        flaxlog.debug('indexing', "File %s is included" % fname)
+        _log.debug("File %s is included" % fname)
         return True

@@ -27,6 +27,8 @@ import processing
 import functools
 import flaxlog
 
+_log = flaxlog.getLogger('filtering')
+
 class FilterRunner(processing.Process):
 
     def __init__(self, filter, i, o):
@@ -51,7 +53,7 @@ class FilterRunner(processing.Process):
                 if not isinstance(results, Exception):
                     results = list(results)
             except Exception, e:
-                flaxlog.warning('filtering', "FilterRunner: %s caught exception: %s" % (str(self), str(e)))
+                _xlog.warning("FilterRunner: %s caught exception: %s" % (str(self), str(e)))
                 results = e
             self.o.send(results)
 
@@ -85,7 +87,7 @@ class RemoteFilterRunner(object):
                 # restart the remote process immediately
                 # otherwise the next document may timeout because the
                 # remote process is not responding
-                flaxlog.warning('filtering', "Killing remote filter - it raised the exception: %s" %
+                _log.warning("Killing remote filter - it raised the exception: %s" %
                           str(blocks))
                 self.kill_server()
                 raise blocks

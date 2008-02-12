@@ -29,6 +29,8 @@ import flax
 import util
 import flaxlog
 
+_log = flaxlog.getLogger('scheduling')
+
 class ScheduleIndexing(util.DelayThread):
 
     def __init__(self,  indexserver, delay=60, **kwargs):
@@ -37,8 +39,8 @@ class ScheduleIndexing(util.DelayThread):
 
     def action(self):
         now = datetime.datetime.today()
-        flaxlog.info('scheduling', 'Checking collections for (re-)indexing')
+        _log.info('Checking collections for (re-)indexing')
         for collection in flax.options.collections.itervalues():
             if collection.matching_time(now):
-                flaxlog.info('scheduling', 'Collection: %s, due for indexing, creating request' % collection.name)
+                _log.info('Collection: %s, due for indexing, creating request' % collection.name)
                 self.indexserver.set_due(collection)
