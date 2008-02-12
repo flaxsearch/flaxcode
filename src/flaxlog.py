@@ -36,40 +36,39 @@ import time
 import os
 
 _q = processing.Queue()
-_loggers = {}
-_handler = logging.StreamHandler()  # FIXME
-_handler.setFormatter(logging.Formatter('%(asctime)s %(name)s %(levelname)s: %(message)s'))
 
-def _get_logger(name):
-    try:
-        return _loggers[name]
-    except KeyError:
-        l = logging.getLogger(name)
-        l.setLevel(logging.DEBUG)  # FIXME should depend on logger
-        l.addHandler(_handler)
-        _loggers[name] = l
-        return l
+def update_conf(conf):
+    # put config object onto queue!!!  It will get through soon enough.
+    pass
 
-def debug(logger, msg, *args, **kwargs):
-    log(logging.DEBUG, logger, msg, *args, **kwargs)
+class _Logger:
+    def __init__(self, name, q):
+        self._name = name
+        self._q = q
 
-def info(logger, msg, *args, **kwargs):
-    log(logging.INFO, logger, msg, *args, **kwargs)
+    def debug(self, msg, *args, **kwargs):
+        self.log(logging.DEBUG, msg, *args, **kwargs)
 
-def warn(logger, msg, *args, **kwargs):
-    log(logging.WARNING, logger, msg, *args, **kwargs)
+    def info(self, msg, *args, **kwargs):
+        self.log(logging.INFO, msg, *args, **kwargs)
 
-warning = warn
+    def warn(self, msg, *args, **kwargs):
+        self.log(logging.WARNING, msg, *args, **kwargs)
 
-def error(logger, msg, *args, **kwargs):
-    log(logging.ERROR, logger, msg, *args, **kwargs)
+    warning = warn
 
-def critical(logger, msg, *args, **kwargs):
-    log(logging.CRITICAL, logger, msg, *args, **kwargs)
+    def error(self, msg, *args, **kwargs):
+        self.log(logging.ERROR, msg, *args, **kwargs)
 
-def log(level, logger, msg, *args, **kwargs):
-    _q.put((level, logger, msg, args, kwargs))
+    def critical(self, logger, msg, *args, **kwargs):
+        self.log(logging.CRITICAL, msg, *args, **kwargs)
 
+    def log(self, level, msg, *args, **kwargs):
+        self._q.put((level, self._name, msg, args, kwargs))
+
+def getLogger(name):
+    return _Logger(name, _q)
+    
 def close():
     _q.put(None)
     
@@ -77,12 +76,27 @@ class LoggerProc(processing.Process):
     """Separate process handles logging for whole app.
     
     Takes items from the queue and logs them.
-    """    
+    """
+    
     def run(self):
+        self.loggers = {}
+        self.handler = logging.StreamHandler()  # FIXME
+        self.handler.setFormatter(logging.Formatter('%(asctime)s %(name)s %(levelname)s: %(message)s'))
+
         while True:
             o = _q.get(True)     # blocks until available
             if o is None: return
-            _get_logger(o[1]).log(o[0], '(%s) %s' % (os.getpid(), o[2]), *o[3], **o[4])
+            self.get_logger(o[1]).log(o[0], o[2], *o[3], **o[4])
+
+    def get_logger(self, name):
+        try:
+            return self.loggers[name]
+        except KeyError:
+            l = logging.getLogger(name)
+            l.setLevel(logging.DEBUG)  # FIXME should depend on logger
+            l.addHandler(self.handler)
+            self.loggers[name] = l
+            return l
 
 # start logger thread when module is loaded
 LoggerProc().start()
@@ -90,7 +104,7 @@ LoggerProc().start()
 if __name__ == '__main__':
     class TestProc(processing.Process):
         def run(self):
-            debug('foo', 'from pid %s' % os.getpid())
+            getLogger('foo').debug('from pid %s' % os.getpid())
 
     TestProc().start()
     TestProc().start()
