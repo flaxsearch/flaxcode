@@ -58,7 +58,7 @@ python_dependencies = (
      (),
     ),
     ('Processing process control module',
-     'http://www.flax.co.uk/download/processing.zip',
+     'http://flaxcode.googlecode.com/files/processing-0.38-hacked.zip',
      'processing.zip',
      'cef1064ff7be195779b3638cf5ff1a7333a11d1c',
      (),
