@@ -1,3 +1,25 @@
+Thu Mar 13 17:44:04 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configutils/__init__.py,configutils/build.py,
+	  configutils/config.py,setup.py,src/config.h: Reword configuration
+	  system.  Now tests for the locations required for using iconv on
+	  a per-system basis.
+
+Wed Jan 16 12:19:06 UTC 2008  Tom Mortimer <tom@lemurconsulting.com>
+
+	* setup.py: fixed again for Windows (I hope)
+
+Wed Jan 16 12:12:50 UTC 2008  Tom Mortimer <tom@lemurconsulting.com>
+
+	* setup.py: fixed to build on Mac
+
+Thu Jan 10 15:34:11 UTC 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* ChangeLog,setup.py: Move hardcoded, but system dependent, paths
+	  to separate variables at start of script, and mark with a FIXME -
+	  we'll need to write a configure step to determine this sort of
+	  thing at some point.
+
 Thu Jan 10 15:32:15 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* setup.py: Move hardcoded, but system dependent, paths to separate
@@ -5,7 +27,7 @@ Thu Jan 10 15:32:15 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 	  to write a configure step to determine this sort of thing at some
 	  point.
 
-Thu Jan 10 15:26:25 UTC 2008  charliejuggler
+Thu Jan 10 15:26:25 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
 
 	* setup.py,src/config.h: Now uses iconv to fix issues with
 	  different character sets (#162)

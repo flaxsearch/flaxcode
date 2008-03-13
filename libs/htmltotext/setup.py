@@ -19,69 +19,11 @@
 
 """
 
+import os
 import sys
-import platform
+from configutils import Extension, setup, config, build_ext, using_setuptools
 
-# FIXME - use some kind of configure step to determine these.
-if platform.system() == 'Windows':
-    extra_include_dirs = [r'c:\program files\gnuwin32\include']
-    extra_library_dirs = [r'c:\program files\gnuwin32\lib']
-    extra_libraries    = ['libiconv']
-else:
-    extra_include_dirs = ['/usr/local/include']
-    extra_library_dirs = ['/usr/local/lib']
-    extra_libraries    = ['iconv']
-    
-# Use setuptools if we're part of a larger build system which is already using it.
-if ('setuptools' in sys.modules):
-    import setuptools
-    from setuptools import setup, Extension
-    from setuptools.command.build_ext import build_ext
-    using_setuptools = True
-else:
-    import distutils
-    from distutils.core import setup, Extension
-    from distutils import sysconfig
-    using_setuptools = False
-
-# Customise compiler options.
-if using_setuptools:
-    try:
-        setuptools_build_ext = build_ext.build_extension
-        def my_build_ext(self, ext):
-            """Remove the -Wstrict-prototypes option from the compiler command.
-
-            This option isn't supported for C++, so we remove it to avoid annoying
-            warnings.
-
-            """
-            try:
-                self.compiler.compiler_so.remove('-Wstrict-prototypes')
-            except (AttributeError, ValueError):
-                pass
-            retval = setuptools_build_ext(self, ext)
-            return retval
-        build_ext.build_extension = my_build_ext
-    except AttributeError:
-        pass
-else:
-    distutils_customize_compiler = sysconfig.customize_compiler
-    def my_customize_compiler(compiler):
-        """Remove the -Wstrict-prototypes option from the compiler command.
-
-        This option isn't supported for C++, so we remove it to avoid annoying
-        warnings.
-
-        """
-        retval = distutils_customize_compiler(compiler)
-        try:
-            compiler.compiler_so.remove('-Wstrict-prototypes')
-        except (AttributeError, ValueError):
-            pass
-        return retval
-    sysconfig.customize_compiler = my_customize_compiler
-
-# List of source files 
+# List of source files
 htmltotext_sources = [
     'src/htmlparse.cc',
     'src/metaxmlparse.cc',
@@ -124,7 +66,6 @@ setup(name = "htmltotext",
       maintainer = "Richard Boulton",
       maintainer_email = "richard@lemurconsulting.com",
       url = "http://code.google.com/p/flaxcode/wiki/HtmlToText",
-      #download_url = "http://code.google.com/p/flaxcode/downloads/list?q=htmltotext",
       download_url = "http://flaxcode.googlecode.com/files/htmltotext-0.6.tar.gz",
       description = "Extract text and some metainfo from HTML, coping with malformed pages as well as possible.",
       long_description = long_description,
@@ -141,11 +82,13 @@ setup(name = "htmltotext",
       license = 'GPL',
       platforms = 'Any',
 
+      cmdclass = {
+          'config': config,
+          'build_ext': build_ext,
+      },
       ext_modules = [Extension("htmltotext",
                                htmltotext_sources,
-                               include_dirs=['src'] + extra_include_dirs,
-                               library_dirs=extra_library_dirs,
-                               libraries=extra_libraries
+                               include_dirs=['src'],
                               )],
-                              
+
       **extra_kwargs)
