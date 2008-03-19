@@ -4,8 +4,12 @@
 2. Check out the Flax sources to this folder 
 3. Install Python 2.5.1 (to the default folder, C:\Python25) and add this folder to your Path (Control Panel, System, Advanced, Environment  Variables) [NOT Python 2.5, we have found at least one situation where this matters]
 4. Install a recent Perl (say 5.8.8 from Active State at http://www.activestate.com/Products/activeperl/) - make a note of the Path to this for config.mak later.
-5.a. Install Visual C++ 2005 Express Edition from http://www.microsoft.com/express/2005/
+5.a. Install Visual C++ 2003 Express Edition from http://npg.dl.ac.uk/MIDAS/download/midassort/midassort_Windows.html
 5.b. Install the Microsoft Platform SDK for Windows 2003 Server R2 from http://www.microsoft.com/downloads/details.aspx?familyid=0baf2b35-c656-4969-ace8-e4c0c0716adb&displaylang=en
+5.c. Install the .NET SDK 1.1 from http://www.microsoft.com/downloads/details.aspx?FamilyID=9b3a2ca6-3647-4070-9f41-a333c6b9181d
+5.d. Run the file 'vc2003.reg' in this folder - this creates some missing registry entries
+5.e. Download msvcprt.lib from http://root.cern.ch/root/Procedure/Procedure%20to%20install%20the%20free%20Microsoft%20Visual%20C.htm and put it in 
+the folder C:\Program Files\Microsoft Visual C++ Toolkit 2003\lib
 6. a. Download the Visual C redistributable files from http://www.microsoft.com/downloads/details.aspx?FamilyId=32BC1BEE-A3F9-4C13-9C99-220B62A191EE&displaylang=en
 and copy into the same folder as this text file.
 b. Download the Windows Installer 3.0 update (WindowsInstaller-KB884016-v2-x86.exe) from http://www.microsoft.com/downloads/details.aspx?familyid=5FBC5470-B259-4733-A914-A956122E08E8&displaylang=en
@@ -19,10 +23,8 @@ and copy into the same folder as this text file.
 Make a note of the path for putting into config.mak later. You'll also have to patch Zlib as follows: find the file include/zconf.h 
 in the Zlib installation folder and change line 289 to:
 #  include <safeunistd.h> 
-9a. Install libiconv from http://gnuwin32.sourceforge.net/downlinks/libiconv.php and install to \GnuWin32  and add the folder to /bin to your Path (i.e. C:\GnuWin32\bin). Copy libiconv.dll from this folder to the same folder as this text file.
-10. Install SVN (download and unzip the Windows binary ' svn-win32-1.4.5.zip' from http://subversion.tigris.org/servlets/ProjectDocumentList?folderID=91 and add the folder to /bin to your Path (i.e. c:\work\svn-win32-1.4.5\bin)
-11. To make sure Python (and in particular the Processing module installation files) can find the Visual C++ compiler, find C:\Python25\lib\distutils\msvccompiler.py and modify line 129 to read:
-self.set_macro("FrameworkSDKDir", net, "sdkinstallrootv2.0")
+10. Install libiconv from http://gnuwin32.sourceforge.net/downlinks/libiconv.php and install to \GnuWin32  and add the folder to /bin to your Path (i.e. C:\GnuWin32\bin). Copy libiconv.dll from this folder to the same folder as this text file.
+11. Install SVN (download and unzip the Windows binary ' svn-win32-1.4.5.zip' from http://subversion.tigris.org/servlets/ProjectDocumentList?folderID=91 and add the folder to /bin to your Path (i.e. c:\work\svn-win32-1.4.5\bin)
 12. Get some missing runtime libraries:
 a. Run vcredist_x86.exe 
 b. Copy msvcr80.dll from C:\WINDOWS\WinSxS\x86_Microsoft.VC80.CRT_1fc8b3b9a1e18e3b_8.0.50727.42_x-ww_0de06acd to C:\Windows, otherwise distutils can't find it.
@@ -40,4 +42,3 @@ d. run the batch file 'buildalldeps'
      
 12. To build Flax only, run the batch file 'buildflaxonly'
 13. The packaged, standalone Flax should be in the package/ subfolder
-
