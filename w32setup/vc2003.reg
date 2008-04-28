@@ -9,8 +9,8 @@ Windows Registry Editor Version 5.00
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\7.1\VC\VC_OBJECTS_PLATFORM_INFO\Win32\Directories]
 "Path Dirs"="$(VCInstallDir)bin;$(VSInstallDir)Common7\\Tools\\bin\\prerelease;$(VSInstallDir)Common7\\Tools\\bin;$(VSInstallDir)Common7\\tools;$(VSInstallDir)Common7\\ide;C:\\Program Files\\HTML Help Workshop\\;$(FrameworkSDKDir)bin;$(FrameworkDir)$(FrameworkVersion);C:\\work\\Perl\\site\\bin;C:\\work\\Perl\\bin;C:\\Program Files\\PHP\\;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\Program Files\\Intel\\DMIX;c:\\Program Files\\Microsoft SQL Server\\90\\Tools\\binn\\;C:\\Program Files\\QuickTime\\QTSystem\\"
-"Library Dirs"="$(VCInstallDir)lib;$(VCInstallDir)atlmfc\\lib;$(VCInstallDir)PlatformSDK\\lib\\prerelease;$(VCInstallDir)PlatformSDK\\lib;$(FrameworkSDKDir)lib;C:\\Program Files\\Microsoft Platform SDK for Windows Server 2003 R2\\lib;C:\\Program Files\\Microsoft Visual Studio .NET 2003\\Vc7\\lib;"
-"Include Dirs"="$(VCInstallDir)include;$(VCInstallDir)atlmfc\\include;$(VCInstallDir)PlatformSDK\\include\\prerelease;$(VCInstallDir)PlatformSDK\\include;$(FrameworkSDKDir)include;C:\\Program Files\\Microsoft Platform SDK for Windows Server 2003 R2\\include;"
+"Library Dirs"="$(VCInstallDir)lib;$(VCInstallDir)atlmfc\\lib;$(VCInstallDir)PlatformSDK\\lib\\prerelease;$(VCInstallDir)PlatformSDK\\lib;$(FrameworkSDKDir)lib;C:\\Program Files\\Microsoft Platform SDK\\lib;C:\\Program Files\\Microsoft Visual Studio .NET 2003\\Vc7\\lib;"
+"Include Dirs"="$(VCInstallDir)include;$(VCInstallDir)atlmfc\\include;$(VCInstallDir)PlatformSDK\\include\\prerelease;$(VCInstallDir)PlatformSDK\\include;$(FrameworkSDKDir)include;C:\\Program Files\\Microsoft Platform SDK\\include;"
 "Source Dirs"="$(VCInstallDir)atlmfc\\src\\mfc;$(VCInstallDir)atlmfc\\src\\atl;$(VCInstallDir)crt\\src"
 "Reference Dirs"="$(FrameWorkDir)$(FrameWorkVersion)"
 
