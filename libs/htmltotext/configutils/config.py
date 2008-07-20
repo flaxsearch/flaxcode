@@ -59,13 +59,20 @@ class config(du_config):
         except (AttributeError, ValueError):
             pass
 
-    def search_libs(self, func, libraries_list, library_dirs_list):
+    def search_libs(self, func, libraries_list, library_dirs_list,
+                    headers=None, include_dirs=None):
         """Search for the libraries needed for func.
 
         Returns None if no set of libraries which provide func are found.
 
         Otherwise, returns a list of the libraries needed (which may be the
         empty list, if no libraries are needed).
+
+        If headers is not None, it is a list of headers to include to get the
+        definition of the function.  Otherwise, a definition for the function
+        will be automatically generated (but this may fail to be linkable,
+        particularly if the header file uses macro magic to refer to a
+        different symbol).
         
         """
         log.info("Searching for library containing %s() ..." % func)
@@ -79,10 +86,15 @@ class config(du_config):
             if lib is None:
                 libraries = ()
             for library_dirs in libdirslist:
+                decl = False
+                if headers is None:
+                    decl = True
                 if self.check_func(func,
+                                   headers=headers,
+                                   include_dirs=include_dirs,
                                    libraries=libraries,
                                    library_dirs=library_dirs,
-                                   decl=True, call=True):
+                                   decl=decl, call=True):
                     if lib is None:
                         log.info("... no additional library required for %s()" % func)
                     else:
@@ -179,9 +191,14 @@ class config(du_config):
         include_dirs_list = []
         include_dirs_list += [extra_include_dirs]
 
+        iconv_include_dirs = self.search_headers('iconv.h', include_dirs_list)
+        self.params['include_dirs'] = iconv_include_dirs
+
         iconv_lib = self.search_libs('iconv',
                                      ('iconv', 'libiconv'),
-                                     library_dirs_list)
+                                     library_dirs_list,
+                                     headers=('iconv.h',),
+                                     include_dirs=iconv_include_dirs)
         if iconv_lib is None:
             have_iconv = False
             # Doesn't matter what type we use, but might as well be a
@@ -195,9 +212,6 @@ class config(du_config):
                 library_dirs=iconv_libdirs)
             self.params['libraries'] = iconv_lib
             self.params['library_dirs'] = iconv_libdirs
-
-        iconv_include_dirs = self.search_headers('iconv.h', include_dirs_list)
-        self.params['include_dirs'] = iconv_include_dirs
 
         have_sys_errno_h = self.check_header("sys/errno.h")
         have_strings_h = self.check_header("strings.h")

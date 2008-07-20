@@ -1,3 +1,8 @@
+Sun Jul 20 22:57:13 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* configutils/config.py: Some improvements to the configuration
+	  system.
+
 Thu Mar 13 17:44:04 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* configutils/__init__.py,configutils/build.py,
