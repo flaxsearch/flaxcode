@@ -1,3 +1,10 @@
+Mon Jul 21 07:26:46 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/myhtmlparse.cc,src/myhtmlparse.h,src/pyhtmltotext.cc: Extract
+	  links, together with their context.  Proper documentation still
+	  needed.
+	* test/test.py: Test new parsing features.
+
 Sun Jul 20 22:57:13 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* configutils/config.py: Some improvements to the configuration
