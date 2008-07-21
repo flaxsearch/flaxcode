@@ -60,13 +60,13 @@ that library).
 """
 
 setup(name = "htmltotext",
-      version = "0.6",
+      version = "0.7",
       author = "Richard Boulton",
       author_email = "richard@lemurconsulting.com",
       maintainer = "Richard Boulton",
       maintainer_email = "richard@lemurconsulting.com",
       url = "http://code.google.com/p/flaxcode/wiki/HtmlToText",
-      download_url = "http://flaxcode.googlecode.com/files/htmltotext-0.6.tar.gz",
+      download_url = "http://flaxcode.googlecode.com/files/htmltotext-0.7.tar.gz",
       description = "Extract text and some metainfo from HTML, coping with malformed pages as well as possible.",
       long_description = long_description,
       classifiers = [
