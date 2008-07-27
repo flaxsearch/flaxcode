@@ -1,7 +1,7 @@
 LICENSE
 =======
 
-Copyright (C) 2007 Lemur Consulting Ltd
+Copyright (C) 2007,2008 Lemur Consulting Ltd
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -56,12 +56,12 @@ applies:
   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
- MochiKit
- --------
+MochiKit
+--------
 
- The directory "src/static/js/MochiKit/" contains files from the MochiKit
- javascript library.  This is used for some of the user interface code sent to
- the user's browser.  It is under the following terms:
+The directory "src/static/js/MochiKit/" contains files from the MochiKit
+javascript library.  This is used for some of the user interface code sent to
+the user's browser.  It is under the following terms:
  
   Copyright 2005 Bob Ippolito <bob@redivi.com>. This program is dual-licensed
   free software; you can redistribute it and/or modify it under the terms of

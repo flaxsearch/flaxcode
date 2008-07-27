@@ -1,10 +1,41 @@
+Sun Jul 27 07:46:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* LICENSE: Improve formatting a bit.
+
+Mon Apr 28 10:25:06 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/vc2003.reg: fix paths for standard Platform SDK
+	  installation
+
+Wed Mar 19 12:13:05 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
+
+	* w32setup/HowToBuildFlaxStandaloneOnWindows.txt,
+	  w32setup/vc2003.reg: various tweaks to make it possible to build
+	  htmltotext and processing on Windows using free tools
+
+Tue Mar 11 14:14:42 UTC 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* utils/install_dependencies.py: Update archive location for
+	  processing.zip
+
+Tue Jan 29 16:20:30 UTC 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/hacking.rst: Add table of contents, and fix formatting.
+
+Tue Jan 29 16:04:10 UTC 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* ChangeLog,docs/hacking.rst,utils/log2cl.py: Update for 1.0.0
+	  release. Add Charlie and Tom to the list of known developer
+	  accounts. Add a few more items to the release checklist, and
+	  documentat how the issue tracker should be being used.
+
 Tue Jan 29 14:45:50 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* ChangeLog: Update for 1.0.0 release.
 	* utils/log2cl.py: Add Charlie and Tom to the list of known
 	  developer accounts.
 	* docs/hacking.rst: Add a few more items to the release checklist,
-	  and documentat how the issue tracker should be being used. 
+	  and document how the issue tracker should be being used.
 
 Tue Jan 29 14:16:55 UTC 2008  Charlie Hull <charlie@lemurconsulting.com>
 
