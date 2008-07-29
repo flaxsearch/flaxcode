@@ -1,3 +1,11 @@
+Tue Jul 29 19:25:16 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/myhtmlparse.cc: Add a list of tags which don't need a closing
+	  tag, so that the parser knows not to include these in the list of
+	  parent tags.
+	* test/test.py: Add regression test to ensure that <br> tags don't
+	  get included in the list of parent tags.
+
 Mon Jul 21 07:31:06 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* setup.py: Update for a new release (0.7).

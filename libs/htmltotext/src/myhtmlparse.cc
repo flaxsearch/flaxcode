@@ -133,6 +133,46 @@ MyHtmlParser::start_dump()
     parastarts.push_back(parastart);
 }
 
+bool
+get_autocloses(const string & tag)
+{
+    // Set to true if the tag doesn't expect a matching close tag (like br)
+    switch (tag[0]) {
+	case 'a':
+	    if (tag == "area") return true;
+	    break;
+	case 'b':
+	    if (tag == "base" ||
+		tag == "basefont" ||
+		tag == "br") return true;
+	    break;
+	case 'c':
+	    if (tag == "col") return true;
+	    break;
+	case 'f':
+	    if (tag == "frame") return true;
+	    break;
+	case 'h':
+	    if (tag == "hr") return true;
+	    break;
+	case 'i':
+	    if (tag == "img" ||
+		tag == "input" ||
+		tag == "isindex") return true;
+	    break;
+	case 'l':
+	    if (tag == "link") return true;
+	    break;
+	case 'm':
+	    if (tag == "meta") return true;
+	    break;
+	case 'p':
+	    if (tag == "param") return true;
+	    break;
+    }
+    return false;
+}
+
 void
 MyHtmlParser::opening_tag(const string &tag, const map<string,string> &p)
 {
@@ -145,6 +185,7 @@ MyHtmlParser::opening_tag(const string &tag, const map<string,string> &p)
     cout << ">\n";
 #endif
     if (tag.empty()) return;
+
     HtmlTag htmltag(tag);
     {
 	map<string, string>::const_iterator i;
@@ -155,7 +196,9 @@ MyHtmlParser::opening_tag(const string &tag, const map<string,string> &p)
 	    htmltag.id = i->second;
 	}
     }
-    tags.push_back(htmltag);
+    if (!get_autocloses(tag)) {
+	tags.push_back(htmltag);
+    }
     if (currlink != NULL && tag != "a") {
 	currlink->child_tags.push_back(htmltag);
     }

@@ -144,6 +144,16 @@ class TestHtmlToText(unittest.TestCase):
 
         self.assertEqual(parsed.parastarts, [0, 18, 37])
 
+    def test_link2(self):
+        """Test parsing some links interspersed with tags which don't close.
+
+        """
+        html = '<body><div><a href="a1"></a><br></div><a href="a2"></a><br><a href="a3"></a></body>'
+        parsed = htmltotext.extract(html)
+        self.assertEqual([t.name for t in parsed.links[0].parent_tags], ['body', 'div', 'a'])
+        self.assertEqual([t.name for t in parsed.links[1].parent_tags], ['body', 'a'])
+        self.assertEqual([t.name for t in parsed.links[2].parent_tags], ['body', 'a'])
+
 def suite():
     return unittest.makeSuite(TestHtmlToText)
 
