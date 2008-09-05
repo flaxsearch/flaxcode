@@ -179,8 +179,15 @@ def ifilter_filter(filename, init_flags = _filter_init_flags, log=log):
                     log.debug(u"Block %d of text follows from chunk_id: %d: \n %s \n" % (num,  chunk_id, txt))
                     yield prop_name, txt
             elif flags == CHUNK_VALUE:
-                yield prop_name, filt.GetValue()
-
+                try:
+                    log.debug(u"Value follows from chunk_id: %d: \n %s:%s \n" % (chunk_id, prop_name, filt.GetValue()))                
+                    yield prop_name, filt.GetValue()
+                except pythoncom.com_error, e:
+                    error_code = e[0]
+                    if error_code == FILTER_E_NO_MORE_VALUES:
+                        # normal situation when all chunks have been processed
+                        pass
+                        
     return itertools.chain(start_fields(), do_chunks())
 
 def load_ifilter(filename, log=log):
