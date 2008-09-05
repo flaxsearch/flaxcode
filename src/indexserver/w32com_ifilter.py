@@ -178,6 +178,8 @@ def ifilter_filter(filename, init_flags = _filter_init_flags, log=log):
                 for num, txt in enumerate(text_for_current_chunk(filt)):
                     log.debug(u"Block %d of text follows from chunk_id: %d: \n %s \n" % (num,  chunk_id, txt))
                     yield prop_name, txt
+            elif flags == CHUNK_VALUE:
+                yield prop_name, filt.GetValue()
 
     return itertools.chain(start_fields(), do_chunks())
 
