@@ -59,7 +59,7 @@ will be set in the registry, so if you want to run independently
 of the installed version then pass some command line options to
 override the registry settings, for example::
 
-  python startflax.py --src-dir=. main-dir=data. conf-dir=.
+  python startflax.py --src-dir=. --main-dir=data. --conf-dir=.
 
 More information about the command line options can be obtained by running::
 
