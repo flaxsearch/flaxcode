@@ -29,6 +29,7 @@ using std::find;
 using std::find_if;
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <ctype.h>
 
 #include "htmlparse.h"
