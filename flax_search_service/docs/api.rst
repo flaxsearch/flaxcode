@@ -28,9 +28,9 @@ Document range           /<db_name>/docs/<start_id>-<end_id>  /botany/docs/23-42
 ------------------------ ------------------------------------ ---------------------------------
 Document set             /<db_name>/docs/<id1>,<id2>,...      /botany/docs/3,5,7,11 [#docid2]_
 ------------------------ ------------------------------------ ---------------------------------
-Database terms [#terms]_ /<db_name>/terms/                    /botany/terms/
+Database terms [#terms]_ /<db_name>/terms                     /botany/terms
 ------------------------ ------------------------------------ ---------------------------------
-Document terms           /<db_name>/docs/<doc_id>/terms/      /botany/docs/42/terms/
+Document terms           /<db_name>/docs/<doc_id>/terms       /botany/docs/42/terms
 ------------------------ ------------------------------------ ---------------------------------
 Term range                terms/<start_term>-<end_term>       /botany/terms/leaf-
 ------------------------ ------------------------------------ ---------------------------------
@@ -49,7 +49,7 @@ Replay Log               /<db_name>/log                       /botany/log
 
 .. [#docid2] Does this mean that docids can't contain - and , ?
 
-.. [#terms] Is terms/ exposing too much? But it's good for populating dropdown lists.
+.. [#terms] Is terms exposing too much? But it's good for populating dropdown lists.
 
 FIXME: Add Facets, spelling correction?
 
