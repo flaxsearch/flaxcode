@@ -23,61 +23,94 @@ r"""WSGI application for FlaxSearchServer.
 __docformat__ = "restructuredtext en"
 
 import wsgiwapi
+import xappy
+import xapian
 
 # Parameter descriptions
 dbname_param = ('dbname', '^\w+$')
 fieldname_param = ('fieldname', '^\w+$')
 
+class SearchServer(object):
+    """An instance of the search server.
 
-@wsgiwapi.allow_GET
-@wsgiwapi.noparams
-@wsgiwapi.jsonreturning
-def flax_status(request):
-    return 'FlaxSearchServer version FIXME'
+    There will generally only be one of these per process.  An instance of the
+    server will be wrapped in an WSGIWAPI application.
 
-@wsgiwapi.pathinfo(dbname_param)
-@wsgiwapi.jsonreturning
-def db_info(request):
-    return 'db_info: %s' % request.pathinfo['dbname']
+    """
 
-@wsgiwapi.pathinfo(dbname_param)
-@wsgiwapi.jsonreturning
-def db_create(request):
-    return 'db_create: %s' % request.pathinfo['dbname']
+    def __init__(self, config):
+        self.config = config
 
-@wsgiwapi.pathinfo(dbname_param)
-@wsgiwapi.jsonreturning
-def db_delete(request):
-    return 'db_delete: %s' % request.pathinfo['dbname']
+    @wsgiwapi.allow_GET
+    @wsgiwapi.noparams
+    @wsgiwapi.jsonreturning
+    def flax_status(self, request):
+        """Get the status of the flax server.
 
-@wsgiwapi.pathinfo(dbname_param)
-@wsgiwapi.jsonreturning
-def fields_info(request):
-    return 'fields_info: %s' % request.pathinfo['dbname']
+        """
+        import version
+        return {
+            'versions': {
+                'SERVER': version.SERVER_VERSION,
+                'PROTOCOL': version.PROTOCOL_VERSION,
+                'xappy': xappy.__version__,
+                'xapian': xapian.version_string(),
+            }
+        }
 
-@wsgiwapi.pathinfo(dbname_param)
-@wsgiwapi.jsonreturning
-def field_set(request):
-    return 'field_set: %(dbname)s, %(fieldname)s' % request.pathinfo
+    @wsgiwapi.pathinfo(dbname_param)
+    @wsgiwapi.jsonreturning
+    def db_info(self, request):
+        dbname = request.pathinfo['dbname']
+        return 'db_info: %s' % dbname
 
-@wsgiwapi.pathinfo(dbname_param, fieldname_param)
-@wsgiwapi.jsonreturning
-def field_get(request):
-    return 'field_get: %(dbname)s, %(fieldname)s' % request.pathinfo
+    @wsgiwapi.pathinfo(dbname_param)
+    @wsgiwapi.jsonreturning
+    def db_create(self, request):
+        return 'db_create: %s' % request.pathinfo['dbname']
 
-@wsgiwapi.pathinfo(dbname_param, fieldname_param)
-@wsgiwapi.jsonreturning
-def field_delete(request):
-    return 'field_delete: %(dbname)s, %(fieldname)s' % request.pathinfo
+    @wsgiwapi.pathinfo(dbname_param)
+    @wsgiwapi.jsonreturning
+    def db_delete(self, request):
+        return 'db_delete: %s' % request.pathinfo['dbname']
 
+    @wsgiwapi.pathinfo(dbname_param)
+    @wsgiwapi.jsonreturning
+    def fields_info(self, request):
+        return 'fields_info: %s' % request.pathinfo['dbname']
 
-app = wsgiwapi.make_application({
-    '': flax_status,
-    '*': { 
-        '': wsgiwapi.MethodSwitch(get=db_info, post=db_create, delete=db_delete),
-        'fields': { 
-            '': fields_info,
-            '*': wsgiwapi.MethodSwitch(get=field_get, post=field_set, delete=field_delete),
-        },
-    },
-})
+    @wsgiwapi.pathinfo(dbname_param)
+    @wsgiwapi.jsonreturning
+    def field_set(self, request):
+        return 'field_set: %(dbname)s, %(fieldname)s' % request.pathinfo
+
+    @wsgiwapi.pathinfo(dbname_param, fieldname_param)
+    @wsgiwapi.jsonreturning
+    def field_get(self, request):
+        return 'field_get: %(dbname)s, %(fieldname)s' % request.pathinfo
+
+    @wsgiwapi.pathinfo(dbname_param, fieldname_param)
+    @wsgiwapi.jsonreturning
+    def field_delete(self, request):
+        return 'field_delete: %(dbname)s, %(fieldname)s' % request.pathinfo
+
+    def get_urls(self):
+        return {
+            '': self.flax_status,
+            '*': {
+                '': wsgiwapi.MethodSwitch(get=self.db_info,
+                                          post=self.db_create,
+                                          delete=self.db_delete),
+                'fields': {
+                    '': self.fields_info,
+                    '*': wsgiwapi.MethodSwitch(get=self.field_get,
+                                               post=self.field_set,
+                                               delete=self.field_delete),
+                },
+            },
+        }
+
+def App(*args, **kwargs):
+    server = SearchServer(*args, **kwargs)
+    app = wsgiwapi.make_application(server.get_urls())
+    return app()
