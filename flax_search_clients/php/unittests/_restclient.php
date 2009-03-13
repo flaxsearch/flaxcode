@@ -41,8 +41,21 @@ class FlaxTestRestClient {
         
         if (array_key_exists($dbname, $this->dbs)) {
             $db = $this->dbs[$dbname];
-            if (count($bits) == 1) 
-                return array(200, $db);
+            switch (count($bits)) {
+                case 1:
+                    return array(200, $db);
+                    break;
+                case 2:
+                    if ($bits[1] == 'fields') {
+                        return array(200, array_keys($db['_fields']));
+                    }
+                    break;
+                case 3:
+                    if (array_key_exists($bits[2], $db['_fields'])) {
+                        return array(200, $db['_fields'][$bits[2]]);
+                    }
+                    break;
+            }
         }
 
         return array(404, 'Path not found');
@@ -54,24 +67,34 @@ class FlaxTestRestClient {
         if ($dbname == '') {
             return array(405, 'Invalid method');
         }
-        if (count($bits) == 1) {
-            if ($data === true) {
-                $this->dbs[$dbname] = array(
-                    'doccount' => 0,
-                    'created_date' => new DateTime,
-                    'last_modified_date' => new DateTime,
-                );
-                return array(201, 'Database created');
-            }
+        
+        switch (count($bits)) {
+            case 1:
+                if ($data == true) {
+                    $this->dbs[$dbname] = array(
+                        'doccount' => 0,
+                        'created_date' => new DateTime,
+                        'last_modified_date' => new DateTime,
+                        '_fields' => array()
+                    );
+                    return array(201, 'Database created');
+                }
+                break;
+            case 3:
+                if (array_key_exists($dbname, $this->dbs)) {
+                    if ($bits[1] == 'fields') {
+                        if ($data) {
+                            $this->dbs[$dbname]['_fields'][$bits[2]] = $data;
+                            return array(201, 'Field created');
+                        }
+                    }
+                }
+                break;
         }
 
         return array(404, 'Path not found');
     }
 
-    function do_put($path, $data) {
-    
-    }
-    
     function do_delete($path) {
         $bits = explode('/', $path);
         $dbname = $bits[0];
@@ -85,6 +108,10 @@ class FlaxTestRestClient {
         } else {
             return array(404, 'Path not found');
         }
+    }    
+
+    function do_put($path, $data) {
+        throw new FlaxError('not implemented');
     }    
 }
 

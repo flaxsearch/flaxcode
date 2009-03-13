@@ -42,4 +42,10 @@ class FlaxInternalError extends FlaxError {
 class FlaxDatabaseError extends FlaxError {
 }
 
+/**
+ * Flax field error.
+ */
+class FlaxFieldError extends FlaxError {
+}
+
 ?>

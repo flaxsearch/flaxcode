@@ -1,4 +1,4 @@
 Database
 --------
-Check database names for allowed characters.
+Check database names for allowed characters, and URL-escape.
     
