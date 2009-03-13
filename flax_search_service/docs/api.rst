@@ -66,7 +66,7 @@ Fields
 Each field is defined as a JSON object with the following items (most of which are optional)::
 
   {
-    "field_name":       # field name (required)
+    "field_name":       # field name (required) [#field_name]_
     "type":             # One of "text", "date", "geo", "float" (default=text)
     "store":            # boolean (default=false), whether to store in document data
     "spelling_source":  # boolean (default=true), whether to use for building the spelling dictionary
@@ -97,6 +97,8 @@ Each field is defined as a JSON object with the following items (most of which a
                                   # restricted to all items within a range (ie, great circle distance) of a point.
       }
   }
+  
+.. [#field_name] Should this be here? The name is part of the URL, not the resource AT the URL.
 
 Document
 --------
