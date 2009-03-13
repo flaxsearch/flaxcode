@@ -21,6 +21,7 @@ require_once('flaxerrors.php');
 class _FlaxDatabase {
     private $restclient;
     private $dbname;
+    private $is_deleted = false;
     
     function __construct($restclient, $dbname) {
         $this->restclient = $restclient;
@@ -28,7 +29,15 @@ class _FlaxDatabase {
     }
     
     function __toString() {
-        return "_Flax_Database[{$this->dbname}]";
+        $d = $self->is_deleted ? 'deleted' : '';
+        return "_Flax_Database[{$this->dbname}{$d}]";
+    }
+    
+    function delete() {
+        $result = $this->restclient->do_delete($this->dbname);
+        if ($result[0] != 200) {
+            throw new FlaxDatabaseError($result[1]);
+        }
     }
 }
 
@@ -44,6 +53,8 @@ class FlaxSearchService {
     }
 
     function getDatabase($name, $create=false) {
+        # FIXME check database name for allowed characters
+    
         $result = $this->restclient->do_get($name);
         if ($result[0] == 200) {
             return new _FlaxDatabase($this->restclient, $name);
@@ -59,19 +70,6 @@ class FlaxSearchService {
             throw new FlaxDatabaseError($result[1]);
         }
     }
-
-    function deleteDatabase($name) {
-        $result = $this->restclient->do_get($name);
-        if ($result[0] == 200) {
-            $result2 = $this->restclient->do_delete($name);
-            if ($result[0] != 200) {
-                throw new FlaxDatabaseError($result2[1]);
-            }
-        } else {
-            throw new FlaxDatabaseError($result[1]);
-        }
-    }
-    
 }
 
 

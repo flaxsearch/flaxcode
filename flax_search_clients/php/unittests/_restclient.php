@@ -41,7 +41,7 @@ class FlaxTestRestClient {
         
         if (array_key_exists($dbname, $this->dbs)) {
             $db = $this->dbs[$dbname];
-            if ($bits[1] == '') 
+            if (count($bits) == 1) 
                 return array(200, $db);
         }
 
@@ -81,6 +81,7 @@ class FlaxTestRestClient {
         
         if (count($bits) == 1) {
             unset($this->dbs[$dbname]);
+            return array(200, 'Database deleted');
         } else {
             return array(404, 'Path not found');
         }

@@ -1,0 +1,4 @@
+Fri Mar 13 12:13:31 GMT 2009    Tom Mortimer <tom@lemurconsulting.com>
+
+    * flaxclient.php, unittests/_restclient.php, unittests/test_database.php:
+      Moved delete() into database object and changed tests accordingly.

@@ -23,9 +23,10 @@ require_once('_restclient.php');
 
 error_reporting(E_ALL);
 
-class TestOfLogging extends UnitTestCase {
+class DatabaseTestCase extends UnitTestCase {
     var $server;
     var $dbname;
+    var $testcount = 0;
     
     function setUp() {
         $this->server = new FlaxSearchService('', new FlaxTestRestClient);
@@ -34,19 +35,43 @@ class TestOfLogging extends UnitTestCase {
 
     function testNoDatabase() {
         try {
-            $result = $this->server->getDatabase($this->dbname);
-            $this->assertTrue(false);
+            $this->server->getDatabase($this->dbname);
+            $this->fail();
         }
         catch (FlaxDatabaseError $e) {
         }
+        $this->testcount++;
     }        
 
-    function testCreateDatabase() {
-        $result = $this->server->getDatabase($this->dbname, true);
+    function testCreateDeleteDatabase() {
+        // create DB
+        $db = $this->server->getDatabase($this->dbname, true);
+        $this->assertNotNull($db);
+
+        // check it exists
+        $result = $this->server->getDatabase($this->dbname);
         $this->assertNotNull($result);
-    }        
+
+        // delete DB
+        $db->delete();
+        
+        // check it has gone
+        try {
+            $this->server->getDatabase($this->dbname);
+            $this->fail();
+        }
+        catch (FlaxDatabaseError $e) {
+        }
+
+        $this->testcount++;
+    }
+   
 
 }
 
+$test = &new DatabaseTestCase;
+$ret = $test->run(new TextReporter()) ? 0 : 1;
+print "passed {$test->testcount} tests\n";
+exit($ret);
 
 ?>
