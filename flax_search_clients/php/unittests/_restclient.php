@@ -105,6 +105,9 @@ class FlaxTestRestClient {
         if (count($bits) == 1) {
             unset($this->dbs[$dbname]);
             return array(200, 'Database deleted');
+        } else if ($bits[1] == 'fields' && count($bits) == 3 && $bits[2] != '') {
+            unset($this->dbs[$dbname]['_fields'][$bits[2]]);
+            return array(200, 'Field deleted');
         } else {
             return array(404, 'Path not found');
         }

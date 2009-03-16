@@ -96,7 +96,7 @@ class _FlaxDatabase {
         return $result[1];
     }
 
-    function addField($fieldname, $fielddesc, $replace=false) {
+    function setField($fieldname, $fielddesc, $replace=false) {
         if ($this->deleted) {
             throw new FlaxDatabaseError('database has been deleted');
         }
@@ -112,6 +112,20 @@ class _FlaxDatabase {
         
         $result = $this->restclient->do_post($this->dbname .'/fields/'. $fieldname, $fielddesc);
         if ($result[0] != 201) {
+            throw new FlaxFieldError($result[1]);
+        }
+    }
+
+    function deleteField($fieldname) {
+        if ($this->deleted) {
+            throw new FlaxDatabaseError('database has been deleted');
+        }
+
+        # check field exists
+        $this->getField($fieldname);
+        
+        $result = $this->restclient->do_delete($this->dbname .'/fields/'. $fieldname);
+        if ($result[0] != 200) {
             throw new FlaxFieldError($result[1]);
         }
     }

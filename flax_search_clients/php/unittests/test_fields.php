@@ -56,11 +56,24 @@ class FieldsTestCase extends UnitTestCase {
     function testAddDeleteFields() {
         # add a field
         $fielddesc = array('store' => true, 'exacttext' => true);
-        $result = $this->db->addField('foo', $fielddesc);
+        $result = $this->db->setField('foo', $fielddesc);
     
         # check it's been added ok
         $field = $this->db->getField('foo');
         $this->assertIdentical($field, $fielddesc);
+
+        $this->testcount++;
+        
+        # delete the field
+        $this->db->deleteField('foo');
+
+        # check it's gone
+        try {
+            $this->db->getField('foo');
+            $this->fail();
+        }
+        catch (FlaxFieldError $e) {
+        }
 
         $this->testcount++;
     }
