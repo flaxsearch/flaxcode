@@ -1,3 +1,9 @@
+Mon Mar 16 14:13:38 GMT 2009    Tom Mortimer <tom@lemurconsulting.com>
+
+    * flaxclient.php: Changed paths to use '/db/' prefix.
+    * unittests/_restclient.php: Rewritten using regexps.
+    * unittests/test_fields/php: Tidied.
+
 Mon Mar 16 10:02:52 GMT 2009    Tom Mortimer <tom@lemurconsulting.com>
 
     * flaxclient.php, unittests/_restclient.php, unittests/test_fields.php: 

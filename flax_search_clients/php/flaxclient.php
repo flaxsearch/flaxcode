@@ -30,12 +30,12 @@ class FlaxSearchService {
     }
 
     function getDatabase($name, $create=false) {
-        $result = $this->restclient->do_get($name);
+        $result = $this->restclient->do_get('db/'. $name);
         if ($result[0] == 200) {
             return new _FlaxDatabase($this->restclient, $name);
         } else {
             if ($create) {
-                $result2 = $this->restclient->do_post($name, true);
+                $result2 = $this->restclient->do_post('db/'. $name, true);
                 if ($result2[0] == 201) {
                     return new _FlaxDatabase($this->restclient, $name);
                 } else {
@@ -63,7 +63,7 @@ class _FlaxDatabase {
     }
     
     function delete() {
-        $result = $this->restclient->do_delete($this->dbname);
+        $result = $this->restclient->do_delete('db/'. $this->dbname);
         if ($result[0] != 200) {
             throw new FlaxDatabaseError($result[1]);
         }
@@ -75,7 +75,7 @@ class _FlaxDatabase {
             throw new FlaxDatabaseError('database has been deleted');
         }
         
-        $result = $this->restclient->do_get($this->dbname .'/fields');
+        $result = $this->restclient->do_get('db/'. $this->dbname .'/fields');
         if ($result[0] != 200) {
             throw new FlaxFieldError($result[1]);
         }
@@ -88,7 +88,7 @@ class _FlaxDatabase {
             throw new FlaxDatabaseError('database has been deleted');
         }
 
-        $result = $this->restclient->do_get($this->dbname .'/fields/'. $fieldname);
+        $result = $this->restclient->do_get('db/'. $this->dbname .'/fields/'. $fieldname);
         if ($result[0] != 200) {
             throw new FlaxFieldError($result[1]);
         }
@@ -110,7 +110,7 @@ class _FlaxDatabase {
             }
         }
         
-        $result = $this->restclient->do_post($this->dbname .'/fields/'. $fieldname, $fielddesc);
+        $result = $this->restclient->do_post('db/'. $this->dbname .'/fields/'. $fieldname, $fielddesc);
         if ($result[0] != 201) {
             throw new FlaxFieldError($result[1]);
         }
@@ -124,7 +124,7 @@ class _FlaxDatabase {
         # check field exists
         $this->getField($fieldname);
         
-        $result = $this->restclient->do_delete($this->dbname .'/fields/'. $fieldname);
+        $result = $this->restclient->do_delete('db/'. $this->dbname .'/fields/'. $fieldname);
         if ($result[0] != 200) {
             throw new FlaxFieldError($result[1]);
         }

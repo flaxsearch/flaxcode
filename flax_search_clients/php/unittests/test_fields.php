@@ -42,7 +42,6 @@ class FieldsTestCase extends UnitTestCase {
     function testNoFields() {
         $fnames = $this->db->getFieldNames();
         $this->assertIdentical($fnames, array());
-
         try {
             $this->db->getField('foo');
             $this->fail();
@@ -61,8 +60,6 @@ class FieldsTestCase extends UnitTestCase {
         # check it's been added ok
         $field = $this->db->getField('foo');
         $this->assertIdentical($field, $fielddesc);
-
-        $this->testcount++;
         
         # delete the field
         $this->db->deleteField('foo');

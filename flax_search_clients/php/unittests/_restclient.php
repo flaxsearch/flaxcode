@@ -29,93 +29,136 @@ class FlaxTestRestClient {
     function __construct($baseurl=null) {
         $this->baseurl = $baseurl;
         $this->dbs = array();
+        
+        $this->patterns = array(
+            # more complex ones first!
+            array('/^db\/(.+)\/fields\/(.+)$/', 'f_field'),
+            array('/^db\/(.+)\/fields$/',       'f_fields'),
+            array('/^db\/(.+)$/',               'f_db'),
+            array('/^dbs$/',                    'f_dbs'),
+            array('/^$/',                       'f_root')
+        );
+    }
 
+    function match_path($path) {
+        foreach ($this->patterns as $p) {
+            $groups = array();
+            if (preg_match($p[0], $path, $groups)) {
+                return array($p[1], $groups);
+            }
+        }
+        return null;
     }
 
     function do_get($path, $params=null) {
-        $bits = explode('/', $path);
-        $dbname = $bits[0];
-        if ($dbname == '') {
-            return array(200, 'Flax Search Service (Test RestClient)');
+        $groups = null;
+        $m = $this->match_path($path);
+        if ($m) {
+            return $this->$m[0]('GET', $m[1], $params, null);
         }
-        
-        if (array_key_exists($dbname, $this->dbs)) {
-            $db = $this->dbs[$dbname];
-            switch (count($bits)) {
-                case 1:
-                    return array(200, $db);
-                    break;
-                case 2:
-                    if ($bits[1] == 'fields') {
-                        return array(200, array_keys($db['_fields']));
-                    }
-                    break;
-                case 3:
-                    if (array_key_exists($bits[2], $db['_fields'])) {
-                        return array(200, $db['_fields'][$bits[2]]);
-                    }
-                    break;
-            }
-        }
-
         return array(404, 'Path not found');
     }
-    
-    function do_post($path, $data) {
-        $bits = explode('/', $path);
-        $dbname = $bits[0];
-        if ($dbname == '') {
-            return array(405, 'Invalid method');
-        }
         
-        switch (count($bits)) {
-            case 1:
-                if ($data == true) {
-                    $this->dbs[$dbname] = array(
-                        'doccount' => 0,
-                        'created_date' => new DateTime,
-                        'last_modified_date' => new DateTime,
-                        '_fields' => array()
-                    );
-                    return array(201, 'Database created');
-                }
-                break;
-            case 3:
-                if (array_key_exists($dbname, $this->dbs)) {
-                    if ($bits[1] == 'fields') {
-                        if ($data) {
-                            $this->dbs[$dbname]['_fields'][$bits[2]] = $data;
-                            return array(201, 'Field created');
-                        }
-                    }
-                }
-                break;
+    function do_post($path, $data='') {
+        $groups = null;
+        $m = $this->match_path($path);
+        if ($m) {
+            return $this->$m[0]('POST', $m[1], null, $data);
         }
+        return array(404, 'Path not found');
+    }
 
+    function do_put($path, $data='') {
+        $groups = null;
+        $m = $this->match_path($path);
+        if ($m) {
+            return $this->$m[0]('PUT', $m[1], null, $data);
+        }
         return array(404, 'Path not found');
     }
 
     function do_delete($path) {
-        $bits = explode('/', $path);
-        $dbname = $bits[0];
-        if ($dbname == '') {
-            return array(405, 'Invalid method');
+        $groups = null;
+        $m = $this->match_path($path);
+        if ($m) {
+            return $this->$m[0]('DELETE', $m[1], null, null);
         }
-        
-        if (count($bits) == 1) {
+        return array(404, 'Path not found');
+    }
+    
+    function f_root($method, $pathparams, $queryparams, $bodydata) {
+        if ($method == 'GET') {
+            return array(200, 'Flax Search Service (Test RestClient)');
+        }
+        return array(404, 'Path not found');
+    }
+
+    function f_dbs($method, $pathparams, $queryparams, $bodydata) {
+        if ($method == 'GET') {
+            return array_keys($this->dbs);
+        }
+        return array(404, 'Path not found');
+    }
+
+    function f_db($method, $pathparams, $queryparams, $bodydata) {
+        $dbname = $pathparams[1];
+        if ($method == 'GET') {
+            if (array_key_exists($dbname, $this->dbs)) {
+                return array(200, $this->dbs[$dbname]);
+            }
+        }
+        else if ($method == 'POST') {
+            $this->dbs[$dbname] = array(
+                'doccount' => 0,
+                'created_date' => new DateTime,
+                'last_modified_date' => new DateTime,
+                '_fields' => array()
+            );
+            return array(201, 'Database created');
+        }
+        else if ($method == 'DELETE') {        
             unset($this->dbs[$dbname]);
             return array(200, 'Database deleted');
-        } else if ($bits[1] == 'fields' && count($bits) == 3 && $bits[2] != '') {
-            unset($this->dbs[$dbname]['_fields'][$bits[2]]);
-            return array(200, 'Field deleted');
-        } else {
-            return array(404, 'Path not found');
         }
-    }    
+        
+        return array(404, 'Path not found');
+    }
 
-    function do_put($path, $data) {
-        throw new FlaxError('not implemented');
-    }    
+    function f_fields($method, $pathparams, $queryparams, $bodydata) {
+        $dbname = $pathparams[1];
+        if ($method == 'GET') {
+            if (array_key_exists($dbname, $this->dbs)) {
+                return array(200, array_keys($this->dbs[$dbname]['_fields']));
+            }
+        }
+        return array(404, 'Path not found');
+    }
+
+    function f_field($method, $pathparams, $queryparams, $bodydata) {
+        $dbname = $pathparams[1];
+        $fieldname = $pathparams[2];
+        if (array_key_exists($dbname, $this->dbs)) {
+            $db = $this->dbs[$dbname];
+            if ($method == 'GET') {
+                if (array_key_exists($fieldname, $db['_fields'])) {
+                    return array(200, $db['_fields'][$fieldname]);
+                }
+            }
+            else if ($method == 'POST') {
+                if ($bodydata) {
+                    $this->dbs[$dbname]['_fields'][$fieldname] = $bodydata;
+                    return array(201, 'Field created');
+                }
+            }            
+            else if ($method == 'DELETE') {
+                if (array_key_exists($fieldname, $db['_fields'])) {
+                    unset($this->dbs[$dbname]['_fields'][$fieldname]);
+                    return array(200, 'Field deleted');
+                }
+            }
+        }
+        return array(404, 'Path not found');    
+    }
 }
 
 ?>
