@@ -22,6 +22,10 @@ r"""WSGI application for FlaxSearchServer.
 """
 __docformat__ = "restructuredtext en"
 
+# Local modules
+import controller
+
+# Global modules
 import dircache
 import os
 import wsgiwapi
@@ -49,18 +53,22 @@ class SearchServer(object):
         if not os.path.exists(self.dbs_path):
             os.makedirs(self.dbs_path)
 
-        # Open a writer on the lock database, to ensure that only one search
-        # server is running at a time.
-        self._lock_path = os.path.join(self.data_path, 'ss_lockdb')
-        self._lock_db = xapian.WritableDatabase(self._lock_path,
-                                                xapian.DB_CREATE_OR_OPEN)
+        # Open a writer on the settings database, which ensures that only one
+        # search server is running at a time.  Also used to hold settings which
+        # are set at runtime.
+        self.settings_path = os.path.join(self.data_path, 'ss_settings')
+        self.settings_db = xapian.WritableDatabase(self.settings_path,
+                                                    xapian.DB_CREATE_OR_OPEN)
+
+        self.controller = controller.Controller(self.dbs_path,
+                                                self.settings_db)
 
     def _get_search_connection(self, request):
-        db_name = request.pathinfo['dbname']
-        db_path = os.path.join(self.dbs_path, db_name)
-        if not os.path.exists(db_path):
+        dbname = request.pathinfo['dbname']
+        dbpath = os.path.join(self.dbs_path, dbname)
+        if not os.path.exists(dbpath):
             raise wsgiwapi.HTTPNotFound(request.path)
-        return xappy.SearchConnection(db_path)
+        return xappy.SearchConnection(dbpath)
 
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.noparams
@@ -111,29 +119,38 @@ class SearchServer(object):
                     "If 1, overwrite an existing database.  If 0 or omitted, "
                     "give an error if the database already exists.")
     @wsgiwapi.param('reopen', 1, 1, '^[01]$', [0],
-                    "If 1, database.  If 0 or omitted, "
+                    "If 1, and database exists, do nothing.  If 0 or omitted, "
                     "give an error if the database already exists.")
     @wsgiwapi.jsonreturning
     def db_create(self, request):
         """Create a new database.
 
         """
-        db_name = request.pathinfo['dbname']
+        dbname = request.pathinfo['dbname']
         overwrite = bool(int(request.params['overwrite'][0]))
-        allow_reopen = bool(int(request.params['overwrite'][0]))
+        reopen = bool(int(request.params['reopen'][0]))
+        if overwrite and reopen:
+            raise ValidationError('"overwrite" and "reopen" must not '
+                                  'both be specified')
+        self.controller.create_db(dbname, overwrite, reopen)
         dircache.reset()
         return True
 
     @wsgiwapi.allow_DELETE
-    @wsgiwapi.noparams
     @wsgiwapi.pathinfo(dbname_param)
+    @wsgiwapi.param('allow_missing', 1, 1, '^[01]$', [0],
+                    "If 1, and the database doesn't exist, do nothing.  If "
+                    "0 or omitted, give an error if database doesn't exist.")
     @wsgiwapi.jsonreturning
     def db_delete(self, request):
         """Delete a database.
 
         """
+        dbname = request.pathinfo['dbname']
+        allow_missing = bool(int(request.params['allow_missing'][0]))
+        self.controller.delete_db(dbname, allow_missing)
         dircache.reset()
-        FIXME
+        return True
 
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.noparams

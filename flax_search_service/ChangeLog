@@ -1,3 +1,8 @@
+Tue Mar 17 18:23:00 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/application.py,flax/searchserver/controller.py:
+	  Add support for creating and deleting databases.
+
 Tue Mar 17 17:41:47 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* docs/api.rst: Add schema bit to table of resource URIs.
