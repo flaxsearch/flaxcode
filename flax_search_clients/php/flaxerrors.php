@@ -48,4 +48,10 @@ class FlaxDatabaseError extends FlaxError {
 class FlaxFieldError extends FlaxError {
 }
 
+/**
+ * Flax data error.
+ */
+class FlaxDataError extends FlaxError {
+}
+
 ?>
