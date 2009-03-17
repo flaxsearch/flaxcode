@@ -32,11 +32,11 @@ class FlaxTestRestClient {
         
         $this->patterns = array(
             # more complex ones first!
-            array('/^db\/(.+)\/fields\/(.+)$/', 'f_field'),
-            array('/^db\/(.+)\/fields$/',       'f_fields'),
-            array('/^db\/(.+)$/',               'f_db'),
-            array('/^dbs$/',                    'f_dbs'),
-            array('/^$/',                       'f_root')
+            array('/^db\/(.+)\/schema\/fields\/(.+)$/', 'f_field'),
+            array('/^db\/(.+)\/schema\/fields$/',       'f_fields'),
+            array('/^db\/(.+)$/',                       'f_db'),
+            array('/^dbs$/',                            'f_dbs'),
+            array('/^$/',                               'f_root')
         );
     }
 

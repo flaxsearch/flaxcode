@@ -1,3 +1,8 @@
+Tue Mar 17 17:48:52 GMT 2009    Tom Mortimer <tom@lemurconsulting.com>
+
+    * flaxclient.php, unittests/_restclient.php: changed /fields/ url  
+      to /schema/fields/
+
 Mon Mar 16 14:13:38 GMT 2009    Tom Mortimer <tom@lemurconsulting.com>
 
     * flaxclient.php: Changed paths to use '/db/' prefix.
