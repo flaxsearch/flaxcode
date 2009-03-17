@@ -1,3 +1,9 @@
+Tue Mar 17 17:31:35 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/api.rst,flax/searchserver/application.py,
+	  flax/searchserver/settings.py,runserver.py,settings.py: Various
+	  bits of work.  Not in a functional state yet.
+
 Mon Mar 16 11:08:42 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* docs/api.rst: Add /db before all database urls.  Add /dbs

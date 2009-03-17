@@ -22,11 +22,13 @@ r"""Settings for FlaxSearchServer.
 """
 __docformat__ = "restructuredtext en"
 
-SEARCHSERVER_DB_PATH = '/tmp/flax/ssdbs/'
-SEARCHSERVER_MAX_ = '/tmp/flax/ssdbs/'
+settings = {
+    'data_path': '/tmp/flax/', # Path used to hold data
+}
 
 # Allow default settings to be overridden with settings in local_settings.py
 try:
-    from local_settings import *
+    from local_settings import init
+    init(settings)
 except ImportError:
     pass
