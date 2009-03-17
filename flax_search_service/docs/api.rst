@@ -16,7 +16,9 @@ List of databases        /dbs                                           /dbs
 ------------------------ ---------------------------------------------- ---------------------------------
 Database                 /dbs/<db_name>                                 /botany
 ------------------------ ---------------------------------------------- ---------------------------------
-Fields                   /dbs/<db_name>/schema                          /botany/schema
+Schema                   /dbs/<db_name>/schema                          /botany/schema
+------------------------ ---------------------------------------------- ---------------------------------
+Default language         /dbs/<db_name>/schema/language                 /botany/schema/language
 ------------------------ ---------------------------------------------- ---------------------------------
 Fields                   /dbs/<db_name>/schema/fields/<field_name>      /botany/schema/fields/genus
 ------------------------ ---------------------------------------------- ---------------------------------
@@ -57,17 +59,22 @@ Replay Log               /dbs/<db_name>/log                             /botany/
 
 .. [#terms] Is terms exposing too much? But it's good for populating dropdown lists.
 
-FIXME: Add Facets, spelling correction?
+TODO: Add Facets, spelling correction.
 
-FIXME: Xappy has rich query constructors, how do we make them RESTful?
+FIXME: Xappy has rich query constructors, how do we make them RESTful? - we
+probably don't; just define a JSON format for representing a query,
+heirarchically, as a combination of various subqueries.
 
 Formats
 =======
 
-Database names
---------------
+Identifiers
+-----------
 
-Database names are composed of 1 or more "word characters".  Valid word characters are
+Database names, field names, group names, metadata keys, and document IDs are
+defined to be strings which are composed of 1 or more "word characters".  Valid
+word characters are the digits '0' to '9', underscore, plus any character
+classified as alphanumeric in the python Unicode character properties database.
 
 JSON:
 
@@ -155,7 +162,13 @@ As shown above, a contextual summary can also be returned with each hit (see sea
 POST data
 =========
 
-Sent as type ``application/json`` or as ``json`` field in form data. All POST requests must send a JSON object, even if just an empty array or ``true``. The value ``null`` on its own is used to indicate deletion of a resource.
+Sent as type ``application/json`` or as ``json`` field in form data.
+
+All POST requests must send a JSON object, even if just an empty array or
+``true``.  # FIXME - why?
+
+The value ``null`` on its own is used to indicate deletion of a resource.
+# FIXME - is it?  we're probably using the DELETE method instead, actually.
 
 Return Values
 =============
@@ -168,17 +181,28 @@ Database Methods
 create database
 ---------------
 
+Optional parameters:
+
+ - overwrite: If 1, overwrite an existing database.  If 0 or omitted, give an
+   error if the database already exists.
+ - reopen: If 1, and database exists, do nothing.  If 0 or omitter, give an
+   error if the database already exists.
+
 e.g.::
 
-    POST /<db_name>
-    true
+    POST /dbs/<db_name>
 
 delete database
 ---------------
 
+Optional parameters:
+
+ - allow_missing: If 1, and the database doesn't exist, do nothing.  If 0 or
+   omitted, give an error if database doesn't exist.
+
 e.g.::
 
-    DELETE /<db_name>
+    DELETE /dbs/<db_name>
 
 get database info
 -----------------
