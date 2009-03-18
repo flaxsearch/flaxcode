@@ -72,11 +72,15 @@ Identifiers
 -----------
 
 Database names, field names, group names, metadata keys, and document IDs are
-defined to be strings which are composed of 1 or more "word characters".  Valid
-word characters are the digits '0' to '9', underscore, plus any character
-classified as alphanumeric in the python Unicode character properties database.
+allowed to be any valid unicode string containing at least one character.  When
+supplied in URIs, they must be encoded in UTF-8, and any characters other than
+the following must be escaped (using % encoding): 'A' to 'Z', '0' to '9', '.'
+and '_'.
 
-JSON:
+Note that '-' is not normally escaped in this context (eg, python's
+urllib.quote() function does not escape it), but it is necessary to escape it
+in document IDs to allow document ID ranges to be specified unambiguously.  For
+consistency, we therefore require that '-' is escaped in all identifiers.
 
 Fields
 ------
