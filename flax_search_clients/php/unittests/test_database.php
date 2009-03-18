@@ -54,9 +54,9 @@ class DatabaseTestCase extends UnitTestCase {
 
     function testCreateDeleteDatabase() {
         // create DB
-        $db = $this->server->getDatabase($this->dbname, true);
+        $db = $this->server->createDatabase($this->dbname);
         $this->assertNotNull($db);
-
+ 
         // check it exists
         $result = $this->server->getDatabase($this->dbname);
         $this->assertNotNull($result);

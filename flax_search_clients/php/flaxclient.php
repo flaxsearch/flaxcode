@@ -30,20 +30,25 @@ class FlaxSearchService {
         }
     }
 
-    function getDatabase($name, $create=false) {
+    function getDatabase($name) {
         $result = $this->restclient->do_get('dbs/'._uencode($name));
         if ($result[0] == 200) {
             return new _FlaxDatabase($this->restclient, $name);
-        } else {
-            if ($create) {
-                $result2 = $this->restclient->do_post('dbs/'._uencode($name), true);
-                if ($result2[0] == 200 || $result2[0] == 201) {
-                    return new _FlaxDatabase($this->restclient, $name);
-                } else {
-                    throw new FlaxDatabaseError('database could not be created ('. $result2[1] .')');
-                }
-            }
+        } 
+        else {
             throw new FlaxDatabaseError($result[1]);
+        }
+    }
+    
+    function createDatabase($name, $overwrite=false, $reopen=false) {
+        $params = array('overwrite' => (int) $overwrite,
+                        'reopen'    => (int) $reopen);
+
+        $result = $this->restclient->do_post('dbs/'._uencode($name), $params);
+        if ($result[0] == 200 || $result[0] == 201) {
+            return new _FlaxDatabase($this->restclient, $name);
+        } else {
+            throw new FlaxDatabaseError('database could not be created ('. $result[1] .')');
         }
     }
 }
@@ -99,24 +104,28 @@ class _FlaxDatabase {
         return $result[1];
     }
 
-    function setField($fieldname, $fielddesc, $replace=false) {
+    function addField($fieldname, $fielddesc) {
         if ($this->deleted) {
             throw new FlaxDatabaseError('database has been deleted');
         }
 
-        if (! $replace) {
-            try {
-                $this->getField($fieldname);
-                throw new FlaxFieldError('field exists');
-            }
-            catch (FlaxFieldError $e) {
-            }
-        }
-        
         $result = $this->restclient->do_post(
             'dbs/'._uencode($this->dbname).'/schema/fields/'._uencode($fieldname), $fielddesc);
 
         if ($result[0] != 201) {
+            throw new FlaxFieldError($result[1]);
+        }
+    }
+
+    function replaceField($fieldname, $fielddesc) {
+        if ($this->deleted) {
+            throw new FlaxDatabaseError('database has been deleted');
+        }
+
+        $result = $this->restclient->do_put(
+            'dbs/'._uencode($this->dbname).'/schema/fields/'._uencode($fieldname), $fielddesc);
+
+        if ($result[0] != 200 && $result[0] != 201) {
             throw new FlaxFieldError($result[1]);
         }
     }
@@ -126,14 +135,70 @@ class _FlaxDatabase {
             throw new FlaxDatabaseError('database has been deleted');
         }
 
-        # check field exists
-        $this->getField($fieldname);
-        
         $result = $this->restclient->do_delete(
             'dbs/'._uencode($this->dbname).'/schema/fields/'._uencode($fieldname));
             
         if ($result[0] != 200) {
             throw new FlaxFieldError($result[1]);
+        }
+    }
+
+    function getDocument($docid) {
+        if ($this->deleted) {
+            throw new FlaxDatabaseError('database has been deleted');
+        }
+
+        $result = $this->restclient->do_get(
+            'dbs/'._uencode($this->dbname).'/docs/'._uencode($docid));
+    
+        if ($result[0] != 200) {
+            throw new FlaxDocumentError($result[1]);
+        }
+    }
+    
+    function addDocument($docdata, $docid=null) {
+        if ($this->deleted) {
+            throw new FlaxDatabaseError('database has been deleted');
+        }
+
+        if ($docid) {
+            $result = $this->restclient->do_post(
+                'dbs/'._uencode($this->dbname).'/docs/'._uencode($docid));
+        } else {
+            $result = $this->restclient->do_post(
+                'dbs/'._uencode($this->dbname).'/docs');
+        }
+        
+        # FIXME - Location header for docid return
+        if ($result[0] != 200 && $result[0] != 201) {
+            throw new FlaxDocumentError($result[1]);
+        }    
+    }
+
+    function replaceDocument($docid, $docdata) {
+        if ($this->deleted) {
+            throw new FlaxDatabaseError('database has been deleted');
+        }
+
+        $result = $this->restclient->do_put(
+            'dbs/'._uencode($this->dbname).'/docs/'._uencode($docid));
+
+        if ($result[0] != 200 && $result[0] != 201) {
+            throw new FlaxDocumentError($result[1]);
+        }    
+    }
+
+    
+    function deleteDocument($docid) {
+        if ($this->deleted) {
+            throw new FlaxDatabaseError('database has been deleted');
+        }
+
+        $result = $this->restclient->do_delete(
+            'dbs/'._uencode($this->dbname).'/docs/'._uencode($docid));
+
+        if ($result[0] != 200) {
+            throw new FlaxDocumentError($result[1]);
         }
     }
 }

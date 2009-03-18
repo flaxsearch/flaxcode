@@ -1,3 +1,10 @@
+Wed Mar 18 17:43:26 GMT 2009    Tom Mortimer <tom@lemurconsulting.com>
+
+    * flaxclient.php: Changed API functions to be clearer about overwriting 
+      resources.
+    * unittests/_testrestclient.php, unittests/test_database.php, 
+      unittests/test_fields.php: Updated tests for API changes.
+
 Wed Mar 18 16:23:32 GMT 2009    Tom Mortimer <tom@lemurconsulting.com>
 
     * unittests/runtests.php: Allow individual test cases to be run.

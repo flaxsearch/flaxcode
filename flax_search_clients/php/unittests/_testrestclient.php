@@ -145,10 +145,15 @@ class FlaxTestRestClient {
                 }
             }
             else if ($method == 'POST') {
-                if ($bodydata) {
-                    $this->dbs[$dbname]['_fields'][$fieldname] = $bodydata;
-                    return array(201, 'Field created');
+                if (array_key_exists($fieldname, $db['_fields'])) {
+                    return array(409, 'Field exists');
                 }
+                $this->dbs[$dbname]['_fields'][$fieldname] = $bodydata;
+                return array(201, 'Field created');
+            }            
+            else if ($method == 'PUT') {
+                $this->dbs[$dbname]['_fields'][$fieldname] = $bodydata;
+                return array(201, 'Field created');
             }            
             else if ($method == 'DELETE') {
                 if (array_key_exists($fieldname, $db['_fields'])) {

@@ -32,7 +32,7 @@ class FieldsTestCase extends UnitTestCase {
     function setUp() {
         $this->server = new FlaxSearchService('', new FlaxTestRestClient);
         $this->dbname = 'tmp'. time();
-        $this->db = $this->server->getDatabase($this->dbname, true);
+        $this->db = $this->server->createDatabase($this->dbname);
     }
 
     function tearDown() {
@@ -47,17 +47,19 @@ class FieldsTestCase extends UnitTestCase {
             $this->fail();
         }
         catch (FlaxFieldError $e) {
+            $this->pass();
         }
-        
-        $this->testcount++;
     }
     
     function testAddDeleteFields() {
         # add a field
         $fielddesc = array('store' => true, 'exacttext' => true);
-        $result = $this->db->setField('foo', $fielddesc);
+        $result = $this->db->addField('foo', $fielddesc);
     
         # check it's been added ok
+        $fnames = $this->db->getFieldNames();
+        $this->assertIdentical($fnames, array('foo'));
+        
         $field = $this->db->getField('foo');
         $this->assertIdentical($field, $fielddesc);
         
@@ -70,10 +72,36 @@ class FieldsTestCase extends UnitTestCase {
             $this->fail();
         }
         catch (FlaxFieldError $e) {
+            $this->pass();
+        }
+    }
+    
+    function testOverwriteField() {
+        # add a field
+        $fielddesc = array('store' => true, 'exacttext' => true);
+        $result = $this->db->addField('foo', $fielddesc);
+
+        # check we can't add it again
+        try {
+            $result = $this->db->addField('foo', $fielddesc);
+            $this->fail();
+        }
+        catch (FlaxFieldError $e) {
+            $this->pass();
         }
 
-        $this->testcount++;
+        # check we can overwrite it
+        $fielddesc = array('store' => false, 'freetext' => true);
+        $result = $this->db->replaceField('foo', $fielddesc);
+
+        # check it's been added ok
+        $fnames = $this->db->getFieldNames();
+        $this->assertIdentical($fnames, array('foo'));
+        
+        $field = $this->db->getField('foo');
+        $this->assertIdentical($field, $fielddesc);        
     }
+    
 }
 
 ?>
