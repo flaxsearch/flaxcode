@@ -21,10 +21,28 @@ require_once('simpletest/reporter.php');
 
 require_once('test_database.php');
 require_once('test_fields.php');
+require_once('test_docs.php');
+
+$server = null;
+$tests = array();
+
+foreach ($argv as $a) {
+    if (substr($a, 0, 7) == 'http://') {
+        $server = $a;
+    } else if ($a != $argv[0]) {
+        $tests[$a] = true;
+    }    
+}
 
 $test = new TestSuite('All tests');
-$test->addTestCase(new DatabaseTestCase(count($argc) > 1 ? $argv[1] : null));
-$test->addTestCase(new FieldsTestCase(count($argc) > 1 ? $argv[1] : null));
+if (!$tests || array_key_exists('dbs', $tests))
+    $test->addTestCase(new DatabaseTestCase($server));
+
+if (!$tests || array_key_exists('fields', $tests))
+    $test->addTestCase(new FieldsTestCase($server));
+
+if (!$tests || array_key_exists('docs', $tests))
+    $test->addTestCase(new DocsTestCase($server));
 
 exit($test->run(new TextReporter()) ? 0 : 1);
 

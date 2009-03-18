@@ -49,6 +49,12 @@ class FlaxFieldError extends FlaxError {
 }
 
 /**
+ * Flax field error.
+ */
+class FlaxDocumentError extends FlaxError {
+}
+
+/**
  * Flax data error.
  */
 class FlaxDataError extends FlaxError {
