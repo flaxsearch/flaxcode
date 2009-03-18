@@ -74,8 +74,8 @@ Identifiers
 Database names, field names, group names, metadata keys, and document IDs are
 allowed to be any valid unicode string containing at least one character.  When
 supplied in URIs, they must be encoded in UTF-8, and any characters other than
-the following must be escaped (using % encoding): 'A' to 'Z', '0' to '9', '.'
-and '_'.
+the following must be escaped (using % encoding): 'a' to 'z', 'A' to 'Z', '0'
+to '9', '.' and '_'.
 
 Note that '-' is not normally escaped in this context (eg, python's
 urllib.quote() function does not escape it), but it is necessary to escape it
