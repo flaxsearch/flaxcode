@@ -19,7 +19,7 @@
 require_once('simpletest/autorun.php');
 require_once('../flaxclient.php');
 require_once('../flaxerrors.php');
-require_once('_restclient.php');
+require_once('_testrestclient.php');
 
 error_reporting(E_ALL);
 
@@ -31,7 +31,7 @@ class FieldsTestCase extends UnitTestCase {
     
     function setUp() {
         $this->server = new FlaxSearchService('', new FlaxTestRestClient);
-        $this->dbname = 'temp-'. time();
+        $this->dbname = 'tmp'. time();
         $this->db = $this->server->getDatabase($this->dbname, true);
     }
 

@@ -17,26 +17,27 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 require_once('flaxerrors.php');
+require_once('_restclient.php');
 
 class FlaxSearchService {
     private $restclient;
     
     function __construct($baseurl, $restclient=null) {
         if ($restclient == null) {
-            throw new FlaxInternalError('not implemented');
+            $this->restclient = new FlaxRestClient($baseurl);
         } else {
             $this->restclient = $restclient;
         }
     }
 
     function getDatabase($name, $create=false) {
-        $result = $this->restclient->do_get('db/'. $name);
+        $result = $this->restclient->do_get('dbs/'. $name);
         if ($result[0] == 200) {
             return new _FlaxDatabase($this->restclient, $name);
         } else {
             if ($create) {
-                $result2 = $this->restclient->do_post('db/'. $name, true);
-                if ($result2[0] == 201) {
+                $result2 = $this->restclient->do_post('dbs/'. $name, true);
+                if ($result2[0] == 200 || $result[0] == 201) {
                     return new _FlaxDatabase($this->restclient, $name);
                 } else {
                     throw new FlaxDatabaseError('database could not be created ('. $result2[1] .')');
@@ -63,7 +64,7 @@ class _FlaxDatabase {
     }
     
     function delete() {
-        $result = $this->restclient->do_delete('db/'. $this->dbname);
+        $result = $this->restclient->do_delete('dbs/'. $this->dbname);
         if ($result[0] != 200) {
             throw new FlaxDatabaseError($result[1]);
         }
@@ -75,7 +76,7 @@ class _FlaxDatabase {
             throw new FlaxDatabaseError('database has been deleted');
         }
         
-        $result = $this->restclient->do_get('db/'. $this->dbname .'/schema/fields');
+        $result = $this->restclient->do_get('dbs/'. $this->dbname .'/schema/fields');
         if ($result[0] != 200) {
             throw new FlaxFieldError($result[1]);
         }
@@ -88,7 +89,7 @@ class _FlaxDatabase {
             throw new FlaxDatabaseError('database has been deleted');
         }
 
-        $result = $this->restclient->do_get('db/'. $this->dbname .'/schema/fields/'. $fieldname);
+        $result = $this->restclient->do_get('dbs/'. $this->dbname .'/schema/fields/'. $fieldname);
         if ($result[0] != 200) {
             throw new FlaxFieldError($result[1]);
         }
@@ -110,7 +111,7 @@ class _FlaxDatabase {
             }
         }
         
-        $result = $this->restclient->do_post('db/'. $this->dbname .'/schema/fields/'. $fieldname, $fielddesc);
+        $result = $this->restclient->do_post('dbs/'. $this->dbname .'/schema/fields/'. $fieldname, $fielddesc);
         if ($result[0] != 201) {
             throw new FlaxFieldError($result[1]);
         }
@@ -124,7 +125,7 @@ class _FlaxDatabase {
         # check field exists
         $this->getField($fieldname);
         
-        $result = $this->restclient->do_delete('db/'. $this->dbname .'/schema/fields/'. $fieldname);
+        $result = $this->restclient->do_delete('dbs/'. $this->dbname .'/schema/fields/'. $fieldname);
         if ($result[0] != 200) {
             throw new FlaxFieldError($result[1]);
         }

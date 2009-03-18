@@ -1,3 +1,12 @@
+Wed Mar 18 12:10:51 GMT 2009    Tom Mortimer <tom@lemurconsulting.com>
+
+    * flaxclient.php:  Modified to work with flax_search_service
+    * _restclient.php: Fixed URL error. Throws exception for network problems.
+    * unittests/_restclient.php, unittests/_testrestclient.php: Renamed to 
+      avoid require() clash.
+    * unittests/test_database.php: Modifed to work with flax_search_service.
+    * unittests/test_fields.php: Changed DB name.
+
 Tue Mar 17 17:48:52 GMT 2009    Tom Mortimer <tom@lemurconsulting.com>
 
     * flaxclient.php, unittests/_restclient.php: changed /fields/ url  

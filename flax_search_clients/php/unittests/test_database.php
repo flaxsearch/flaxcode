@@ -19,7 +19,7 @@
 require_once('simpletest/autorun.php');
 require_once('../flaxclient.php');
 require_once('../flaxerrors.php');
-require_once('_restclient.php');
+require_once('_testrestclient.php');
 
 error_reporting(E_ALL);
 
@@ -28,9 +28,17 @@ class DatabaseTestCase extends UnitTestCase {
     var $dbname;
     var $testcount = 0;
     
+    function __construct($search_server = '') {
+        $this->search_server = $search_server;
+    }
+    
     function setUp() {
-        $this->server = new FlaxSearchService('', new FlaxTestRestClient);
-        $this->dbname = 'temp-'. time();
+        if ($this->search_server) {
+            $this->server = new FlaxSearchService($this->search_server);
+        } else {
+            $this->server = new FlaxSearchService('', new FlaxTestRestClient);
+        }
+        $this->dbname = 'tmp'. time();
     }
 
     function testNoDatabase() {
@@ -39,6 +47,7 @@ class DatabaseTestCase extends UnitTestCase {
             $this->fail();
         }
         catch (FlaxDatabaseError $e) {
+            $this->pass();
         }
         $this->testcount++;
     }        
@@ -61,6 +70,7 @@ class DatabaseTestCase extends UnitTestCase {
             $this->fail();
         }
         catch (FlaxDatabaseError $e) {
+            $this->pass();
         }
 
         $this->testcount++;
@@ -69,7 +79,7 @@ class DatabaseTestCase extends UnitTestCase {
 
 }
 
-$test = &new DatabaseTestCase;
+$test = &new DatabaseTestCase('http://localhost:8080/');
 $ret = $test->run(new TextReporter()) ? 0 : 1;
 print "passed {$test->testcount} tests\n";
 exit($ret);

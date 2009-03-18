@@ -29,7 +29,7 @@ class FlaxRestClient {
     }
 
     function do_get($path, $params=null) {
-        $url = $path;
+        $url = $this->baseurl.$path;
         if (is_array($params)) {
             $url .= '?'. http_build_query($params);
         }
@@ -40,15 +40,15 @@ class FlaxRestClient {
     }
         
     function do_post($path, $data='') {
-        return $this->_do_http_request($path, 'POST', $data);
+        return $this->_do_http_request($this->baseurl.$path, 'POST', $data);
     }
 
     function do_put($path, $data='') {
-        return $this->_do_http_request($path, 'PUT', $data);
+        return $this->_do_http_request($this->baseurl.$path, 'PUT', $data);
     }
 
     function do_delete($path) {
-        return $this->_do_http_request($path, 'DELETE');
+        return $this->_do_http_request($this->baseurl.$path, 'DELETE');
     }
     
     function _do_http_request($url, $method='GET', $content=null) {
@@ -65,9 +65,10 @@ class FlaxRestClient {
         $context = stream_context_create($options);
         $retbody = @file_get_contents($url, false, $context);
      
-        if (!isset($http_response_header))
-            return null;    // Bad url, timeout
-    
+        if (!isset($http_response_header)) {
+            throw new FlaxInternalError("error communicating with server ({$url})");
+        }
+        
         // Get the *last* HTTP status code
         $nLines = count($http_response_header);
         for ($i = $nLines-1; $i >= 0; $i--)
