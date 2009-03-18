@@ -37,7 +37,7 @@ class FlaxSearchService {
         } else {
             if ($create) {
                 $result2 = $this->restclient->do_post('dbs/'._uencode($name), true);
-                if ($result2[0] == 200 || $result[0] == 201) {
+                if ($result2[0] == 200 || $result2[0] == 201) {
                     return new _FlaxDatabase($this->restclient, $name);
                 } else {
                     throw new FlaxDatabaseError('database could not be created ('. $result2[1] .')');

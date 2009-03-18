@@ -1,3 +1,10 @@
+Wed Mar 18 13:51:11 GMT 2009    Tom Mortimer <tom@lemurconsulting.com>
+
+    * flaxclient.php: Fixed typo.
+    * unittests/_testrestclient.php: Fixed db path pattern.
+    * unittests/test_database.php, unittests/test_fields.php, 
+      unittests/runtests.php: Added test suite runner.
+
 Wed Mar 18 12:37:47 GMT 2009    Tom Mortimer <tom@lemurconsulting.com>
 
     * flaxclient.php: Added URL (and '-') encoding to path construction.
