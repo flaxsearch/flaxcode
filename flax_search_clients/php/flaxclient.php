@@ -31,12 +31,12 @@ class FlaxSearchService {
     }
 
     function getDatabase($name, $create=false) {
-        $result = $this->restclient->do_get('dbs/'. $name);
+        $result = $this->restclient->do_get('dbs/'._uencode($name));
         if ($result[0] == 200) {
             return new _FlaxDatabase($this->restclient, $name);
         } else {
             if ($create) {
-                $result2 = $this->restclient->do_post('dbs/'. $name, true);
+                $result2 = $this->restclient->do_post('dbs/'._uencode($name), true);
                 if ($result2[0] == 200 || $result[0] == 201) {
                     return new _FlaxDatabase($this->restclient, $name);
                 } else {
@@ -64,7 +64,7 @@ class _FlaxDatabase {
     }
     
     function delete() {
-        $result = $this->restclient->do_delete('dbs/'. $this->dbname);
+        $result = $this->restclient->do_delete('dbs/'._uencode($this->dbname));
         if ($result[0] != 200) {
             throw new FlaxDatabaseError($result[1]);
         }
@@ -76,7 +76,7 @@ class _FlaxDatabase {
             throw new FlaxDatabaseError('database has been deleted');
         }
         
-        $result = $this->restclient->do_get('dbs/'. $this->dbname .'/schema/fields');
+        $result = $this->restclient->do_get('dbs/'._uencode($this->dbname).'/schema/fields');
         if ($result[0] != 200) {
             throw new FlaxFieldError($result[1]);
         }
@@ -89,7 +89,9 @@ class _FlaxDatabase {
             throw new FlaxDatabaseError('database has been deleted');
         }
 
-        $result = $this->restclient->do_get('dbs/'. $this->dbname .'/schema/fields/'. $fieldname);
+        $result = $this->restclient->do_get(
+            'dbs/'._uencode($this->dbname).'/schema/fields/'._uencode($fieldname));
+            
         if ($result[0] != 200) {
             throw new FlaxFieldError($result[1]);
         }
@@ -111,7 +113,9 @@ class _FlaxDatabase {
             }
         }
         
-        $result = $this->restclient->do_post('dbs/'. $this->dbname .'/schema/fields/'. $fieldname, $fielddesc);
+        $result = $this->restclient->do_post(
+            'dbs/'._uencode($this->dbname).'/schema/fields/'._uencode($fieldname), $fielddesc);
+
         if ($result[0] != 201) {
             throw new FlaxFieldError($result[1]);
         }
@@ -125,13 +129,17 @@ class _FlaxDatabase {
         # check field exists
         $this->getField($fieldname);
         
-        $result = $this->restclient->do_delete('dbs/'. $this->dbname .'/schema/fields/'. $fieldname);
+        $result = $this->restclient->do_delete(
+            'dbs/'._uencode($this->dbname).'/schema/fields/'._uencode($fieldname));
+            
         if ($result[0] != 200) {
             throw new FlaxFieldError($result[1]);
         }
     }
 }
 
-
+function _uencode($s) {
+    return str_replace('-', '%2D', urlencode($s));
+}
 
 ?>

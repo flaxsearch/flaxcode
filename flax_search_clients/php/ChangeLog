@@ -1,3 +1,7 @@
+Wed Mar 18 12:37:47 GMT 2009    Tom Mortimer <tom@lemurconsulting.com>
+
+    * flaxclient.php: Added URL (and '-') encoding to path construction.
+
 Wed Mar 18 12:10:51 GMT 2009    Tom Mortimer <tom@lemurconsulting.com>
 
     * flaxclient.php:  Modified to work with flax_search_service
