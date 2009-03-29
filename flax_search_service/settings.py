@@ -22,8 +22,10 @@ r"""Settings for FlaxSearchServer.
 """
 __docformat__ = "restructuredtext en"
 
+# Settings for the server.
 settings = {
     'data_path': '/tmp/flax/', # Path used to hold data
+    'server_bind_address': ('0.0.0.0', 8080), # Address to bind the server to.
 }
 
 # Allow default settings to be overridden with settings in local_settings.py

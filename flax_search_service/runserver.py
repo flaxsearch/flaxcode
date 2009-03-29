@@ -11,7 +11,7 @@ import settings
 
 app = flax.searchserver.App(settings.settings)
 
-server = wsgiwapi.make_server(app, ('0.0.0.0', 8080))
+server = wsgiwapi.make_server(app, settings.settings['server_bind_address'])
 try:
     server.start()
 except KeyboardInterrupt:
