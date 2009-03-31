@@ -69,22 +69,30 @@ class FlaxRestClient {
             throw new FlaxInternalError("error communicating with server ({$url})");
         }
         
+        $location = null;
+        
         // Get the *last* HTTP status code
         $nLines = count($http_response_header);
         for ($i = $nLines-1; $i >= 0; $i--)
         {
             $line = $http_response_header[$i];
-            if (strncasecmp("HTTP", $line, 4) == 0 )
+            if (strncasecmp("HTTP", $line, 4) == 0)
             {
                 $response = explode(' ', $line);
                 $http_code = $response[1];
                 $http_message = $line;
                 break;
+            } else if (strncasecmp("Location:", $line, 9) == 0) {
+                $location = trim(substr($line, 9));
             }
         }
      
         if (substr($http_code, 0, 1) == '2') {
-            return array($http_code, json_decode($retbody, true));
+            if ($location) {
+                return array($http_code, $location);
+            } else {
+                return array($http_code, json_decode($retbody, true));
+            }
         } else {
             return array($http_code, $http_message);
         }

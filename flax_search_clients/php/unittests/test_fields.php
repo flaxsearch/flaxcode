@@ -28,9 +28,12 @@ class FieldsTestCase extends UnitTestCase {
     var $dbname;
     var $db;
     var $testcount = 0;
+
+    function __construct($server) {
+        $this->server = $server;
+    }
     
     function setUp() {
-        $this->server = new FlaxSearchService('', new FlaxTestRestClient);
         $this->dbname = 'tmp'. time();
         $this->db = $this->server->createDatabase($this->dbname);
     }

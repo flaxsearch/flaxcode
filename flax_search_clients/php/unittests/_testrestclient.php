@@ -25,6 +25,24 @@
 
 require_once('../flaxerrors.php');
 
+class _MockDatabase {
+    function __construct() {
+        $this->created_date = new DateTime();
+        $this->last_modified_date = new DateTime();
+        $this->fields = array();
+        $this->docs = array();
+    }
+
+    function as_array() {
+        return array(
+            'doccount' => count($this->docs),
+            'created_date' => $this->created_date,
+            'last_modified_date' => $this->last_modified_date
+        );
+    }
+}
+
+
 class FlaxTestRestClient {
     function __construct($baseurl=null) {
         $this->baseurl = $baseurl;
@@ -34,6 +52,8 @@ class FlaxTestRestClient {
             # more complex ones first!
             array('/^dbs\/(.+)\/schema\/fields\/(.+)$/', 'f_field'),
             array('/^dbs\/(.+)\/schema\/fields$/',       'f_fields'),
+            array('/^dbs\/(.+)\/docs\/(.+)$/',           'f_doc'),
+            array('/^dbs\/(.+)\/docs$/',                 'f_docs'),
             array('/^dbs\/(.+)$/',                       'f_db'),
             array('/^dbs$/',                             'f_dbs'),
             array('/^$/',                                'f_root')
@@ -86,6 +106,8 @@ class FlaxTestRestClient {
         return array(404, 'Path not found');
     }
     
+    //////////////////////////////////////////////////////////////////
+    
     function f_root($method, $pathparams, $queryparams, $bodydata) {
         if ($method == 'GET') {
             return array(200, 'Flax Search Service (Test RestClient)');
@@ -104,16 +126,11 @@ class FlaxTestRestClient {
         $dbname = $pathparams[1];
         if ($method == 'GET') {
             if (array_key_exists($dbname, $this->dbs)) {
-                return array(200, $this->dbs[$dbname]);
+                return array(200, $this->dbs[$dbname]->as_array());
             }
         }
         else if ($method == 'POST') {
-            $this->dbs[$dbname] = array(
-                'doccount' => 0,
-                'created_date' => new DateTime,
-                'last_modified_date' => new DateTime,
-                '_fields' => array()
-            );
+            $this->dbs[$dbname] = new _MockDatabase();
             return array(201, 'Database created');
         }
         else if ($method == 'DELETE') {        
@@ -128,7 +145,7 @@ class FlaxTestRestClient {
         $dbname = $pathparams[1];
         if ($method == 'GET') {
             if (array_key_exists($dbname, $this->dbs)) {
-                return array(200, array_keys($this->dbs[$dbname]['_fields']));
+                return array(200, array_keys($this->dbs[$dbname]->fields));
             }
         }
         return array(404, 'Path not found');
@@ -140,29 +157,69 @@ class FlaxTestRestClient {
         if (array_key_exists($dbname, $this->dbs)) {
             $db = $this->dbs[$dbname];
             if ($method == 'GET') {
-                if (array_key_exists($fieldname, $db['_fields'])) {
-                    return array(200, $db['_fields'][$fieldname]);
+                if (array_key_exists($fieldname, $db->fields)) {
+                    return array(200, $db->fields[$fieldname]);
                 }
             }
             else if ($method == 'POST') {
-                if (array_key_exists($fieldname, $db['_fields'])) {
+                if (array_key_exists($fieldname, $db->fields)) {
                     return array(409, 'Field exists');
                 }
-                $this->dbs[$dbname]['_fields'][$fieldname] = $bodydata;
+                $db->fields[$fieldname] = $bodydata;
                 return array(201, 'Field created');
             }            
             else if ($method == 'PUT') {
-                $this->dbs[$dbname]['_fields'][$fieldname] = $bodydata;
+                $db->fields[$fieldname] = $bodydata;
                 return array(201, 'Field created');
             }            
             else if ($method == 'DELETE') {
-                if (array_key_exists($fieldname, $db['_fields'])) {
-                    unset($this->dbs[$dbname]['_fields'][$fieldname]);
+                if (array_key_exists($fieldname, $db->fields)) {
+                    unset($db->fields[$fieldname]);
                     return array(200, 'Field deleted');
                 }
             }
         }
         return array(404, 'Path not found');    
+    }
+    
+    function f_doc($method, $pathparams, $queryparams, $bodydata) {
+        $dbname = $pathparams[1];
+        $docid = $pathparams[2];
+        if (array_key_exists($dbname, $this->dbs)) {
+            $db = $this->dbs[$dbname];
+
+            if ($method == 'GET') {
+                if (array_key_exists($docid, $db->docs)) {
+                    return array(200, $db->docs[$docid]);
+                }
+            }
+            else if ($method == 'PUT') {
+                $db->docs[$docid] = $bodydata;
+                return array(201, $docid);
+            }
+            else if ($method == 'POST') {
+                if (array_key_exists($docid, $db->docs)) {
+                    return array(409, 'Doc ID exists');
+                }
+                $db->docs[$docid] = $bodydata;
+                return array(201, $docid);
+            }
+        }
+        return array(404, 'Path not found');
+    }
+
+    function f_docs($method, $pathparams, $queryparams, $bodydata) {
+        $dbname = $pathparams[1];
+        if (array_key_exists($dbname, $this->dbs)) {
+            $db = $this->dbs[$dbname];
+
+            if ($method == 'POST') {
+                $docid = uniqid();
+                $db->docs[$docid] = $bodydata;
+                return array(201, $docid);
+            }
+        }
+        return array(404, 'Path not found');
     }
 }
 

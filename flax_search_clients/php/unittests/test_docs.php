@@ -23,52 +23,43 @@ require_once('_testrestclient.php');
 
 error_reporting(E_ALL);
 
-class DatabaseTestCase extends UnitTestCase {
+class DocsTestCase extends UnitTestCase {
     var $server;
     var $dbname;
+    var $db;
     var $testcount = 0;
-    
+
     function __construct($server) {
         $this->server = $server;
     }
-
+    
     function setUp() {
         $this->dbname = 'tmp'. time();
+        $this->db = $this->server->createDatabase($this->dbname);
     }
 
-    function testNoDatabase() {
+    function tearDown() {
+        $this->db->delete();
+    }
+    
+    function testNoDoc() {
         try {
-            $this->server->getDatabase($this->dbname);
+            $fnames = $this->db->getDocument('doc001');
             $this->fail();
         }
-        catch (FlaxDatabaseError $e) {
+        catch (FlaxDocumentError $e) {
             $this->pass();
         }
-        $this->testcount++;
-    }        
+    }
+    
+    function testAddDoc() {
+        # add a doc without ID
+        $doc = array('foo' => 'bar');
+        $docid = $this->db->addDocument($doc);
 
-    function testCreateDeleteDatabase() {
-        // create DB
-        $db = $this->server->createDatabase($this->dbname);
-        $this->assertNotNull($db);
- 
-        // check it exists
-        $result = $this->server->getDatabase($this->dbname);
-        $this->assertNotNull($result);
-
-        // delete DB
-        $db->delete();
-        
-        // check it has gone
-        try {
-            $this->server->getDatabase($this->dbname);
-            $this->fail();
-        }
-        catch (FlaxDatabaseError $e) {
-            $this->pass();
-        }
-
-        $this->testcount++;
+        # check it's been added ok
+        $doc2 = $this->db->getDocument($docid);
+        $this->assertIdentical($doc, $doc2);
     }
 }
 

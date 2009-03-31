@@ -154,6 +154,8 @@ class _FlaxDatabase {
         if ($result[0] != 200) {
             throw new FlaxDocumentError($result[1]);
         }
+        
+        return $result[1];
     }
     
     function addDocument($docdata, $docid=null) {
@@ -163,16 +165,18 @@ class _FlaxDatabase {
 
         if ($docid) {
             $result = $this->restclient->do_post(
-                'dbs/'._uencode($this->dbname).'/docs/'._uencode($docid));
+                'dbs/'._uencode($this->dbname).'/docs/'._uencode($docid), $docdata);
         } else {
             $result = $this->restclient->do_post(
-                'dbs/'._uencode($this->dbname).'/docs');
+                'dbs/'._uencode($this->dbname).'/docs', $docdata);
         }
         
         # FIXME - Location header for docid return
         if ($result[0] != 200 && $result[0] != 201) {
             throw new FlaxDocumentError($result[1]);
-        }    
+        }
+
+        return $result[1];
     }
 
     function replaceDocument($docid, $docdata) {
@@ -181,13 +185,14 @@ class _FlaxDatabase {
         }
 
         $result = $this->restclient->do_put(
-            'dbs/'._uencode($this->dbname).'/docs/'._uencode($docid));
+            'dbs/'._uencode($this->dbname).'/docs/'._uencode($docid), $docdata);
 
         if ($result[0] != 200 && $result[0] != 201) {
             throw new FlaxDocumentError($result[1]);
-        }    
+        }
+        
+        return $result[1];
     }
-
     
     function deleteDocument($docid) {
         if ($this->deleted) {

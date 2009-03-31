@@ -1,3 +1,14 @@
+Tue Mar 31 17:52:37 BST 2009    Tom Mortimer <tom@lemurconsulting.com>
+
+    * flaxclient.php: Added and fixed code for db document access.
+    * _restclient.php: Added code to handle Location response header.
+    * unittests/_testrestclient.php: Rewrote mock database as a class for better 
+      clarity and easier reference semantics.
+    * unittests/test_database.php: Added constructor for tests with real server.
+    * unittests/test_fields.php: Added constructor for tests with real server.
+    * unittests/runtests.php: Added code for tests with real server.
+    * unittests/test_docs.php: Unit tests for database documents.
+
 Wed Mar 18 17:43:26 GMT 2009    Tom Mortimer <tom@lemurconsulting.com>
 
     * flaxclient.php: Changed API functions to be clearer about overwriting 

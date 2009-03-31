@@ -34,6 +34,10 @@ foreach ($argv as $a) {
     }    
 }
 
+if ($server == null) {
+    $server = new FlaxSearchService('', new FlaxTestRestClient);
+}
+
 $test = new TestSuite('All tests');
 if (!$tests || array_key_exists('dbs', $tests))
     $test->addTestCase(new DatabaseTestCase($server));
