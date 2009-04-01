@@ -128,7 +128,6 @@ Document
 Documents are represented as JSON objects where the keys are field names. Each key may have a single string value, or an array of several strings, e.g.::
 
   { 
-    "_doc_id": "sm01",           # optional document ID
     "title": "Slime Molds",
     "category": ["Protista", "Amoeboids", "Fungi"],
     "text": "Slime molds have been found all over the world and feed on 
@@ -163,8 +162,8 @@ and a list of results. Selected field data can be returned with each hit as a do
 
 As shown above, a contextual summary can also be returned with each hit (see searching).
 
-POST data
-=========
+POST/PUT data
+=============
 
 Sent as type ``application/json`` or as ``json`` field in form data.
 
@@ -189,12 +188,14 @@ Optional parameters:
 
  - overwrite: If 1, overwrite an existing database.  If 0 or omitted, give an
    error if the database already exists.
- - reopen: If 1, and database exists, do nothing.  If 0 or omitter, give an
+ - reopen: If 1, and database exists, do nothing.  If 0 or omitted, give an
    error if the database already exists.
 
 e.g.::
 
     POST /dbs/<db_name>
+
+If the database is sucessfully created, this will return a 201 response.
 
 delete database
 ---------------
@@ -335,7 +336,7 @@ e.g.::
 
     DELETE /<db_name>/docs/<doc_id>|<doc_range>|<doc_set>
 
-    Transactional; either all documents deleted without error, or none (but what errors could there be?)
+    Transactional; either all documents deleted without error, or none (but what errors could there be?) - database corruption, out of memory errors, networking errors (when we support multi-database backends), etc.
 
 get document(s)
 ---------------

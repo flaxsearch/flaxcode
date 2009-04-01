@@ -1,3 +1,8 @@
+Wed Apr 01 12:42:55 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/api.rst: Remove _doc_id from field data; docid is specified
+	  as part of the resource string.  Other miscellaneous updates.
+
 Wed Apr 01 12:40:42 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchserver/application.py,flax/searchserver/controller.py,
