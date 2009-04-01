@@ -22,6 +22,7 @@ r"""Database access utilities.
 """
 __docformat__ = "restructuredtext en"
 
+import os
 import re
 import sha
 import unicodedata
