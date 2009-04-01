@@ -88,39 +88,42 @@ Fields
 Each field is defined as a JSON object with the following items (most of which are optional)::
 
   {
-    "field_name":       # field name (required) [#field_name]_
     "type":             # One of "text", "date", "geo", "float" (default=text)
     "store":            # boolean (default=false), whether to store in document data
+
     "spelling_source":  # boolean (default=true), whether to use for building the spelling dictionary
                         # Note - currently, only used if the field is indexed as freetext. FIXME?
-    "collapsible":      # boolean (default=false), whether to use for collapsing
-    "sortable":         # boolean (default=false), whether to allow sorting on the field
-    "range_searchable": # boolean (default=false), whether to allow range searches on the field
-    "document_weight':  # boolean (default=false), whether the field value can be used for document weighting
-    "noindex":          # boolean (default=false), if true, don't index, but still support above options.
-    "freetext": {       # If present (even if empty), or if field type is 'text' 
-                        # and no other text indexing option (eg, 'exacttext' or 'noindex') is 
-                        # specified, field is indexed for free text searching
-        "language":                  # string (2 letter ISO lang code) (default None) - if missing, use 
-                                     # database default (FIXME - need to be able to set this).
-        "term_frequency_multiplier": # int (default 1) - must be positive or zero - 
-                                     # multiplier for term frequency, increases term frequency by the 
+                        # May only be specified if type == "text".
+
+    "sortable":         # boolean (default=false), whether to allow sorting, collapsing and weighting on the field
+                        # Allowed for type == "text", "date", "float" - not for "geo".
+
+    "freetext": {       # If present (even if empty) field is indexed for free text searching
+                        # Requires type == "text".
+        "language":                  # string (2 letter ISO lang code) (default None) - if missing, use
+                                     # database default.
+        "term_frequency_multiplier": # int (default 1) - must be positive or zero -
+                                     # multiplier for term frequency, increases term frequency by the
                                      # given multipler to increase its weighting
         "enable_phrase_search":      # boolean (default True) - whether to allow phrase searches on this field
      },
      "exacttext":       # boolean. If true, search is indexed for exact text searching
+                        # Requires type == "text".
                         # Note - only one of "freetext" and "exact" may be supplied
 
-     "geo": {           # If present (even if empty), or if field type is 'geo' and 'noindex' is not specified,
-                        # coordinates are stored such that searches can be ordered by distance from a point.
-          "enable_bounding_box_search":  # boolean (default=true) - if true, index such that searches for all 
+     "range" {
+         # details of the acceleration terms to use for range searches.  May only be specified if type == "float" and sortable == true.
+         # FIXME - contents of this hasn't been defined yet - we'll work it out once we have the rest working.
+     }
+
+     "geo": {
+          # If present (even if empty), coordinates are stored such that searches can be ordered by distance from a point.
+          "enable_bounding_box_search":  # boolean (default=true) - if true, index such that searches for all
                                          # items within a bounding box can be retrieved.
-          "enable_range_search':  # boolean (default=true) - if true, index such that searches can be 
+          "enable_range_search':  # boolean (default=true) - if true, index such that searches can be
                                   # restricted to all items within a range (ie, great circle distance) of a point.
       }
   }
-  
-.. [#field_name] Should this be here? The name is part of the URL, not the resource AT the URL.
 
 Document
 --------

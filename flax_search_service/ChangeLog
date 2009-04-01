@@ -1,6 +1,10 @@
+Wed Apr 01 14:19:07 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/api.rst: Simplified field schema spec.
+
 Wed Apr 01 14:24:20 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
-    * flax/searchserver/dbutils.py: added import os as required by l.65
+	* flax/searchserver/dbutils.py: added import os as required by l.65
 
 Wed Apr 01 12:42:55 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
