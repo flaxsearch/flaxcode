@@ -24,6 +24,7 @@ __docformat__ = "restructuredtext en"
 
 # Local modules
 import controller
+import dbutils
 
 # Global modules
 import dircache
@@ -33,8 +34,8 @@ import xapian
 import xappy
 
 # Parameter descriptions
-dbname_param = ('dbname', '^\w+$')
-fieldname_param = ('fieldname', '^\w+$')
+dbname_param = ('dbname', '^[A-Za-z0-9._%]+$')
+fieldname_param = ('fieldname', '^[A-Za-z0-9._%]+$')
 
 class SearchServer(object):
     """An instance of the search server.
@@ -65,7 +66,7 @@ class SearchServer(object):
 
     def _get_search_connection(self, request):
         dbname = request.pathinfo['dbname']
-        dbpath = os.path.join(self.dbs_path, dbname)
+        dbpath = dbutils.dbpath_from_urlquoted(self.dbs_path, dbname)
         if not os.path.exists(dbpath):
             raise wsgiwapi.HTTPNotFound(request.path)
         return xappy.SearchConnection(dbpath)
@@ -98,6 +99,7 @@ class SearchServer(object):
             names = []
         else:
             names = dircache.listdir(self.dbs_path)
+        # FIXME - need to convert the filenames to dbnames, somehow.
         return names
 
     @wsgiwapi.allow_GETHEAD

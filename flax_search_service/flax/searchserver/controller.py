@@ -19,9 +19,16 @@
 # SOFTWARE.
 r"""Controller for database creation and deletion, and modification threads.
 
+This file contains all the code to manage creation, starting and stopping of
+threads for modification of the database.
+
 """
 __docformat__ = "restructuredtext en"
 
+# Local modules
+import dbutils
+
+# Global modules
 import os
 import shutil
 import threading
@@ -29,7 +36,7 @@ import xappy
 import wsgiwapi
 
 def synchronised(fn):
-    """Decorator to ensure that a call is only performed with the 
+    """Decorator to ensure that a call is only performed with the lock held.
 
     """
     def res(self, *args):
@@ -49,27 +56,37 @@ class Controller(object):
         self.settings_db = settings_db
 
         # Lock which should be held when trying to create or delete a database,
-        # or start or store a database writer thread.
+        # or start or stop a database writer thread.
         self.mutex = threading.Lock()
 
         # Dictionary of writers for each database.
         self.writers = {}
 
-    def _stop_writers(self, dbname):
+    def _stop_writer(self, dbname):
+        """Stop the writer for the named database.
+
+        """
         writer = self.writers.get(dbname)
         if writer is None:
             return
-        FIXME # implement
+        FIXME # implement - stop the writer thread
 
     @synchronised
     def create_db(self, dbname, overwrite, reopen):
         """Create a database.
 
+         - `dbname` is the name of the database.
+         - `overwrite`, if True, causes the database to be deleted and
+           recreated if the database already exists.
+         - `reopen`, if True, causes the database to be left alone if it
+           already exists.
+
         """
-        dbpath = os.path.join(self.dbs_path, dbname)
+        dbpath = dbutils.dbpath_from_urlquoted(self.dbs_path, dbname)
+
         if os.path.exists(dbpath):
             if overwrite:
-                self._stop_writers(dbname)
+                self._stop_writer(dbname)
                 shutil.rmtree(dbpath)
             elif not reopen:
                 raise wsgiwapi.HTTPError(400, "Database already exists")
@@ -77,10 +94,28 @@ class Controller(object):
 
     @synchronised
     def delete_db(self, dbname, allow_missing):
-        dbpath = os.path.join(self.dbs_path, dbname)
+        """Delete a database.
+
+        If `allow_missing` is true, do nothing if the database is missing.
+        Otherwise, raise an error if the database is missing.
+
+        """
+        dbpath = dbutils.dbpath_from_urlquoted(self.dbs_path, dbname)
         if not os.path.exists(dbpath):
             if allow_missing:
                 return
             raise wsgiwapi.HTTPError(400, "Database missing")
-        self._stop_writers(dbname)
+        self._stop_writer(dbname)
         shutil.rmtree(dbpath)
+
+    @synchronised
+    def start_writer(self, dbname):
+        """Start a writer for the named database.
+
+        """
+        writer = self.writers.get(dbname)
+        if writer is not None:
+            # Already exists
+            FIXME # check that the writer is running ok
+            return
+        FIXME # implement - create and start the writer thread
