@@ -25,6 +25,7 @@ __docformat__ = "restructuredtext en"
 # Local modules
 import controller
 import dbutils
+import schema
 
 # Global modules
 import dircache
@@ -33,9 +34,18 @@ import wsgiwapi
 import xapian
 import xappy
 
+try:
+    # json is a built-in module from python 2.6 onwards
+    import json
+    json.dumps
+except (ImportError, AttributeError):
+    import simplejson as json
+
+
 # Parameter descriptions
 dbname_param = ('dbname', '^[A-Za-z0-9._%]+$')
 fieldname_param = ('fieldname', '^[A-Za-z0-9._%]+$')
+docid_param = ('docid', '^[A-Za-z0-9._%]+$')
 
 class SearchServer(object):
     """An instance of the search server.
@@ -71,6 +81,16 @@ class SearchServer(object):
             raise wsgiwapi.HTTPNotFound(request.path)
         return xappy.SearchConnection(dbpath)
 
+    def _get_indexer_connection(self, request):
+        """ FIXME: this is just temporary. All DB writing should be moved into a 
+        separate thread (one per DB), including config changes.
+        """
+        dbname = request.pathinfo['dbname']
+        dbpath = dbutils.dbpath_from_urlquoted(self.dbs_path, dbname)
+        if not os.path.exists(dbpath):
+            raise wsgiwapi.HTTPNotFound(request.path)
+        return xappy.IndexerConnection(dbpath)
+
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.noparams
     @wsgiwapi.jsonreturning
@@ -100,6 +120,7 @@ class SearchServer(object):
         else:
             names = dircache.listdir(self.dbs_path)
         # FIXME - need to convert the filenames to dbnames, somehow.
+        # (perhaps store DB name as metadata)?
         return names
 
     @wsgiwapi.allow_GETHEAD
@@ -159,14 +180,14 @@ class SearchServer(object):
     @wsgiwapi.pathinfo(dbname_param)
     @wsgiwapi.jsonreturning
     def schema_info(self, request):
-        FIXME
+        raise NotImplementedError
 
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.noparams
     @wsgiwapi.pathinfo(dbname_param)
     @wsgiwapi.jsonreturning
     def schema_get_language(self, request):
-        FIXME
+        raise NotImplementedError
 
     @wsgiwapi.allow_POST
     @wsgiwapi.param('language', 1, 1, '^\w+$', ['none'],
@@ -181,24 +202,95 @@ class SearchServer(object):
     def schema_set_language(self, request):
         """Set
         """
+        raise NotImplementedError
 
     @wsgiwapi.allow_POST
-    @wsgiwapi.pathinfo(dbname_param)
+    @wsgiwapi.pathinfo(dbname_param, fieldname_param)
     @wsgiwapi.jsonreturning
     def field_set(self, request):
-        return 'field_set: %(dbname)s, %(fieldname)s' % request.pathinfo
+        con = self._get_indexer_connection(request)
+        data = con.get_metadata('ss_schema')
+        if data:
+            scm = schema.Schema(json.loads(data))
+            assert isinstance(scm, schema.Schema)  # FIXME
+        else:
+            scm = schema.Schema()
+            
+        scm.set_field(request.pathinfo['fieldname'], request.json)
+        con.set_metadata('ss_schema', json.dumps(scm.as_dict()))
+        con.flush()  # FIXME - move into write queue
+        scm.set_xappy_field_actions(con)
+        return True
 
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.pathinfo(dbname_param, fieldname_param)
     @wsgiwapi.jsonreturning
     def field_get(self, request):
-        return 'field_get: %(dbname)s, %(fieldname)s' % request.pathinfo
+        con = self._get_search_connection(request)
+        data = con.get_metadata('ss_schema')
+        if data:
+            scm = schema.Schema(json.loads(data))
+            assert isinstance(scm, schema.Schema)  # FIXME
+            try:
+                return scm.get_field(request.pathinfo['fieldname'])
+            except KeyError:
+                raise wsgiwapi.HTTPNotFound(request.path)
+        else:
+            return None
 
     @wsgiwapi.allow_DELETE
     @wsgiwapi.pathinfo(dbname_param, fieldname_param)
     @wsgiwapi.jsonreturning
     def field_delete(self, request):
-        return 'field_delete: %(dbname)s, %(fieldname)s' % request.pathinfo
+        raise NotImplementedError
+
+    @wsgiwapi.allow_GETHEAD
+    @wsgiwapi.pathinfo(dbname_param)
+    @wsgiwapi.jsonreturning
+    def fields_list(self, request):
+        con = self._get_search_connection(request)
+        data = con.get_metadata('ss_schema')
+        if data:
+            scm = schema.Schema(json.loads(data))
+            assert isinstance(scm, schema.Schema)  # FIXME
+            return scm.get_field_names()
+        else:
+            return []
+
+    @wsgiwapi.allow_GETHEAD
+    @wsgiwapi.pathinfo(dbname_param, docid_param)
+    @wsgiwapi.jsonreturning
+    def doc_get(self, request):
+        con = self._get_search_connection(request)
+        doc = con.get_document(request.pathinfo['docid'])
+        return doc.data
+
+    @wsgiwapi.allow_POST
+    @wsgiwapi.pathinfo(dbname_param)
+    @wsgiwapi.jsonreturning
+    def doc_add(self, request):
+        """FIXME - move into write queue
+        
+        """
+        con = self._get_indexer_connection(request)
+        doc = xappy.UnprocessedDocument()
+        assert isinstance(request.json, dict)
+        for k, v in request.json.iteritems():
+            if isinstance(v, list):
+                for v2 in v:
+                    doc.fields.append(xappy.Field(k, v2))
+            else:
+                doc.fields.append(xappy.Field(k, v))
+        
+        docid = con.add(doc)
+        con.flush()
+        return docid
+
+    @wsgiwapi.allow_POST
+    @wsgiwapi.pathinfo(dbname_param)
+    @wsgiwapi.jsonreturning
+    def doc_delete(self, request):
+        raise NotImplementedError
 
     def get_urls(self):
         return {
@@ -212,12 +304,19 @@ class SearchServer(object):
             'dbs/*/schema/language': wsgiwapi.MethodSwitch(
                 get=self.schema_get_language,
                 post=self.schema_set_language),
+            'dbs/*/schema/fields': wsgiwapi.MethodSwitch(
+                get=self.fields_list,),
             'dbs/*/schema/fields/*': wsgiwapi.MethodSwitch(
                 get=self.field_get,
                 post=self.field_set,
                 delete=self.field_delete),
+            'dbs/*/docs': wsgiwapi.MethodSwitch(
+                post=self.doc_add),             
+            'dbs/*/docs/*': wsgiwapi.MethodSwitch(
+                get=self.doc_get,
+                delete=self.doc_delete),
         }
 
 def App(*args, **kwargs):
     server = SearchServer(*args, **kwargs)
-    return wsgiwapi.make_application(server.get_urls())
+    return wsgiwapi.make_application(server.get_urls(), logger=wsgiwapi.VerboseLogger)

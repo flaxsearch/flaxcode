@@ -1,3 +1,9 @@
+Wed Apr 08 14:39:20 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+
+    * flax/searchserver/schema.py: added code for basic indexing/storage
+    * flax/searchserver/application.py: added basic field and doc code,
+      will have to be moved into writer thread.
+
 Mon Apr 06 14:34:22 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
     
     * flax/searchserver/schema.py: Added skeletal schema class.

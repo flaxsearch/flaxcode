@@ -26,8 +26,13 @@ import xappy
 
 class Schema(object):
 
-    def __init__(self):
+    def __init__(self, dict_data=None):
         self.fields = {}
+        if dict_data:
+            self.fields = dict_data['fields']
+    
+    def as_dict(self):
+        return { 'fields': self.fields }
 
     def set_field(self, fieldname, fieldprops):
         """Set a field from the name and properties supplied.
@@ -76,6 +81,12 @@ class Schema(object):
         """        
         self.fields[fieldname] = fieldprops
     
+    def get_field(self, fieldname):
+        """Return properties for the named field.
+        
+        """
+        return self.fields[fieldname]
+        
     def get_field_names(self):
         """Return a list of field names.
         
@@ -86,7 +97,7 @@ class Schema(object):
         """Set the appropriate Xappy field actions to implement our schema.
         
         """
-        for fieldname, fieldprops in self.fields:
+        for fieldname, fieldprops in self.fields.iteritems():
             fieldtype = fieldprops.get('type', 'text')
             assert fieldtype in ('text', 'date', 'geo', 'float')  # FIXME?
             if fieldtype == 'text':
@@ -95,7 +106,7 @@ class Schema(object):
                     assert isinstance(freetext, dict)  # FIXME?
                     language = freetext.get('language')
                     term_frequency_multiplier = freetext.get('term_frequency_multiplier', 1)
-                    enable_phrase_search = freetext.get('enable_phrase_search')           
+                    enable_phrase_search = freetext.get('enable_phrase_search')
                     indexer_connection.add_field_action(fieldname, 
                         xappy.FieldActions.INDEX_FREETEXT, 
                         weight = term_frequency_multiplier,
@@ -104,3 +115,7 @@ class Schema(object):
             else:
                 raise NotImplementedError
         
+            if fieldprops.get('store'):
+                indexer_connection.add_field_action(fieldname, 
+                    xappy.FieldActions.STORE_CONTENT) 
+
