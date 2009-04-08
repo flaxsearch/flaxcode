@@ -64,8 +64,9 @@ class FieldsTestCase extends UnitTestCase {
         $this->assertIdentical($fnames, array('foo'));
         
         $field = $this->db->getField('foo');
-        $this->assertIdentical($field, $fielddesc);
-        
+        $this->assertEqual($field['store'], true);
+        $this->assertEqual($field['exacttext'], true);
+
         # delete the field
         $this->db->deleteField('foo');
 

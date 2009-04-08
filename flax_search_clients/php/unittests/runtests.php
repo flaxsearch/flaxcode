@@ -19,23 +19,27 @@
 require_once('simpletest/unit_tester.php');
 require_once('simpletest/reporter.php');
 
+require_once('../flaxclient.php');
 require_once('test_database.php');
 require_once('test_fields.php');
 require_once('test_docs.php');
 
 $server = null;
+$server_url = null;
 $tests = array();
 
 foreach ($argv as $a) {
     if (substr($a, 0, 7) == 'http://') {
-        $server = $a;
+        $server_url = $a;
     } else if ($a != $argv[0]) {
         $tests[$a] = true;
     }    
 }
 
-if ($server == null) {
-    $server = new FlaxSearchService('', new FlaxTestRestClient);
+if ($server_url) {
+    $server = new FlaxSearchService(new FlaxRestClient($server_url));
+} else {
+    $server = new FlaxSearchService(new FlaxTestRestClient());
 }
 
 $test = new TestSuite('All tests');

@@ -1,3 +1,9 @@
+Wed Apr  8 16:47:46 BST 2009    Tom Mortimer <tom@lemurconsulting.com>
+
+    * php/flaxclient.php: Don't construct a default REST client.
+    * php/unittests/test_fields.php: Fixed assertions.
+    * php/unittests/runtests.php: Can now test against real server.
+
 Tue Mar 31 17:52:37 BST 2009    Tom Mortimer <tom@lemurconsulting.com>
 
     * flaxclient.php: Added and fixed code for db document access.
