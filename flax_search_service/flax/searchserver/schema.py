@@ -86,6 +86,12 @@ class Schema(object):
         
         """
         return self.fields[fieldname]
+
+    def delete_field(self, fieldname):
+        """Remove the named field from the schema.
+        
+        """
+        del self.fields[fieldname]
         
     def get_field_names(self):
         """Return a list of field names.
@@ -96,14 +102,19 @@ class Schema(object):
     def set_xappy_field_actions(self, indexer_connection):
         """Set the appropriate Xappy field actions to implement our schema.
         
-        """
+        """        
         for fieldname, fieldprops in self.fields.iteritems():
             fieldtype = fieldprops.get('type', 'text')
             assert fieldtype in ('text', 'date', 'geo', 'float')  # FIXME?
+            
+            indexer_connection.clear_field_actions(fieldname)
+            
             if fieldtype == 'text':
                 freetext = fieldprops.get('freetext')
                 if freetext:
-                    assert isinstance(freetext, dict)  # FIXME?
+                    if freetext is True:
+                        freetext = {}
+                        
                     language = freetext.get('language')
                     term_frequency_multiplier = freetext.get('term_frequency_multiplier', 1)
                     enable_phrase_search = freetext.get('enable_phrase_search')

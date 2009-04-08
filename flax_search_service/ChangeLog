@@ -1,3 +1,10 @@
+Wed Apr  8 16:43:23 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+
+    * flax/searchserver/schema.py: Added field delete, and got the xappy
+      stuff working correctly with the PHP client unit tests.
+    * flax/searchserver/application.py: Got it working correctly with 
+      the PHP client unit tests.
+
 Wed Apr 08 14:39:20 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
     * flax/searchserver/schema.py: added code for basic indexing/storage

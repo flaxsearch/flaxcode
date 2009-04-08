@@ -108,6 +108,8 @@ class SearchServer(object):
             }
         }
 
+    #### DB methods ####
+
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.noparams
     @wsgiwapi.jsonreturning
@@ -175,6 +177,8 @@ class SearchServer(object):
         dircache.reset()
         return True
 
+    #### schema methods ####
+
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.noparams
     @wsgiwapi.pathinfo(dbname_param)
@@ -204,7 +208,10 @@ class SearchServer(object):
         """
         raise NotImplementedError
 
+    #### field methods ####
+
     @wsgiwapi.allow_POST
+    @wsgiwapi.allow_PUT
     @wsgiwapi.pathinfo(dbname_param, fieldname_param)
     @wsgiwapi.jsonreturning
     def field_set(self, request):
@@ -215,12 +222,18 @@ class SearchServer(object):
             assert isinstance(scm, schema.Schema)  # FIXME
         else:
             scm = schema.Schema()
+
+        fieldname = request.pathinfo['fieldname']
+        
+        # don't overwrite existing field
+        if request.method == 'POST' and fieldname in scm.get_field_names():
+            return wsgiwapi.JsonResponse(False, 409)
             
-        scm.set_field(request.pathinfo['fieldname'], request.json)
+        scm.set_field(fieldname, request.json)
         con.set_metadata('ss_schema', json.dumps(scm.as_dict()))
         con.flush()  # FIXME - move into write queue
         scm.set_xappy_field_actions(con)
-        return True
+        return wsgiwapi.JsonResponse(True, 201)
 
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.pathinfo(dbname_param, fieldname_param)
@@ -234,16 +247,33 @@ class SearchServer(object):
             try:
                 return scm.get_field(request.pathinfo['fieldname'])
             except KeyError:
-                raise wsgiwapi.HTTPNotFound(request.path)
-        else:
-            return None
+                pass
+
+        raise wsgiwapi.HTTPNotFound(request.path)
 
     @wsgiwapi.allow_DELETE
     @wsgiwapi.pathinfo(dbname_param, fieldname_param)
     @wsgiwapi.jsonreturning
     def field_delete(self, request):
-        raise NotImplementedError
+        con = self._get_indexer_connection(request)
+        data = con.get_metadata('ss_schema')
+        if data:
+            fieldname = request.pathinfo['fieldname']
+            scm = schema.Schema(json.loads(data))
+            assert isinstance(scm, schema.Schema)  # FIXME
+            try:
+                scm.get_field(fieldname)  # check it exists
+            except KeyError:
+                raise wsgiwapi.HTTPNotFound(request.path)
+            
+            scm.delete_field(fieldname)
+            con.set_metadata('ss_schema', json.dumps(scm.as_dict()))
+            con.flush()      # FIXME - move into write queue
+            scm.set_xappy_field_actions(con)
+            return True
 
+        raise wsgiwapi.HTTPNotFound(request.path)
+            
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.pathinfo(dbname_param)
     @wsgiwapi.jsonreturning
@@ -257,13 +287,19 @@ class SearchServer(object):
         else:
             return []
 
+    #### document methods ####
+
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.pathinfo(dbname_param, docid_param)
     @wsgiwapi.jsonreturning
     def doc_get(self, request):
         con = self._get_search_connection(request)
-        doc = con.get_document(request.pathinfo['docid'])
-        return doc.data
+        try:
+            doc = con.get_document(request.pathinfo['docid'])
+            return doc.data
+        except KeyError:
+            raise wsgiwapi.HTTPNotFound(request.path)
+
 
     @wsgiwapi.allow_POST
     @wsgiwapi.pathinfo(dbname_param)
@@ -284,13 +320,15 @@ class SearchServer(object):
         
         docid = con.add(doc)
         con.flush()
-        return docid
+        return wsgiwapi.JsonResponse(docid, 201)
 
     @wsgiwapi.allow_POST
     @wsgiwapi.pathinfo(dbname_param)
     @wsgiwapi.jsonreturning
     def doc_delete(self, request):
         raise NotImplementedError
+
+    #### end of implementations ####
 
     def get_urls(self):
         return {
@@ -309,6 +347,7 @@ class SearchServer(object):
             'dbs/*/schema/fields/*': wsgiwapi.MethodSwitch(
                 get=self.field_get,
                 post=self.field_set,
+                put=self.field_set,
                 delete=self.field_delete),
             'dbs/*/docs': wsgiwapi.MethodSwitch(
                 post=self.doc_add),             
