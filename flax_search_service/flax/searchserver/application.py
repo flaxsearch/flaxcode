@@ -233,7 +233,7 @@ class SearchServer(object):
         con.set_metadata('ss_schema', json.dumps(scm.as_dict()))
         con.flush()  # FIXME - move into write queue
         scm.set_xappy_field_actions(con)
-        return wsgiwapi.JsonResponse(True, 201)
+        return True
 
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.pathinfo(dbname_param, fieldname_param)
@@ -306,7 +306,11 @@ class SearchServer(object):
     @wsgiwapi.jsonreturning
     def doc_add(self, request):
         """FIXME - move into write queue
-        
+    
+        NOTE: strictly speaking, creating a resource should return status 201 with the
+        resource location in the Location: header. However, this causes the PHP HTTP client
+        to redirect, which is not what we want! So we'll bend the REST rules and always
+        return 200 for success, with the docid (or whatever) in the body.
         """
         con = self._get_indexer_connection(request)
         doc = xappy.UnprocessedDocument()
@@ -320,7 +324,7 @@ class SearchServer(object):
         
         docid = con.add(doc)
         con.flush()
-        return wsgiwapi.JsonResponse(docid, 201)
+        return docid
 
     @wsgiwapi.allow_POST
     @wsgiwapi.pathinfo(dbname_param)

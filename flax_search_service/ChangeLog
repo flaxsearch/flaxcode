@@ -1,3 +1,11 @@
+Thu Apr  9 11:32:29 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+    
+    * flax/searchserver/application.py: Tried returning status 201 for
+      doc creation, with ID in Location field. However, this caused the
+      PHP HTTP client lib to interpret it as a redirect (incorrectly).
+      Since we cannot rely on correctness of all client libs, we will
+      use 200 and response body for this and similar.
+
 Wed Apr  8 16:43:23 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
     * flax/searchserver/schema.py: Added field delete, and got the xappy

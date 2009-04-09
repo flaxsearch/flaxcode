@@ -198,7 +198,7 @@ e.g.::
 
     POST /dbs/<db_name>
 
-If the database is sucessfully created, this will return a 201 response.
+If the database is sucessfully created, this will return a 200 response and true body.
 
 delete database
 ---------------
@@ -330,7 +330,7 @@ e.g.::
 
 Will create new document, or overwrite existing doc.
 
-returns doc_id (in Location: header?)
+returns 200 status and doc_id in body.
 
 delete document(s)
 ------------------
