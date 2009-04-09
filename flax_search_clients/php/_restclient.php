@@ -60,16 +60,14 @@ class FlaxRestClient {
             $http['header'] = "Content-type: text/json\r\n" .
                 "Content-length: {$content_length}\r\n";
         }
-    
+        
         $options = array('http' => $http);
         $context = stream_context_create($options);
         $retbody = @file_get_contents($url, false, $context);
-     
+
         if (!isset($http_response_header)) {
             throw new FlaxInternalError("error communicating with server ({$url})");
         }
-        
-        $location = null;
         
         // Get the *last* HTTP status code
         $nLines = count($http_response_header);
@@ -82,17 +80,11 @@ class FlaxRestClient {
                 $http_code = $response[1];
                 $http_message = $line;
                 break;
-            } else if (strncasecmp("Location:", $line, 9) == 0) {
-                $location = trim(substr($line, 9));
             }
         }
      
         if (substr($http_code, 0, 1) == '2') {
-            if ($location) {
-                return array($http_code, $location);
-            } else {
-                return array($http_code, json_decode($retbody, true));
-            }
+            return array($http_code, json_decode($retbody, true));
         } else {
             return array($http_code, $http_message);
         }

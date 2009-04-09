@@ -36,13 +36,15 @@ class DocsTestCase extends UnitTestCase {
     function setUp() {
         $this->dbname = 'tmp'. time();
         $this->db = $this->server->createDatabase($this->dbname);
+        $this->db->addField('foo', array('type' => 'text', 
+            'store' => true, 'freetext' => array()));
     }
 
     function tearDown() {
         $this->db->delete();
     }
     
-    function testNoDoc() {
+    function testNoDoc() {        
         try {
             $fnames = $this->db->getDocument('doc001');
             $this->fail();
@@ -58,8 +60,8 @@ class DocsTestCase extends UnitTestCase {
         $docid = $this->db->addDocument($doc);
 
         # check it's been added ok
-        $doc2 = $this->db->getDocument($docid);
-        $this->assertIdentical($doc, $doc2);
+        $doc2 = $this->db->getDocument($docid);        
+        $this->assertEqual($doc2['foo'], array('bar'));
     }
 }
 

@@ -1,3 +1,10 @@
+Thu Apr  9 11:37:34 BST 2009    Tom Mortimer <tom@lemurconsulting.com>
+    
+    * php/flaxclient.php: Use 200/body instead of 201/Location. Accept
+      numeric doc IDs.
+    * php/_restclient.php: Removed 201/Location code.
+    * php/unittests/test_docs.php: Got it working with server.
+
 Wed Apr  8 16:47:46 BST 2009    Tom Mortimer <tom@lemurconsulting.com>
 
     * php/flaxclient.php: Don't construct a default REST client.

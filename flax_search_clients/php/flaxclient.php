@@ -41,7 +41,7 @@ class FlaxSearchService {
                         'reopen'    => (int) $reopen);
 
         $result = $this->restclient->do_post('dbs/'._uencode($name), $params);
-        if ($result[0] == 200 || $result[0] == 201) {
+        if ($result[0] == 200) {
             return new _FlaxDatabase($this->restclient, $name);
         } else {
             throw new FlaxDatabaseError('database could not be created ('. $result[1] .')');
@@ -108,7 +108,7 @@ class _FlaxDatabase {
         $result = $this->restclient->do_post(
             'dbs/'._uencode($this->dbname).'/schema/fields/'._uencode($fieldname), $fielddesc);
 
-        if ($result[0] != 201) {
+        if ($result[0] != 200) {
             throw new FlaxFieldError($result[1]);
         }
     }
@@ -121,7 +121,7 @@ class _FlaxDatabase {
         $result = $this->restclient->do_put(
             'dbs/'._uencode($this->dbname).'/schema/fields/'._uencode($fieldname), $fielddesc);
 
-        if ($result[0] != 200 && $result[0] != 201) {
+        if ($result[0] != 200) {
             throw new FlaxFieldError($result[1]);
         }
     }
@@ -168,11 +168,12 @@ class _FlaxDatabase {
         }
         
         # FIXME - Location header for docid return
-        if ($result[0] != 200 && $result[0] != 201) {
+        # (except it breaks the PHP HTTP lib)  =(
+        if ($result[0] != 200) {
             throw new FlaxDocumentError($result[1]);
         }
 
-        return $result[1];
+        return "{$result[1]}";
     }
 
     function replaceDocument($docid, $docdata) {
@@ -183,7 +184,7 @@ class _FlaxDatabase {
         $result = $this->restclient->do_put(
             'dbs/'._uencode($this->dbname).'/docs/'._uencode($docid), $docdata);
 
-        if ($result[0] != 200 && $result[0] != 201) {
+        if ($result[0] != 200) {
             throw new FlaxDocumentError($result[1]);
         }
         
@@ -205,7 +206,7 @@ class _FlaxDatabase {
 }
 
 function _uencode($s) {
-    return str_replace('-', '%2D', urlencode($s));
+    return str_replace('-', '%2D', urlencode("{$s}"));
 }
 
 ?>
