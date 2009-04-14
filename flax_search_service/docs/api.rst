@@ -2,7 +2,16 @@
 Flax Indexing/Search Web Service API
 ====================================
 
-RESTful HTTP. As far as possible, play nicely with browsers and forms, for ease of debugging etc.
+This is the API documentation for the Flax indexing and search web service.
+The API is mostly RESTful HTTP, with a few necessary compromises.
+
+Compromises
+-----------
+
+Successful requests always return a 200 status code.  201 is not used as a
+response status code, even where it would be the most appropriate status code
+to return, because some clients (specifically, a PHP client we experimented
+with) interpret the Location header in such a response as a redirect.
 
 Resources and URIs
 ==================
@@ -32,9 +41,9 @@ DB Status                /dbs/<db_name>/status                          /botany/
 ------------------------ ---------------------------------------------- ---------------------------------
 Document                 /dbs/<db_name>/docs/<doc_id>                   /botany/docs/42 [#docids]_
 ------------------------ ---------------------------------------------- ---------------------------------
-Document range           /dbs/<db_name>/docs/<start_id>-<end_id>        /botany/docs/23-42 [#docid2]_
+Document range           /dbs/<db_name>/docs/<start_id>-<end_id>        /botany/docs/23-42 [#docid]_
 ------------------------ ---------------------------------------------- ---------------------------------
-Document set             /dbs/<db_name>/docs/<id1>,<id2>,...            /botany/docs/3,5,7,11 [#docid2]_
+Document set             /dbs/<db_name>/docs/<id1>,<id2>,...            /botany/docs/3,5,7,11 [#docid]_
 ------------------------ ---------------------------------------------- ---------------------------------
 Database terms [#terms]_ /dbs/<db_name>/terms                           /botany/terms
 ------------------------ ---------------------------------------------- ---------------------------------
@@ -46,20 +55,18 @@ Term match                terms/<prefix>*                               /botany/
 ------------------------ ---------------------------------------------- ---------------------------------
 Synonyms                 /dbs/<db_name>/synonyms/<original>             /botany/synonyms/fungus
 ------------------------ ---------------------------------------------- ---------------------------------
-Search                   /dbs/<db_name>/search/?<query>                 /botany/search/?query=xylem
+Search [#chk]_           /dbs/<db_name>/search/?<query>                 /botany/search/?query=xylem
 ------------------------ ---------------------------------------------- ---------------------------------
 Replay Log               /dbs/<db_name>/log                             /botany/log
 ======================== ============================================== =================================
 
 .. [#chk] Needs more thought.
 
-.. [#docids] Document IDs can be any string, not just numeric.
-
-.. [#docid2] Does this mean that docids can't contain - and , ?
+.. [#docids] Document IDs can be any string, not just numeric.  However, note that they must be escaped as described below.
 
 .. [#terms] Is terms exposing too much? But it's good for populating dropdown lists.
 
-TODO: Add Facets, spelling correction.
+TODO: Add support for facets, spelling correction.
 
 FIXME: Xappy has rich query constructors, how do we make them RESTful? - we
 probably don't; just define a JSON format for representing a query,
@@ -85,15 +92,16 @@ consistency, we therefore require that '-' is escaped in all identifiers.
 Fields
 ------
 
-Each field is defined as a JSON object with the following items (most of which are optional)::
+Each field is defined as a JSON object with the following items (most of which
+are optional)::
 
   {
     "type":             # One of "text", "date", "geo", "float" (default=text)
     "store":            # boolean (default=false), whether to store in document data
 
     "spelling_source":  # boolean (default=true), whether to use for building the spelling dictionary
-                        # Note - currently, only used if the field is indexed as freetext. FIXME?
-                        # May only be specified if type == "text".
+    			# This may only be specified for fields of type "text".
+                        # Note - currently, only used if the field is indexed as freetext.
 
     "sortable":         # boolean (default=false), whether to allow sorting, collapsing and weighting on the field
                         # Allowed for type == "text", "date", "float" - not for "geo".
@@ -128,7 +136,8 @@ Each field is defined as a JSON object with the following items (most of which a
 Document
 --------
 
-Documents are represented as JSON objects where the keys are field names. Each key may have a single string value, or an array of several strings, e.g.::
+Documents are represented as JSON objects where the keys are field names. Each
+key may have a single string value, or an array of several strings, e.g.::
 
   { 
     "title": "Slime Molds",
