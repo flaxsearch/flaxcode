@@ -52,7 +52,11 @@ class FlaxRestClient {
     }
     
     function _do_http_request($url, $method='GET', $content=null) {
-        $http = array('method'  => $method, 'timeout' => 30);
+        $http = array('method'  => $method,
+		      'timeout' => 30,
+		      'max_redirects' => 0, // stops it redirecting
+		      'ignore_errors' => true // returns the content on error
+		     );
         if ($content != null) {
             $json_content = json_encode($content);
             $content_length = strlen($json_content);
@@ -86,8 +90,7 @@ class FlaxRestClient {
         if (substr($http_code, 0, 1) == '2') {
             return array($http_code, json_decode($retbody, true));
         } else {
-            return array($http_code, $http_message);
+            return array($http_code, $http_message . ' (' . $retbody . ')');
         }
     }
 }
-

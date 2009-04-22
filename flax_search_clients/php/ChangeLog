@@ -1,3 +1,8 @@
+Wed Apr 22 13:18:56 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* _restclient.php,flaxclient.php: Some modifications to try and
+	  some client redirecting, and to try and return the body on error.
+
 Thu Apr  9 11:37:34 BST 2009    Tom Mortimer <tom@lemurconsulting.com>
     
     * php/flaxclient.php: Use 200/body instead of 201/Location. Accept
