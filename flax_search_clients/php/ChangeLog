@@ -1,3 +1,8 @@
+Wed Apr 22 14:27:40 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* _restclient_curl.php,flaxclient.php: Add curl-based client and
+	  use it.
+
 Wed Apr 22 13:18:56 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* _restclient.php,flaxclient.php: Some modifications to try and

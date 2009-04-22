@@ -17,7 +17,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 require_once('flaxerrors.php');
-require_once('_restclient.php');
+require_once('_restclient_curl.php');
 
 class FlaxSearchService {
     private $restclient;
