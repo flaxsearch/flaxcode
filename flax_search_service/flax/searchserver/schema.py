@@ -17,7 +17,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-r"""Schema (fields, groups, default) stuff for search server.
+r"""Schema (fields, groups, default) support for search server.
 
 """
 __docformat__ = "restructuredtext en"
@@ -27,57 +27,28 @@ import xappy
 class Schema(object):
 
     def __init__(self, dict_data=None):
+        self.language = 'none'
         self.fields = {}
+        self.groups = {}
+
         if dict_data:
-            self.fields = dict_data['fields']
+            self.language = dict_data.get('language', self.language)
+            self.fields = dict_data.get('fields', self.fields)
+            self.groups = dict_data.get('groups', self.groups)
     
     def as_dict(self):
-        return { 'fields': self.fields }
+        return {
+            'language': self.language,
+            'fields': self.fields,
+            'groups': self.groups,
+        }
 
     def set_field(self, fieldname, fieldprops):
         """Set a field from the name and properties supplied.
 
-        Each field is defined as a JSON object with the following items (most of which are optional)::
-        
-          {
-            "type":             # One of "text", "date", "geo", "float" (default=text)
-            "store":            # boolean (default=false), whether to store in document data
-        
-            "spelling_source":  # boolean (default=true), whether to use for building the spelling dictionary
-                                # Note - currently, only used if the field is indexed as freetext. FIXME?
-                                # May only be specified if type == "text".
-        
-            "sortable":         # boolean (default=false), whether to allow sorting, collapsing and weighting on the field
-                                # Allowed for type == "text", "date", "float" - not for "geo".
-        
-            "freetext": {       # If present (even if empty) field is indexed for free text searching
-                                # Requires type == "text".
-                "language":                  # string (2 letter ISO lang code) (default None) - if missing, use
-                                             # database default.
-                "term_frequency_multiplier": # int (default 1) - must be positive or zero -
-                                             # multiplier for term frequency, increases term frequency by the
-                                             # given multipler to increase its weighting
-                "enable_phrase_search":      # boolean (default True) - whether to allow phrase searches on this field
-             },
-             "exacttext":       # boolean. If true, search is indexed for exact text searching
-                                # Requires type == "text".
-                                # Note - only one of "freetext" and "exact" may be supplied
-        
-             "range" {
-                 # details of the acceleration terms to use for range searches.  May only be specified if type == "float" and sortable == true.
-                 # FIXME - contents of this hasn't been defined yet - we'll work it out once we have the rest working.
-             }
-        
-             "geo": {
-                  # If present (even if empty), coordinates are stored such that searches can be ordered by distance from a point.
-                  "enable_bounding_box_search":  # boolean (default=true) - if true, index such that searches for all
-                                                 # items within a bounding box can be retrieved.
-                  "enable_range_search':  # boolean (default=true) - if true, index such that searches can be
-                                          # restricted to all items within a range (ie, great circle distance) of a point.
-              }
-          }
-        
-        FIXME - validate field_props
+        Each field's schema is represented by a dictionary, as specified in the
+        API documentation.
+
         """        
         self.fields[fieldname] = fieldprops
     

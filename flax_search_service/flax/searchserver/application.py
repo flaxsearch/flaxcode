@@ -23,24 +23,15 @@ r"""WSGI application for FlaxSearchServer.
 __docformat__ = "restructuredtext en"
 
 # Local modules
+import backends
 import controller
-import dbutils
 import schema
+import utils
 
 # Global modules
-import dircache
 import os
 import wsgiwapi
 import xapian
-import xappy
-
-try:
-    # json is a built-in module from python 2.6 onwards
-    import json
-    json.dumps
-except (ImportError, AttributeError):
-    import simplejson as json
-
 
 # Parameter descriptions
 dbname_param = ('dbname', '^[A-Za-z0-9._%]+$')
@@ -56,6 +47,33 @@ class SearchServer(object):
     """
 
     def __init__(self, settings):
+        """Initialise an instance of the search server.
+
+        `settings` should be a dictionary containing the following items:
+
+         - `data_path`: The path of a directory under which all the databases
+           and other data will be placed.
+         - `server_bind_address`: The address for the server to bind to.  This
+           should by a tuple containing two items - first the address to bind
+           to (for example, '0.0.0.0' to bind to any IPv4 address), second
+           the port number to bind to.
+
+        `settings` may also contain the following optional items:
+
+         - `backend_settings`: A dictionary of backend-specific settings, keyed
+           by backend name.  These will be passed directly to the backend in
+           use.
+
+        For example:
+
+        >>> s = SearchServer({'data_path': '/tmp/flax/',
+        ...                   'server_bind_address': ('0.0.0.0', 8080),
+        ...                  })
+
+        The directory pointed to by data_path will be created if it doesn't
+        already exist.
+
+        """
         self.data_path = os.path.realpath(settings['data_path'])
         if not os.path.exists(self.data_path):
             os.makedirs(self.data_path)
@@ -69,27 +87,15 @@ class SearchServer(object):
         # are set at runtime.
         self.settings_path = os.path.join(self.data_path, 'ss_settings')
         self.settings_db = xapian.WritableDatabase(self.settings_path,
-                                                    xapian.DB_CREATE_OR_OPEN)
+                                                   xapian.DB_CREATE_OR_OPEN)
+
+        self.backend_settings = settings.get('backend_settings', {})
+        backends.check_backend_settings(self.backend_settings)
 
         self.controller = controller.Controller(self.dbs_path,
-                                                self.settings_db)
-
-    def _get_search_connection(self, request):
-        dbname = request.pathinfo['dbname']
-        dbpath = dbutils.dbpath_from_urlquoted(self.dbs_path, dbname)
-        if not os.path.exists(dbpath):
-            raise wsgiwapi.HTTPNotFound(request.path)
-        return xappy.SearchConnection(dbpath)
-
-    def _get_indexer_connection(self, request):
-        """ FIXME: this is just temporary. All DB writing should be moved into a 
-        separate thread (one per DB), including config changes.
-        """
-        dbname = request.pathinfo['dbname']
-        dbpath = dbutils.dbpath_from_urlquoted(self.dbs_path, dbname)
-        if not os.path.exists(dbpath):
-            raise wsgiwapi.HTTPNotFound(request.path)
-        return xappy.IndexerConnection(dbpath)
+                                                self.backend_settings,
+                                                self.settings_db,
+                                               )
 
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.noparams
@@ -99,13 +105,15 @@ class SearchServer(object):
 
         """
         import version
+        backend_list = backends.get_backends()
+        backend_versions = dict((name, backend.version_info())
+                                for name, backend in backend_list)
         return {
             'versions': {
                 'SERVER': version.SERVER_VERSION,
                 'PROTOCOL': version.PROTOCOL_VERSION,
-                'xappy': xappy.__version__,
-                'xapian': xapian.version_string(),
-            }
+            },
+            'backends': backend_versions,
         }
 
     #### DB methods ####
@@ -117,13 +125,7 @@ class SearchServer(object):
         """Get a list of available databases.
 
         """
-        if not os.path.isdir(self.dbs_path):
-            names = []
-        else:
-            names = dircache.listdir(self.dbs_path)
-        # FIXME - need to convert the filenames to dbnames, somehow.
-        # (perhaps store DB name as metadata)?
-        return names
+        return self.controller.db_names()
 
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.pathinfo(dbname_param)
@@ -133,10 +135,12 @@ class SearchServer(object):
         """Get information about the database.
 
         """
-        conn = self._get_search_connection(request)
-        return {
-            'doccount': conn.get_doccount()
-        }
+        dbname = request.pathinfo['dbname']
+        db = self.controller.get_database(dbname, readonly=True)
+        try:
+            return db.get_info()
+        finally:
+            db.close()
 
     @wsgiwapi.allow_POST
     @wsgiwapi.pathinfo(dbname_param)
@@ -144,6 +148,9 @@ class SearchServer(object):
                     "If 1, overwrite an existing database.  If 0 or omitted, "
                     "give an error if the database already exists.")
     @wsgiwapi.param('reopen', 1, 1, '^[01]$', [0],
+                    "If 1, and database exists, do nothing.  If 0 or omitted, "
+                    "give an error if the database already exists.")
+    @wsgiwapi.param('backend', 1, 1, '^[a-z][a-z0-9]*$', ['xappy'],
                     "If 1, and database exists, do nothing.  If 0 or omitted, "
                     "give an error if the database already exists.")
     @wsgiwapi.jsonreturning
@@ -157,8 +164,8 @@ class SearchServer(object):
         if overwrite and reopen:
             raise ValidationError('"overwrite" and "reopen" must not '
                                   'both be specified')
-        self.controller.create_db(dbname, overwrite, reopen)
-        dircache.reset()
+        self.controller.create_db(request.params['backend'][0],
+                                  dbname, overwrite, reopen)
         return True
 
     @wsgiwapi.allow_DELETE
@@ -174,7 +181,6 @@ class SearchServer(object):
         dbname = request.pathinfo['dbname']
         allow_missing = bool(int(request.params['allow_missing'][0]))
         self.controller.delete_db(dbname, allow_missing)
-        dircache.reset()
         return True
 
     #### schema methods ####
@@ -184,14 +190,26 @@ class SearchServer(object):
     @wsgiwapi.pathinfo(dbname_param)
     @wsgiwapi.jsonreturning
     def schema_info(self, request):
-        raise NotImplementedError
+        dbname = request.pathinfo['dbname']
+        db = self.controller.get_database(dbname, readonly=True)
+        try:
+            scm = db.get_schema()
+            return scm.as_dict()
+        finally:
+            db.close()
 
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.noparams
     @wsgiwapi.pathinfo(dbname_param)
     @wsgiwapi.jsonreturning
     def schema_get_language(self, request):
-        raise NotImplementedError
+        dbname = request.pathinfo['dbname']
+        db = self.controller.get_database(dbname, readonly=True)
+        try:
+            scm = db.get_schema()
+            return scm.language
+        finally:
+            db.close()
 
     @wsgiwapi.allow_POST
     @wsgiwapi.param('language', 1, 1, '^\w+$', ['none'],
@@ -204,88 +222,99 @@ class SearchServer(object):
     @wsgiwapi.pathinfo(dbname_param)
     @wsgiwapi.jsonreturning
     def schema_set_language(self, request):
-        """Set
-        """
-        raise NotImplementedError
+        """Set the default language for language for the database.
 
-    #### field methods ####
+        """
+        # FIXME - move into write queue
+        dbname = request.pathinfo['dbname']
+        language = request.pathinfo['language']
+        db = self.controller.get_database(dbname, readonly=False)
+        try:
+            scm = db.get_schema()
+            scm.language = language
+            db.set_schema(scm)
+            return True
+        finally:
+            db.close()
+
+    #### schema/field methods ####
 
     @wsgiwapi.allow_POST
     @wsgiwapi.allow_PUT
     @wsgiwapi.pathinfo(dbname_param, fieldname_param)
     @wsgiwapi.jsonreturning
     def field_set(self, request):
-        con = self._get_indexer_connection(request)
-        data = con.get_metadata('ss_schema')
-        if data:
-            scm = schema.Schema(json.loads(data))
-            assert isinstance(scm, schema.Schema)  # FIXME
-        else:
-            scm = schema.Schema()
+        """Set the configuration for a field.
 
+        """
+        # FIXME - move into write queue
+        dbname = request.pathinfo['dbname']
         fieldname = request.pathinfo['fieldname']
-        
-        # don't overwrite existing field
-        if request.method == 'POST' and fieldname in scm.get_field_names():
-            return wsgiwapi.JsonResponse(False, 409)
+
+        db = self.controller.get_database(dbname, readonly=False)
+        try:
+            scm = db.get_schema()
+
+            # don't overwrite existing field
+            if request.method == 'POST' and fieldname in scm.get_field_names():
+                return wsgiwapi.JsonResponse(False, 409)
             
-        scm.set_field(fieldname, request.json)
-        con.set_metadata('ss_schema', json.dumps(scm.as_dict()))
-        con.flush()  # FIXME - move into write queue
-        scm.set_xappy_field_actions(con)
-        return True
+            scm.set_field(fieldname, request.json)
+            db.set_schema(scm)
+            return True
+        finally:
+            db.close()
 
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.pathinfo(dbname_param, fieldname_param)
     @wsgiwapi.jsonreturning
     def field_get(self, request):
-        con = self._get_search_connection(request)
-        data = con.get_metadata('ss_schema')
-        if data:
-            scm = schema.Schema(json.loads(data))
-            assert isinstance(scm, schema.Schema)  # FIXME
-            try:
-                return scm.get_field(request.pathinfo['fieldname'])
-            except KeyError:
-                pass
+        dbname = request.pathinfo['dbname']
+        fieldname = request.pathinfo['fieldname']
 
-        raise wsgiwapi.HTTPNotFound(request.path)
+        db = self.controller.get_database(dbname, readonly=True)
+        try:
+            scm = db.get_schema()
+            try:
+                return scm.get_field(fieldname)
+            except KeyError:
+                raise wsgiwapi.HTTPNotFound()
+        finally:
+            db.close()
 
     @wsgiwapi.allow_DELETE
     @wsgiwapi.pathinfo(dbname_param, fieldname_param)
     @wsgiwapi.jsonreturning
     def field_delete(self, request):
-        con = self._get_indexer_connection(request)
-        data = con.get_metadata('ss_schema')
-        if data:
-            fieldname = request.pathinfo['fieldname']
-            scm = schema.Schema(json.loads(data))
-            assert isinstance(scm, schema.Schema)  # FIXME
-            try:
-                scm.get_field(fieldname)  # check it exists
-            except KeyError:
-                raise wsgiwapi.HTTPNotFound(request.path)
-            
-            scm.delete_field(fieldname)
-            con.set_metadata('ss_schema', json.dumps(scm.as_dict()))
-            con.flush()      # FIXME - move into write queue
-            scm.set_xappy_field_actions(con)
-            return True
+        # FIXME - move into write queue
+        dbname = request.pathinfo['dbname']
+        fieldname = request.pathinfo['fieldname']
 
-        raise wsgiwapi.HTTPNotFound(request.path)
+        db = self.controller.get_database(dbname, readonly=False)
+        try:
+            scm = db.get_schema()
+            try:
+                scm.get_field(fieldname) # check it exists
+            except KeyError:
+                raise wsgiwapi.HTTPNotFound()
+
+            scm.delete_field(fieldname)
+            db.set_schema(scm)
+            return True
+        finally:
+            db.close()
             
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.pathinfo(dbname_param)
     @wsgiwapi.jsonreturning
     def fields_list(self, request):
-        con = self._get_search_connection(request)
-        data = con.get_metadata('ss_schema')
-        if data:
-            scm = schema.Schema(json.loads(data))
-            assert isinstance(scm, schema.Schema)  # FIXME
+        dbname = request.pathinfo['dbname']
+        db = self.controller.get_database(dbname, readonly=True)
+        try:
+            scm = db.get_schema()
             return scm.get_field_names()
-        else:
-            return []
+        finally:
+            db.close()
 
     #### document methods ####
 
@@ -293,13 +322,16 @@ class SearchServer(object):
     @wsgiwapi.pathinfo(dbname_param, docid_param)
     @wsgiwapi.jsonreturning
     def doc_get(self, request):
-        con = self._get_search_connection(request)
+        dbname = request.pathinfo['dbname']
+        doc_id = request.pathinfo['docid']
+        db = self.controller.get_database(dbname, readonly=True)
         try:
-            doc = con.get_document(request.pathinfo['docid'])
-            return doc.data
-        except KeyError:
-            raise wsgiwapi.HTTPNotFound(request.path)
-
+            try:
+                return db.get_document(doc_id)
+            except KeyError:
+                raise wsgiwapi.HTTPNotFound()
+        finally:
+            db.close()
 
     @wsgiwapi.allow_POST
     @wsgiwapi.pathinfo(dbname_param)
@@ -307,24 +339,19 @@ class SearchServer(object):
     def doc_add(self, request):
         """FIXME - move into write queue
     
-        NOTE: strictly speaking, creating a resource should return status 201 with the
-        resource location in the Location: header. However, this causes the PHP HTTP client
-        to redirect, which is not what we want! So we'll bend the REST rules and always
-        return 200 for success, with the docid (or whatever) in the body.
+        NOTE: strictly speaking, creating a resource should return status 201
+        with the resource location in the Location: header. However, this
+        causes the PHP HTTP client to redirect, which is not what we want! So
+        we'll bend the REST rules and always return 200 for success, with the
+        docid (or whatever) in the body.
+
         """
-        con = self._get_indexer_connection(request)
-        doc = xappy.UnprocessedDocument()
-        assert isinstance(request.json, dict)
-        for k, v in request.json.iteritems():
-            if isinstance(v, list):
-                for v2 in v:
-                    doc.fields.append(xappy.Field(k, v2))
-            else:
-                doc.fields.append(xappy.Field(k, v))
-        
-        docid = con.add(doc)
-        con.flush()
-        return docid
+        dbname = request.pathinfo['dbname']
+        db = self.controller.get_database(dbname, readonly=False)
+        try:
+            return db.add_document(request.json)
+        finally:
+            db.close()
 
     @wsgiwapi.allow_POST
     @wsgiwapi.pathinfo(dbname_param)

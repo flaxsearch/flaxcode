@@ -17,17 +17,27 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-r"""Database access utilities.
+r"""General utilities.
 
 """
 __docformat__ = "restructuredtext en"
 
+# Global modules.
 import os
 import re
 import sha
 import unicodedata
 import urllib
 import wsgiwapi
+
+# Import a json handling library as "json".
+try:
+    # json is a built-in module from python 2.6 onwards
+    import json
+    json.dumps
+except (ImportError, AttributeError):
+    # Depend on simplejson for python 2.5 or earlier.
+    import simplejson as json
 
 def dbname_from_urlquoted(dbname_urlquoted):
     """Returns a database name (as a unicode string).

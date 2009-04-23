@@ -1,3 +1,13 @@
+Thu Apr 23 00:51:02 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* ext/__init__.py,flax/searchserver/application.py,
+	  flax/searchserver/backends/__init__.py,
+	  flax/searchserver/backends/base_backend.py,
+	  flax/searchserver/backends/xappy_backend.py,flax/searchserver/,
+	  runserver.py: Major rework; split backend specific code into
+	  backends/ subdirectory.  Lots of work preparing for running the
+	  indexing in a separate thread (though this isn't done yet).
+
 Thu Apr  9 11:32:29 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
     
     * flax/searchserver/application.py: Tried returning status 201 for
