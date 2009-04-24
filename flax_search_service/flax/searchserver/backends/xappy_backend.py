@@ -144,3 +144,30 @@ class Database(BaseDatabase):
             else:
                 updoc.append(k, v)
         return self.conn.add(updoc)
+
+    def search_simple(self, query, start_index, count):
+        """Perform a simple search, for a user-specified query string.
+
+        Returns a set of search results.
+
+        """
+        self._open_connection()
+        results = self.conn.query(query).search(start_index - 1, start_index - 1 + count)
+        resultlist = [
+            {
+                "rank": result.rank,
+                "weight": result.weight,
+                "data": result.data,
+            } for result in results
+        ]
+        return {
+            'matches_estimated': results.matches_estimated,
+            'matches_lower_bound': results.matches_lower_bound,
+            'matches_upper_bound': results.matches_upper_bound,
+            'matches_human_readable_estimate': results.matches_human_readable_estimate,
+            'estimate_is_exact': results.estimate_is_exact,
+            'more_matches': results.more_matches,
+            'start_rank': results.start_rank,
+            'end_rank': results.end_rank,
+            'results': resultlist,
+        }

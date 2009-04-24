@@ -126,3 +126,11 @@ class BaseDatabase(object):
 
         """
         raise NotImplementedError
+
+    def search_simple(self, query, start_index, count):
+        """Perform a simple search, for a user-specified query string.
+
+        Returns a set of search results.
+
+        """
+        raise NotImplementedError

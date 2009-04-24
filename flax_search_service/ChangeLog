@@ -1,3 +1,10 @@
+Fri Apr 24 14:05:19 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/application.py,
+	  flax/searchserver/backends/base_backend.py,
+	  flax/searchserver/backends/xappy_backend.py: Basic implementation
+	  of a simple search method.
+
 Thu Apr 23 00:51:02 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* ext/__init__.py,flax/searchserver/application.py,

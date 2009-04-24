@@ -359,6 +359,37 @@ class SearchServer(object):
     def doc_delete(self, request):
         raise NotImplementedError
 
+    @wsgiwapi.allow_GET
+    @wsgiwapi.pathinfo(dbname_param)
+    @wsgiwapi.jsonreturning
+    @wsgiwapi.param('query', 1, 1, None, [''],
+                    """A user-entered query string.
+
+                    """)
+    # Note - the startIndex and count parameters here are defined as in the
+    # opensearch specification, to try and help make it less confusing to
+    # implement an opensearch API on top of this.
+    @wsgiwapi.param('startIndex', 1, 1, '^[1-9]\d*$', ['1'],
+                    """The offset of the first document to return.
+
+                    1-based - ie, 1 returns the top document first.
+
+                    """)
+    @wsgiwapi.param('count', 1, 1, '^\d+$', ['10'],
+                    """The desired number of documents to return.
+
+                    """)
+    def search_simple(self, request):
+        dbname = request.pathinfo['dbname']
+        query = request.param['query']
+        start_index = request.param['startIndex']
+        count = request.param['count']
+        db = self.controller.get_database(dbname, readonly=True)
+        try:
+            return db.search_simple(query, start_index, count)
+        finally:
+            db.close()
+
     #### end of implementations ####
 
     def get_urls(self):
@@ -385,6 +416,7 @@ class SearchServer(object):
             'dbs/*/docs/*': wsgiwapi.MethodSwitch(
                 get=self.doc_get,
                 delete=self.doc_delete),
+            'dbs/*/search/simple': self.search_simple,
         }
 
 def App(*args, **kwargs):
