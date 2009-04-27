@@ -36,6 +36,10 @@ SCHEMA_KEY = "_flax_schema"
 class Backend(BaseBackend):
     """The xappy backend for flax search server.
 
+    Settings for this backend can be specified in the settings.py module by
+    adding a 'xappy' entry to the 'backend_settings' dict.  They will be
+    available in self.settings.
+
     """
     def version_info(self):
         """Get version information about the backend.
@@ -59,18 +63,19 @@ class Backend(BaseBackend):
         """
         pass
 
-    def get_db(self, db_path, readonly):
+    def get_db(self, base_uri, db_path, readonly):
         """Get the database at a specific path.
 
         """
-        return Database(db_path, readonly)
+        return Database(base_uri, db_path, readonly)
 
 class Database(BaseDatabase):
-    def __init__(self, db_path, readonly):
+    def __init__(self, base_uri, db_path, readonly):
         """Create a database object for the specified path.
 
         """
         BaseDatabase.__init__(self)
+        self.base_uri = base_uri
         self.db_path = db_path
         self.readonly = readonly
         self.conn = None
@@ -156,6 +161,7 @@ class Database(BaseDatabase):
         resultlist = [
             {
                 "rank": result.rank,
+                "db": self.base_uri,
                 "weight": result.weight,
                 "data": result.data,
             } for result in results

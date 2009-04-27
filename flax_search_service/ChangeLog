@@ -1,3 +1,13 @@
+Mon Apr 27 09:04:15 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/application.py,
+	  flax/searchserver/backends/base_backend.py,
+	  flax/searchserver/backends/xappy_backend.py,
+	  flax/searchserver/controller.py,settings.py: Add base_uri and
+	  backend_settings to settings.py.  Pass these through to the
+	  controller, and then on to the backend (passing the db specific
+	  base_uri to each database).
+
 Mon Apr 27 08:46:36 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* docs/api.rst: Add details of the results of a search.

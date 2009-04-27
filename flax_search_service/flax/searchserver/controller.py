@@ -82,10 +82,11 @@ class InfoFile(object):
         os.rename(tmppath, infopath)
 
 class Controller(object):
-    def __init__(self, dbs_path, backend_settings, settings_db):
+    def __init__(self, base_uri, dbs_path, backend_settings, settings_db):
         """Set up the controller.
 
         """
+        self.base_uri = base_uri
         self.dbs_path = dbs_path
         self.backend_settings = backend_settings
         self.settings_db = settings_db
@@ -149,7 +150,7 @@ class Controller(object):
 
         """
         dbpath, backend = self.get_path_and_backend(dbname)
-        return backend.get_db(dbpath, readonly)
+        return backend.get_db(self.base_uri + 'dbs/' + dbname, dbpath, readonly)
 
     def _stop_writer(self, dbname):
         """Stop the writer for the named database.

@@ -75,7 +75,7 @@ class BaseBackend(object):
         """
         raise NotImplementedError
 
-    def get_db(self, db_path, readonly):
+    def get_db(self, base_uri, db_path, readonly):
         """Get a DB object, used for all access to the database.
 
         The DB object can be newly allocated, or allocated from a pool.

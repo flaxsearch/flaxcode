@@ -24,8 +24,12 @@ __docformat__ = "restructuredtext en"
 
 # Settings for the server.
 settings = {
+    'base_uri': 'http://localhost:8080/',
     'data_path': '/tmp/flax/', # Path used to hold data
     'server_bind_address': ('0.0.0.0', 8080), # Address to bind the server to.
+    'backend_settings': {
+        'xappy': {},
+    }
 }
 
 # Allow default settings to be overridden with settings in local_settings.py

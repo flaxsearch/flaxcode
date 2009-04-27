@@ -92,7 +92,8 @@ class SearchServer(object):
         self.backend_settings = settings.get('backend_settings', {})
         backends.check_backend_settings(self.backend_settings)
 
-        self.controller = controller.Controller(self.dbs_path,
+        self.controller = controller.Controller(settings['base_uri'],
+                                                self.dbs_path,
                                                 self.backend_settings,
                                                 self.settings_db,
                                                )
