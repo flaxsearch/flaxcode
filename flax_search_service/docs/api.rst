@@ -146,31 +146,69 @@ key may have a single string value, or an array of several strings, e.g.::
              microorganisms that live in any type of dead plant material..."
   }
 
-MSet
-----
+Result set
+----------
 
-MSets are represented by JSON objects providing match information (see
+Result sets are represented by JSON objects providing match information (see
 [http://xappy.org/docs/0.5/api/xappy.searchconnection.SearchResults-class.html SearchResults Properties])
 and a list of results. Selected field data can be returned with each hit as a document-like object (see searching below). e.g.::
 
   {
     "matches_estimated": 234,
     "estimate_is_exact": false,
-    "startrank": 10,
+    "start_index": 11,
     "endrank": 19,
     ...
     "results": [
         { 
           "rank": 10, 
           "weight": 7.23, 
-          "percent": 78, 
-          "data": { "title": "Physarum Polycephalum", "category": ["Mycetozoa", "Amoebozoa"] }
+          "data": { "title": ["Physarum Polycephalum"], "category": ["Mycetozoa", "Amoebozoa"] }
           "summary": "P. polycephalum is typically yellow in color, and eats fungal spores, 
                       bacteria, and other microbes..."
         }
         ...
     ]
   }
+
+The fields defined in a result set are as follows.  Note that all fields are
+compulsory (ie, clients can rely on them being present), except where marked
+with "optional":
+
+ - `matches_estimated`: (integer) An estimate for the number of matching
+   results.
+ - `matches_lower_bound`: (integer) A lower bound on the number of matching
+   results.
+ - `matches_upper_bound`: (integer) An upper bound on the number of matching
+   results.
+ - `matches_human_readable_estimate`: (integer) A human readable estimate of
+   the number of results.  This will always lie within the bounds returned, but
+   will be rounded to an appropriate accuracy level within these bounds.
+ - `estimate_is_exact`: (bool) A boolean, indicating whether the estimate is
+   exact.  If true, any of `matches_lower_bound`, `matches_upper_bound`,
+   `matches_human_readable_estimate` which are present will be equal to the
+   value for `matches_estimated`.
+ - `more_matches`: (bool) True if there definitely are further results matching
+   the search after this.  False if there definitely aren't.  Implementations
+   must always check this.
+ - `start_rank`: (integer) The rank of the first result in `results`.
+ - `end_rank`: (integer) The rank of the first result after the end of
+   `results`.  Note that this is not the rank of the last result in `results`.
+ - `results`: (list) A list of dictionaries, one for each result, in increasing
+   order of rank.  Each dictionary may have the following members:
+   - `rank`: (integer) The rank of the result, where the top result has rank 0.
+   - `db`: (string) The base URI of the database which this result came from.
+   - `docid`: (string) The ID of the document which this result is for.
+   - `weight`: (float, optional) The weight assigned to the result.  Must be
+     positive; if absent, assume this is 0.
+   - `data`: (dict, optional) The document data.  This is the same data as is
+     returned by accessing the document directly.  This must be present unless
+     the search request 
+
+Note that rank here is not defined in the same way as `start_index` in the
+opensearch specification; rank starts at 0, whereas `start_index` starts at 1.
+If implementing an opensearch inteface, `matches_human_readable_estimate` is
+probably the best value to use for the `totalResults` return value.
 
 As shown above, a contextual summary can also be returned with each hit (see searching).
 
