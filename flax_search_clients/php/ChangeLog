@@ -1,3 +1,8 @@
+Wed Apr 29 15:46:12 BST 2009    Tom Mortimer <tom@lemurconsulting.com>
+
+    * flaxclient.php: Removed replaceDocument and added searchSimple.
+    * unittests/test_docs.php: Added search test.
+
 Wed Apr 29 12:44:25 BST 2009    Tom Mortimer <tom@lemurconsulting.com>
 
     * flaxclient.php: Added commit() method.

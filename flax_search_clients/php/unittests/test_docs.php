@@ -63,6 +63,10 @@ class DocsTestCase extends UnitTestCase {
         # check it's been added ok
         $doc2 = $this->db->getDocument('doc002');
         $this->assertEqual($doc2['foo'], array('bar'));
+        
+        # check that we can search for it
+        $results = $this->db->searchSimple('bar');
+        $this->assertEqual($results['matches_estimated'], 1);
     }
 }
 

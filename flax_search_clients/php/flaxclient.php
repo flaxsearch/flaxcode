@@ -175,21 +175,6 @@ class _FlaxDatabase {
 
         return $result[1];
     }
-
-    function replaceDocument($docid, $docdata) {
-        if ($this->deleted) {
-            throw new FlaxDatabaseError('database has been deleted');
-        }
-
-        $result = $this->restclient->do_put(
-            'dbs/'._uencode($this->dbname).'/docs/'._uencode($docid), $docdata);
-
-        if ($result[0] != 200) {
-            throw new FlaxDocumentError($result[1]);
-        }
-        
-        return $result[1];
-    }
     
     function deleteDocument($docid) {
         if ($this->deleted) {
@@ -216,6 +201,23 @@ class _FlaxDatabase {
             throw new FlaxFieldError($result[1]);
         }
     }
+    
+    function searchSimple($query, $startIndex=1, $count=10) {
+        if ($this->deleted) {
+            throw new FlaxDatabaseError('database has been deleted');
+        }
+
+        $url = 'dbs/'._uencode($this->dbname).'/search/simple?query='._uencode($query).
+               '&startIndex='.$startIndex.'&count='.$count;
+        $result = $this->restclient->do_get($url);
+    
+        if ($result[0] != 200) {
+            throw new FlaxDocumentError($result[1]);
+        }
+        
+        return $result[1];
+    }
+
 }
 
 function _uencode($s) {
