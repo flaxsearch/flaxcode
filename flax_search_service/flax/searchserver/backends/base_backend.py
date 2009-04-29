@@ -27,6 +27,8 @@ class BaseBackend(object):
 
     This should be subclassed by each backend.  One instance of the subclass
     for each backend will be created.
+    
+    FIXME: is there any point to pure abstract base classes in a duck-typed language?
 
     """
     def __init__(self, settings):
@@ -75,16 +77,25 @@ class BaseBackend(object):
         """
         raise NotImplementedError
 
-    def get_db(self, base_uri, db_path, readonly):
-        """Get a DB object, used for all access to the database.
+    def get_db_reader(self, base_uri, db_path, readonly):
+        """Get a DB Reader object, used for all read access to the database.
 
         The DB object can be newly allocated, or allocated from a pool.
 
         """
         raise NotImplementedError
 
-class BaseDatabase(object):
-    """Base class for databases returned by BaseBackend.get_db().
+    def get_db_writer(self, base_uri, db_path, readonly):
+        """Get a DB Writer object, used for all write access to the database.
+
+        This will generally be a singleton, and will implement backend writes 
+        in a separate thread.
+
+        """
+        raise NotImplementedError
+
+class BaseDbReader(object):
+    """Base class for databases returned by BaseBackend.get_db_reader().
 
     """
     def close(self):
@@ -110,12 +121,6 @@ class BaseDatabase(object):
         """
         raise NotImplementedError
 
-    def set_schema(self, db_path, schema):
-        """Get the schema for the database at a specific path.
-
-        """
-        raise NotImplementedError
-
     def get_document(self, db_path, doc_id):
         """Get a document from the database.
 
@@ -131,6 +136,23 @@ class BaseDatabase(object):
         """Perform a simple search, for a user-specified query string.
 
         Returns a set of search results.
+
+        """
+        raise NotImplementedError
+
+
+class BaseDbWriter(object):
+    """Base class for databases returned by BaseBackend.get_db_writer().
+
+    """
+    def close(self):
+        """Close any open resources in the database object.
+
+        """
+        raise NotImplementedError
+
+    def set_schema(self, schema):
+        """Set the schema for the database.
 
         """
         raise NotImplementedError

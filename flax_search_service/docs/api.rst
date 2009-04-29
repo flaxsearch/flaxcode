@@ -355,29 +355,16 @@ Metadata Methods
 Document Methods
 ================
 
-add new document
-----------------
-
+add/replace document
+--------------------
 e.g.::
 
     POST /<db_name>/docs/[<doc_id>]
     [document data]
 
-``<doc_id>`` optional. Will create new document, or return error if document id already exists in DB.
+``<doc_id>`` optional. Will create new document, or overwrite existing doc.
 
-returns doc_id (automatically allocated if not specified).
-
-add/replace document
---------------------
-
-e.g.::
-
-    PUT /<db_name>/docs/<doc_id>
-    [document data]
-
-Will create new document, or overwrite existing doc.
-
-returns 200 status and doc_id in body.
+returns true (FIXME return doc_id? Might need to create UUID.)
 
 delete document(s)
 ------------------

@@ -23,12 +23,13 @@ r"""Backend based on xappy.
 __docformat__ = "restructuredtext en"
 
 # Local modules
-from base_backend import BaseBackend, BaseDatabase
+from base_backend import BaseBackend, BaseDbReader, BaseDbWriter
 from flax.searchserver import schema, utils
 
 # Global modules
 import xapian
 import xappy
+import Queue
 
 # The metadata key used to hold schemas.
 SCHEMA_KEY = "_flax_schema"
@@ -40,7 +41,7 @@ class Backend(BaseBackend):
     adding a 'xappy' entry to the 'backend_settings' dict.  They will be
     available in self.settings.
 
-    """
+    """            
     def version_info(self):
         """Get version information about the backend.
 
@@ -63,101 +64,81 @@ class Backend(BaseBackend):
         """
         pass
 
-    def get_db(self, base_uri, db_path, readonly):
-        """Get the database at a specific path.
+    def get_db_reader(self, base_uri, db_path):
+        """Get a DbReader object for a database at a specific path.
 
+        We allow multiple DbReaders so that searches can be concurrent.
+        
         """
-        return Database(base_uri, db_path, readonly)
+        return DbReader(base_uri, db_path)
 
-class Database(BaseDatabase):
-    def __init__(self, base_uri, db_path, readonly):
+    def get_db_writer(self, base_uri, db_path):
+        """Get a DbWriter object for a database at a specific path.
+
+        There should only be one of these in existence at any one time (per DB).
+        
+        """
+        return DbWriter(base_uri, db_path)
+        
+
+class DbReader(BaseDbReader):
+    def __init__(self, base_uri, db_path):
         """Create a database object for the specified path.
 
         """
-        BaseDatabase.__init__(self)
+        BaseDbReader.__init__(self)
         self.base_uri = base_uri
         self.db_path = db_path
-        self.readonly = readonly
-        self.conn = None
+        self._sconn = None          # search connection
 
-    def close(self):
-        """Close any open database connections.
+    def __del__(self):
+        """Close any open database connection.
 
         """
-        if self.conn is not None:
-            self.conn.close()
-            self.conn = None
+        if self._sconn is not None:
+            self._sconn.close()
 
-    def _open_connection(self):
+    @property
+    def searchconn(self):
         """Open a search connection if there isn't one already open.
 
         """
-        if self.conn is None:
-            if self.readonly:
-                self.conn = xappy.SearchConnection(self.db_path)
-            else:
-                self.conn = xappy.IndexerConnection(self.db_path)
-
+        if self._sconn is None:
+            self._sconn = xappy.SearchConnection(self.db_path)
+        return self._sconn
+        
     def get_info(self):
         """Get information about the database.
 
         """
-        self._open_connection()
         return {
             'backend': 'xappy',
-            'doccount': self.conn.get_doccount(),
+            'doccount': self.searchconn.get_doccount(),
         }
 
     def get_schema(self):
         """Get the schema for the database.
 
         """
-        self._open_connection()
-        data = self.conn.get_metadata(SCHEMA_KEY)
+        data = self.searchconn.get_metadata(SCHEMA_KEY)
         if len(data) > 0:
             return schema.Schema(utils.json.loads(data))
         else:
             return schema.Schema()
 
-    def set_schema(self, schema):
-        """Get the schema for the database.
-
-        """
-        assert not self.readonly
-        self._open_connection()
-        self.conn.set_metadata(SCHEMA_KEY, utils.json.dumps(schema.as_dict()))
-        schema.set_xappy_field_actions(self.conn)
-
     def get_document(self, doc_id):
         """Get a document from the database.
 
         """
-        self._open_connection()
-        return self.conn.get_document(doc_id).data
-
-    def add_document(self, doc):
-        """Add a document to the database.
-
-        """
-        assert not self.readonly
-        self._open_connection()
-        updoc = xappy.UnprocessedDocument()
-        for k, v in doc.iteritems():
-            if isinstance(v, list):
-                for v2 in v:
-                    updoc.append(k, v2)
-            else:
-                updoc.append(k, v)
-        return self.conn.add(updoc)
-
+        return self.searchconn.get_document(doc_id).data
+            
     def search_simple(self, query, start_index, count):
         """Perform a simple search, for a user-specified query string.
 
         Returns a set of search results.
 
         """
-        self._open_connection()
-        results = self.conn.query(query).search(start_index - 1, start_index - 1 + count)
+        results = self.searchconn.query(query).search(start_index - 1, start_index - 1 + count)
         resultlist = [
             {
                 "rank": result.rank,
@@ -177,3 +158,103 @@ class Database(BaseDatabase):
             'end_rank': results.end_rank,
             'results': resultlist,
         }
+
+
+class DbWriter(BaseDbWriter):
+    def __init__(self, base_uri, db_path):
+        """Create a database object for the specified path.
+
+        """
+        
+        BaseDbWriter.__init__(self)
+        self.base_uri = base_uri
+        self.db_path = db_path
+        self.queue = Queue.Queue()
+        self.iconn = xappy.IndexerConnection(self.db_path)
+
+    def close(self):
+        """Close any open database connections.
+
+        """
+        raise NotImplementedError
+
+    def set_schema(self, schema):
+        """Set the schema for this database.
+        
+        This will be done asynchronously in the write thread.
+        
+        """
+        self.queue.put(DbWriter.SetSchemaAction(self, schema))
+
+    def add_document(self, doc, docid=None):
+        """Add a document to the database.
+        
+        This will be done asynchronously in the write thread.
+        
+        """
+        self.queue.put(DbWriter.AddDocumentAction(self, doc, docid))
+
+    def commit_changes(self):
+         """Commit changes to the database.
+         
+         This will be done asynchronously in the write thread.
+         
+         """
+         self.queue.put(DbWriter.CommitAction(self))
+        
+
+    class SetSchemaAction(object):
+        """Action to set the schema for a Xappy database.
+        
+        """
+        def __init__(self, db_writer, schema):
+            self.db_writer = db_writer
+            self.schema = schema
+    
+        def perform(self):
+            self.db_writer.iconn.set_metadata(SCHEMA_KEY, utils.json.dumps(self.schema.as_dict()))
+            self.schema.set_xappy_field_actions(self.db_writer.iconn)
+        
+        def __str__(self):
+            return 'SetSchemaAction(%s)' % self.db_writer.db_path
+    
+    
+    class AddDocumentAction(object):
+        """Action to add a document to a Xappy database.
+        
+        """
+        def __init__(self, db_writer, doc, docid=None):
+            self.db_writer = db_writer
+            self.doc = doc
+            self.docid = docid
+            
+        def perform(self):
+            updoc = xappy.UnprocessedDocument()
+            for k, v in self.doc.iteritems():
+                if isinstance(v, list):
+                    for v2 in v:
+                        updoc.append(k, v2)
+                else:
+                    updoc.append(k, v)
+            
+            if self.docid is not None:
+                updoc.id = self.docid
+                self.db_writer.iconn.replace(updoc)            
+            else:
+                self.db_writer.iconn.add(updoc)
+    
+        def __str__(self):
+            return 'AddDocumentAction(%s)' % self.db_writer.db_path
+    
+    class CommitAction(object):
+        """Action to flush changes to the database so they can be searched.
+        
+        """
+        def __init__(self, db_writer):
+            self.db_writer = db_writer
+    
+        def perform(self):
+            self.db_writer.iconn.flush()
+
+        def __str__(self):
+            return 'CommitAction(%s)' % self.db_writer.db_path

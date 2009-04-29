@@ -137,11 +137,8 @@ class SearchServer(object):
 
         """
         dbname = request.pathinfo['dbname']
-        db = self.controller.get_database(dbname, readonly=True)
-        try:
-            return db.get_info()
-        finally:
-            db.close()
+        db = self.controller.get_db_reader(dbname)
+        return db.get_info()
 
     @wsgiwapi.allow_POST
     @wsgiwapi.pathinfo(dbname_param)
@@ -152,8 +149,7 @@ class SearchServer(object):
                     "If 1, and database exists, do nothing.  If 0 or omitted, "
                     "give an error if the database already exists.")
     @wsgiwapi.param('backend', 1, 1, '^[a-z][a-z0-9]*$', ['xappy'],
-                    "If 1, and database exists, do nothing.  If 0 or omitted, "
-                    "give an error if the database already exists.")
+                    "The database backend to use. Defaults to xappy.")
     @wsgiwapi.jsonreturning
     def db_create(self, request):
         """Create a new database.
@@ -184,6 +180,20 @@ class SearchServer(object):
         self.controller.delete_db(dbname, allow_missing)
         return True
 
+    @wsgiwapi.allow_POST
+    @wsgiwapi.pathinfo(dbname_param)
+    @wsgiwapi.jsonreturning
+    def db_flush(self, request):
+        """Flush changes to the database.
+        
+        FIXME: this is a hack!
+        
+        """
+        print 'FIXME: hack!'
+        dbname = request.pathinfo['dbname']
+        self.controller.flush(dbname)
+        return True
+
     #### schema methods ####
 
     @wsgiwapi.allow_GETHEAD
@@ -192,12 +202,9 @@ class SearchServer(object):
     @wsgiwapi.jsonreturning
     def schema_info(self, request):
         dbname = request.pathinfo['dbname']
-        db = self.controller.get_database(dbname, readonly=True)
-        try:
-            scm = db.get_schema()
-            return scm.as_dict()
-        finally:
-            db.close()
+        db = self.controller.get_db_reader(dbname)
+        scm = db.get_schema()
+        return scm.as_dict()
 
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.noparams
@@ -205,12 +212,9 @@ class SearchServer(object):
     @wsgiwapi.jsonreturning
     def schema_get_language(self, request):
         dbname = request.pathinfo['dbname']
-        db = self.controller.get_database(dbname, readonly=True)
-        try:
-            scm = db.get_schema()
-            return scm.language
-        finally:
-            db.close()
+        db = self.controller.get_db_reader(dbname)
+        scm = db.get_schema()
+        return scm.language
 
     @wsgiwapi.allow_POST
     @wsgiwapi.param('language', 1, 1, '^\w+$', ['none'],
@@ -226,17 +230,17 @@ class SearchServer(object):
         """Set the default language for language for the database.
 
         """
-        # FIXME - move into write queue
         dbname = request.pathinfo['dbname']
         language = request.pathinfo['language']
-        db = self.controller.get_database(dbname, readonly=False)
-        try:
-            scm = db.get_schema()
-            scm.language = language
-            db.set_schema(scm)
-            return True
-        finally:
-            db.close()
+
+        dbr = self.controller.get_db_reader(dbname)
+        dbw = self.controller.get_db_writer(dbname)
+        scm = dbr.get_schema()
+        scm.language = language
+        dbw.set_schema(scm)
+        # FIXME - should we flush this immediately?
+
+        return True
 
     #### schema/field methods ####
 
@@ -251,20 +255,19 @@ class SearchServer(object):
         # FIXME - move into write queue
         dbname = request.pathinfo['dbname']
         fieldname = request.pathinfo['fieldname']
+        dbr = self.controller.get_db_reader(dbname)
+        scm = dbr.get_schema()
 
-        db = self.controller.get_database(dbname, readonly=False)
-        try:
-            scm = db.get_schema()
+        # don't overwrite existing field
+        if request.method == 'POST' and fieldname in scm.get_field_names():
+            return wsgiwapi.JsonResponse(False, 409)
+        
+        scm.set_field(fieldname, request.json)
+        dbw = self.controller.get_db_writer(dbname)
+        dbw.set_schema(scm)
 
-            # don't overwrite existing field
-            if request.method == 'POST' and fieldname in scm.get_field_names():
-                return wsgiwapi.JsonResponse(False, 409)
-            
-            scm.set_field(fieldname, request.json)
-            db.set_schema(scm)
-            return True
-        finally:
-            db.close()
+        # FIXME - should we flush this immediately?
+        return True
 
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.pathinfo(dbname_param, fieldname_param)
@@ -273,49 +276,40 @@ class SearchServer(object):
         dbname = request.pathinfo['dbname']
         fieldname = request.pathinfo['fieldname']
 
-        db = self.controller.get_database(dbname, readonly=True)
+        db = self.controller.get_db_reader(dbname)
+        scm = db.get_schema()
         try:
-            scm = db.get_schema()
-            try:
-                return scm.get_field(fieldname)
-            except KeyError:
-                raise wsgiwapi.HTTPNotFound()
-        finally:
-            db.close()
+            return scm.get_field(fieldname)
+        except KeyError:
+            raise wsgiwapi.HTTPNotFound()
 
     @wsgiwapi.allow_DELETE
     @wsgiwapi.pathinfo(dbname_param, fieldname_param)
     @wsgiwapi.jsonreturning
     def field_delete(self, request):
-        # FIXME - move into write queue
         dbname = request.pathinfo['dbname']
         fieldname = request.pathinfo['fieldname']
 
-        db = self.controller.get_database(dbname, readonly=False)
+        dbr = self.controller.get_db_reader(dbname)
+        scm = dbr.get_schema()
         try:
-            scm = db.get_schema()
-            try:
-                scm.get_field(fieldname) # check it exists
-            except KeyError:
-                raise wsgiwapi.HTTPNotFound()
+            scm.get_field(fieldname) # check it exists
+        except KeyError:
+            raise wsgiwapi.HTTPNotFound()
 
-            scm.delete_field(fieldname)
-            db.set_schema(scm)
-            return True
-        finally:
-            db.close()
+        scm.delete_field(fieldname)
+        dbw = self.controller.get_db_writer(dbname)
+        dbw.set_schema(scm)
+        return True
             
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.pathinfo(dbname_param)
     @wsgiwapi.jsonreturning
     def fields_list(self, request):
         dbname = request.pathinfo['dbname']
-        db = self.controller.get_database(dbname, readonly=True)
-        try:
-            scm = db.get_schema()
-            return scm.get_field_names()
-        finally:
-            db.close()
+        db = self.controller.get_db_reader(dbname)
+        scm = db.get_schema()
+        return scm.get_field_names()
 
     #### document methods ####
 
@@ -325,34 +319,44 @@ class SearchServer(object):
     def doc_get(self, request):
         dbname = request.pathinfo['dbname']
         doc_id = request.pathinfo['docid']
-        db = self.controller.get_database(dbname, readonly=True)
+        db = self.controller.get_db_reader(dbname)
         try:
-            try:
-                return db.get_document(doc_id)
-            except KeyError:
-                raise wsgiwapi.HTTPNotFound()
-        finally:
-            db.close()
+            return db.get_document(doc_id)
+        except KeyError:
+            raise wsgiwapi.HTTPNotFound()
 
     @wsgiwapi.allow_POST
     @wsgiwapi.pathinfo(dbname_param)
     @wsgiwapi.jsonreturning
     def doc_add(self, request):
-        """FIXME - move into write queue
-    
+        """Add document.
+
         NOTE: strictly speaking, creating a resource should return status 201
         with the resource location in the Location: header. However, this
         causes the PHP HTTP client to redirect, which is not what we want! So
         we'll bend the REST rules and always return 200 for success, with the
         docid (or whatever) in the body.
 
+        NOTE: currently not returning doc ID, since we can't get it from Xappy
+        until the doc is (asynchronously) added. A possible solution is to
+        set a UUID or similar.
         """
         dbname = request.pathinfo['dbname']
-        db = self.controller.get_database(dbname, readonly=False)
-        try:
-            return db.add_document(request.json)
-        finally:
-            db.close()
+        dbw = self.controller.get_db_writer(dbname)
+        dbw.add_document(request.json)
+        return True
+
+    @wsgiwapi.allow_POST
+    @wsgiwapi.pathinfo(dbname_param, docid_param)
+    @wsgiwapi.jsonreturning
+    def doc_add2(self, request):
+        """Add or replace a document with a specfied ID.
+
+        """
+        dbname = request.pathinfo['dbname']
+        dbw = self.controller.get_db_writer(dbname)
+        dbw.add_document(request.json, docid=request.pathinfo['docid'])
+        return True
 
     @wsgiwapi.allow_POST
     @wsgiwapi.pathinfo(dbname_param)
@@ -385,11 +389,8 @@ class SearchServer(object):
         query = request.param['query']
         start_index = request.param['startIndex']
         count = request.param['count']
-        db = self.controller.get_database(dbname, readonly=True)
-        try:
-            return db.search_simple(query, start_index, count)
-        finally:
-            db.close()
+        db = self.controller.get_db_reader(dbname)
+        return db.search_simple(query, start_index, count)
 
     #### end of implementations ####
 
@@ -401,6 +402,7 @@ class SearchServer(object):
                 get=self.db_info,
                 post=self.db_create,
                 delete=self.db_delete),
+            'dbs/*/flush': self.db_flush,
             'dbs/*/schema': self.schema_info,
             'dbs/*/schema/language': wsgiwapi.MethodSwitch(
                 get=self.schema_get_language,
@@ -416,6 +418,8 @@ class SearchServer(object):
                 post=self.doc_add),             
             'dbs/*/docs/*': wsgiwapi.MethodSwitch(
                 get=self.doc_get,
+                post=self.doc_add2,
+                put=self.doc_add2,
                 delete=self.doc_delete),
             'dbs/*/search/simple': self.search_simple,
         }

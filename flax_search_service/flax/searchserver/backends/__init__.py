@@ -102,10 +102,12 @@ def get(backend_name, backend_settings):
             return backend
 
         # Try importing the backend module.
+        print '-- loading: flax.searchserver.backends.' + backend_name + '_backend'
         try:
             Backend = __import__('flax.searchserver.backends.' + backend_name + '_backend',
                                      globals(), locals(), ['Backend','Database']).Backend
         except ImportError, e:
+            print '-- e:', e
             raise wsgiwapi.HTTPError(400, "Backend '%s' not supported" % backend_name)
 
         # Make the backend object, register it and return it.

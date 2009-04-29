@@ -95,8 +95,11 @@ class Controller(object):
         # or start or stop a database writer thread.
         self.mutex = threading.Lock()
 
-        # Dictionary of writers for each database.
+        # Dictionary of writers
         self.writers = {}
+
+        # Dictionary of writer threads
+        self.writer_threads = {}
 
     def db_names(self):
         """Get a list of the database names.
@@ -140,7 +143,7 @@ class Controller(object):
         backend = backends.get(infofile.backend_name, self.backend_settings)
         return os.path.join(db_dir, 'db'), backend
 
-    def get_database(self, dbname, readonly):
+    def get_db_reader(self, dbname):
         """Get a database object for the named database.
 
         Raises an HTTPError if the database is not found, or the database
@@ -150,19 +153,7 @@ class Controller(object):
 
         """
         dbpath, backend = self.get_path_and_backend(dbname)
-        return backend.get_db(self.base_uri + 'dbs/' + dbname, dbpath, readonly)
-
-    def _stop_writer(self, dbname):
-        """Stop the writer for the named database.
-
-        The mutex must already be held by the current thread when this is
-        called.
-
-        """
-        writer = self.writers.get(dbname)
-        if writer is None:
-            return
-        FIXME # implement - stop the writer thread
+        return backend.get_db_reader(self.base_uri + 'dbs/' + dbname, dbpath)
 
     @synchronised
     def create_db(self, backend_name, dbname, overwrite, reopen):
@@ -181,7 +172,7 @@ class Controller(object):
         if os.path.exists(db_dir):
             if overwrite:
                 # Delete the old database.
-                self._stop_writer(dbname)
+                self._abort_writer(dbname)
                 infofile = InfoFile(db_dir)
                 backend = backends.get(infofile.backend_name, self.backend_settings)
                 backend.delete_db(os.path.join(db_dir, 'db'))
@@ -214,7 +205,7 @@ class Controller(object):
             if allow_missing:
                 return
             raise wsgiwapi.HTTPError(400, "Database missing")
-        self._stop_writer(dbname)
+        self._abort_writer(dbname)
         try:
             infofile = InfoFile(db_dir)
             backend = backends.get(infofile.backend_name, self.backend_settings)
@@ -222,14 +213,92 @@ class Controller(object):
         finally:
             shutil.rmtree(db_dir)
 
-    @synchronised
-    def start_writer(self, dbname):
-        """Start a writer for the named database.
+    def get_db_writer(self, dbname):
+        """Get or create a writer for the named database.
+
+        FIXME: we might want less than one thread per writer/DB, to prevent thrashing.
+        """
+
+        # First, check for the object without the lock
+        writer = self.writers.get(dbname)
+        if writer is not None:
+            return writer
+        
+        self.mutex.acquire()
+        try:
+            # check again to avoid race conditions
+            writer = self.writers.get(dbname)
+            if writer is not None:
+                return writer
+
+            dbpath, backend = self.get_path_and_backend(dbname)
+            writer = backend.get_db_writer(self.base_uri + 'dbs/' + dbname, dbpath)
+            self.writers[dbname] = writer
+
+            # start a thread to process the writer's items
+            writer_thread = WriterThread(writer)
+            self.writer_threads[dbname] = writer_thread
+            writer_thread.setDaemon(True)
+            writer_thread.start()
+
+            return writer
+            
+        finally:
+            self.mutex.release()
+
+    def _abort_writer(self, dbname):
+        """Stop the writer (abondoning uncommited changes) for the named database.
+
+        The mutex must already be held by the current thread when this is called.
 
         """
         writer = self.writers.get(dbname)
-        if writer is not None:
-            # Already exists
-            FIXME # check that the writer is running ok
+        if writer is None:
             return
-        FIXME # implement - create and start the writer thread
+
+        writer_thread = self.writer_threads[dbname]
+        writer_thread.abort = True
+        writer.queue.put(PassAction())          # in case queue is blocking
+        writer_thread.join()
+        
+        del self.writers[dbname]
+        del self.writer_threads[dbname]
+    
+    @synchronised
+    def flush(self, dbname):
+        """Make sure all DB changes are flushed.
+        
+        """
+        writer = self.writers.get(dbname)
+        if writer is None:
+            return
+        
+        writer.commit_changes() # goes onto queue
+        writer.queue.join()     # wait for queue size to drop to zero (which is 
+                                # why this method has to be synchronised)
+
+class WriterThread(threading.Thread):
+    """Thread class which takes database actions from its writer's queue and
+    performs them.
+    
+    """
+
+    def __init__(self, writer):
+        threading.Thread.__init__(self)
+        self.writer = writer
+        self.abort = False
+        
+    def run(self):
+        while not self.abort:
+            action = self.writer.queue.get()
+            # FIXME how to log this? wsgiwapi?
+            action.perform()
+            self.writer.queue.task_done()
+        
+class PassAction(object):
+    """A database action which does nothing, to wake up the thread if it's blocking
+    on the queue.
+    
+    """
+    def perform(self):
+        pass

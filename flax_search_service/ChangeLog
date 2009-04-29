@@ -1,3 +1,16 @@
+Wed Apr 29 12:37:03 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+
+    * docs/api.rst,
+    * flax/searchserver/application.py,
+    * flax/searchserver/controller.py,
+    * flax/searchserver/backends/xappy_backend.py,
+    * flax/searchserver/backends/__init__.py,
+    * flax/searchserver/backends/base_backend.py: Split database 
+      access into reader and writer classes, and moved DB writes 
+      into a separate thread (one per DB). Added temporary flush 
+      resource and support for adding docs with specified ID. 
+      Passes current PHP tests.
+
 Mon Apr 27 09:04:15 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchserver/application.py,
