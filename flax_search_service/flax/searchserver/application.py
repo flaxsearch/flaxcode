@@ -381,14 +381,14 @@ class SearchServer(object):
 
                     """)
     @wsgiwapi.param('count', 1, 1, '^\d+$', ['10'],
-                    """The desired number of documents to return.
+                    """The maximum number of documents to return.
 
                     """)
     def search_simple(self, request):
         dbname = request.pathinfo['dbname']
-        query = request.param['query']
-        start_index = request.param['startIndex']
-        count = request.param['count']
+        query = request.params['query'][0]
+        start_index = int(request.params['startIndex'][0])
+        count = int(request.params['count'][0])
         db = self.controller.get_db_reader(dbname)
         return db.search_simple(query, start_index, count)
 

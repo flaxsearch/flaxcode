@@ -138,7 +138,8 @@ class DbReader(BaseDbReader):
         Returns a set of search results.
 
         """
-        results = self.searchconn.query(query).search(start_index - 1, start_index - 1 + count)
+        queryobj = self.searchconn.query_parse(query)
+        results = self.searchconn.search(queryobj, start_index - 1, start_index - 1 + count)
         resultlist = [
             {
                 "rank": result.rank,
@@ -147,6 +148,7 @@ class DbReader(BaseDbReader):
                 "data": result.data,
             } for result in results
         ]
+        
         return {
             'matches_estimated': results.matches_estimated,
             'matches_lower_bound': results.matches_lower_bound,
@@ -154,11 +156,11 @@ class DbReader(BaseDbReader):
             'matches_human_readable_estimate': results.matches_human_readable_estimate,
             'estimate_is_exact': results.estimate_is_exact,
             'more_matches': results.more_matches,
-            'start_rank': results.start_rank,
-            'end_rank': results.end_rank,
+            'start_rank': results.startrank,
+            'end_rank': results.endrank,
             'results': resultlist,
         }
-
+        
 
 class DbWriter(BaseDbWriter):
     def __init__(self, base_uri, db_path):

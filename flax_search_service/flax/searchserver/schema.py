@@ -82,18 +82,26 @@ class Schema(object):
             
             if fieldtype == 'text':
                 freetext = fieldprops.get('freetext')
-                if freetext:
-                    if freetext is True:
+                if freetext is not None:
+                    if freetext is True or freetext == []:
                         freetext = {}
                         
-                    language = freetext.get('language')
                     term_frequency_multiplier = freetext.get('term_frequency_multiplier', 1)
                     enable_phrase_search = freetext.get('enable_phrase_search')
-                    indexer_connection.add_field_action(fieldname, 
-                        xappy.FieldActions.INDEX_FREETEXT, 
-                        weight = term_frequency_multiplier,
-                        language = language,
-                        nopos = not enable_phrase_search)
+
+
+                    language = freetext.get('language')
+                    if language is None:
+                        indexer_connection.add_field_action(fieldname, 
+                            xappy.FieldActions.INDEX_FREETEXT, 
+                            weight = term_frequency_multiplier,
+                            nopos = not enable_phrase_search)
+                    else:
+                        indexer_connection.add_field_action(fieldname, 
+                            xappy.FieldActions.INDEX_FREETEXT, 
+                            weight = term_frequency_multiplier,
+                            language = language,
+                            nopos = not enable_phrase_search)
             else:
                 raise NotImplementedError
         
