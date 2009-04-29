@@ -1,3 +1,9 @@
+Wed Apr 29 12:44:25 BST 2009    Tom Mortimer <tom@lemurconsulting.com>
+
+    * flaxclient.php: Added commit() method.
+    * unittests/test_fields.php: Added calls to commit().
+    * unittests/test_docs.php: Added calls to commit().
+
 Wed Apr 22 14:27:40 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* _restclient_curl.php,flaxclient.php: Add curl-based client and

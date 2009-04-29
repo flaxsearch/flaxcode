@@ -58,17 +58,23 @@ class FieldsTestCase extends UnitTestCase {
         # add a field
         $fielddesc = array('store' => true, 'exacttext' => true);
         $result = $this->db->addField('foo', $fielddesc);
-    
-        # check it's been added ok
-        $fnames = $this->db->getFieldNames();
-        $this->assertIdentical($fnames, array('foo'));
         
+        # flush changes
+        # FIXME - make changes to DB structure commit automatically?
+        # (can do at client or server level)
+        $this->db->commit();
+        
+        # check it's been added ok
+        $fnames = $this->db->getFieldNames();        
+        $this->assertIdentical($fnames, array('foo'));
+
         $field = $this->db->getField('foo');
         $this->assertEqual($field['store'], true);
         $this->assertEqual($field['exacttext'], true);
 
         # delete the field
         $this->db->deleteField('foo');
+        $this->db->commit();
 
         # check it's gone
         try {
@@ -84,6 +90,7 @@ class FieldsTestCase extends UnitTestCase {
         # add a field
         $fielddesc = array('store' => true, 'exacttext' => true);
         $result = $this->db->addField('foo', $fielddesc);
+        $this->db->commit();
 
         # check we can't add it again
         try {
@@ -97,6 +104,7 @@ class FieldsTestCase extends UnitTestCase {
         # check we can overwrite it
         $fielddesc = array('store' => false, 'freetext' => true);
         $result = $this->db->replaceField('foo', $fielddesc);
+        $this->db->commit();
 
         # check it's been added ok
         $fnames = $this->db->getFieldNames();

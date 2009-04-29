@@ -55,12 +55,13 @@ class DocsTestCase extends UnitTestCase {
     }
     
     function testAddDoc() {
-        # add a doc without ID
+        # add a doc with an ID
         $doc = array('foo' => 'bar');
-        $docid = $this->db->addDocument($doc);
+        $this->db->addDocument($doc, 'doc002');
+        $this->db->commit();
 
         # check it's been added ok
-        $doc2 = $this->db->getDocument($docid);        
+        $doc2 = $this->db->getDocument('doc002');
         $this->assertEqual($doc2['foo'], array('bar'));
     }
 }

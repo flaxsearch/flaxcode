@@ -173,7 +173,7 @@ class _FlaxDatabase {
             throw new FlaxDocumentError($result[1]);
         }
 
-        return "{$result[1]}";
+        return $result[1];
     }
 
     function replaceDocument($docid, $docdata) {
@@ -201,6 +201,19 @@ class _FlaxDatabase {
 
         if ($result[0] != 200) {
             throw new FlaxDocumentError($result[1]);
+        }
+    }
+
+    function commit() {
+        if ($this->deleted) {
+            throw new FlaxDatabaseError('database has been deleted');
+        }
+
+        $result = $this->restclient->do_post(
+            'dbs/'._uencode($this->dbname).'/flush', 'true');
+            
+        if ($result[0] != 200) {
+            throw new FlaxFieldError($result[1]);
         }
     }
 }
