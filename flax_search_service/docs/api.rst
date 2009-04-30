@@ -161,6 +161,7 @@ and a list of results. Selected field data can be returned with each hit as a do
     ...
     "results": [
         { 
+          "docid": 123,
           "rank": 10, 
           "weight": 7.23, 
           "data": { "title": ["Physarum Polycephalum"], "category": ["Mycetozoa", "Amoebozoa"] }
@@ -437,6 +438,26 @@ Search Methods
 ==============
 
 The complicated stuff!
+
+search/json
+-----------
+Search params are supplied as a POSTed JSON object, e.g.:
+
+    {
+        "startIndex":       1,
+        "count":            10,
+        "query_all":        "hippie zombie",
+        "query_any":        "brussels muscles",
+        "query_none":       "spider",
+        "query_phrase":     "vegemite sandwich",
+        "query_fields":     { "title":  "land down under" }
+        "filters":          { "genre":  "pop",
+                              "era":    "80s" }
+    }
+
+(query_fields and filters are essentially the same, except for using OP_AND and 
+OP_FILTER respectively).
+
 
 Defaults
 --------

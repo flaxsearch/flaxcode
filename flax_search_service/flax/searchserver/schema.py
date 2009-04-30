@@ -148,8 +148,8 @@ class Schema(object):
                             nopos = not enable_phrase_search)
 
                 if fieldprops.get('exacttext'):
-                    pass
-                    
+                    indexer_connection.add_field_action(fieldname,
+                        xappy.FieldActions.INDEX_EXACT)
 
             else:
                 raise NotImplementedError

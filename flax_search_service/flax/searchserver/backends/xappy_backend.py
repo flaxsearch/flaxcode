@@ -139,9 +139,41 @@ class DbReader(BaseDbReader):
 
         """
         queryobj = self.searchconn.query_parse(query)
-        results = self.searchconn.search(queryobj, start_index - 1, start_index - 1 + count)
+        return self._search(queryobj, start_index - 1, start_index - 1 + count)
+        
+    def search_json(self, json):
+        start_index = json.get('startIndex', 1)
+        count = json.get('count', 10)
+
+#       FIXME
+#        query_all
+#        query_any
+#        query_none
+#        query_phrase
+#        filters
+
+        query = None
+        query_fields = json.get('query_fields')
+        if query_fields:
+            assert isinstance(query_fields, dict)
+            for k, v in query_fields.iteritems():
+                subquery = self.searchconn.query_field(k, v)                
+                if query is None:
+                    query = subquery
+                else:
+                    query = self.searchconn.query_composite(self.searchconn.OP_AND, 
+                        (query, subquery))
+
+        return self._search(query, start_index - 1, start_index - 1 + count)
+    
+    def _search(self, queryobj, start_index, end_index):
+        
+        print '-- queryobj:', queryobj
+        
+        results = self.searchconn.search(queryobj, start_index, end_index)
         resultlist = [
             {
+                "docid": result.id,
                 "rank": result.rank,
                 "db": self.base_uri,
                 "weight": result.weight,
@@ -171,7 +203,7 @@ class DbWriter(BaseDbWriter):
         BaseDbWriter.__init__(self)
         self.base_uri = base_uri
         self.db_path = db_path
-        self.queue = Queue.Queue()
+        self.queue = Queue.Queue(10000)
         self.iconn = xappy.IndexerConnection(self.db_path)
 
     def close(self):
@@ -192,7 +224,7 @@ class DbWriter(BaseDbWriter):
         """Add a document to the database.
         
         This will be done asynchronously in the write thread.
-        
+
         """
         self.queue.put(DbWriter.AddDocumentAction(self, doc, docid))
 

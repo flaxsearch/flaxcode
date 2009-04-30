@@ -1,3 +1,15 @@
+Thu Apr 30 17:28:12 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+
+    * docs/api.rst: Added paragraph about JSON search.
+    * flax/searchserver/schema.py: Added exacttext support.
+    * flax/searchserver/application.py:  Added search/json resource.
+    * flax/searchserver/backends/xappy_backend.py: Added JSON search
+      implementation.
+
+Thu Apr 30 11:29:45 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+
+    * test_fields.php: Added test for field validation.
+
 Wed Apr 29 15:29:44 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
     * flax/searchserver/schema.py: Fixed problem with language code.

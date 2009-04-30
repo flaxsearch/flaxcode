@@ -393,6 +393,19 @@ class SearchServer(object):
         db = self.controller.get_db_reader(dbname)
         return db.search_simple(query, start_index, count)
 
+    @wsgiwapi.allow_POST
+    @wsgiwapi.pathinfo(dbname_param)
+    @wsgiwapi.jsonreturning
+    def search_json(self, request):
+        """Search a query supplied as a JSON body.
+        
+        See api.rst for query format.
+        
+        """
+        dbname = request.pathinfo['dbname']
+        db = self.controller.get_db_reader(dbname)
+        return db.search_json(request.json)
+
     #### end of implementations ####
 
     def get_urls(self):
@@ -423,6 +436,7 @@ class SearchServer(object):
                 put=self.doc_add2,
                 delete=self.doc_delete),
             'dbs/*/search/simple': self.search_simple,
+            'dbs/*/search/json': self.search_json,
         }
 
 def App(*args, **kwargs):
