@@ -187,9 +187,8 @@ class SearchServer(object):
         """Flush changes to the database.
         
         FIXME: this is a hack!
-        
+        (we also need to support automatic flushing).
         """
-        print 'FIXME: hack!'
         dbname = request.pathinfo['dbname']
         self.controller.flush(dbname)
         return True
@@ -252,22 +251,24 @@ class SearchServer(object):
         """Set the configuration for a field.
 
         """
-        # FIXME - move into write queue
         dbname = request.pathinfo['dbname']
         fieldname = request.pathinfo['fieldname']
         dbr = self.controller.get_db_reader(dbname)
         scm = dbr.get_schema()
 
-        # don't overwrite existing field
-        if request.method == 'POST' and fieldname in scm.get_field_names():
-            return wsgiwapi.JsonResponse(False, 409)
+#        # don't overwrite existing field
+#        if request.method == 'POST' and fieldname in scm.get_field_names():
+#            return wsgiwapi.JsonResponse(False, 409)
         
-        scm.set_field(fieldname, request.json)
-        dbw = self.controller.get_db_writer(dbname)
-        dbw.set_schema(scm)
-
-        # FIXME - should we flush this immediately?
-        return True
+        try:
+            scm.set_field(fieldname, request.json)
+            dbw = self.controller.get_db_writer(dbname)
+            dbw.set_schema(scm)
+         
+            # FIXME - should we flush this immediately?
+            return True
+        except schema.FieldError, e:
+            raise wsgiwapi.HTTPError(400, e.message)
 
     @wsgiwapi.allow_GETHEAD
     @wsgiwapi.pathinfo(dbname_param, fieldname_param)

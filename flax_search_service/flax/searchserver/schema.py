@@ -47,9 +47,54 @@ class Schema(object):
         """Set a field from the name and properties supplied.
 
         Each field's schema is represented by a dictionary, as specified in the
-        API documentation.
+        API documentation. This method also validates the field definition, raising
+        a FieldError if definition is invalid.
 
-        """        
+        """
+
+        # check we only have valid keys
+        for k in fieldprops.iterkeys():
+            if k not in ('type', 'store', 'spelling_source', 'sortable', 
+                        'freetext', 'exacttext', 'range', 'geo'):
+                raise FieldError, 'invalid field property (%s)' % k
+
+        def validate_attr(key, allowed):
+            try:
+                if fieldprops[key] not in allowed:
+                    raise FieldError, 'invalid value (%s) for field property (%s)' % (fieldprops[key], key)
+            except KeyError:
+                pass
+        
+        validate_attr('type', ('text', 'date',))
+        validate_attr('store', (True, False))
+        validate_attr('spelling_source', (True, False))
+        validate_attr('sortable', (True, False))
+        validate_attr('exacttext', (True, False))
+
+        if fieldprops.get('freetext') and fieldprops.get('exacttext'):
+            raise FieldError, 'cannot have freetext and exacttext specified for same field'
+
+        freetext = fieldprops.get('freetext')
+        if freetext:
+            if isinstance(freetext, dict):
+                for k, v in freetext.iteritems():
+                    if k == 'language':
+                        if v not in ('da', 'nl', 'en', 'lovins', 'porter', 'fi', 'fr', 
+                                     'de', 'it', 'no', 'pt', 'ru', 'es', 'sv',):
+                            raise FieldError, 'invalid value for language (%s)' % v
+                    elif k == 'term_frequency_multiplier':
+                        if (not isinstance(v, int)) or v < 1:
+                            raise FieldError, 'invalid value for term_frequency_multiplier (%s)' % v
+                    elif k == 'enable_phrase_search':
+                        if not v in (True, False):
+                            raise FieldError, 'invalid value for enable_phrase_search (%s)' % v
+                    else:
+                        raise FieldError, 'invalid freetext property (%s)' % k                
+
+            elif freetext not in (True, []):
+                raise FieldError, 'invalid value (%s) for freetext' % freetext
+            
+        # finally accept the field
         self.fields[fieldname] = fieldprops
     
     def get_field(self, fieldname):
@@ -89,7 +134,6 @@ class Schema(object):
                     term_frequency_multiplier = freetext.get('term_frequency_multiplier', 1)
                     enable_phrase_search = freetext.get('enable_phrase_search')
 
-
                     language = freetext.get('language')
                     if language is None:
                         indexer_connection.add_field_action(fieldname, 
@@ -102,6 +146,11 @@ class Schema(object):
                             weight = term_frequency_multiplier,
                             language = language,
                             nopos = not enable_phrase_search)
+
+                if fieldprops.get('exacttext'):
+                    pass
+                    
+
             else:
                 raise NotImplementedError
         
@@ -109,3 +158,8 @@ class Schema(object):
                 indexer_connection.add_field_action(fieldname, 
                     xappy.FieldActions.STORE_CONTENT) 
 
+class FieldError(Exception):
+    """Class representing an error in a field definition.
+    
+    """
+    pass
