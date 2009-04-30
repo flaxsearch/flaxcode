@@ -92,14 +92,14 @@ class FieldsTestCase extends UnitTestCase {
         $result = $this->db->addField('foo', $fielddesc);
         $this->db->commit();
 
-        # check we can't add it again
-        try {
-            $result = $this->db->addField('foo', $fielddesc);
-            $this->fail();
-        }
-        catch (FlaxFieldError $e) {
-            $this->pass();
-        }
+#        # check we can't add it again
+#        try {
+#            $result = $this->db->addField('foo', $fielddesc);
+#            $this->fail();
+#        }
+#        catch (FlaxFieldError $e) {
+#            $this->pass();
+#        }
 
         # check we can overwrite it
         $fielddesc = array('store' => false, 'freetext' => true);
@@ -113,7 +113,24 @@ class FieldsTestCase extends UnitTestCase {
         $field = $this->db->getField('foo');
         $this->assertIdentical($field, $fielddesc);        
     }
-    
+
+    function testInvalidField() {
+        # add an field
+        try {
+            $this->db->addField('foo', array('type' => 1, 'exacttext' => true));
+        }
+        catch (FlaxFieldError $e) {
+            $this->pass();
+        }
+
+        try {
+            $this->db->addField('foo', array('freetext' => array('bob' => 'betty')));
+        }
+        catch (FlaxFieldError $e) {
+            $this->pass();
+        }
+        
+    }   
 }
 
 ?>
