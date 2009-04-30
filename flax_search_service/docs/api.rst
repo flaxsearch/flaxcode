@@ -33,7 +33,7 @@ Fields                   /dbs/<db_name>/schema/fields/<field_name>      /botany/
 ------------------------ ---------------------------------------------- ---------------------------------
 Groups                   /dbs/<db_name>/schema/groups/<group_name>      /botany/schema/groups/taxonomy
 ------------------------ ---------------------------------------------- ---------------------------------
-Metadata [#chk]_         /dbs/<db_name>/meta/<key>                      /botany/meta/wombat
+Metadata                 /dbs/<db_name>/meta/<key>                      /botany/meta/wombat
 ------------------------ ---------------------------------------------- ---------------------------------
 DB Configuration         /dbs/<db_name>/config/<key>                    /botany/config/synchronous
 ------------------------ ---------------------------------------------- ---------------------------------
@@ -41,9 +41,9 @@ DB Status                /dbs/<db_name>/status                          /botany/
 ------------------------ ---------------------------------------------- ---------------------------------
 Document                 /dbs/<db_name>/docs/<doc_id>                   /botany/docs/42 [#docids]_
 ------------------------ ---------------------------------------------- ---------------------------------
-Document range           /dbs/<db_name>/docs/<start_id>-<end_id>        /botany/docs/23-42 [#docid]_
+Document range           /dbs/<db_name>/docs/<start_id>-<end_id>        /botany/docs/23-42 [#docids]_
 ------------------------ ---------------------------------------------- ---------------------------------
-Document set             /dbs/<db_name>/docs/<id1>,<id2>,...            /botany/docs/3,5,7,11 [#docid]_
+Document set             /dbs/<db_name>/docs/<id1>,<id2>,...            /botany/docs/3,5,7,11 [#docids]_
 ------------------------ ---------------------------------------------- ---------------------------------
 Database terms [#terms]_ /dbs/<db_name>/terms                           /botany/terms
 ------------------------ ---------------------------------------------- ---------------------------------
@@ -60,17 +60,11 @@ Search [#chk]_           /dbs/<db_name>/search/?<query>                 /botany/
 Replay Log               /dbs/<db_name>/log                             /botany/log
 ======================== ============================================== =================================
 
-.. [#chk] Needs more thought.
-
 .. [#docids] Document IDs can be any string, not just numeric.  However, note that they must be escaped as described below.
 
 .. [#terms] Is terms exposing too much? But it's good for populating dropdown lists.
 
 TODO: Add support for facets, spelling correction.
-
-FIXME: Xappy has rich query constructors, how do we make them RESTful? - we
-probably don't; just define a JSON format for representing a query,
-heirarchically, as a combination of various subqueries.
 
 Formats
 =======
@@ -149,21 +143,22 @@ key may have a single string value, or an array of several strings, e.g.::
 Result set
 ----------
 
-Result sets are represented by JSON objects providing match information (see
-[http://xappy.org/docs/0.5/api/xappy.searchconnection.SearchResults-class.html SearchResults Properties])
-and a list of results. Selected field data can be returned with each hit as a document-like object (see searching below). e.g.::
+Result sets are represented by JSON objects providing match information and a
+list of results. Selected field data can be returned with each hit as a
+document-like object (see searching below). e.g.::
 
   {
     "matches_estimated": 234,
     "estimate_is_exact": false,
-    "start_index": 11,
-    "endrank": 19,
+    "start_rank": 10,
+    "end_rank": 20,
     ...
     "results": [
         { 
           "docid": 123,
           "rank": 10, 
           "weight": 7.23, 
+          "db": "http://localhost:8080/dbs/foo",
           "data": { "title": ["Physarum Polycephalum"], "category": ["Mycetozoa", "Amoebozoa"] }
           "summary": "P. polycephalum is typically yellow in color, and eats fungal spores, 
                       bacteria, and other microbes..."
@@ -197,37 +192,61 @@ with "optional":
    `results`.  Note that this is not the rank of the last result in `results`.
  - `results`: (list) A list of dictionaries, one for each result, in increasing
    order of rank.  Each dictionary may have the following members:
+
    - `rank`: (integer) The rank of the result, where the top result has rank 0.
    - `db`: (string) The base URI of the database which this result came from.
    - `docid`: (string) The ID of the document which this result is for.
    - `weight`: (float, optional) The weight assigned to the result.  Must be
      positive; if absent, assume this is 0.
-   - `data`: (dict, optional) The document data.  This is the same data as is
-     returned by accessing the document directly.  This must be present unless
-     the search request 
+   - `data`: (dict, optional) The document data.  This is the same format of
+     data as is returned by accessing the document directly, but that some
+     fields may have been filtered out due to options passed along with the
+     search request.
+   - `summary`: (dict, optional) A summary of the document data.  The summary
+     is field specific, and contains data in the same format as normal document
+     data.  Summarisation markup may have been inserted in the data, according
+     to options passed along with the search request.
 
-Note that rank here is not defined in the same way as `start_index` in the
-opensearch specification; rank starts at 0, whereas `start_index` starts at 1.
-If implementing an opensearch inteface, `matches_human_readable_estimate` is
+Note that rank here is not defined in the same way as `startIndex` in the
+opensearch specification; rank starts at 0, whereas `startIndex` starts at 1.
+If implementing an opensearch interface, `matches_human_readable_estimate` is
 probably the best value to use for the `totalResults` return value.
 
-As shown above, a contextual summary can also be returned with each hit (see searching).
+As shown above, a contextual summary can also be returned with each hit (see
+searching).
 
 POST/PUT data
 =============
 
-Sent as type ``application/json`` or as ``json`` field in form data.
+Data supplied along with a POST or PUT request to many of the resources may
+often need to be sent as JSON encoded data.  In this situation, there are two
+ways to send it:
 
-All POST requests must send a JSON object, even if just an empty array or
-``true``.  # FIXME - why?
+ - Send the request body as type ``application/json``.
+ - Send the request body as form-encoded data, containing a ``json`` field
+   containing the JSON encoded data.
 
-The value ``null`` on its own is used to indicate deletion of a resource.
-# FIXME - is it?  we're probably using the DELETE method instead, actually.
+Note that, due to limits on URI lengths supported for GET requests, the API
+sometimes allows a POST request (with a large request body) to be made where a
+GET request would be more appropriate.
 
 Return Values
 =============
 
-Error/success indicated by HTTP response code. Optional JSON body.
+An request which attempts to access a resource which is not found will return a
+404 error.
+
+Most other errors will be returned as a 400 error, with a JSON body indicating
+the details of the error.  FIXME - currently, the body isn't JSON.
+
+Unanticipated internal errors will result in a error in the 500 series, with a
+human-readable body indicating some details of the error which occurred.  A
+traceback will generally be included in the log in this situation, too.
+
+Currently, all successful requests will result in a 200 status code.  Sometimes
+it would be more appropriate to return a 201 or 202 status code, but we have
+experienced problems with clients following the associated "Location" headers
+as if they were redirects, so for now we're sticking to 200 status codes.
 
 Database Methods
 ================
@@ -265,7 +284,7 @@ get database info
 
 e.g.::
 
-    GET /<db_name>
+    GET /dbs/<db_name>
 
     returns { 'doccount': doccount, 'created': created_date, 'last_modified': last_modified_date }
 
@@ -279,7 +298,7 @@ A field is created by posting a field description object (see above) to the fiel
 
 e.g.::
 
-    POST /<db_name>/fields/<field_name>
+    POST /dbs/<db_name>/fields/<field_name>
     {field description object}
 
 This only needs to be done when a database is first created.
@@ -289,7 +308,7 @@ get field
 
 e.g.::
 
-    GET /<db_name>/fields/<field_name>
+    GET /dbs/<db_name>/fields/<field_name>
     {field description object}
 
 delete field
@@ -297,14 +316,14 @@ delete field
 
 e.g.::
 
-    DELETE /<db_name>/fields/<field_name>
+    DELETE /dbs/<db_name>/fields/<field_name>
 
 get list of field names
 -----------------------
 
 e.g.::
 
-    GET /<db_name>/fields
+    GET /dbs/<db_name>/fields
 
     returns [fieldname_1, fieldname_2, ...]
 
@@ -313,31 +332,40 @@ Group Methods
 =============
 
 Groups are provided to make it possible to do efficient searches over two or
-more fields. Internally, these fields will be indexed with a single prefix, so
-the group can be treated as a single field for searching.  Groups can either
-contain ``freetext`` or ``exacttext`` fields, but not both.
+more fields. Internally, a combined index of instances of these fields will be
+created, and these combined indexes will be used whenever the fields in the
+group are used for searching.
 
-create a group
---------------
+Groups can either contain a set of ``freetext`` fields, or a set of
+``exacttext`` fields, but not a mixture of the two.
+
+create or modify a group
+------------------------
+
+Method: PUT
+Path: /dbs/<db_name>/schema/groups/<group_name>
+Body: a JSON list of field names.
+
+Note that this replaces any existing settings for a group of the given name.
 
 e.g.::
 
-    POST /<db_name>/groups/<group_name>
-    [array of field names]
+    PUT /dbs/<db_name>/schema/groups/<group_name>
+    ["field1", "field2"]
 
 delete a group
 --------------
 
 e.g.::
 
-    DELETE /<db_name>/groups/<group_name>
+    DELETE /dbs/<db_name>/schema/groups/<group_name>
 
 get fields in a group
 ---------------------
 
 e.g.::
 
-    GET /<db_name>/groups/<group_name>
+    GET /dbs/<db_name>/schema/groups/<group_name>
 
     returns [array of field names]
 
@@ -346,18 +374,56 @@ get list of groups
 
 e.g.::
 
-    GET /<db_name>/groups
+    GET /dbs/<db_name>/schema/groups
 
     returns [array of group names]
 
 Metadata Methods
 ================
 
+Abitrary metadata may be stored in the database.  This is essentially just a
+key-value store.
+
+FIXME - this part of the API needs more design work::
+
+ - should there be a method for getting all the keys in the metadata?
+ - or should there be a method for getting all  the key-value pairs?
+ - should we be using JSON encoded values for the get and set methods, or just
+   raw data (as application/octet, perhaps)?
+
+set metadata key
+----------------
+
+Method: PUT
+Path: /dbs/<db_name>/meta/<key>
+Body: a JSON string containing the value to store.
+Response: 200 if successful.
+
+e.g.::
+
+    PUT /dbs/foo/meta/name
+    "richard"
+
+get metadata key
+----------------
+
+Method: GET
+Path: /dbs/<db_name>/meta/<key>
+
+Response: a JSON string containing the value stored.
+
+e.g.::
+
+    GET /dbs/foo/meta/name
+
+    returns: "richard"
+
 Document Methods
 ================
 
 add/replace document
 --------------------
+
 e.g.::
 
     POST /<db_name>/docs/[<doc_id>]
@@ -439,9 +505,47 @@ Search Methods
 
 The complicated stuff!
 
+search/simple
+-------------
+
+FIXME - document; just accepts start and end ranks, and a flat query string
+which is interpreted.
+
 search/json
 -----------
-Search params are supplied as a POSTed JSON object, e.g.:
+
+[RJB note: FIXME - this resource name is far from ideal - it describes a
+transfer format, not the purpose of the search.  How about "search/structured"?
+
+While this search structure is useful, it's not particularly general. Also, it
+doesn't seem to require JSON, to me - the functionality exposed here could be
+provided just by using standard querystring parameter encoding (the
+`query_fields` and filters would have the field names appended to the parameter
+names, so would become parameters like: `query_field_title`).
+
+Where we _do_ need JSON is to support something like a fully heirarchical tree
+of objects expressed in JSON.
+
+For example::
+
+  { 'op': 'AND',
+    'subqs': [
+      { 'op': 'parse',
+        'text': 'hippie zombie',
+      },
+      { 'op': 'fields',
+        'fields': ['title', 'text'],
+        'value': 'land down under',
+      }
+    ]
+  }
+
+where this example would parse the text "hippie zombie", and AND the resulting
+query with a query in the fields "title" and "text" for "land down under".
+
+end RJB note]
+
+Search params are supplied as a POSTed JSON object, e.g.::
 
     {
         "startIndex":       1,
