@@ -23,6 +23,7 @@ require_once('../flaxclient.php');
 require_once('test_database.php');
 require_once('test_fields.php');
 require_once('test_docs.php');
+require_once('test_search.php');
 
 $server = null;
 $server_url = null;
@@ -51,6 +52,9 @@ if (!$tests || array_key_exists('fields', $tests))
 
 if (!$tests || array_key_exists('docs', $tests))
     $test->addTestCase(new DocsTestCase($server));
+
+if (!$tests || array_key_exists('search', $tests))
+    $test->addTestCase(new SearchTestCase($server));
 
 exit($test->run(new TextReporter()) ? 0 : 1);
 

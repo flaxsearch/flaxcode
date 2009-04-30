@@ -218,6 +218,21 @@ class _FlaxDatabase {
         return $result[1];
     }
 
+    function searchJSON($query) {
+        if ($this->deleted) {
+            throw new FlaxDatabaseError('database has been deleted');
+        }
+
+        $url = 'dbs/'._uencode($this->dbname).'/search/json';
+        $result = $this->restclient->do_post($url, $query);
+    
+        if ($result[0] != 200) {
+            throw new FlaxDocumentError($result[1]);
+        }
+        
+        return $result[1];
+    }
+
 }
 
 function _uencode($s) {
