@@ -36,10 +36,6 @@ class SearchTestCase extends UnitTestCase {
     function setUp() {
         $this->dbname = 'tmp'. time();
         $this->db = $this->server->createDatabase($this->dbname);
-        $this->db->addField('f1', array('exacttext' => True));
-        $this->db->addField('f2', array('exacttext' => True));
-        $this->db->addField('f3', array('freetext' => True));
-        $this->db->addField('f4', array('freetext' => array('language' => 'en')));
     }
 
     function tearDown() {
@@ -48,6 +44,10 @@ class SearchTestCase extends UnitTestCase {
     
     function testExact() {
         # test exact indexing and search
+
+        $this->db->addField('f1', array('exacttext' => True));
+        $this->db->addField('f2', array('exacttext' => True));
+
         $this->db->addDocument(array('f1' => 'Billy Bragg', 'f2' => 'A New England'), 'doc1');
         $this->db->addDocument(array('f1' => 'Billy Bragg', 'f2' => 'Between The Wars'), 'doc2');
         $this->db->commit();
@@ -67,7 +67,54 @@ class SearchTestCase extends UnitTestCase {
         $results = $this->db->searchJSON(array('query_fields' => 
             array('f1' => 'Billy Bragg')));
         $this->assertEqual($results['matches_estimated'], 2);
+
+        $results = $this->db->searchJSON(array('query_fields' => 
+            array('f1' => 'Billy Bragg', 'f2' => 'A New England')));
+        $this->assertEqual($results['matches_estimated'], 1);
     }
+    
+    function testFreetext() {
+        $this->db->addField('f1', array('exacttext' => True));
+        $this->db->addField('f2', array('freetext' => True));
+    
+        $this->db->addDocument(array('f1' => 'Billy Bragg', 'f2' => 'A New England'), 'doc1');
+        $this->db->addDocument(array('f1' => 'Billy Bragg', 'f2' => 'between the wars'), 'doc2');
+        $this->db->commit();
+    
+        # check search results (field search)
+        $results = $this->db->searchJSON(array('query_fields' => 
+            array('f2' => 'A New England')));      
+        $this->assertEqual($results['matches_estimated'], 1);
+        $this->assertEqual($results['results'][0]['docid'], 'doc1');
+
+        # check search results (freetext search)
+        $results = $this->db->searchSimple('A New england');
+        $this->assertEqual($results['matches_estimated'], 1);
+        $this->assertEqual($results['results'][0]['docid'], 'doc1');
+
+        # check search results (freetext search)
+        $results = $this->db->searchSimple('Between The Wars');
+        $this->assertEqual($results['matches_estimated'], 1);
+        $this->assertEqual($results['results'][0]['docid'], 'doc2');
+    }
+
+    function testFreetextStemmed() {
+        $this->db->addField('f1', array('freetext' => array('language' => 'en')));
+        $this->db->addDocument(array('f1' => 'A New England'), 'doc1');
+        $this->db->addDocument(array('f1' => 'between the wars'), 'doc2');
+        $this->db->commit();
+
+        $results = $this->db->searchSimple('warring');
+        $this->assertEqual($results['matches_estimated'], 1);
+
+        $results = $this->db->searchSimple('warring between');
+        $this->assertEqual($results['matches_estimated'], 1);
+
+        $results = $this->db->searchSimple('war OR england');
+        $this->assertEqual($results['matches_estimated'], 2);
+
+    }
+    
 }
 
 ?>
