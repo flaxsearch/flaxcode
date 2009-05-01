@@ -218,13 +218,23 @@ class _FlaxDatabase {
         return $result[1];
     }
 
-    function searchStructured($query) {
+    function searchStructured($query_all, $query_any, $query_none, $query_phrase,
+                              $filters, $start_rank=0, $end_rank=10) 
+    {
         if ($this->deleted) {
             throw new FlaxDatabaseError('database has been deleted');
         }
 
-        $url = 'dbs/'._uencode($this->dbname).'/search/structured';
-        $result = $this->restclient->do_post($url, $query);
+        $url = 'dbs/'._uencode($this->dbname).'/search/structured?start_rank'.$start_rank.
+               '&end_rank='.$end_rank.'&query_all='._uencode($query_all).
+               '&query_any='._uencode($query_any).'&query_none='._uencode($query_none).
+               '&query_phrase='._uencode($query_phrase);
+        
+        foreach ($filters as $filter) {
+            $url .= '&filter='._uencode($filter[0].':'.$filter[1]);
+        }
+        
+        $result = $this->restclient->do_get($url);
     
         if ($result[0] != 200) {
             throw new FlaxDocumentError($result[1]);

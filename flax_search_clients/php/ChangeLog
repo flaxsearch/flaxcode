@@ -1,3 +1,8 @@
+Fri May  1 14:07:23 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+
+    * flaxclient.php,
+    * unittests/test_search.php: Got searchStructured() and tests working.
+
 Fri May  1 10:22:08 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
     * flaxclient.php,
