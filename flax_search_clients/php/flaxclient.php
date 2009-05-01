@@ -202,13 +202,13 @@ class _FlaxDatabase {
         }
     }
     
-    function searchSimple($query, $startIndex=1, $count=10) {
+    function searchSimple($query, $start_rank=0, $end_rank=10) {
         if ($this->deleted) {
             throw new FlaxDatabaseError('database has been deleted');
         }
 
         $url = 'dbs/'._uencode($this->dbname).'/search/simple?query='._uencode($query).
-               '&startIndex='.$startIndex.'&count='.$count;
+               '&start_rank='.$start_rank.'&end_rank='.$end_rank;
         $result = $this->restclient->do_get($url);
     
         if ($result[0] != 200) {
@@ -218,12 +218,12 @@ class _FlaxDatabase {
         return $result[1];
     }
 
-    function searchJSON($query) {
+    function searchStructured($query) {
         if ($this->deleted) {
             throw new FlaxDatabaseError('database has been deleted');
         }
 
-        $url = 'dbs/'._uencode($this->dbname).'/search/json';
+        $url = 'dbs/'._uencode($this->dbname).'/search/structured';
         $result = $this->restclient->do_post($url, $query);
     
         if ($result[0] != 200) {

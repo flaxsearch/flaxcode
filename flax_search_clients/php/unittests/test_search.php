@@ -53,22 +53,22 @@ class SearchTestCase extends UnitTestCase {
         $this->db->commit();
 
         # check search results
-        $results = $this->db->searchJSON(array('query_fields' => 
+        $results = $this->db->searchStructured(array('query_fields' => 
             array('f2' => 'A New England')));
         
         $this->assertEqual($results['matches_estimated'], 1);
         $this->assertEqual($results['results'][0]['docid'], 'doc1');
 
-        $results = $this->db->searchJSON(array('query_fields' => 
+        $results = $this->db->searchStructured(array('query_fields' => 
             array('f2' => 'Between The Wars')));
         $this->assertEqual($results['matches_estimated'], 1);
         $this->assertEqual($results['results'][0]['docid'], 'doc2');
 
-        $results = $this->db->searchJSON(array('query_fields' => 
+        $results = $this->db->searchStructured(array('query_fields' => 
             array('f1' => 'Billy Bragg')));
         $this->assertEqual($results['matches_estimated'], 2);
 
-        $results = $this->db->searchJSON(array('query_fields' => 
+        $results = $this->db->searchStructured(array('query_fields' => 
             array('f1' => 'Billy Bragg', 'f2' => 'A New England')));
         $this->assertEqual($results['matches_estimated'], 1);
     }
@@ -82,7 +82,7 @@ class SearchTestCase extends UnitTestCase {
         $this->db->commit();
     
         # check search results (field search)
-        $results = $this->db->searchJSON(array('query_fields' => 
+        $results = $this->db->searchStructured(array('query_fields' => 
             array('f2' => 'A New England')));      
         $this->assertEqual($results['matches_estimated'], 1);
         $this->assertEqual($results['results'][0]['docid'], 'doc1');

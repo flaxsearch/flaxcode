@@ -1,3 +1,8 @@
+Fri May  1 10:22:08 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+
+    * flaxclient.php,
+    * unittests/test_search.php: Changed ranking search params.
+
 Thu Apr 30 19:56:49 BST 2009    Tom Mortimer <tom@lemurconsulting.com>
 
     * unittests/test_search.php: Added more tests.
