@@ -1,3 +1,10 @@
+Fri May  1 14:07:23 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+
+    * flax/searchserver/application.py,
+    * flax/searchserver/backends/xappy_backend.py: Re-implemented 
+      structured search (was search/json) using GET. Added code to
+      process all search params.      
+
 Fri May  1 10:19:16 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
     
     * docs/api.rst: Added a note about search.

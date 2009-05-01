@@ -368,20 +368,17 @@ class SearchServer(object):
     @wsgiwapi.allow_GET
     @wsgiwapi.pathinfo(dbname_param)
     @wsgiwapi.jsonreturning
-    @wsgiwapi.param('query', 1, 1, None, [''],
+    @wsgiwapi.param('query', 0, 1, None, [''],
                     """A user-entered query string.
 
                     """)
-    # Note - the startIndex and count parameters here are defined as in the
-    # opensearch specification, to try and help make it less confusing to
-    # implement an opensearch API on top of this.
-    @wsgiwapi.param('start_rank', 1, 1, '^\d*$', ['0'],
+    @wsgiwapi.param('start_rank', 0, 1, '^\d*$', ['0'],
                     """The offset of the first document to return.
 
                     0-based - ie, 0 returns the top document first.
 
                     """)
-    @wsgiwapi.param('end_rank', 1, 1, '^\d+$', ['10'],
+    @wsgiwapi.param('end_rank', 0, 1, '^\d+$', ['10'],
                     """The rank one past the last hit to return.
 
                     e.g. the defaults return the 10 hits ranked 0-9.
@@ -395,9 +392,43 @@ class SearchServer(object):
         db = self.controller.get_db_reader(dbname)
         return db.search_simple(query, start_rank, end_rank)
 
-    @wsgiwapi.allow_POST
+    @wsgiwapi.allow_GET
     @wsgiwapi.pathinfo(dbname_param)
     @wsgiwapi.jsonreturning
+    @wsgiwapi.param('query_all', 0, 1, None, [''],
+                    """A user-entered query string matching all terms.
+
+                    """)
+    @wsgiwapi.param('query_any', 0, 1, None, [''],
+                    """A user-entered query string matching any terms.
+
+                    """)
+    @wsgiwapi.param('query_none', 0, 1, None, [''],
+                    """A user-entered query string matching no terms.
+
+
+                    """)
+    @wsgiwapi.param('query_phrase', 0, 1, None, [''],
+                    """A user-entered query string matching a phrase.
+
+                    """)
+    @wsgiwapi.param('filter', 0, 100, None, [],
+                    """A filter on a specified field.
+
+                    Format: fieldname:query text
+                    """)
+    @wsgiwapi.param('start_rank', 0, 1, '^\d*$', ['0'],
+                    """The offset of the first document to return.
+
+                    0-based - ie, 0 returns the top document first.
+
+                    """)
+    @wsgiwapi.param('end_rank', 0, 1, '^\d+$', ['10'],
+                    """The rank one past the last hit to return.
+
+                    e.g. the defaults return the 10 hits ranked 0-9.
+                    Note that the search may return fewer hits than requested.
+                    """)
     def search_structured(self, request):
         """Search a structured query. 
         
@@ -405,7 +436,13 @@ class SearchServer(object):
         """
         dbname = request.pathinfo['dbname']
         db = self.controller.get_db_reader(dbname)
-        return db.search_structured(request.json)
+        return db.search_structured(request.params['query_all'][0],
+                                    request.params['query_any'][0],
+                                    request.params['query_none'][0],
+                                    request.params['query_phrase'][0],
+                                    request.params['filter'],
+                                    int(request.params['start_rank'][0]),
+                                    int(request.params['end_rank'][0]),)
 
     #### end of implementations ####
 

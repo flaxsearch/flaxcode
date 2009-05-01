@@ -141,31 +141,48 @@ class DbReader(BaseDbReader):
         queryobj = self.searchconn.query_parse(query)
         return self._search(queryobj, start_rank, end_rank)
         
-    def search_structured(self, json):
-        start_rank = json.get('start_rank', 0)
-        end_rank = json.get('end_rank', 10)
+    def search_structured(self, query_all, query_any, query_none, query_phrase, 
+                          filters, start_rank, end_rank):
 
-#        query_all
+        """Perform a structured search.
+        
+        FIXME: document            
+        
+        """
 
-#        query = None
-#        query_fields = json.get('query_fields')
-
-#        query_any
-#        query_none
-#        query_phrase
-#        filters
-
+        def combine_queries(q1, q2):
+            return q1 & q2 if q1 else q2
+                
         query = None
-        query_fields = json.get('query_fields')
-        if query_fields:
-            assert isinstance(query_fields, dict)
-            for k, v in query_fields.iteritems():
-                subquery = self.searchconn.query_field(k, v)                
-                if query is None:
-                    query = subquery
-                else:
-                    query = self.searchconn.query_composite(self.searchconn.OP_AND, 
-                        (query, subquery))
+        if query_all:
+            query = self.searchconn.query_parse(query_all, default_op=self.searchconn.OP_AND)
+
+        if query_any:
+            query = combine_queries(query, self.searchconn.query_parse(
+                query_any, default_op=self.searchconn.OP_OR))
+
+        if query_none:
+            if query is None:
+                query = self.searchconn.query_all()            
+            query = query.and_not(self.searchconn.query_parse(query_none, 
+                                  default_op=self.searchconn.OP_OR))
+        
+        if query_phrase:   # FIXME - support in Xappy?
+            raise NotImplementedError
+
+        # we want filters to be ORd within fields, ANDed between fields
+        if filters:
+            filterdict = {}
+            for f in filters:
+                p = f.index(':')
+                filterdict.setdefault(f[:p], []).append(
+                    self.searchconn.query_field(f[:p], f[p+1:]))
+            
+            filterquery = self.searchconn.query_composite(self.searchconn.OP_AND, 
+                [self.searchconn.query_composite(self.searchconn.OP_OR, x)
+                for x in filterdict.itervalues()])
+                
+            query = query.filter(filterquery) if query else filterquery
 
         return self._search(query, start_rank, end_rank)
     
@@ -173,7 +190,22 @@ class DbReader(BaseDbReader):
         
         print '-- queryobj:', queryobj
         
-        results = self.searchconn.search(queryobj, start_rank, end_rank)
+        if queryobj is None:
+            return {
+                'matches_estimated': 0,
+                'matches_lower_bound': 0,
+                'matches_upper_bound': 0,
+                'matches_human_readable_estimate': '',
+                'estimate_is_exact': True,
+                'more_matches': False,
+                'start_rank': 0,
+                'end_rank': 0,
+                'results': [],
+            }
+            
+        results = queryobj.search(start_rank, end_rank)        
+        print '-- matches_estimated:', results.matches_estimated
+        
         resultlist = [
             {
                 "docid": result.id,
