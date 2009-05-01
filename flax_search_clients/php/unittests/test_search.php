@@ -78,7 +78,7 @@ class SearchTestCase extends UnitTestCase {
         $this->assertEqual($results['matches_estimated'], 1);
     }
     
-    function _testFreetext() {
+    function testFreetext() {
         $this->db->addField('f1', array('exacttext' => True));
         $this->db->addField('f2', array('freetext' => True));
     
@@ -87,8 +87,7 @@ class SearchTestCase extends UnitTestCase {
         $this->db->commit();
     
         # check search results (field search)
-        $results = $this->db->searchStructured(array('query_fields' => 
-            array('f2' => 'A New England')));      
+        $results = $this->db->searchStructured('A New England', '', '', '');
         $this->assertEqual($results['matches_estimated'], 1);
         $this->assertEqual($results['results'][0]['docid'], 'doc1');
 
