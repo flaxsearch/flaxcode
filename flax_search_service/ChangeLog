@@ -1,3 +1,10 @@
+Fri May  1 10:19:16 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+    
+    * docs/api.rst: Added a note about search.
+    * flax/searchserver/application.py,
+    * flax/searchserver/backends/xappy_backend.py: Changes to search
+      param names.
+
 Thu Apr 30 23:54:11 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* docs/api.rst: Various updates to catch up with the code, and some

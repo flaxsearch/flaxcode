@@ -132,21 +132,24 @@ class DbReader(BaseDbReader):
         """
         return self.searchconn.get_document(doc_id).data
             
-    def search_simple(self, query, start_index, count):
+    def search_simple(self, query, start_rank, end_rank):
         """Perform a simple search, for a user-specified query string.
 
         Returns a set of search results.
 
         """
         queryobj = self.searchconn.query_parse(query)
-        return self._search(queryobj, start_index - 1, start_index - 1 + count)
+        return self._search(queryobj, start_rank, end_rank)
         
-    def search_json(self, json):
-        start_index = json.get('startIndex', 1)
-        count = json.get('count', 10)
+    def search_structured(self, json):
+        start_rank = json.get('start_rank', 0)
+        end_rank = json.get('end_rank', 10)
 
-#       FIXME
 #        query_all
+
+#        query = None
+#        query_fields = json.get('query_fields')
+
 #        query_any
 #        query_none
 #        query_phrase
@@ -164,13 +167,13 @@ class DbReader(BaseDbReader):
                     query = self.searchconn.query_composite(self.searchconn.OP_AND, 
                         (query, subquery))
 
-        return self._search(query, start_index - 1, start_index - 1 + count)
+        return self._search(query, start_rank, end_rank)
     
-    def _search(self, queryobj, start_index, end_index):
+    def _search(self, queryobj, start_rank, end_rank):
         
         print '-- queryobj:', queryobj
         
-        results = self.searchconn.search(queryobj, start_index, end_index)
+        results = self.searchconn.search(queryobj, start_rank, end_rank)
         resultlist = [
             {
                 "docid": result.id,

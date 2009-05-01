@@ -375,36 +375,37 @@ class SearchServer(object):
     # Note - the startIndex and count parameters here are defined as in the
     # opensearch specification, to try and help make it less confusing to
     # implement an opensearch API on top of this.
-    @wsgiwapi.param('startIndex', 1, 1, '^[1-9]\d*$', ['1'],
+    @wsgiwapi.param('start_rank', 1, 1, '^\d*$', ['0'],
                     """The offset of the first document to return.
 
-                    1-based - ie, 1 returns the top document first.
+                    0-based - ie, 0 returns the top document first.
 
                     """)
-    @wsgiwapi.param('count', 1, 1, '^\d+$', ['10'],
-                    """The maximum number of documents to return.
+    @wsgiwapi.param('end_rank', 1, 1, '^\d+$', ['10'],
+                    """The rank one past the last hit to return.
 
+                    e.g. the defaults return the 10 hits ranked 0-9.
+                    Note that the search may return fewer hits than requested.
                     """)
     def search_simple(self, request):
         dbname = request.pathinfo['dbname']
         query = request.params['query'][0]
-        start_index = int(request.params['startIndex'][0])
-        count = int(request.params['count'][0])
+        start_rank = int(request.params['start_rank'][0])
+        end_rank = int(request.params['end_rank'][0])
         db = self.controller.get_db_reader(dbname)
-        return db.search_simple(query, start_index, count)
+        return db.search_simple(query, start_rank, end_rank)
 
     @wsgiwapi.allow_POST
     @wsgiwapi.pathinfo(dbname_param)
     @wsgiwapi.jsonreturning
-    def search_json(self, request):
-        """Search a query supplied as a JSON body.
+    def search_structured(self, request):
+        """Search a structured query. 
         
-        See api.rst for query format.
-        
+        FIXME - use GET params instead of JSON.
         """
         dbname = request.pathinfo['dbname']
         db = self.controller.get_db_reader(dbname)
-        return db.search_json(request.json)
+        return db.search_structured(request.json)
 
     #### end of implementations ####
 
@@ -436,7 +437,7 @@ class SearchServer(object):
                 put=self.doc_add2,
                 delete=self.doc_delete),
             'dbs/*/search/simple': self.search_simple,
-            'dbs/*/search/json': self.search_json,
+            'dbs/*/search/structured': self.search_structured,
         }
 
 def App(*args, **kwargs):

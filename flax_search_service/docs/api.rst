@@ -523,6 +523,10 @@ provided just by using standard querystring parameter encoding (the
 `query_fields` and filters would have the field names appended to the parameter
 names, so would become parameters like: `query_field_title`).
 
+[TM note: agreed, this is basically a quick hack to get things to a point where
+they can be realistically tested. You mentioned you had some new ideas for "search
+templates", so I was waiting to discuss them before finalising an interface.]
+
 Where we _do_ need JSON is to support something like a fully heirarchical tree
 of objects expressed in JSON.
 
