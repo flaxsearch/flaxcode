@@ -219,7 +219,7 @@ class _FlaxDatabase {
     }
 
     function searchStructured($query_all, $query_any, $query_none, $query_phrase,
-                              $filters, $start_rank=0, $end_rank=10) 
+                              $filters=array(), $start_rank=0, $end_rank=10) 
     {
         if ($this->deleted) {
             throw new FlaxDatabaseError('database has been deleted');

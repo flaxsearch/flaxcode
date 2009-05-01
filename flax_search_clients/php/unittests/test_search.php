@@ -86,20 +86,37 @@ class SearchTestCase extends UnitTestCase {
         $this->db->addDocument(array('f1' => 'Billy Bragg', 'f2' => 'between the wars'), 'doc2');
         $this->db->commit();
     
-        # check search results (field search)
-        $results = $this->db->searchStructured('A New England', '', '', '');
-        $this->assertEqual($results['matches_estimated'], 1);
-        $this->assertEqual($results['results'][0]['docid'], 'doc1');
-
         # check search results (freetext search)
         $results = $this->db->searchSimple('A New england');
         $this->assertEqual($results['matches_estimated'], 1);
         $this->assertEqual($results['results'][0]['docid'], 'doc1');
 
         # check search results (freetext search)
-        $results = $this->db->searchSimple('Between The Wars');
+        $results = $this->db->searchStructured('Between The Wars', '', '', '');
         $this->assertEqual($results['matches_estimated'], 1);
         $this->assertEqual($results['results'][0]['docid'], 'doc2');
+
+        # search all
+        $results = $this->db->searchStructured('Between The Lines', '', '', '');
+        $this->assertEqual($results['matches_estimated'], 0);
+
+        # search any
+        $results = $this->db->searchStructured('', 'England Between', '', '');
+        $this->assertEqual($results['matches_estimated'], 2);
+
+        # search none
+        $results = $this->db->searchStructured('', 'England Between', 'wars', '');
+        $this->assertEqual($results['matches_estimated'], 1);
+
+        # search any + filter
+        $results = $this->db->searchStructured('', 'England Between', '', '',
+            array(array('f1', 'Billy Bragg')));
+        $this->assertEqual($results['matches_estimated'], 2);
+
+        # search any + filter 2
+        $results = $this->db->searchStructured('', 'England Between', '', '',
+            array(array('f1', 'Melvin Bragg')));
+        $this->assertEqual($results['matches_estimated'], 0);
     }
 
     function testFreetextStemmed() {

@@ -1,3 +1,8 @@
+Fri May  1 14:43:22 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+    
+    * flaxclient.php: Added default value for query filters.
+    * unittests/test_search.php: Added some more tests.
+    
 Fri May  1 14:07:23 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
     * flaxclient.php,
