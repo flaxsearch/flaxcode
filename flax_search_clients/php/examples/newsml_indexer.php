@@ -41,12 +41,10 @@ function endTag($parser, $name){
 
 function add_document() {
     global $doc, $flaxdb;
-#    $doc['TEXT'] = 'foo';
-    print_r($doc);
     $flaxdb->addDocument($doc);
 }
 
-$flax = new FlaxSearchService(new FlaxRestClient($argv[1]));
+$flax = new FlaxSearchService($argv[1]);
 $flaxdb = $flax->createDatabase('newsml');
 
 $flaxdb->addField('HEADLINE', array('store' => true, 
@@ -61,8 +59,8 @@ $flaxdb->commit();
 $dir_handle = opendir($argv[2]);
 while ($file = readdir($dir_handle)) {
     if (preg_match('/\.xml$/', $file)) {
-        print "$file \n";
         $current_file = "${argv[2]}/${file}";
+        print "$current_file\n";
         $fp = fopen($current_file, "r"); 
         $data = fread($fp, 1000000); 
 
@@ -78,5 +76,6 @@ while ($file = readdir($dir_handle)) {
 }
 
 fclose($fp); 
+$flaxdb->commit();
 
 ?>
