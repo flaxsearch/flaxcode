@@ -1,3 +1,9 @@
+Mon May  4 10:45:56 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+
+    * unittests/test_docs.php: Added test for long document text.
+    * _restclient_curl.php: Disabled Expect: header as this causes 
+      problems with the Flax server (possibly due to a bug in libcurl).
+
 Fri May  1 17:41:58 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
     * examples/newsml_indexer.php: Started example NewsML indexer.

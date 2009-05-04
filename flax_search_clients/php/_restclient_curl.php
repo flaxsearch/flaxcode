@@ -88,7 +88,8 @@ class FlaxRestClient {
 	    curl_setopt($this->ch, CURLOPT_POSTFIELDS, $json_content);
 	    curl_setopt($this->ch, CURLOPT_HTTPHEADER,
 			array("Content-type: text/json",
-			      "Content-length: {$content_length}"));
+			      "Content-length: {$content_length}",
+			      "Expect:"));                        // 100-Continue causes problems with server
 	}
 
 	switch ($method) {
