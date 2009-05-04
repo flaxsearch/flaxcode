@@ -124,6 +124,7 @@ already been critical of the movement. He praised the accomplishments of
 structuralism but also maintained reservations about its internal limitations,
 thus leading to the notion that his thought was a form of
 post-structuralism.
+(source: http://en.wikipedia.org/wiki/Derrida )
 EOT;
         $doc = array('foo' => $text);
         $this->db->addDocument($doc);
