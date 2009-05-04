@@ -61,6 +61,8 @@ class DocsTestCase extends UnitTestCase {
         $this->db->commit();
 
         # check it's been added ok
+        $this->assertEqual($this->db->getDocCount(), 1);
+        
         $doc2 = $this->db->getDocument('doc002');
         $this->assertEqual($doc2['foo'], array('bar'));
         

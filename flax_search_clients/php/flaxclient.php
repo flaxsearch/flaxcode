@@ -72,6 +72,19 @@ class _FlaxDatabase {
         $this->deleted = true;
     }
     
+    function getDocCount() {
+        if ($this->deleted) {
+            throw new FlaxDatabaseError('database has been deleted');
+        }
+        
+        $result = $this->restclient->do_get('dbs/'._uencode($this->dbname));
+        if ($result[0] != 200) {
+            throw new FlaxFieldError($result[1]);
+        }
+        
+        return $result[1]['doccount'];    
+    }
+    
     function getFieldNames() {
         if ($this->deleted) {
             throw new FlaxDatabaseError('database has been deleted');
