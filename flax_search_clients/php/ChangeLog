@@ -1,3 +1,9 @@
+Mon May  4 11:46:53 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+
+    * flaxclient.php,
+    * unittests/runtests.php: Changed FlaxSearchService constructor
+      to default to web service URL (not test client).
+
 Mon May  4 10:45:56 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
     * unittests/test_docs.php: Added test for long document text.

@@ -38,9 +38,10 @@ foreach ($argv as $a) {
 }
 
 if ($server_url) {
-    $server = new FlaxSearchService(new FlaxRestClient($server_url));
+    $server = new FlaxSearchService($server_url);
 } else {
-    $server = new FlaxSearchService(new FlaxTestRestClient());
+#    $server = new FlaxSearchService(new FlaxTestRestClient());
+    die("URL for search service required\n");
 }
 
 $test = new TestSuite('All tests');

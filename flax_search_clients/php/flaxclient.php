@@ -22,8 +22,8 @@ require_once('_restclient_curl.php');
 class FlaxSearchService {
     private $restclient;
     
-    function __construct($restclient=null) {
-        $this->restclient = $restclient;
+    function __construct($url) {
+        $this->restclient = new FlaxRestClient($url);
     }
 
     function getDatabase($name) {
