@@ -1,3 +1,9 @@
+Tue May  5 14:41:15 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+
+    * runserver.py: Added option to change data directory.
+    * flax/searchserver/backends/xappy_backend.py: Reduced queue size
+      to 1000, to keep memory usage down.
+
 Fri May  1 14:07:23 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
     * flax/searchserver/application.py,

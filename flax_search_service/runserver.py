@@ -1,10 +1,17 @@
 #!/usr/bin/env python
 
+import sys
+
 import ext
 
 import flax.searchserver
 import wsgiwapi
 import settings
+
+try:
+    settings.settings['data_path'] = sys.argv[1]
+except IndexError:
+    pass
 
 app = flax.searchserver.App(settings.settings)
 

@@ -238,7 +238,7 @@ class DbWriter(BaseDbWriter):
         BaseDbWriter.__init__(self)
         self.base_uri = base_uri
         self.db_path = db_path
-        self.queue = Queue.Queue(10000)
+        self.queue = Queue.Queue(1000)
         self.iconn = xappy.IndexerConnection(self.db_path)
 
     def close(self):
