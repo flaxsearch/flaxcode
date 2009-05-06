@@ -32,11 +32,11 @@ if ($query) {
         <?=$db->getDocCount() ?>
         </p>
 <?
-        foreach ($results['results'] as $hit) {
+        foreach ($results['results'] as $r) {
 ?>        
-            <?=$hit['rank'] + 1 ?>.
-            <a href="newsml_showdoc.php?path=<?=$hit['data']['_PATH'][0]?>" 
-               target="doc"><?=$hit['data']['HEADLINE'][0] ?></a>
+            <?=$r['rank'] + 1 ?>.
+            <a href="newsml_showdoc.php?path=<?=$r['data']['_PATH'][0]?>" 
+               target="doc"><?=$r['data']['HEADLINE'][0] ?></a>
             <br/>
 <?
         }

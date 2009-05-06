@@ -1,3 +1,12 @@
+Wed May  6 09:36:41 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+
+    * flaxclient.php,
+    * _restclient.php,
+    * _restclient_curl.php,
+    * flaxerrors.php: Added licence/copyright text.
+    * examples/newsml_search.php: Changed variable names.
+    * examples/newsml_indexer.php: Allow crawling multiple dirs.
+
 Mon May  4 13:48:45 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
     * examples/newsml_search.php,
