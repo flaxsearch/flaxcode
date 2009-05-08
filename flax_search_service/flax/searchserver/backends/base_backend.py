@@ -27,8 +27,6 @@ class BaseBackend(object):
 
     This should be subclassed by each backend.  One instance of the subclass
     for each backend will be created.
-    
-    FIXME: is there any point to pure abstract base classes in a duck-typed language?
 
     """
     def __init__(self, settings):
@@ -88,8 +86,10 @@ class BaseBackend(object):
     def get_db_writer(self, base_uri, db_path, readonly):
         """Get a DB Writer object, used for all write access to the database.
 
-        This will generally be a singleton, and will implement backend writes 
+        This will generally be a singleton, and will implement backend writes
         in a separate thread.
+
+        What should be returned if this is called multiple times?
 
         """
         raise NotImplementedError
@@ -98,11 +98,24 @@ class BaseDbReader(object):
     """Base class for databases returned by BaseBackend.get_db_reader().
 
     """
+    def __init__(self, base_uri, db_path):
+        """Create a database reader for the specified path.
+
+        """
+        self.base_uri = base_uri
+        self.db_path = db_path
+
+    def __del__(self):
+        """Clean up when garbage collected if not already closed.
+
+        """
+        self.close()
+
     def close(self):
         """Close any open resources in the database object.
 
         """
-        raise NotImplementedError
+        pass
 
     def get_info(self):
         """Get version information about the database.
@@ -145,14 +158,40 @@ class BaseDbWriter(object):
     """Base class for databases returned by BaseBackend.get_db_writer().
 
     """
+    def __init__(self, base_uri, db_path):
+        """Create a database writer for the specified path.
+
+        """
+        self.base_uri = base_uri
+        self.db_path = db_path
+
+    def __del__(self):
+        """Clean up when garbage collected if not already closed.
+
+        """
+        self.close()
+
     def close(self):
         """Close any open resources in the database object.
 
         """
-        raise NotImplementedError
+        pass
 
     def set_schema(self, schema):
         """Set the schema for the database.
 
         """
         raise NotImplementedError
+
+    def add_document(self, doc, docid=None):
+        """Add a document to the database.
+
+        """
+        raise NotImplementedError
+
+    def commit_changes(self):
+        """Commit changes to the database.
+
+        """
+        raise NotImplementedError
+

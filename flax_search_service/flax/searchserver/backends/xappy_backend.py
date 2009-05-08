@@ -41,7 +41,7 @@ class Backend(BaseBackend):
     adding a 'xappy' entry to the 'backend_settings' dict.  They will be
     available in self.settings.
 
-    """            
+    """
     def version_info(self):
         """Get version information about the backend.
 
@@ -68,7 +68,7 @@ class Backend(BaseBackend):
         """Get a DbReader object for a database at a specific path.
 
         We allow multiple DbReaders so that searches can be concurrent.
-        
+
         """
         return DbReader(base_uri, db_path)
 
@@ -76,27 +76,20 @@ class Backend(BaseBackend):
         """Get a DbWriter object for a database at a specific path.
 
         There should only be one of these in existence at any one time (per DB).
-        
+
         """
         return DbWriter(base_uri, db_path)
-        
 
 class DbReader(BaseDbReader):
+    """A reader obtined by Backend.get_db_reader().
+
+    """
     def __init__(self, base_uri, db_path):
-        """Create a database object for the specified path.
+        """Create a database reader for the specified path.
 
         """
-        BaseDbReader.__init__(self)
-        self.base_uri = base_uri
-        self.db_path = db_path
-        self._sconn = None          # search connection
-
-    def __del__(self):
-        """Close any open database connection.
-
-        """
-        if self._sconn is not None:
-            self._sconn.close()
+        BaseDbReader.__init__(self, base_uri, db_path)
+        self._sconn = None
 
     @property
     def searchconn(self):
@@ -106,7 +99,15 @@ class DbReader(BaseDbReader):
         if self._sconn is None:
             self._sconn = xappy.SearchConnection(self.db_path)
         return self._sconn
-        
+
+    def close(self, base_uri, db_path):
+        """Close any open resources in the database object.
+
+        """
+        if self._sconn is not None:
+            self._sconn.close()
+            self._sconn = None
+
     def get_info(self):
         """Get information about the database.
 
@@ -131,7 +132,7 @@ class DbReader(BaseDbReader):
 
         """
         return self.searchconn.get_document(doc_id).data
-            
+
     def search_simple(self, query, start_rank, end_rank):
         """Perform a simple search, for a user-specified query string.
 
@@ -140,19 +141,19 @@ class DbReader(BaseDbReader):
         """
         queryobj = self.searchconn.query_parse(query)
         return self._search(queryobj, start_rank, end_rank)
-        
-    def search_structured(self, query_all, query_any, query_none, query_phrase, 
+
+    def search_structured(self, query_all, query_any, query_none, query_phrase,
                           filters, start_rank, end_rank):
 
         """Perform a structured search.
-        
-        FIXME: document            
-        
+
+        FIXME: document
+
         """
 
         def combine_queries(q1, q2):
             return q1 & q2 if q1 else q2
-                
+
         query = None
         if query_all:
             query = self.searchconn.query_parse(query_all, default_op=self.searchconn.OP_AND)
@@ -163,10 +164,10 @@ class DbReader(BaseDbReader):
 
         if query_none:
             if query is None:
-                query = self.searchconn.query_all()            
-            query = query.and_not(self.searchconn.query_parse(query_none, 
+                query = self.searchconn.query_all()
+            query = query.and_not(self.searchconn.query_parse(query_none,
                                   default_op=self.searchconn.OP_OR))
-        
+
         if query_phrase:   # FIXME - support in Xappy?
             raise NotImplementedError
 
@@ -177,19 +178,19 @@ class DbReader(BaseDbReader):
                 p = f.index(':')
                 filterdict.setdefault(f[:p], []).append(
                     self.searchconn.query_field(f[:p], f[p+1:]))
-            
-            filterquery = self.searchconn.query_composite(self.searchconn.OP_AND, 
+
+            filterquery = self.searchconn.query_composite(self.searchconn.OP_AND,
                 [self.searchconn.query_composite(self.searchconn.OP_OR, x)
                 for x in filterdict.itervalues()])
-                
+
             query = query.filter(filterquery) if query else filterquery
 
         return self._search(query, start_rank, end_rank)
-    
+
     def _search(self, queryobj, start_rank, end_rank):
-        
+
         print '-- queryobj:', queryobj
-        
+
         if queryobj is None:
             return {
                 'matches_estimated': 0,
@@ -202,10 +203,10 @@ class DbReader(BaseDbReader):
                 'end_rank': 0,
                 'results': [],
             }
-            
-        results = queryobj.search(start_rank, end_rank)        
+
+        results = queryobj.search(start_rank, end_rank)
         print '-- matches_estimated:', results.matches_estimated
-        
+
         resultlist = [
             {
                 "docid": result.id,
@@ -215,7 +216,7 @@ class DbReader(BaseDbReader):
                 "data": result.data,
             } for result in results
         ]
-        
+
         return {
             'matches_estimated': results.matches_estimated,
             'matches_lower_bound': results.matches_lower_bound,
@@ -227,17 +228,17 @@ class DbReader(BaseDbReader):
             'end_rank': results.endrank,
             'results': resultlist,
         }
-        
+
 
 class DbWriter(BaseDbWriter):
+    """A reader obtined by Backend.get_db_reader().
+
+    """
     def __init__(self, base_uri, db_path):
-        """Create a database object for the specified path.
+        """Create a database writer for the specified path.
 
         """
-        
-        BaseDbWriter.__init__(self)
-        self.base_uri = base_uri
-        self.db_path = db_path
+        BaseDbWriter.__init__(self, base_uri, db_path)
         self.queue = Queue.Queue(1000)
         self.iconn = xappy.IndexerConnection(self.db_path)
 
@@ -245,19 +246,19 @@ class DbWriter(BaseDbWriter):
         """Close any open database connections.
 
         """
-        raise NotImplementedError
+        self.iconn.close()
 
     def set_schema(self, schema):
         """Set the schema for this database.
-        
+
         This will be done asynchronously in the write thread.
-        
+
         """
         self.queue.put(DbWriter.SetSchemaAction(self, schema))
 
     def add_document(self, doc, docid=None):
         """Add a document to the database.
-        
+
         This will be done asynchronously in the write thread.
 
         """
@@ -265,38 +266,38 @@ class DbWriter(BaseDbWriter):
 
     def commit_changes(self):
          """Commit changes to the database.
-         
+
          This will be done asynchronously in the write thread.
-         
+
          """
          self.queue.put(DbWriter.CommitAction(self))
-        
+
 
     class SetSchemaAction(object):
         """Action to set the schema for a Xappy database.
-        
+
         """
         def __init__(self, db_writer, schema):
             self.db_writer = db_writer
             self.schema = schema
-    
+
         def perform(self):
             self.db_writer.iconn.set_metadata(SCHEMA_KEY, utils.json.dumps(self.schema.as_dict()))
             self.schema.set_xappy_field_actions(self.db_writer.iconn)
-        
+
         def __str__(self):
             return 'SetSchemaAction(%s)' % self.db_writer.db_path
-    
-    
+
+
     class AddDocumentAction(object):
         """Action to add a document to a Xappy database.
-        
+
         """
         def __init__(self, db_writer, doc, docid=None):
             self.db_writer = db_writer
             self.doc = doc
             self.docid = docid
-            
+
         def perform(self):
             updoc = xappy.UnprocessedDocument()
             for k, v in self.doc.iteritems():
@@ -305,23 +306,23 @@ class DbWriter(BaseDbWriter):
                         updoc.append(k, v2)
                 else:
                     updoc.append(k, v)
-            
+
             if self.docid is not None:
                 updoc.id = self.docid
-                self.db_writer.iconn.replace(updoc)            
+                self.db_writer.iconn.replace(updoc)
             else:
                 self.db_writer.iconn.add(updoc)
-    
+
         def __str__(self):
             return 'AddDocumentAction(%s)' % self.db_writer.db_path
-    
+
     class CommitAction(object):
         """Action to flush changes to the database so they can be searched.
-        
+
         """
         def __init__(self, db_writer):
             self.db_writer = db_writer
-    
+
         def perform(self):
             self.db_writer.iconn.flush()
 
