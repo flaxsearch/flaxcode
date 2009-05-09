@@ -100,7 +100,7 @@ class DbReader(BaseDbReader):
             self._sconn = xappy.SearchConnection(self.db_path)
         return self._sconn
 
-    def close(self, base_uri, db_path):
+    def close(self):
         """Close any open resources in the database object.
 
         """
