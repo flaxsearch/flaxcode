@@ -27,7 +27,7 @@ class FlaxSearchService {
     private $restclient;
     
     function __construct($url) {
-        $this->restclient = new FlaxRestClient($url);
+        $this->restclient = new FlaxRestClient($url, 1);
     }
 
     function getDatabase($name) {

@@ -27,8 +27,8 @@
 require_once('flaxerrors.php');
 
 class FlaxRestClient {
-    function __construct($baseurl=null) {
-        $this->baseurl = $baseurl;
+    function __construct($baseurl=null, $version=1) {
+        $this->baseurl = $baseurl . "v$version/";
         $this->ch = null;
     }
 
