@@ -31,8 +31,14 @@ class DbCreateTest(unittest.TestCase):
     def tearDown(self):
         self.client.close()
 
-    def testCreateAndDelete(self):
+    def test_create_and_delete(self):
         """Test creating and deleting a database.
 
         """
-        self.client.createDb('db1')
+        self.assertEqual(self.client.get_databases(), ())
+        sillydbname = u'db1/with:a:stupi\u0256 name!\'"/'
+        self.client.create_database(sillydbname)
+        self.assertEqual(self.client.get_databases(), (sillydbname, ))
+
+if __name__ == '__main__':
+    main()

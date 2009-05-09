@@ -22,7 +22,9 @@ r"""Flax search server client.
 """
 __docformat__ = "restructuredtext en"
 
-from utils import json
+import urllib
+import urllib2
+import utils
 
 class Client(object):
     """Client for the Flax search server.
@@ -55,6 +57,12 @@ class Client(object):
         self.last_elapsed_time = None
         self.api_version = None
 
+    def __del__(self):
+        """Call close explicitly, to allow for tidier clean-up.
+
+        """
+        self.close()
+
     def do_request(self, path, qs=None, data=None):
         """Make a request to the server directly.
 
@@ -74,10 +82,28 @@ class Client(object):
             path += '?' + urllib.urlencode(args, doseq=1)
 
         if data is None:
+            print(self.base_url + path)
             fd = urllib2.urlopen(self.base_url + path)
         else:
             data = urllib.urlencode(data, doseq=1)
             fd = urllib2.urlopen(self.base_url + path, data)
         res = fd.read()
         fd.close()
-                                                                     
+        return res
+
+    def close(self):
+        # Nothing to clean up, currently.
+	# When we support persistent connections, should close the connection.
+        pass
+
+    def get_databases(self):
+        """Get a tuple containing the names of the databases.
+
+        """
+        return tuple(utils.json.loads(self.do_request('dbs')))
+
+    def create_database(self, dbname):
+        """Create a database with the given name.
+
+        """
+        return self.do_request('dbs/' + utils.quote(dbname))

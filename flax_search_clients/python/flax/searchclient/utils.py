@@ -30,3 +30,11 @@ try:
 except (ImportError, AttributeError):
     # Depend on simplejson for python 2.5 or earlier.
     import simplejson as json
+
+import urllib
+def quote(unistring):
+    """Encode a unicode string as utf8 and quote it to be safe to go in a uri.
+
+    """
+    assert isinstance(unistring, unicode)
+    return urllib.quote(unistring.encode('utf-8'), safe='')

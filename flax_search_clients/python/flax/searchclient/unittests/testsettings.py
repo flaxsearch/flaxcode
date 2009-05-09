@@ -22,9 +22,18 @@ r"""Get the settings used for the tests.
 """
 __docformat__ = "restructuredtext en"
 
+# Ensure flax is on the path.
+import os.path
+up = os.path.dirname
+import sys
+sys.path.insert(0, up(up(up(up(os.path.abspath(__file__))))))
+
 # Import things that all tests will need.
 import unittest
 from flax.searchclient import Client
 
-# Settings for the tests.
+# Set up some standard names
+main = unittest.main
+
+# Settings for the tests
 baseurl = 'http://localhost:8080/'
