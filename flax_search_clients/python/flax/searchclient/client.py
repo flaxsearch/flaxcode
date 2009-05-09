@@ -26,6 +26,14 @@ import urllib
 import urllib2
 import utils
 
+class RequestMethod(urllib2.Request):
+    def __init__(self, method, *args, **kwargs):
+        self._method = method
+        urllib2.Request.__init__(self, *args, **kwargs)
+
+    def get_method(self):
+        return self._method
+
 class Client(object):
     """Client for the Flax search server.
 
@@ -54,6 +62,10 @@ class Client(object):
             base_url += '/'
         self.base_url = base_url
 
+	self.version = 1
+
+        self.versioned_base_url = base_url + 'v%d/' % self.version
+
         self.last_elapsed_time = None
         self.api_version = None
 
@@ -63,16 +75,16 @@ class Client(object):
         """
         self.close()
 
-    def do_request(self, path, qs=None, data=None):
+    def do_request(self, path, method='GET', queryargs=None, data=None, json=None):
         """Make a request to the server directly.
 
         This is not normally used by user code, but is available if you need to
         make a direct request to the server, for some reason.
 
         """
-        if qs is not None:
+        if queryargs is not None:
             args = []
-            for field, vals in qs.iteritems():
+            for field, vals in queryargs.iteritems():
                 if vals is None:
                     continue
                 if not hasattr(vals, '__iter__'):
@@ -81,12 +93,12 @@ class Client(object):
                 args.append((field, vals))
             path += '?' + urllib.urlencode(args, doseq=1)
 
-        if data is None:
-            print(self.base_url + path)
-            fd = urllib2.urlopen(self.base_url + path)
-        else:
-            data = urllib.urlencode(data, doseq=1)
-            fd = urllib2.urlopen(self.base_url + path, data)
+        url = self.versioned_base_url + path
+        if json is not None:
+            assert data is None
+            data = utils.json.dumps(json)
+        req = RequestMethod(method, url, data)
+        fd = urllib2.urlopen(req)
         res = fd.read()
         fd.close()
         return res
@@ -106,4 +118,4 @@ class Client(object):
         """Create a database with the given name.
 
         """
-        return self.do_request('dbs/' + utils.quote(dbname))
+	return self.do_request('dbs/' + utils.quote(dbname), 'POST')
