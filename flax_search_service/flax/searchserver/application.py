@@ -449,32 +449,32 @@ class SearchServer(object):
     def get_urls(self):
         return {
             '': self.flax_status,
-            'dbs': self.dbnames,
-            'dbs/*': wsgiwapi.MethodSwitch(
+            'v1/dbs': self.dbnames,
+            'v1/dbs/*': wsgiwapi.MethodSwitch(
                 get=self.db_info,
                 post=self.db_create,
                 delete=self.db_delete),
-            'dbs/*/flush': self.db_flush,
-            'dbs/*/schema': self.schema_info,
-            'dbs/*/schema/language': wsgiwapi.MethodSwitch(
+            'v1/dbs/*/flush': self.db_flush,
+            'v1/dbs/*/schema': self.schema_info,
+            'v1/dbs/*/schema/language': wsgiwapi.MethodSwitch(
                 get=self.schema_get_language,
                 post=self.schema_set_language),
-            'dbs/*/schema/fields': wsgiwapi.MethodSwitch(
+            'v1/dbs/*/schema/fields': wsgiwapi.MethodSwitch(
                 get=self.fields_list,),
-            'dbs/*/schema/fields/*': wsgiwapi.MethodSwitch(
+            'v1/dbs/*/schema/fields/*': wsgiwapi.MethodSwitch(
                 get=self.field_get,
                 post=self.field_set,
                 put=self.field_set,
                 delete=self.field_delete),
-            'dbs/*/docs': wsgiwapi.MethodSwitch(
+            'v1/dbs/*/docs': wsgiwapi.MethodSwitch(
                 post=self.doc_add),             
-            'dbs/*/docs/*': wsgiwapi.MethodSwitch(
+            'v1/dbs/*/docs/*': wsgiwapi.MethodSwitch(
                 get=self.doc_get,
                 post=self.doc_add2,
                 put=self.doc_add2,
                 delete=self.doc_delete),
-            'dbs/*/search/simple': self.search_simple,
-            'dbs/*/search/structured': self.search_structured,
+            'v1/dbs/*/search/simple': self.search_simple,
+            'v1/dbs/*/search/structured': self.search_structured,
         }
 
 def App(*args, **kwargs):
