@@ -98,7 +98,12 @@ class Client(object):
             assert data is None
             data = utils.json.dumps(json)
         req = RequestMethod(method, url, data)
-        fd = urllib2.urlopen(req)
+	try:
+            fd = urllib2.urlopen(req)
+        except urllib2.HTTPError, e:
+	    print str(e)
+	    print e.read()
+	    raise
         res = fd.read()
         fd.close()
         return res
@@ -119,3 +124,33 @@ class Client(object):
 
         """
 	return self.do_request('dbs/' + utils.quote(dbname), 'POST')
+
+    def delete_database(self, dbname, allow_missing=True):
+        """Create a database with the given name.
+
+        """
+	return self.do_request('dbs/' + utils.quote(dbname), 'DELETE',
+			queryargs={'allow_missing': 1 if allow_missing else 0})
+
+    def db(self, dbname):
+	return Database(self, dbname)
+
+class Database(object):
+    """
+
+    """
+    def __init__(self, client, dbname):
+	self._client = client
+	self.dbname = dbname
+	self._basepath = 'dbs/' + utils.quote(dbname)
+
+    @property
+    def doccount(self):
+        json = self._client.do_request(self._basepath, 'GET')
+	return utils.json.loads(json)['doccount']
+
+    def add_document(self, doc):
+        """Create a database with the given name.
+
+        """
+	return self._client.do_request(self._basepath, 'POST', json=doc)

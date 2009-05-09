@@ -22,6 +22,15 @@ r"""Utility functions for Flax searchserver client.
 """
 __docformat__ = "restructuredtext en"
 
+safe_idchar_map = {}
+for i in range(256):
+    c = chr(i)
+    if c in ('abcdefghijklmnopqrstuvwxyz' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+		    '0123456789_.'):
+        safe_idchar_map[c] = c
+    else:
+        safe_idchar_map[c] = '%%%02X' % i
+
 # Import a json handling library as "json".
 try:
     # json is a built-in module from python 2.6 onwards
@@ -36,5 +45,6 @@ def quote(unistring):
     """Encode a unicode string as utf8 and quote it to be safe to go in a uri.
 
     """
-    assert isinstance(unistring, unicode)
-    return urllib.quote(unistring.encode('utf-8'), safe='')
+    if isinstance(unistring, unicode):
+        unistring = unistring.encode('utf-8')
+    return ''.join(map(safe_idchar_map.__getitem__, unistring))

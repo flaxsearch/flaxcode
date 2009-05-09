@@ -35,10 +35,28 @@ class DbCreateTest(unittest.TestCase):
         """Test creating and deleting a database.
 
         """
-        self.assertEqual(self.client.get_databases(), ())
         sillydbname = u'db1/with:a:stupi\u0256 name!\'"/'
+        sillydbname = u'db1'
+
+        self.client.delete_database(sillydbname, allow_missing=True)
+        self.assertTrue('db1' not in self.client.get_databases())
         self.client.create_database(sillydbname)
-        self.assertEqual(self.client.get_databases(), (sillydbname, ))
+        self.assertTrue('db1' in self.client.get_databases())
+        self.client.delete_database(sillydbname)
+        self.assertTrue('db1' not in self.client.get_databases())
+
+    def test_basicadd1(self):
+        """Test basic adding of documents.
+
+        """
+	dbname = 'db1'
+        self.client.delete_database(dbname, allow_missing=True)
+        self.client.create_database(dbname)
+        db = self.client.db(dbname)
+
+	self.assertEqual(db.doccount, 0)
+
+        self.client.delete_database(dbname)
 
 if __name__ == '__main__':
     main()

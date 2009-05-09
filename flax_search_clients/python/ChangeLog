@@ -1,3 +1,15 @@
+Sat May 09 16:29:36 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchclient/client.py,
+	  flax/searchclient/unittests/createdb_test.py,
+	  flax/searchclient/utils.py: More client stuff - nearly working, honest!
+
+Sat May 09 13:45:58 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchclient/client.py,
+	  flax/searchclient/unittests/createdb_test.py,
+	  flax/searchclient/utils.py: Some better escaping, not that it works.
+
 Sat May 09 12:59:50 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchclient/client.py: use version prefix, and the right HTTP method.
