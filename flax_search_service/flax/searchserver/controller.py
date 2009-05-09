@@ -125,7 +125,7 @@ class Controller(object):
                 # Ignore databases for which the backend is not available.
                 continue
 
-            names.append[infofile.db_name]
+            names.append(infofile.db_name)
         names.sort()
         return names
 
