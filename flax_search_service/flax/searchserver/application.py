@@ -36,6 +36,7 @@ import xapian
 # Parameter descriptions
 dbname_param = ('dbname', '^[A-Za-z0-9._%]+$')
 fieldname_param = ('fieldname', '^[A-Za-z0-9._%]+$')
+tmplname_param = ('tmplname', '^[A-Za-z0-9._%]+$')
 docid_param = ('docid', '^[A-Za-z0-9._%]+$')
 
 class SearchServer(object):
@@ -159,7 +160,7 @@ class SearchServer(object):
         overwrite = bool(int(request.params['overwrite'][0]))
         reopen = bool(int(request.params['reopen'][0]))
         if overwrite and reopen:
-            raise ValidationError('"overwrite" and "reopen" must not '
+            raise wsgiwapi.ValidationError('"overwrite" and "reopen" must not '
                                   'both be specified')
         self.controller.create_db(request.params['backend'][0],
                                   dbname, overwrite, reopen)
@@ -264,8 +265,7 @@ class SearchServer(object):
             scm.set_field(fieldname, request.json)
             dbw = self.controller.get_db_writer(dbname)
             dbw.set_schema(scm)
-         
-            # FIXME - should we flush this immediately?
+            self.controller.flush(dbname)
             return True
         except schema.FieldError, e:
             raise wsgiwapi.HTTPError(400, e.message)
@@ -301,6 +301,7 @@ class SearchServer(object):
         scm.delete_field(fieldname)
         dbw = self.controller.get_db_writer(dbname)
         dbw.set_schema(scm)
+        self.controller.flush(dbname)
         return True
             
     @wsgiwapi.allow_GETHEAD
@@ -311,6 +312,49 @@ class SearchServer(object):
         db = self.controller.get_db_reader(dbname)
         scm = db.get_schema()
         return scm.get_field_names()
+
+    @wsgiwapi.allow_GETHEAD
+    @wsgiwapi.pathinfo(dbname_param, tmplname_param)
+    @wsgiwapi.jsonreturning
+    def template_get(self, request):
+        """Get a template.
+
+        """
+        dbname = request.pathinfo['dbname']
+        tmplname = request.pathinfo['tmplname']
+
+        dbr = self.controller.get_db_reader(dbname)
+        scm = dbr.get_schema()
+        try:
+            return scm.get_template(tmplname)
+        except KeyError:
+            raise wsgiwapi.HTTPNotFound()
+
+    @wsgiwapi.allow_POST
+    @wsgiwapi.allow_PUT
+    @wsgiwapi.pathinfo(dbname_param, tmplname_param)
+    @wsgiwapi.jsonreturning
+    def template_set(self, request):
+        """Set a template.
+
+        """
+        dbname = request.pathinfo['dbname']
+        tmplname = request.pathinfo['tmplname']
+        dbr = self.controller.get_db_reader(dbname)
+        scm = dbr.get_schema()
+
+#        # don't overwrite existing template
+#        if request.method == 'POST' and tmplname in scm.get_template_names():
+#            return wsgiwapi.JsonResponse(False, 409)
+        
+        try:
+            scm.set_template(tmplname, request.raw_post_data, request.content_type)
+            dbw = self.controller.get_db_writer(dbname)
+            dbw.set_schema(scm)
+            self.controller.flush(dbname)
+            return True
+        except schema.FieldError, e:
+            raise wsgiwapi.HTTPError(400, e.message)
 
     #### document methods ####
 
@@ -393,6 +437,50 @@ class SearchServer(object):
         return db.search_simple(query, start_rank, end_rank)
 
     @wsgiwapi.allow_GET
+    @wsgiwapi.pathinfo(dbname_param, tmplname_param)
+    @wsgiwapi.jsonreturning
+    def search_template(self, request):
+        dbname = request.pathinfo['dbname']
+        tmplname = request.pathinfo['tmplname']
+        db = self.controller.get_db_reader(dbname)
+        scm = db.get_schema()
+        tmpl = scm.get_template(tmplname)
+        return db.search_template(tmpl, request.params)
+
+    @wsgiwapi.allow_GET
+    @wsgiwapi.pathinfo(dbname_param)
+    @wsgiwapi.jsonreturning
+    @wsgiwapi.param('id', 1, None, None, None,
+                    """The ids to use for the similarity search.
+
+                    """)
+    @wsgiwapi.param('start_rank', 0, 1, '^\d*$', ['0'],
+                    """The offset of the first document to return.
+
+                    0-based - ie, 0 returns the top document first.
+
+                    """)
+    @wsgiwapi.param('end_rank', 0, 1, '^\d+$', ['10'],
+                    """The rank one past the last hit to return.
+
+                    e.g. the defaults return the 10 hits ranked 0-9.
+                    Note that the search may return fewer hits than requested.
+                    """)
+    @wsgiwapi.param('pcutoff', 0, 1, '^\d+$', ['0'],
+                    """Percentage cutoff.
+
+                    Only return hits with a percentage weight above this value.
+                    """)
+    def search_similar(self, request):
+        dbname = request.pathinfo['dbname']
+        ids = request.params['id']
+        start_rank = int(request.params['start_rank'][0])
+        end_rank = int(request.params['end_rank'][0])
+        pcutoff = int(request.params['pcutoff'][0])
+        db = self.controller.get_db_reader(dbname)
+        return db.search_similar(ids, start_rank, end_rank, pcutoff)
+
+    @wsgiwapi.allow_GET
     @wsgiwapi.pathinfo(dbname_param)
     @wsgiwapi.jsonreturning
     @wsgiwapi.param('query_all', 0, 1, None, [''],
@@ -466,6 +554,10 @@ class SearchServer(object):
                 post=self.field_set,
                 put=self.field_set,
                 delete=self.field_delete),
+            'v1/dbs/*/schema/templates/*': wsgiwapi.MethodSwitch(
+                get=self.template_get,
+                post=self.template_set,
+                put=self.template_set),
             'v1/dbs/*/docs': wsgiwapi.MethodSwitch(
                 post=self.doc_add),             
             'v1/dbs/*/docs/*': wsgiwapi.MethodSwitch(
@@ -474,9 +566,11 @@ class SearchServer(object):
                 put=self.doc_add2,
                 delete=self.doc_delete),
             'v1/dbs/*/search/simple': self.search_simple,
+            'v1/dbs/*/search/similar': self.search_similar,
             'v1/dbs/*/search/structured': self.search_structured,
+            'v1/dbs/*/search/template/*': self.search_template,
         }
 
 def App(*args, **kwargs):
     server = SearchServer(*args, **kwargs)
-    return wsgiwapi.make_application(server.get_urls(), logger=wsgiwapi.VerboseLogger)
+    return wsgiwapi.make_application(server.get_urls(), logger=wsgiwapi.VerboseLogger, autodoc='doc')

@@ -1,3 +1,14 @@
+Sun May 10 21:14:01 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/application.py: Fix missing wsgiwapi before
+	  ValidationError. Flush immediately after schema changes - this
+	  avoids race conditions to some extent (where one process reads
+	  the schema before another one overwrites it, and then overwrites
+	  changes between that tims and the time that it commits).  Add
+	  methods to get and set the template.  Add method for performing a
+	  search with a particular template.  Add method for performing a
+	  similarity search.
+
 Sun May 10 20:53:30 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchserver/schema.py: Add templates to schema.
