@@ -30,17 +30,20 @@ class Schema(object):
         self.language = 'none'
         self.fields = {}
         self.groups = {}
+        self.templates = {}
 
         if dict_data:
             self.language = dict_data.get('language', self.language)
             self.fields = dict_data.get('fields', self.fields)
             self.groups = dict_data.get('groups', self.groups)
+            self.templates = dict_data.get('templates', self.templates)
     
     def as_dict(self):
         return {
             'language': self.language,
             'fields': self.fields,
             'groups': self.groups,
+            'templates': self.templates,
         }
 
     def set_field(self, fieldname, fieldprops):
@@ -114,6 +117,18 @@ class Schema(object):
         
         """
         return self.fields.keys()
+
+    def get_template(self, tmplname):
+        """Return named template.
+        
+        """
+        return self.templates[tmplname]
+
+    def set_template(self, tmplname, template, content_type):
+        self.templates[tmplname] = {
+            'template': template,
+            'content_type': content_type,
+        }
 
     def set_xappy_field_actions(self, indexer_connection):
         """Set the appropriate Xappy field actions to implement our schema.

@@ -1,3 +1,7 @@
+Sun May 10 20:53:30 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/schema.py: Add templates to schema.
+
 Sat May 09 16:36:31 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchserver/controller.py: ( not [
