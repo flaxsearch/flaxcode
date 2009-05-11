@@ -145,8 +145,16 @@ class BaseDbReader(object):
         """
         raise NotImplementedError
 
-    def search_simple(self, query, start_index, count):
+    def search_simple(self, query, start_index, end_index):
         """Perform a simple search, for a user-specified query string.
+
+        Returns a set of search results.
+
+        """
+        raise NotImplementedError
+
+    def search_similar(self, ids, start_index, end_index):
+        """Perform a similarity search, for a list of ids.
 
         Returns a set of search results.
 
