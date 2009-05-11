@@ -1,3 +1,8 @@
+Mon May 11 14:10:10 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/backends/__init__.py: Remove some debugging
+	  prints, and fix some indentations problems.
+
 Sun May 10 21:14:01 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchserver/application.py: Fix missing wsgiwapi before
