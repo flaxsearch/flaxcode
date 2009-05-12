@@ -27,12 +27,25 @@ from base_backend import BaseBackend, BaseDbReader, BaseDbWriter
 from flax.searchserver import schema, utils
 
 # Global modules
+import Queue
+import wsgiwapi
 import xapian
 import xappy
-import Queue
 
 # The metadata key used to hold schemas.
 SCHEMA_KEY = "_flax_schema"
+
+def build_query(conn, queryobj):
+    """Build a xappy query from a connection and query object.
+
+    """
+    if queryobj is None:
+        return conn.query_none()
+
+    if queryobj.op == 'text':
+        conn.query_parse(queryobj.search)
+    else:
+        raise wsgiwapi.HTTPError(400, "Invalid query type")
 
 class Backend(BaseBackend):
     """The xappy backend for flax search server.
@@ -142,6 +155,44 @@ class DbReader(BaseDbReader):
         queryobj = self.searchconn.query_parse(query)
         return self._search(queryobj, start_rank, end_rank)
 
+    def search_similar(self, ids, start_rank, end_rank, pcutoff):
+        """Perform a similarity search, for a user-specified query string.
+
+        Returns a set of search results.
+
+        """
+        queryobj = self.searchconn.query_similar(ids, simterms=30)
+        return self._search(queryobj, start_rank, end_rank, pcutoff)
+
+    def search_template(self, tmpl, params):
+        if tmpl['content_type'] != 'text/javascript':
+            raise ValueError('Template not in known language')
+        tmpl = tmpl['template']
+        import spidermonkey
+        rt = spidermonkey.Runtime()
+        cx = rt.new_context()
+
+        class JsHttpError(object):
+            def __init__(self, code, body):
+                self.code = code
+                self.body = body
+
+        cx.add_global('params', params)
+        cx.add_global('Query', Query)
+        cx.add_global('QueryText', QueryText)
+        cx.add_global('Search', Search)
+        cx.add_global('HttpError', JsHttpError)
+        res = cx.execute(tmpl)
+
+        if isinstance(res, JsHttpError):
+            raise wsgiwapi.HTTPError(res.code, body=res.body)
+        if not isinstance(res, Search):
+            raise wsgiwapi.HTTPError(400, "Template didn't return a Search.")
+
+        queryobj = build_query(self.searchconn, res.query)
+        return self._search(queryobj, res.start_rank, res.end_rank,
+                        res.percent_cutoff)
+
     def search_structured(self, query_all, query_any, query_none, query_phrase,
                           filters, start_rank, end_rank):
 
@@ -152,7 +203,10 @@ class DbReader(BaseDbReader):
         """
 
         def combine_queries(q1, q2):
-            return q1 & q2 if q1 else q2
+	    if q1:
+	        return q1 & q2
+	    else:
+	        return q2
 
         query = None
         if query_all:
@@ -183,11 +237,14 @@ class DbReader(BaseDbReader):
                 [self.searchconn.query_composite(self.searchconn.OP_OR, x)
                 for x in filterdict.itervalues()])
 
-            query = query.filter(filterquery) if query else filterquery
+            if query:
+	        query = query.filter(filterquery)
+	    else:
+	    	query = filterquery
 
         return self._search(query, start_rank, end_rank)
 
-    def _search(self, queryobj, start_rank, end_rank):
+    def _search(self, queryobj, start_rank, end_rank, pcutoff=None):
 
         print '-- queryobj:', queryobj
 
@@ -204,7 +261,7 @@ class DbReader(BaseDbReader):
                 'results': [],
             }
 
-        results = queryobj.search(start_rank, end_rank)
+        results = queryobj.search(start_rank, end_rank, percentcutoff=pcutoff)
         print '-- matches_estimated:', results.matches_estimated
 
         resultlist = [

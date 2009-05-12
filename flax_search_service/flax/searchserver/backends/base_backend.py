@@ -202,4 +202,3 @@ class BaseDbWriter(object):
 
         """
         raise NotImplementedError
-

@@ -103,7 +103,7 @@ def get(backend_name, backend_settings):
 
         # Try importing the backend module.
         try:
-            modname = 'flax_server.backends.' + backend_name + '_backend'
+            modname = 'flax.searchserver.backends.' + backend_name + '_backend'
             Backend = __import__(modname, globals(), locals(),
                                  ['Backend']).Backend
         except ImportError, e:

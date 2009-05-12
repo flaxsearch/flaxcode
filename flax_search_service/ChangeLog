@@ -1,3 +1,12 @@
+Tue May 12 07:57:57 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/backends/__init__.py,
+	  flax/searchserver/backends/base_backend.py,
+	  flax/searchserver/backends/xappy_backend.py: Some tidyups, and
+	  add search_similar().  Also add search_template(), which is
+	  somewhat experimental, and allows search templates to be written
+	  in javascript.
+
 Tue May 12 07:55:19 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchserver/application.py,flax/searchserver/queries.py:
