@@ -25,6 +25,7 @@ __docformat__ = "restructuredtext en"
 # Local modules
 import backends
 import controller
+import queries
 import schema
 import utils
 
@@ -412,7 +413,7 @@ class SearchServer(object):
     @wsgiwapi.allow_GET
     @wsgiwapi.pathinfo(dbname_param)
     @wsgiwapi.jsonreturning
-    @wsgiwapi.param('query', 0, 1, None, [''],
+    @wsgiwapi.param('query', 0, None, None, [''],
                     """A user-entered query string.
 
                     """)
@@ -429,17 +430,29 @@ class SearchServer(object):
                     Note that the search may return fewer hits than requested.
                     """)
     def search_simple(self, request):
+        """Perform a search using a simple user-entered query.
+
+        """
         dbname = request.pathinfo['dbname']
-        query = request.params['query'][0]
         start_rank = int(request.params['start_rank'][0])
         end_rank = int(request.params['end_rank'][0])
         db = self.controller.get_db_reader(dbname)
-        return db.search_simple(query, start_rank, end_rank)
+
+        qlist = []
+        for querystr in request.params['query']:
+            qlist.append(queries.QueryText(querystr))
+        search = queries.Search(queries.Query.compose(queries.Query.OR, qlist),
+                                start_rank, end_rank)
+        return db.search_simple(querystr, start_rank, end_rank)
+        return db.search(search)
 
     @wsgiwapi.allow_GET
     @wsgiwapi.pathinfo(dbname_param, tmplname_param)
     @wsgiwapi.jsonreturning
     def search_template(self, request):
+        """Perform a search using the template named in the URI.
+
+        """
         dbname = request.pathinfo['dbname']
         tmplname = request.pathinfo['tmplname']
         db = self.controller.get_db_reader(dbname)
@@ -472,6 +485,9 @@ class SearchServer(object):
                     Only return hits with a percentage weight above this value.
                     """)
     def search_similar(self, request):
+        """Perform a similarity search for one or more items.
+
+        """
         dbname = request.pathinfo['dbname']
         ids = request.params['id']
         start_rank = int(request.params['start_rank'][0])
@@ -500,7 +516,7 @@ class SearchServer(object):
                     """A user-entered query string matching a phrase.
 
                     """)
-    @wsgiwapi.param('filter', 0, 100, None, [],
+    @wsgiwapi.param('filter', 0, None, None, [],
                     """A filter on a specified field.
 
                     Format: fieldname:query text
@@ -520,7 +536,6 @@ class SearchServer(object):
     def search_structured(self, request):
         """Search a structured query. 
         
-        FIXME - use GET params instead of JSON.
         """
         dbname = request.pathinfo['dbname']
         db = self.controller.get_db_reader(dbname)

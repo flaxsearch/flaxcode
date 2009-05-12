@@ -1,3 +1,14 @@
+Tue May 12 07:55:19 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/application.py,flax/searchserver/queries.py:
+	  Add a set of classes to define Queries and Searches; the idea is
+	  that application.py will parse the search parameters into these
+	  classes, such that the backends simply have to take a Search
+	  object and convert it into the appropriate search (or raise an
+	  exception if that's not possible).  All the validation will live
+	  in application.py (or, at least, not in backends).  Also, some
+	  tidyups to validation and to documentation comments.
+
 Mon May 11 14:23:49 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchserver/backends/base_backend.py: Fix parameter name,
