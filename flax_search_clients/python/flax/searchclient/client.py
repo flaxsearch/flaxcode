@@ -34,6 +34,24 @@ class RequestMethod(urllib2.Request):
     def get_method(self):
         return self._method
 
+class RequestFailed(Exception):
+    """Exception thrown when a request failed.
+
+    The HTTP exception returned is available in the httperror method.
+
+    """
+    def __init__(self, httperror):
+        self.httperror = httperror
+        self.code = httperror.code
+        self.msg = str(httperror)
+        self.body = httperror.read()
+
+    def __str__(self):
+        return "<RequestFailed(%s)>" % (self.body)
+
+    def __repr__(self):
+        return "<RequestFailed(%r, %r)>" % (self.msg, self.body)
+
 class Client(object):
     """Client for the Flax search server.
 
@@ -101,9 +119,7 @@ class Client(object):
 	try:
             fd = urllib2.urlopen(req)
         except urllib2.HTTPError, e:
-	    print str(e)
-	    print e.read()
-	    raise
+	    raise RequestFailed(e)
         res = fd.read()
         fd.close()
         return res
