@@ -1,3 +1,7 @@
+Thu May 14 18:39:48 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchclient/client.py: Don't alter the initial dict.
+
 Thu May 14 16:46:09 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchclient/client.py: Many updates to the client; add

@@ -22,6 +22,7 @@ r"""Flax search server client.
 """
 __docformat__ = "restructuredtext en"
 
+import copy
 import urllib
 import urllib2
 import utils
@@ -192,6 +193,7 @@ class Schema(object):
                 if isinstance(v, dict):
                     # Merge recursively if it's a dict
                     assert isinstance(old[k], dict)
+                    old[k] = copy.copy(old[k])
                     merge_args(old[k], v)
                 else:
                     # Otherwise overwrite
