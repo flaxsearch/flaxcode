@@ -26,6 +26,25 @@ import urllib
 import urllib2
 import utils
 
+class FlaxError(Exception):
+    """Exception thrown when a request failed.
+
+    The HTTP exception returned is available in the httperror method.
+
+    """
+    def __init__(self, httperror):
+        Exception(self)
+        self.httperror = httperror
+        self.code = httperror.code
+        self.msg = str(httperror)
+        self.body = httperror.read()
+
+    def __str__(self):
+        return "<FlaxError(%s)>" % (self.body)
+
+    def __repr__(self):
+        return "<FlaxError(%r, %r)>" % (self.msg, self.body)
+
 class RequestMethod(urllib2.Request):
     def __init__(self, method, *args, **kwargs):
         self._method = method
@@ -33,24 +52,6 @@ class RequestMethod(urllib2.Request):
 
     def get_method(self):
         return self._method
-
-class RequestFailed(Exception):
-    """Exception thrown when a request failed.
-
-    The HTTP exception returned is available in the httperror method.
-
-    """
-    def __init__(self, httperror):
-        self.httperror = httperror
-        self.code = httperror.code
-        self.msg = str(httperror)
-        self.body = httperror.read()
-
-    def __str__(self):
-        return "<RequestFailed(%s)>" % (self.body)
-
-    def __repr__(self):
-        return "<RequestFailed(%r, %r)>" % (self.msg, self.body)
 
 class Client(object):
     """Client for the Flax search server.
@@ -80,7 +81,7 @@ class Client(object):
             base_url += '/'
         self.base_url = base_url
 
-	self.version = 1
+        self.version = 1
 
         self.versioned_base_url = base_url + 'v%d/' % self.version
 
@@ -93,7 +94,7 @@ class Client(object):
         """
         self.close()
 
-    def do_request(self, path, method='GET', queryargs=None, data=None, json=None):
+    def do_request(self, path, method='GET', queryargs=None, data=None, json=None, content_type=None):
         """Make a request to the server directly.
 
         This is not normally used by user code, but is available if you need to
@@ -111,22 +112,27 @@ class Client(object):
                 args.append((field, vals))
             path += '?' + urllib.urlencode(args, doseq=1)
 
-        url = self.versioned_base_url + path
+        uri = self.versioned_base_url + path
         if json is not None:
             assert data is None
             data = utils.json.dumps(json)
-        req = RequestMethod(method, url, data)
-	try:
+            if content_type is None:
+                content_type = 'application/json'
+        headers = {}
+        if content_type is not None:
+            headers['content-type'] = content_type
+        req = RequestMethod(method, uri, data, headers=headers)
+        try:
             fd = urllib2.urlopen(req)
         except urllib2.HTTPError, e:
-	    raise RequestFailed(e)
+            raise FlaxError(e)
         res = fd.read()
         fd.close()
         return res
 
     def close(self):
         # Nothing to clean up, currently.
-	# When we support persistent connections, should close the connection.
+        # When we support persistent connections, should close the connection.
         pass
 
     def get_databases(self):
@@ -135,38 +141,147 @@ class Client(object):
         """
         return tuple(utils.json.loads(self.do_request('dbs')))
 
-    def create_database(self, dbname):
+    def create_database(self, dbname, overwrite=None, reopen=None, backend=None):
         """Create a database with the given name.
 
         """
-	return self.do_request('dbs/' + utils.quote(dbname), 'POST')
+        queryargs = {}
+        if overwrite is not None:
+            queryargs['overwrite'] = int(bool(overwrite))
+        if reopen is not None:
+            queryargs['reopen'] = int(bool(reopen))
+        if backend is not None:
+            queryargs['backend'] = backend
+        if len(queryargs) == 0:
+            queryargs = None
+        return self.do_request('dbs/' + utils.quote(dbname), 'POST',
+                               queryargs=queryargs)
 
     def delete_database(self, dbname, allow_missing=True):
         """Create a database with the given name.
 
         """
-	return self.do_request('dbs/' + utils.quote(dbname), 'DELETE',
-			queryargs={'allow_missing': 1 if allow_missing else 0})
+        return self.do_request('dbs/' + utils.quote(dbname), 'DELETE',
+                        queryargs={'allow_missing': int(bool(allow_missing))})
 
     def db(self, dbname):
-	return Database(self, dbname)
+        return Database(self, dbname)
+
+    def schema(self, dbname):
+        return Schema(self, dbname)
+
+class Schema(object):
+    def __init__(self, client, dbname):
+        self._client = client
+        self.dbname = dbname
+        self._basepath = 'dbs/' + utils.quote(dbname) + '/schema'
+
+    def get(self):
+        json = self._client.do_request(self._basepath, 'GET')
+        return utils.json.loads(json)
+
+    def add_field(self, fieldname, *args):
+        # merge the args, which should all be dicts
+        allfieldprops = {}
+        for fieldprops in args: allfieldprops.update(fieldprops)
+        uri = self._basepath + '/fields/' + utils.quote(fieldname)
+        self._client.do_request(uri, 'PUT', json=allfieldprops)
+
+    def set_template(self, name, template):
+        uri = self._basepath + '/templates/' + utils.quote(name)
+        self._client.do_request(uri, 'PUT', data=template, content_type='text/javascript')
+
+    def get_template(self, name):
+        uri = self._basepath + '/templates/' + utils.quote(name)
+        json = self._client.do_request(uri, 'GET')
+        return utils.json.loads(json)['template']
 
 class Database(object):
     """
 
     """
     def __init__(self, client, dbname):
-	self._client = client
-	self.dbname = dbname
-	self._basepath = 'dbs/' + utils.quote(dbname)
+        self._client = client
+        self.dbname = dbname
+        self._basepath = 'dbs/' + utils.quote(dbname)
+
+    @property
+    def info(self):
+        json = self._client.do_request(self._basepath, 'GET')
+        return utils.json.loads(json)
 
     @property
     def doccount(self):
         json = self._client.do_request(self._basepath, 'GET')
-	return utils.json.loads(json)['doccount']
+        return utils.json.loads(json)['doccount']
 
-    def add_document(self, doc):
-        """Create a database with the given name.
+    def add_document(self, doc, docid=None):
+        """Add a document - if the docid is specified, replaces any existing
+        one with that id (but doesn't complain if the document doesn't exist).
 
         """
-	return self._client.do_request(self._basepath, 'POST', json=doc)
+        uri = self._basepath + '/docs'
+        if docid is not None:
+            uri += '/' + utils.quote(str(docid))
+        return self._client.do_request(uri, 'POST', json=doc)
+
+    def get_document(self, docid):
+        """Get the document with the given id.
+
+        """
+        uri = self._basepath + '/docs/' + utils.quote(str(docid))
+        return utils.json.loads(self._client.do_request(uri, 'GET'))
+
+    def flush(self):
+        """Flush pending changes, and block until they're done.
+
+        """
+        self._client.do_request(self._basepath + '/flush', 'POST')
+
+    def search_simple(self, searchstring, start_rank=0, end_rank=10):
+        return SearchResults(self._client.do_request(self._basepath + '/search/simple', 'GET',
+                        queryargs={'query': searchstring,
+                        'start_rank': start_rank,
+                        'end_rank': end_rank,
+                        }))
+
+    def search_similar(self, ids, start_rank=0, end_rank=10, pcutoff=0):
+        return SearchResults(self._client.do_request(self._basepath + '/search/similar', 'GET',
+                        queryargs={'id': ids,
+                        'start_rank': start_rank,
+                        'end_rank': end_rank,
+                        'pcutoff': pcutoff,
+                        }))
+
+    def search_template(self, name, **kwargs):
+        uri = self._basepath + '/search/template/' + utils.quote(name)
+        return SearchResults(self._client.do_request(uri, 'GET', queryargs=kwargs))
+
+class SearchResults(object):
+    def __init__(self, json):
+        results = utils.json.loads(json)
+        self.start_rank = results['start_rank']
+        self.end_rank = results['end_rank']
+
+        # Whether there are more matches
+        self.more_matches = results['more_matches']
+
+        self.matches_lower_bound = results['matches_lower_bound']
+        self.matches_estimated = results['matches_estimated']
+        self.matches_upper_bound = results['matches_upper_bound']
+        self.matches_human_readable_estimate = results['matches_human_readable_estimate']
+        self.results = [SearchResult(result) for result in results['results']]
+
+    def __repr__(self):
+        return '<SearchResults(start_rank=%d, end_rank=%d>' % (
+                                self.start_rank,
+                                self.end_rank,
+                                )
+
+class SearchResult(object):
+    def __init__(self, values):
+        self.db = values['db']
+        self.docid = values['docid']
+        self.weight = values['weight']
+        self.rank = values['rank']
+        self.data = values['data']
