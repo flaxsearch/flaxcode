@@ -181,9 +181,25 @@ class Schema(object):
         return utils.json.loads(json)
 
     def add_field(self, fieldname, *args):
-        # merge the args, which should all be dicts
         allfieldprops = {}
-        for fieldprops in args: allfieldprops.update(fieldprops)
+        def merge_args(old, new):
+            for (k, v) in new.iteritems():
+                if k not in old:    
+                    # Add a new entry
+                    old[k] = v
+                    continue
+
+                if isinstance(v, dict):
+                    # Merge recursively if it's a dict
+                    assert isinstance(old[k], dict)
+                    merge_args(old[k], v)
+                else:
+                    # Otherwise overwrite
+                    old[k] = v
+            
+        # merge the args, which should all be dicts
+        for fieldprops in args:
+            merge_args(allfieldprops, fieldprops)
         uri = self._basepath + '/fields/' + utils.quote(fieldname)
         self._client.do_request(uri, 'PUT', json=allfieldprops)
 
