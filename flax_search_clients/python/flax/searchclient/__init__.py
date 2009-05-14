@@ -22,4 +22,4 @@ r"""Flax search server client.
 """
 __docformat__ = "restructuredtext en"
 
-from client import (Client, )
+from client import Client, FlaxError
