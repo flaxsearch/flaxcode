@@ -203,10 +203,10 @@ class DbReader(BaseDbReader):
         """
 
         def combine_queries(q1, q2):
-	    if q1:
-	        return q1 & q2
-	    else:
-	        return q2
+            if q1:
+                return q1 & q2
+            else:
+                return q2
 
         query = None
         if query_all:
@@ -238,9 +238,9 @@ class DbReader(BaseDbReader):
                 for x in filterdict.itervalues()])
 
             if query:
-	        query = query.filter(filterquery)
-	    else:
-	    	query = filterquery
+                query = query.filter(filterquery)
+            else:
+                query = filterquery
 
         return self._search(query, start_rank, end_rank)
 
@@ -297,6 +297,12 @@ class DbWriter(BaseDbWriter):
         """
         BaseDbWriter.__init__(self, base_uri, db_path)
         self.queue = Queue.Queue(1000)
+        if not hasattr(self.queue, 'task_done'):
+            def nop(*args): pass
+            self.queue.task_done = nop
+        if not hasattr(self.queue, 'join'):
+            def nop(*args): pass
+            self.queue.join = nop
         self.iconn = xappy.IndexerConnection(self.db_path)
 
     def close(self):

@@ -1,3 +1,8 @@
+Thu May 14 22:08:19 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/backends/xappy_backend.py: For 2.4, where the
+	  join and task_done methods are missing, add them as nops.
+
 Tue May 12 07:57:57 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchserver/backends/__init__.py,
