@@ -1,8 +1,8 @@
 Flax Search Service Clients
 ===========================
 
-This package contains client-side libraries in various languages (currently Python
-and PHP) to make it easy to interface with the Flax Search Service.
+This package contains client-side libraries in various languages (currently
+Python and PHP) to make it easy to interface with the Flax Search Service.
 
 For more information see READMEs in the php or python subdirectories.
 
