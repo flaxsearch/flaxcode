@@ -7,6 +7,7 @@ working with the Flax Search Service (FSS) in PHP.
 
 Prerequisites
 -------------
+
 FSSC requires PHP 5 with the libcurl extension. In order to run the unit tests,
 you will need the simpletest framework.
 
@@ -18,6 +19,7 @@ called "simpletest").
 
 Unit tests
 ----------
+
 To run the unit tests, cd into the the "unittests" directory, then run:
 
     php runtests.php <FSS base URL>
@@ -35,15 +37,18 @@ This should produce output reporting that all the tests have passed, e.g.:
 
 Documentation
 -------------
+
 API documentation is provided in the file docs/API.rst
 
 
 Examples
 --------
+
 An example application consisting of a very simple NewsML indexer and a search
-GUI are provided in the "examples" directory. To run this, you will need a source
-of NewsML data (such as the Reuters Corpus). Then to create a searchable database,
-first make sure that FSS is running, then cd into the "examples" directory and run:
+GUI are provided in the "examples" directory. To run this, you will need a
+source of NewsML data (such as the Reuters Corpus). Then to create a searchable
+database, first make sure that FSS is running, then cd into the "examples"
+directory and run:
 
     php <FSS base URL> <data directory>
 
@@ -55,5 +60,4 @@ To run the GUI search, make sure that the flax_search_client/php directory is
 accessible to your web server and the PHP is enabled. Then point your browser
 at the "newsml_search.php" file. This should display a simple forms interface
 and allow you to search for text in the source data.
-
 
