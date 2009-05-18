@@ -1,11 +1,59 @@
-FIXME - write a proper README.
+Flax Search Service Client for PHP
+==================================
 
-To run the unit tests, ensure that PHP is installed, and the php-simpletest
-package is installed, then run (from inside the unittests directory)::
+The Flax Search Service Client (FSSC) for PHP is a simple library to simplify 
+working with the Flax Search Service (FSS) in PHP.
 
-  php runtests.php
+
+Prerequisites
+-------------
+FSSC requires PHP 5 with the libcurl extension. In order to run the unit tests,
+you will need the simpletest framework.
 
 Note - the debian/ubuntu package of php-simpletest doesn't seem to work, so
 instead just download the tarball from http://simpletest.org/en/download.html
 and unpack it in the unittest directory (producing a subdirectory of unittests
 called "simpletest").
+
+
+Unit tests
+----------
+To run the unit tests, cd into the the "unittests" directory, then run:
+
+    php runtests.php <FSS base URL>
+
+e.g.:
+
+    php runtests.php http://localhost:8080/
+
+This should produce output reporting that all the tests have passed, e.g.:
+
+    All tests
+    OK
+    Test cases run: 4/4, Passes: 38, Failures: 0, Exceptions: 0
+
+
+Documentation
+-------------
+API documentation is provided in the file docs/API.rst
+
+
+Examples
+--------
+An example application consisting of a very simple NewsML indexer and a search
+GUI are provided in the "examples" directory. To run this, you will need a source
+of NewsML data (such as the Reuters Corpus). Then to create a searchable database,
+first make sure that FSS is running, then cd into the "examples" directory and run:
+
+    php <FSS base URL> <data directory>
+
+where <data directory> contains NewsML files with the .xml extension. e.g.:
+
+    php http://localhost:8080/ /var/newsml-data
+
+To run the GUI search, make sure that the flax_search_client/php directory is 
+accessible to your web server and the PHP is enabled. Then point your browser
+at the "newsml_search.php" file. This should display a simple forms interface
+and allow you to search for text in the source data.
+
+

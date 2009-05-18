@@ -1,0 +1,61 @@
+Flax Search Service
+===================
+
+Flax Search Service (FSS) combines powerful, high-level indexing and search 
+features with a clean, RESTful JSON API. It is based on the Xapian search 
+engine core, and is released under the MIT Open Source license (note, however,
+that Xapian itself is licensed under the GPL).
+
+
+Prerequisites
+-------------
+In order to run FSS, you must have Python 2.5 or 2.6 installed. You also need
+to have installed Xapian Core and its Python bindings (release 1.0.12 recommended).
+These available here: http://xapian.org/download (note that prebuild versions are
+available for Ubuntu/Debian Linux and Windows).
+
+If you are using the FSS client libraries, these have their own prerequisites; 
+see the appropriate READMEs for details.
+
+
+Installation and running
+------------------------
+FSS does not need to be installed in any particular location. To start the FSS 
+server, open a terminal window and run (in the same directory as this README):
+
+    python runserver.py
+
+This starts the server listening on port 8080 of all available interfaces. To change
+the port number or bound IP address,  edit the file "settings.py" and change the
+'server_bind_address' tuple.
+
+By default, FSS will store databases and configuration under /tmp/flax. To specify
+a different path, edit "settings.py" and change the 'data_path' setting, or specify
+the path as a command-line parameter, e.g.:
+
+    python runserver.py /var/flax-data
+
+
+Testing
+-------
+With the server running, open a browser window and point it at
+
+    http://localhost:8080/ 
+
+(or appropriate address if you have edited "settings.py"). This should display 
+something like:
+
+    {"backends": {}, "versions": {"PROTOCOL": "dev20090312", "SERVER": "0.1"}}
+
+The client libraries (especially the PHP client) include tests of various 
+service functions, such as database creation and deletion, document indexing
+etc. See the client documentation for instructions on running these tests.
+
+
+Further documentation
+---------------------
+The FSS API is documented in the file docs/API.rst.
+
+Client documentation and examples are included in the flax_search_clients packages.
+
+
