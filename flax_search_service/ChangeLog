@@ -1,3 +1,9 @@
+Mon May 18 21:29:22 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/queries.py,flax/searchserver/unittests/: Add
+	  an abstract query structure for parsing query parameters into to
+	  be passed to backends, and the start of a unittest framework.
+
 Thu May 14 22:08:19 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchserver/backends/xappy_backend.py: For 2.4, where the

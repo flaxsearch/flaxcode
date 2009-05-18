@@ -55,6 +55,7 @@ class Query(object):
     XOR = 2
     NOT = 3
     TEXT = 4
+    MULTWEIGHT = 5
 
     # The names of the operators, in order.
     OP_NAMES = ('OR', 'AND', 'XOR', 'NOT', 'TEXT', )
@@ -88,6 +89,72 @@ class Query(object):
         if not isinstance(other, (Query, xapian.Query)):
             return NotImplemented
 
+    def __mul__(self, mult):
+        """Return a query with the weight scaled by multiplier.
+
+        """
+        try:
+            return QueryMultWeight(self, mult)
+        except TypeError:
+            return NotImplemented
+
+    def __rmul__(self, lhs):
+        """Return a query with the weight scaled by multiplier.
+
+        """
+        return self.__mul__(lhs)
+
+    def __div__(self, rhs):
+        """Return a query with the weight divided by a number.
+
+        """
+        try:
+            return self.__mul__(1.0 / rhs)
+        except TypeError:
+            return NotImplemented
+
+    def __truediv__(self, rhs):
+        """Return a query with the weight divided by a number.
+
+        """
+        try:
+            return self.__mul__(1.0 / rhs)
+        except TypeError:
+            return NotImplemented
+
+    def __and__(self, other):
+        """Return a query combined using AND with another query.
+
+        """
+        if not isinstance(other, Query):
+            return NotImplemented
+        return QueryAnd((self, other))
+
+    def __or__(self, other):
+        """Return a query combined using OR with another query.
+
+        """
+        if not isinstance(other, Query):
+            return NotImplemented
+        return QueryOr((self, other))
+
+    def __xor__(self, other):
+        """Return a query combined using XOR with another query.
+
+        """
+        if not isinstance(other, Query):
+            return NotImplemented
+        return QueryXor((self, other))
+
+    def __sub__(self, other):
+        """Return a query combined using XOR with another query.
+
+        """
+        if not isinstance(other, Query):
+            return NotImplemented
+        return QueryNot((self, other))
+
+
 class QueryOr(Query):
     """A query which matches a document if any of its subqueries match.
 
@@ -99,7 +166,7 @@ class QueryOr(Query):
     def __init__(self, subqs):
         self.subqs = subqs
     def __repr__(self):
-        return "QueryOr(%r)" % self.subqs
+        return u' | '.join(unicode(q) for q in self.subqs)
 
 class QueryAnd(Query):
     """A query which matches a document if all of its subqueries match.
@@ -112,7 +179,7 @@ class QueryAnd(Query):
     def __init__(self, subqs):
         self.subqs = subqs
     def __repr__(self):
-        return "QueryAnd(%r)" % self.subqs
+        return u' & '.join(unicode(q) for q in self.subqs)
 
 class QueryXor(Query):
     """A query which matches a document if exactly one of its subqueries match.
@@ -125,7 +192,7 @@ class QueryXor(Query):
     def __init__(self, subqs):
         self.subqs = subqs
     def __repr__(self):
-        return "QueryXor(%r)" % self.subqs
+        return u' ^ '.join(unicode(q) for q in self.subqs)
 
 class QueryNot(Query):
     """A query which matches a document if its first subquery matches but none
@@ -141,20 +208,30 @@ class QueryNot(Query):
             subqs = (subqs[0], QueryOr(subqs[1:]))
         self.subqs = subqs
     def __repr__(self):
-        return "QueryNot(%r)" % self.subqs
+        return u' - '.join(unicode(q) for q in self.subqs)
 
 class QueryText(Query):
     """A free-text query for a piece of text.
 
     """
-    op = 'text'
-
+    op = Query.TEXT
     def __init__(self, text, fields=None):
         self.text = text
         self.fields = fields
-
     def __repr__(self):
         return "QueryText(%r)" % self.text
+
+class QueryMultWeight(Query):
+    """A query which returns the same documents as a sub-query, but with the
+    weights multiplied by the given number.
+
+    """
+    op = Query.MULTWEIGHT
+    def __init__(self, subq, mult):
+        self.subq = subq
+        self.mult = float(mult)
+    def __repr__(self):
+        return "(%r * %.4g)" % (self.subq, self.mult)
 
 class Search(object):
     def __init__(self, query, start_rank, end_rank):
