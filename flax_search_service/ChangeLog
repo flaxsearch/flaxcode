@@ -1,3 +1,9 @@
+Thu May 21 12:38:01 GMT 2009  Tom Mortimer <tom@lemurconsulting.com>
+
+    * flax/searchserver/backends/xappy_backend.py,
+    * flax/searchserver/backends/base_backend.py,
+    * flax/searchserver/application.py: Added support for deleting docs.
+
 Mon May 18 21:29:22 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchserver/queries.py,flax/searchserver/unittests/: Add

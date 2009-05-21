@@ -197,8 +197,15 @@ class BaseDbWriter(object):
         """
         raise NotImplementedError
 
+    def delete_document(self, docid):
+        """Delete a document from the database.
+
+        """
+        raise NotImplementedError
+
     def commit_changes(self):
         """Commit changes to the database.
 
         """
         raise NotImplementedError
+

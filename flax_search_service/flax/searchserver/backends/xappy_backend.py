@@ -327,6 +327,14 @@ class DbWriter(BaseDbWriter):
         """
         self.queue.put(DbWriter.AddDocumentAction(self, doc, docid))
 
+    def delete_document(self, docid):
+        """Delete a document from the database.
+
+        This will be done asynchronously in the write thread.
+
+        """
+        self.queue.put(DbWriter.DeleteDocumentAction(self, docid))
+
     def commit_changes(self):
          """Commit changes to the database.
 
@@ -378,6 +386,20 @@ class DbWriter(BaseDbWriter):
 
         def __str__(self):
             return 'AddDocumentAction(%s)' % self.db_writer.db_path
+
+    class DeleteDocumentAction(object):
+        """Action to delete a document from a Xappy database.
+
+        """
+        def __init__(self, db_writer, docid):
+            self.db_writer = db_writer
+            self.docid = docid
+
+        def perform(self):
+            self.db_writer.iconn.delete(self.docid)
+
+        def __str__(self):
+            return 'DeleteDocumentAction(%s)' % self.db_writer.db_path
 
     class CommitAction(object):
         """Action to flush changes to the database so they can be searched.

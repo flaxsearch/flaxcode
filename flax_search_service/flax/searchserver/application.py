@@ -404,11 +404,14 @@ class SearchServer(object):
         dbw.add_document(request.json, docid=request.pathinfo['docid'])
         return True
 
-    @wsgiwapi.allow_POST
-    @wsgiwapi.pathinfo(dbname_param)
+    @wsgiwapi.allow_DELETE
+    @wsgiwapi.pathinfo(dbname_param, docid_param)
     @wsgiwapi.jsonreturning
     def doc_delete(self, request):
-        raise NotImplementedError
+        dbname = request.pathinfo['dbname']
+        dbw = self.controller.get_db_writer(dbname)
+        dbw.delete_document(request.pathinfo['docid'])
+        return True
 
     @wsgiwapi.allow_GET
     @wsgiwapi.pathinfo(dbname_param)
