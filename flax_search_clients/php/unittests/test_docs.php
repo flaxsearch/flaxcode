@@ -69,6 +69,21 @@ class DocsTestCase extends UnitTestCase {
         # check that we can search for it
         $results = $this->db->searchSimple('bar');
         $this->assertEqual($results['matches_estimated'], 1);
+
+        # check we can delete it
+        $this->db->deleteDocument('doc002');
+        $this->db->commit();
+
+        try {
+            $this->db->getDocument('doc002');
+            $this->fail();
+        }
+        catch (FlaxDocumentError $e) {
+            $this->pass();
+        }
+
+        $results = $this->db->searchSimple('bar');
+        $this->assertEqual($results['matches_estimated'], 0);
     }
 
     function testBigDoc() {

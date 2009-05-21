@@ -1,3 +1,7 @@
+Thu May 21 12:38:01 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+
+    * unittests/test_docs.php: Added test for document deletion.
+
 Mon May 18 23:57:18 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* README: Whitespace and line wrapping tweaks.
