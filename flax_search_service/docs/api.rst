@@ -1,8 +1,8 @@
-====================================
-Flax Indexing/Search Web Service API
-====================================
+=======================
+Flax Search Service API
+=======================
 
-This is the API documentation for the Flax indexing and search web service.
+This is the API documentation for the Flax indexing and search web service (FSS).
 The API is mostly RESTful HTTP, with a few necessary compromises.
 
 Compromises
@@ -13,75 +13,59 @@ response status code, even where it would be the most appropriate status code
 to return, because some clients (specifically, a PHP client we experimented
 with) interpret the Location header in such a response as a redirect.
 
+
 Resources and URIs
 ==================
 
-Currently Implemented
----------------------
+API Version
+-----------
 
-======================== ================================================== =================================
-Resource type            URI                                                Example
-======================== ================================================== =================================
-Server info              /                                                  /
------------------------- -------------------------------------------------- ---------------------------------
-List of databases        /<ver>/dbs                                         /dbs
------------------------- -------------------------------------------------- ---------------------------------
-Database                 /<ver>/dbs/<db_name>                               /botany
------------------------- -------------------------------------------------- ---------------------------------
-Schema                   /<ver>/dbs/<db_name>/schema                        /botany/schema
------------------------- -------------------------------------------------- ---------------------------------
-Default language         /<ver>/dbs/<db_name>/schema/language               /botany/schema/language
------------------------- -------------------------------------------------- ---------------------------------
-Fields                   /<ver>/dbs/<db_name>/schema/fields/<field_name>    /botany/schema/fields/genus
------------------------- -------------------------------------------------- ---------------------------------
-Groups                   /<ver>/dbs/<db_name>/schema/groups/<group_name>    /botany/schema/groups/taxonomy
------------------------- -------------------------------------------------- ---------------------------------
-Metadata                 /<ver>/dbs/<db_name>/meta/<key>                    /botany/meta/wombat
------------------------- -------------------------------------------------- ---------------------------------
-DB Configuration         /<ver>/dbs/<db_name>/config/<key>                  /botany/config/synchronous
------------------------- -------------------------------------------------- ---------------------------------
-DB Status                /<ver>/dbs/<db_name>/status                        /botany/status
------------------------- -------------------------------------------------- ---------------------------------
-Document                 /<ver>/dbs/<db_name>/docs/<doc_id>                 /botany/docs/42 [#docids]_
------------------------- -------------------------------------------------- ---------------------------------
-Document range           /<ver>/dbs/<db_name>/docs/<start_id>-<end_id>      /botany/docs/23-42 [#docids]_
------------------------- -------------------------------------------------- ---------------------------------
-Document set             /<ver>/dbs/<db_name>/docs/<id1>,<id2>,...          /botany/docs/3,5,7,11 [#docids]_
------------------------- -------------------------------------------------- ---------------------------------
-Database terms [#terms]_ /<ver>/dbs/<db_name>/terms                         /botany/terms
------------------------- -------------------------------------------------- ---------------------------------
-Document terms           /<ver>/dbs/<db_name>/docs/<doc_id>/terms           /botany/docs/42/terms
------------------------- -------------------------------------------------- ---------------------------------
-Term range                terms/<start_term>-<end_term>                     /botany/terms/leaf-
------------------------- -------------------------------------------------- ---------------------------------
-Term match                terms/<prefix>*                                   /botany/terms/XF*
------------------------- -------------------------------------------------- ---------------------------------
-Synonyms                 /<ver>/dbs/<db_name>/synonyms/<original>           /botany/synonyms/fungus
------------------------- -------------------------------------------------- ---------------------------------
-Search                   /<ver>/dbs/<db_name>/search/?<query>               /botany/search/?query=xylem
------------------------- -------------------------------------------------- ---------------------------------
-Replay Log               /<ver>/dbs/<db_name>/log                           /botany/log
-======================== ================================================== =================================
+Apart from the root path which returns server information, all paths are prefixed
+with a version code (currently v1). This is so FSS can maintain backwards 
+compatibility with existing client code while being able to change the API
+design in later versions.
 
-Not Currently Implemented
--------------------------
+List of Resources
+-----------------
 
-======================== ================================================== =================================
-Resource type            URI                                                Example
-======================== ================================================== =================================
+======================== ==================================================
+Resource type            URI                                               
+======================== ==================================================
+Server info              /
+------------------------ --------------------------------------------------
+Set of databases         /v1/dbs                                             
+------------------------ --------------------------------------------------  
+Database                 /v1/dbs/<db_name>                                  
+------------------------ --------------------------------------------------  
+Schema                   /v1/dbs/<db_name>/schema                            
+------------------------ --------------------------------------------------  
+Default language         /v1/dbs/<db_name>/schema/language                   
+------------------------ --------------------------------------------------  
+Set of fields            /v1/dbs/<db_name>/schema/fields
+------------------------ --------------------------------------------------  
+Field definition         /v1/dbs/<db_name>/schema/fields/<field_name>       
+------------------------ --------------------------------------------------  
+Set of documents         /v1/dbs/<db_name>/docs
+------------------------ --------------------------------------------------  
+Document                 /v1/dbs/<db_name>/docs/<doc_id>  [#docids]_
+------------------------ --------------------------------------------------  
+Search (Simple)          /v1/dbs/<db_name>/search/simple?<query_str>
+------------------------ --------------------------------------------------  
+Search (Structured)      /v1/dbs/<db_name>/search/structured?<query_str>
+------------------------ --------------------------------------------------  
+Search (Similar)         /v1/dbs/<db_name>/search/simple?<query_str>
+------------------------ --------------------------------------------------  
+Flush control            /v1/dbs/<db_name>/flush
+------------------------ --------------------------------------------------  
+API Autodocs             /doc
+======================== ==================================================  
+
+.. [#docids] Document IDs can be any string, not just numeric.  However, note 
+   that they must be escaped as described below.
 
 
-======================== ================================================== =================================
-
-
-.. [#docids] Document IDs can be any string, not just numeric.  However, note that they must be escaped as described below.
-
-.. [#terms] Is terms exposing too much? But it's good for populating dropdown lists.
-
-TODO: Add support for facets, spelling correction.
-
-Formats
-=======
+Data Formats
+============
 
 Identifiers
 -----------
@@ -228,6 +212,7 @@ probably the best value to use for the `totalResults` return value.
 As shown above, a contextual summary can also be returned with each hit (see
 searching).
 
+
 POST/PUT data
 =============
 
@@ -242,6 +227,7 @@ ways to send it:
 Note that, due to limits on URI lengths supported for GET requests, the API
 sometimes allows a POST request (with a large request body) to be made where a
 GET request would be more appropriate.
+
 
 Return Values
 =============
@@ -261,11 +247,39 @@ it would be more appropriate to return a 201 or 202 status code, but we have
 experienced problems with clients following the associated "Location" headers
 as if they were redirects, so for now we're sticking to 200 status codes.
 
+
+Transactions
+============
+
+The REST model is inherently untransactional, however the underlying database
+is designed to support transactions. It is not efficient to commit each 
+document addition or update to the database immediately (this can slow down
+indexing by an order of magnitude if thousands of documents are involved).
+Therefore we have a compromise in the design.
+
+Current API
+-----------
+
+Transaction support in the current API is primitive, and was implemented quickly
+in order to allow testing other other features to get underway. The client code
+basically has no control over transactions, other than being able to ensure that
+all pending changes have been committed. This is done by POSTING an empty body
+(or JSON null or any other object) to the database's /flush resource:
+
+    POST /v1/dbs/<db_name>/flush
+    {}
+
+There is no way of explicitly beginning or cancelling a transaction. See 
+future.rst for possible future approaches to transactions.
+
+
 Database Methods
 ================
 
 create database
 ---------------
+
+    POST /v1/dbs/<db_name>
 
 Optional parameters:
 
@@ -274,162 +288,76 @@ Optional parameters:
  - reopen: If 1, and database exists, do nothing.  If 0 or omitted, give an
    error if the database already exists.
 
-e.g.::
-
-    POST /dbs/<db_name>
 
 If the database is sucessfully created, this will return a 200 response and true body.
 
 delete database
 ---------------
 
+    DELETE /v1/dbs/<db_name>
+
 Optional parameters:
 
  - allow_missing: If 1, and the database doesn't exist, do nothing.  If 0 or
    omitted, give an error if database doesn't exist.
 
-e.g.::
-
-    DELETE /dbs/<db_name>
-
 get database info
 -----------------
 
-e.g.::
+    GET /v1/dbs/<db_name>
 
-    GET /dbs/<db_name>
+returns { 'doccount': doccount, 'created': created_date, 'last_modified': last_modified_date }
 
-    returns { 'doccount': doccount, 'created': created_date, 'last_modified': last_modified_date }
 
-Field Methods FIXME
-===================
+Schema Methods
+==============
 
-set field
+The database schema specifies the types of document fields and how they are
+indexed and/or stored.
+
+Set field
 ---------
 
-A field is created by posting a field description object (see above) to the field resource:
-
-e.g.::
-
-    POST /dbs/<db_name>/fields/<field_name>
+    POST /v1/dbs/<db_name>/schema/fields/<field_name>
     {field description object}
 
-This only needs to be done when a database is first created.
+A field is created by posting a field description object (see above) to 
+the field resource.
 
-get field
+Field setup will typically be done when a database is first created, and if 
+it is changed after documents have been added, only new documents will be 
+affected by the change (unlike a RDBMS).
+
+Get field
 ---------
 
-e.g.::
+    GET /v1/dbs/<db_name>/schema/fields/<field_name>
 
-    GET /dbs/<db_name>/fields/<field_name>
-    {field description object}
+Returns a field description JSON object.
 
-delete field
+Delete field
 ------------
 
-e.g.::
+    DELETE /v1/dbs/<db_name>/schema/fields/<field_name>
 
-    DELETE /dbs/<db_name>/fields/<field_name>
-
-get list of field names
+Get list of field names
 -----------------------
 
-e.g.::
+    GET /v1/dbs/<db_name>/schema/fields
 
-    GET /dbs/<db_name>/fields
+returns a list of fieldnames, e.g.: ["title", "author", "date", ...]
 
-    returns [fieldname_1, fieldname_2, ...]
+Set default language
+--------------------
 
+    POST /v1/dbs/<db_name>/schema/language?language=<language>
 
-Group Methods
-=============
+Where language must be specified as a 2 character ISO-639 language code
+out of the set (da, nl, en, fi, fr, de, it, no, pt, ru, es, sv). This
+will specify the stemming (suffix stripping) algorithm to be employed for
+indexing and search. If <language> is the empty string, no stemming
+will be used.
 
-Groups are provided to make it possible to do efficient searches over two or
-more fields. Internally, a combined index of instances of these fields will be
-created, and these combined indexes will be used whenever the fields in the
-group are used for searching.
-
-Groups can either contain a set of ``freetext`` fields, or a set of
-``exacttext`` fields, but not a mixture of the two.
-
-create or modify a group
-------------------------
-
-Method: PUT
-Path: /dbs/<db_name>/schema/groups/<group_name>
-Body: a JSON list of field names.
-
-Note that this replaces any existing settings for a group of the given name.
-
-e.g.::
-
-    PUT /dbs/<db_name>/schema/groups/<group_name>
-    ["field1", "field2"]
-
-delete a group
---------------
-
-e.g.::
-
-    DELETE /dbs/<db_name>/schema/groups/<group_name>
-
-get fields in a group
----------------------
-
-e.g.::
-
-    GET /dbs/<db_name>/schema/groups/<group_name>
-
-    returns [array of field names]
-
-get list of groups
-------------------
-
-e.g.::
-
-    GET /dbs/<db_name>/schema/groups
-
-    returns [array of group names]
-
-Metadata Methods
-================
-
-Abitrary metadata may be stored in the database.  This is essentially just a
-key-value store.
-
-FIXME - this part of the API needs more design work::
-
- - should there be a method for getting all the keys in the metadata?
- - or should there be a method for getting all  the key-value pairs?
- - should we be using JSON encoded values for the get and set methods, or just
-   raw data (as application/octet, perhaps)?
-
-set metadata key
-----------------
-
-Method: PUT
-Path: /dbs/<db_name>/meta/<key>
-Body: a JSON string containing the value to store.
-Response: 200 if successful.
-
-e.g.::
-
-    PUT /dbs/foo/meta/name
-    "richard"
-
-get metadata key
-----------------
-
-Method: GET
-Path: /dbs/<db_name>/meta/<key>
-
-Response: a JSON string containing the value stored.
-
-e.g.::
-
-    GET /dbs/foo/meta/name
-
-    returns: "richard"
 
 Document Methods
 ================
@@ -437,151 +365,86 @@ Document Methods
 add/replace document
 --------------------
 
-e.g.::
+    POST /<db_name>/docs[/<doc_id>]
+    {document data}
 
-    POST /<db_name>/docs/[<doc_id>]
-    [document data]
+``<doc_id>`` is optional. If not supplied, FSS will assign a new ID to the document
+and add it to the database.
+Will create new document, or overwrite existing one.
 
-``<doc_id>`` optional. Will create new document, or overwrite existing doc.
-
-returns true (FIXME return doc_id? Might need to create UUID.)
-
-delete document(s)
-------------------
-
-e.g.::
-
-    DELETE /<db_name>/docs/<doc_id>|<doc_range>|<doc_set>
-
-    Transactional; either all documents deleted without error, or none (but what errors could there be?) - database corruption, out of memory errors, networking errors (when we support multi-database backends), etc.
-
-get document(s)
+delete document
 ---------------
 
-e.g.::
+    DELETE /<db_name>/docs/<doc_id>
 
-    GET /<db_name>/docs/<doc_id>|<doc_range>|<doc_set>
+get document
+------------
 
-    returns {document} or [document list]
+    GET /<db_name>/docs/<doc_id>
 
+Returns the document as a JSON object.
 
-Multiple document transactions
-==============================
-
-Client-managed transactions
----------------------------
-
-The single document operations listed above are committed immediately, so that
-they are visible to searches. This is extremely inefficient for adding or
-updating a large number of documents, but the Xapian transaction API does not
-translate easily to a RESTful approach.
-
-One solution is to allow POST and PUT to supply multiple documents, where the
-document ID of each is included with the document data. The POST variant will
-not overwrite existing documents, the PUT command will. A Xapian transaction is
-started for the first document in the stream, and is committed at the end of
-the stream. If an error occurs, the entire stream is aborted.
-
-Since there may be very many documents in a transaction (10,000 is typical), we
-do not want to have to store the whole list in memory on the client or the
-server. Therefore we should use chunked encoding, and the server should read
-docs from the open stream and add them as soon as they are available.
-
-Client-managed transactions are not ideal for all applications, and so this
-will have a lower priority than:
-
-Server-managed transactions
----------------------------
-
-This approach is not strictly RESTful but is pragmatic for most real-world
-applications. The database can be set to asynchronous mode by setting the DB
-configuration parameter ``synchronous`` to ``false`` (perhaps this should be
-the default?)  When this is true, documents added to the database will not
-necessarily be searchable immediately, but will be queued until the server
-decides to add and commit them. This means that if there is an error adding
-documents, the client will not be informed synchronously (however, the
-documents *will* be validated synchronously as usual, so this is unlikely
-to be a problem). 
-
-Setting the ``synchronous`` flag to ``true`` will commit any pending
-transactions as a side-effect, so the client could use this as a sort of sloppy
-transactional control. 
- 
-Term Methods
-============
-
-Synonym Methods
-===============
 
 Search Methods
 ==============
 
-The complicated stuff!
+The API currrently supports three search methods:
 
-search/simple
+Simple search
 -------------
 
-FIXME - document; just accepts start and end ranks, and a flat query string
-which is interpreted.
+    GET /v1/dbs/<db_name>/search/simple?query=<query>
 
-search/json
------------
+Where <query> contains words to search for in the database (in fact the string is 
+passed to the Xapian query parser, so it may also contain operators and quoted
+phrases).
 
-[RJB note: FIXME - this resource name is far from ideal - it describes a
-transfer format, not the purpose of the search.  How about "search/structured"?
+This returns a JSON result set object (see above). Documents are ranked in descending
+order of relevance, with the top document having rank 0, the second 1, etc.
 
-While this search structure is useful, it's not particularly general. Also, it
-doesn't seem to require JSON, to me - the functionality exposed here could be
-provided just by using standard querystring parameter encoding (the
-`query_fields` and filters would have the field names appended to the parameter
-names, so would become parameters like: `query_field_title`).
+Optional parameters: 
 
-[TM note: agreed, this is basically a quick hack to get things to a point where
-they can be realistically tested. You mentioned you had some new ideas for "search
-templates", so I was waiting to discuss them before finalising an interface.]
+ - start_rank: The rank of the first document to return in the result set
+               (defaults to 0).
+ - end_rank: One past the rank of the last document to return (defaults to 10).
 
-Where we _do_ need JSON is to support something like a fully heirarchical tree
-of objects expressed in JSON.
+These parameters may be used to implement a paging interface.
 
-For example::
+Structured search
+-----------------
 
-  { 'op': 'AND',
-    'subqs': [
-      { 'op': 'parse',
-        'text': 'hippie zombie',
-      },
-      { 'op': 'fields',
-        'fields': ['title', 'text'],
-        'value': 'land down under',
-      }
-    ]
-  }
+    GET /v1/dbs/<db_name>/search/structured?<params>
 
-where this example would parse the text "hippie zombie", and AND the resulting
-query with a query in the fields "title" and "text" for "land down under".
+This includes explicit support for combining different types of query, specified
+as the optional parameters:
 
-end RJB note]
+ - query_all: match must contain all these words
+ - query_any: match must contain one or more of these words
+ - query_none: match must not contain any of these words
 
-Search params are supplied as a POSTed JSON object, e.g.::
+Where words are separated by spaces. Structured search also allows searches to be
+filtered by fields which have been indexed with "exacttext". Each filter is supplied
+as a parameter with the name "filter" and the value "<fieldname>:<value>"
 
-    {
-        "startIndex":       1,
-        "count":            10,
-        "query_all":        "hippie zombie",
-        "query_any":        "brussels muscles",
-        "query_none":       "spider",
-        "query_phrase":     "vegemite sandwich",
-        "query_fields":     { "title":  "land down under" }
-        "filters":          { "genre":  "pop",
-                              "era":    "80s" }
-    }
+e.g.: to search for documents containing "foo" and "bar" but not "wombat", filtered
+by author and category:
 
-(query_fields and filters are essentially the same, except for using OP_AND and 
-OP_FILTER respectively).
+    ?query_all=foo+bar&query_none=wombat&filter=author:smith&filter=category:book
+
+Structured search also accepts the start_rank and end_rank parameters as above.
+    
+Similarity search
+-----------------
+
+    GET /v1/dbs/<db_name>/search/similar?id=<doc_id>
+
+This method finds documents similar to the one specified by <doc_id>, and returns
+them ranked in order of similarity. Like the other search methods, it has the
+optional parameters start_rank and end_rank.
 
 
-Defaults
---------
 
- * config file
+
+
+
 
