@@ -19,7 +19,7 @@
 require_once('simpletest/unit_tester.php');
 require_once('simpletest/reporter.php');
 
-require_once('../flaxclient.php');
+require_once('../flax/flaxclient.php');
 require_once('test_database.php');
 require_once('test_fields.php');
 require_once('test_docs.php');

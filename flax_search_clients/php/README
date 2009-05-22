@@ -1,9 +1,9 @@
+==================================
 Flax Search Service Client for PHP
 ==================================
 
-The Flax Search Service Client (FSSC) for PHP is a simple library to simplify 
+The Flax Search Service Client for PHP (FSSC-PHP) is a library to simplify 
 working with the Flax Search Service (FSS) in PHP.
-
 
 Prerequisites
 -------------
