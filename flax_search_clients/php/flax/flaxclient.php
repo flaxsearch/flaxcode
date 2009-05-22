@@ -27,6 +27,9 @@ class FlaxSearchService {
     private $restclient;
     
     function __construct($url) {
+    	if (substr($url, strlen($url) - 1) != '/') {
+	    $url = $url . '/';
+	}
         $this->restclient = new FlaxRestClient($url, 1);
     }
 
