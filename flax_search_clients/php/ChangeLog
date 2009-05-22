@@ -1,3 +1,8 @@
+Fri May 22 16:37:20 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+
+    * docs/tutorial,
+    * docs/tutorial/tutorial.rst: Beginnings of a tutorial.
+
 Fri May 22 12:12:20 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
     * examples/newsml_search.php,
