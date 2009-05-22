@@ -1,3 +1,8 @@
+Fri May 22 12:12:20 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+
+    * examples/newsml_search.php,
+    * examples/newsml_indexer.php: Fixed include paths.
+
 Fri May 22 12:02:42 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
     * unittests/test_database.php,

@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-require_once('../flaxclient.php');
+require_once('../flax/flaxclient.php');
 
 $fieldname = $docdata = $doc = null;
 $current_file = null;

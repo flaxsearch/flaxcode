@@ -1,5 +1,5 @@
 <?php 
-require_once('../flaxclient.php');
+require_once('../flax/flaxclient.php');
 
 $query = isset($_GET['query']) ? $_GET['query'] : '';
 if ($query) {
