@@ -65,6 +65,20 @@ class DatabaseTestCase extends UnitTestCase {
 
         $this->testcount++;
     }
+
+    function testDbNameCharacters() {
+        // create DB
+        $dbname = 'foo#$&!/bar*)({}';
+        $db = $this->server->createDatabase($dbname);
+        $this->assertNotNull($db);
+ 
+        // check schema exists
+        $fields = $db->getFieldNames();
+        $this->assertEqual($fields, array());
+
+        // delete DB
+        $db->delete();
+    }
 }
 
 ?>

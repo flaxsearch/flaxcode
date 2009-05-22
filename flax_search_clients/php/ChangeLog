@@ -1,3 +1,13 @@
+Fri May 22 17:56:49 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+
+    * test_database.php: Added test for "unusual" db name.
+
+Fri May 22 17:27:34 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+
+    * docs/tutorial/tutorial.php,
+    * docs/tutorial/tutorial.rst,
+    * README: finished tutorial.
+
 Fri May 22 16:37:20 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
     * docs/tutorial,
