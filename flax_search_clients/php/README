@@ -38,7 +38,9 @@ This should produce output reporting that all the tests have passed, e.g.:
 Documentation
 -------------
 
-API documentation is provided in the file docs/API.rst
+API documentation is provided in the file docs/api.rst
+
+A simple tutorial is provided in docs/tutorial
 
 
 Examples

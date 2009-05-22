@@ -8,7 +8,11 @@ Introduction
 The Flax Search Service Client for PHP (FSSC-PHP) is a library to simplify 
 working with the Flax Search Service (FSS) in PHP. This tutorial assumes that
 FSS and FSSC-PHP have been installed and tested, and introduces working with
-the API through a simple example application.
+the API through a simple example application. The script is also available 
+as tutorial.php in this directory, and can be run with:
+
+    $ php tutorial.php
+
 
 Basic Concepts
 --------------
@@ -54,13 +58,10 @@ a name for the database, e.g.:
     $db = $flax->createDatabase('my_database');
 
 You can use any characters in a database name, even something like "*&/%$!". If a
-database with this name already exists, an exception will be thrown. This behaviour
-can be overridden with the optional overwrite (2nd) and reopen (3rd) parameters.
-If overwrite is true, any existing database will be overwritten with a new one.
-If reopen is true, the existing database will be opened (note that it doesn't make
-any sense to supply both parameters as true).
+database with this name already exists, an exception will be thrown. (This behaviour
+can be overridden - see the API documentation.)
 
-If you want to open an existing database, you can just use:
+If you want to open an existing database, use:
 
     $db = $flax->getDatabase('my_database');
 
@@ -91,9 +92,9 @@ field to our new database:
     $db->addField('text', array('freetext' => array('language' => 'en'), 
                                 'store' => true));
 
-Field definitions are currently defined as arrays, since these can be easily
+(Field definitions are currently defined as arrays, since these can be easily
 serialised to JSON and sent to the FSS web API. In a future release they will
-probably be represented by instances of field definition class(es).
+probably be represented by instances of field definition classes.)
 
 The example above specifies a field called "text" which will be indexed as English
 freetext (more on languages below) and will be stored in the database. Storing 
@@ -102,7 +103,7 @@ are not stored by default.
 
 If the data you are indexing is available from an external source (the Web, a 
 RDBMS, a file system etc) you may want to save space by not storing the data in 
-FSS, but fetching it from the external source as required. (Note, however, that 
+FSS, but fetching it from the external source as necessary. (Note, however, that 
 FSS is an excellent, fast alternative to a RDBMS in many cases.)
 
 Now we'll add a title field, which will be indexed and stored:
@@ -134,7 +135,7 @@ Adding documents to the database
 Now the schema is set up, documents can be added to the database. Documents
 are currently defined as arrays where keys are field names, pointing to field
 values (again, this may change in a future release). Only fields which have
-been explcitly defined in the schema should be used (in future, wildcards may
+been explicitly defined in the schema should be used (in future, wildcards may
 be used to provide default field behaviours).
 
 The following code adds three documents (the first sentences of some random
@@ -172,7 +173,31 @@ will assign a new unique ID.
 Searching the database
 ----------------------
 
+There are several search methods of different levels of complexity available.
+The simplest is provided by the searchSimple database method. e.g.:
 
-Retrieving documents
---------------------
+    $results = $db->searchSimple("first");
+    echo $results["matches_estimated"] ." results found \n";
+    
+    foreach ($results["results"] as $r) {
+        echo $r["rank"] .". ". $r['data']['title'][0] ."\n";
+    }
+
+Search results are returned as an array with various keys (yet another thing
+that will be replaced with an object in a future release). The code above 
+prints the estimated number of matching documents for the query, and the title
+for each of the matches found. Note that only fields which are stored in the
+database will be returned with the matching documents. Also note the [0] index
+in the line which prints the title. This is because fields can have multiple
+instances in a document, so each field is returned as an array (even in cases
+such as this where documents have only one instance of each field.
+
+
+Other documentation
+-------------------
+
+For more information, see docs/api.rst. There is also an example NewsML indexer
+and web GUI search in the examples directory.
+
+
 
