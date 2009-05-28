@@ -130,6 +130,20 @@ class SearchTestCase extends UnitTestCase {
         $this->assertEqual($results['matches_estimated'], 2);
 
     }
+
+    function testSimilar() {
+	$this->db->addField('f1', array('freetext' => array('language' => 'en')));
+	$this->db->addDocument(array('f1' => 'Milkman Of Human Kindness'), 'doc1');
+	$this->db->addDocument(array('f1' => 'Milk Of Human Kindness'), 'doc2');
+	$this->db->commit();
+
+	$results = $this->db->searchSimilar('doc2');
+	$this->assertEqual($results['matches_estimated'], 2);
+	$this->assertEqual($results['results'][0]['docid'], 'doc2');
+	
+	$results = $this->db->searchSimilar('doc1', 0, 1, 100);
+	$this->assertEqual($results['matches_estimated'], 1);
+    }
     
 }
 

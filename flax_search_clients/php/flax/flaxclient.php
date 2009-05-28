@@ -245,7 +245,7 @@ class _FlaxDatabase {
             throw new FlaxDatabaseError('database has been deleted');
         }
 
-        $url = 'dbs/'._uencode($this->dbname).'/search/structured?start_rank'.$start_rank.
+        $url = 'dbs/'._uencode($this->dbname).'/search/structured?start_rank='.$start_rank.
                '&end_rank='.$end_rank.'&query_all='._uencode($query_all).
                '&query_any='._uencode($query_any).'&query_none='._uencode($query_none).
                '&query_phrase='._uencode($query_phrase);
@@ -261,6 +261,29 @@ class _FlaxDatabase {
         }
         
         return $result[1];
+    }
+
+    function searchSimilar($id, $start_rank = 0, $end_rank = 10, $pcutoff = null) 
+    {
+	if($this->deleted) {
+		throw new FlaxDatabaseError('database has been deleted');
+	}
+
+	$url = 	'dbs/'._uencode($this->dbname).'/search/similar?start_rank='.intval($start_rank).
+		'&end_rank='.intval($end_rank).'&id=' . _uencode($id);
+	
+	if(intval($pcutoff)) 
+	{
+		$url .= '&pcutoff='.$pcutoff;
+	}
+
+	$result = $this->restclient->do_get($url);
+        
+	if ($result[0] != 200) {
+            throw new FlaxDocumentError($result[1]);
+        }
+
+	return $result[1];
     }
 
 }
