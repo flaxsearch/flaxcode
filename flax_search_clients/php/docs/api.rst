@@ -54,13 +54,12 @@ Database objects encapsulate most of the API's functionality, with the methods:
     documentation for a description of this data structure). Throws an exception
     if the named field does not exist.
 
-    addField($fieldname, $fielddesc)
-    --------------------------------
-    Adds a field definition with the specified name and settings (see FSS API
-    documentation for a description of this data structure). Throws an exception
-    if the field already exists.
+    addField($fieldname, $settings)
+    -------------------------------
+    Adds a field definition with the specified name and settings, where the latter is
+    an instance of FlaxField (see below). Throws an exception if the field already exists.
 
-    replaceField($fieldname, $fielddesc)
+    replaceField($fieldname, $settings)
     ------------------------------------
     The same as addField(), except that it will overwrite any existing settings
     for the named field.
@@ -93,10 +92,8 @@ Database objects encapsulate most of the API's functionality, with the methods:
     searchSimple($query, $start_rank=0, $end_rank=10)
     -------------------------------------------------
     Search for the words in $query in the database, and returns matching documents
-    as a JSON object. $start_rank and $end_rank specify the start and end indexes 
-    (zero-based) of the set of documents to return. See the FSS API documentation for a 
-    description of the result set object 
-    
+    as a FlaxSearchResultSet object (see below). $start_rank and $end_rank specify the 
+    start and end indexes (zero-based) of the set of documents to return.
 
     searchStructured($query_all, $query_any, $query_none, $query_phrase,
                      $filters=array(), $start_rank=0, $end_rank=10) 
@@ -116,5 +113,58 @@ Database objects encapsulate most of the API's functionality, with the methods:
         If multiple filters are supplied for the same field, they are combined with OR.
         Between fields, filters are combined with AND.
 
+
+FlaxField classes
+-----------------
+This is an abstract class, with currently three concrete subclasses:
+
+    FlaxTextField
+    -------------
+    A text field which is stored, but not indexed. Takes no constructor params.
+
+    FlaxExactTextField class
+    ------------------------
+    A text field which is indexed as exact text. It may be stored or not.
+
+        __construct($store=false)
+        -------------------------
+        Constructor for FlaxExactTextField. If $store, the field is stored in the database.
+
+    FlaxFreeTextField class
+    ------------------------
+    A text field which is indexed as free text. It may be stored or not, and a language
+    code may be supplied to control stemming of terms.
+
+        __construct($store=false, $lang=null)
+        -------------------------------------
+        Constructor for FlaxFreeTextField. If $store, the field is stored in the database.
+        If $lang is supplied, terms will be stemmed for this language.
+
+
+FlaxSearchResultSet class
+-------------------------
+Search results are returned as instances of this class. It has the public members:
+
+    $matches_estimated: Estimated total number of matches in the database.
+    $estimate_is_exact: True iff the estimate is exact.
+    $matches_lower_bound: An absolute lower bound on the estimate.
+    $matches_upper_bound: An absolute upper bound on the estimate.
+    $matches_human_readable_estimate: Get a human readable estimate of the number of 
+        matching documents. This consists of the value returned by $matches_estimated,
+        rounded to an appropriate number of significant digits.
+    $start_rank: The rank (zero-based) of the first item in $results.
+    $end_rank: The rank one past the last item in $results.
+    $more_matches: True iff there are more matches available after $end_rank;
+    $results: An array of FlaxSearchResult objects.
+
+FlaxSearchResult class
+----------------------
+Represents a single search result, with the public members:
+
+    $docid: The ID of the matching document.
+    $rank: Its rank (zero-based), generally in descending order of relevance.
+    $weight: The match weight (note that the exact meaning of this value is debatable).
+    $db: A URL to the database which provided this result.
+    $data: An array containing document data (fields which were stored at index time).
 
 

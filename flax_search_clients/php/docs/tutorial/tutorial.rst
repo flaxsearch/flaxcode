@@ -89,17 +89,12 @@ To add a field definition to a schema, database object provide the addField meth
 which takes a fieldname and a field definition. By way of example, let's add a
 field to our new database:
 
-    $db->addField('text', array('freetext' => array('language' => 'en'), 
-                                'store' => true));
-
-(Field definitions are currently defined as arrays, since these can be easily
-serialised to JSON and sent to the FSS web API. In a future release they will
-probably be represented by instances of field definition classes.)
+    $db->addField('text', new FlaxFreeTextField(true, 'en'));
 
 The example above specifies a field called "text" which will be indexed as English
 freetext (more on languages below) and will be stored in the database. Storing 
 is not the same as indexing, and each will take up space in the database. Fields 
-are not stored by default. 
+are not stored by default. See api.rst for more information.
 
 If the data you are indexing is available from an external source (the Web, a 
 RDBMS, a file system etc) you may want to save space by not storing the data in 
@@ -177,20 +172,19 @@ There are several search methods of different levels of complexity available.
 The simplest is provided by the searchSimple database method. e.g.:
 
     $results = $db->searchSimple("first");
-    echo $results["matches_estimated"] ." results found \n";
+    echo "{$results->matches_estimated} results found \n";
     
-    foreach ($results["results"] as $r) {
-        echo $r["rank"] .". ". $r['data']['title'][0] ."\n";
+    foreach ($results->results as $r) {
+        echo "{$r->rank} ". $r->data['title'][0] ."\n";
     }
 
-Search results are returned as an array with various keys (yet another thing
-that will be replaced with an object in a future release). The code above 
-prints the estimated number of matching documents for the query, and the title
-for each of the matches found. Note that only fields which are stored in the
-database will be returned with the matching documents. Also note the [0] index
-in the line which prints the title. This is because fields can have multiple
-instances in a document, so each field is returned as an array (even in cases
-such as this where documents have only one instance of each field.
+Search results are returned as FlaxSearchResultSet objects (see api.rst). The 
+code above  prints the estimated number of matching documents for the query, 
+and the title for each of the matches found. Note that only fields which are 
+stored in the database will be returned with the matching documents. Also note 
+the [0] index in the line which prints the title. This is because fields can 
+have multiple instances in a document, so each field is returned as an array 
+(even in cases such as this where documents have only one instance of each field.)
 
 
 Other documentation

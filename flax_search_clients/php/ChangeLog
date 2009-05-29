@@ -1,3 +1,8 @@
+Fri May 29 15:05:34 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+    * docs/api.rst,
+    * docs/tutorial/tutorial.rst: Update docs.
+    * flax/flaxfield.php: Added FlaxTextField class.
+
 Fri May 29 13:30:19 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
     * unittests/test_search.php,
     * unittests/test_docs.php,

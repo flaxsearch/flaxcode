@@ -48,8 +48,15 @@ abstract class FlaxField extends _FlaxJSONObject {
     }
 }
 
+// A non-indexed text field. Always stored (otherwise, why bother?)
+class FlaxTextField extends FlaxField {
+    function toJSON() {
+        return array('type' => 'text', 'store' => true);
+    }
+}
+
 // Freetext field properties
-class FlaxFreeTextField extends FlaxField {
+class FlaxFreeTextField extends FlaxTextField {
     public $lang;
 
     function __construct($store=false, $lang=null) {
@@ -74,7 +81,7 @@ class FlaxFreeTextField extends FlaxField {
 }
 
 // Exacttext field properties
-class FlaxExactTextField extends FlaxField {
+class FlaxExactTextField extends FlaxTextField {
     function __construct($store=false) {
         $this->store = $store;
     }
