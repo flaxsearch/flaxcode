@@ -157,8 +157,6 @@ list of results. e.g.::
           "weight": 7.23, 
           "db": "http://localhost:8080/dbs/foo",
           "data": { "title": ["Physarum Polycephalum"], "category": ["Mycetozoa", "Amoebozoa"] }
-          "summary": "P. polycephalum is typically yellow in color, and eats fungal spores, 
-                      bacteria, and other microbes..."
         }
         ...
     ]
@@ -199,18 +197,12 @@ with "optional":
      data as is returned by accessing the document directly, but that some
      fields may have been filtered out due to options passed along with the
      search request.
-   - `summary`: (dict, optional) A summary of the document data.  The summary
-     is field specific, and contains data in the same format as normal document
-     data.  Summarisation markup may have been inserted in the data, according
-     to options passed along with the search request.
 
 Note that rank here is not defined in the same way as `startIndex` in the
 opensearch specification; rank starts at 0, whereas `startIndex` starts at 1.
 If implementing an opensearch interface, `matches_human_readable_estimate` is
 probably the best value to use for the `totalResults` return value.
 
-As shown above, a contextual summary can also be returned with each hit (see
-searching).
 
 
 POST/PUT data
