@@ -22,7 +22,7 @@
 
 require_once('flaxerrors.php');
 require_once('flaxfield.php');
-//require_once('flaxsearch.php');
+require_once('flaxsearch.php');
 require_once('_restclient_curl.php');
 
 class FlaxSearchService {
@@ -239,7 +239,7 @@ class _FlaxDatabase {
             throw new FlaxDocumentError($result[1]);
         }
         
-        return $result[1];
+        return new FlaxSearchResultSet($result[1]);
     }
 
     function searchStructured($query_all, $query_any, $query_none, $query_phrase,
@@ -264,32 +264,31 @@ class _FlaxDatabase {
             throw new FlaxDocumentError($result[1]);
         }
         
-        return $result[1];
+        return new FlaxSearchResultSet($result[1]);
     }
 
     function searchSimilar($id, $start_rank = 0, $end_rank = 10, $pcutoff = null) 
     {
-	if($this->deleted) {
-		throw new FlaxDatabaseError('database has been deleted');
-	}
+	    if($this->deleted) {
+		    throw new FlaxDatabaseError('database has been deleted');
+    	}
 
-	$url = 	'dbs/'._uencode($this->dbname).'/search/similar?start_rank='.intval($start_rank).
-		'&end_rank='.intval($end_rank).'&id=' . _uencode($id);
+    	$url = 	'dbs/'._uencode($this->dbname).'/search/similar?start_rank='.intval($start_rank).
+    		'&end_rank='.intval($end_rank).'&id=' . _uencode($id);
 	
-	if(intval($pcutoff)) 
-	{
-		$url .= '&pcutoff='.$pcutoff;
-	}
+    	if(intval($pcutoff)) 
+    	{
+    		$url .= '&pcutoff='.$pcutoff;
+    	}
 
-	$result = $this->restclient->do_get($url);
+    	$result = $this->restclient->do_get($url);
         
-	if ($result[0] != 200) {
-            throw new FlaxDocumentError($result[1]);
+    	if ($result[0] != 200) {
+                throw new FlaxDocumentError($result[1]);
         }
 
-	return $result[1];
+    	return new FlaxSearchResultSet($result[1]);
     }
-
 }
 
 function _uencode($s) {

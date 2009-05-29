@@ -62,7 +62,7 @@ class DocsTestCase extends UnitTestCase {
         
         # check that we can search for it
         $results = $this->db->searchSimple('bar');
-        $this->assertEqual($results['matches_estimated'], 1);
+        $this->assertEqual($results->matches_estimated, 1);
 
         # check we can delete it
         $this->db->deleteDocument('doc002');
@@ -77,7 +77,7 @@ class DocsTestCase extends UnitTestCase {
         }
 
         $results = $this->db->searchSimple('bar');
-        $this->assertEqual($results['matches_estimated'], 0);
+        $this->assertEqual($results->matches_estimated, 0);
     }
 
     function testBigDoc() {
@@ -143,7 +143,7 @@ EOT;
 
         # check that we can search for it
         $results = $this->db->searchSimple('derrida');
-        $this->assertEqual($results['matches_estimated'], 1);
+        $this->assertEqual($results->matches_estimated, 1);
     }
 }
 

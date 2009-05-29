@@ -51,26 +51,26 @@ class SearchTestCase extends UnitTestCase {
         $results = $this->db->searchStructured('', '', '', '', 
             array(array('f2','A New England')));
         
-        $this->assertEqual($results['matches_estimated'], 1);
-        $this->assertEqual($results['results'][0]['docid'], 'doc1');
+        $this->assertEqual($results->matches_estimated, 1);
+        $this->assertEqual($results->results[0]->docid, 'doc1');
 
         $results = $this->db->searchStructured('', '', '', '',
             array(array('f2', 'Between The Wars')));
-        $this->assertEqual($results['matches_estimated'], 1);
-        $this->assertEqual($results['results'][0]['docid'], 'doc2');
+        $this->assertEqual($results->matches_estimated, 1);
+        $this->assertEqual($results->results[0]->docid, 'doc2');
 
         $results = $this->db->searchStructured('', '', '', '',
             array(array('f1', 'Billy Bragg')));
-        $this->assertEqual($results['matches_estimated'], 2);
+        $this->assertEqual($results->matches_estimated, 2);
 
         $results = $this->db->searchStructured('', '', '', '',
             array(array('f1', 'Billy Bragg'), array('f2', 'A New England')));
-        $this->assertEqual($results['matches_estimated'], 1);
+        $this->assertEqual($results->matches_estimated, 1);
 
         $results = $this->db->searchStructured('', '', '', '',
             array(array('f1', 'Billy Bragg'), array('f1', 'The Smiths'), 
                   array('f2', 'A New England')));
-        $this->assertEqual($results['matches_estimated'], 1);
+        $this->assertEqual($results->matches_estimated, 1);
     }
     
     function testFreetext() {
@@ -83,35 +83,35 @@ class SearchTestCase extends UnitTestCase {
     
         # check search results (freetext search)
         $results = $this->db->searchSimple('A New england');
-        $this->assertEqual($results['matches_estimated'], 1);
-        $this->assertEqual($results['results'][0]['docid'], 'doc1');
+        $this->assertEqual($results->matches_estimated, 1);
+        $this->assertEqual($results->results[0]->docid, 'doc1');
 
         # check search results (freetext search)
         $results = $this->db->searchStructured('Between The Wars', '', '', '');
-        $this->assertEqual($results['matches_estimated'], 1);
-        $this->assertEqual($results['results'][0]['docid'], 'doc2');
+        $this->assertEqual($results->matches_estimated, 1);
+        $this->assertEqual($results->results[0]->docid, 'doc2');
 
         # search all
         $results = $this->db->searchStructured('Between The Lines', '', '', '');
-        $this->assertEqual($results['matches_estimated'], 0);
+        $this->assertEqual($results->matches_estimated, 0);
 
         # search any
         $results = $this->db->searchStructured('', 'England Between', '', '');
-        $this->assertEqual($results['matches_estimated'], 2);
+        $this->assertEqual($results->matches_estimated, 2);
 
         # search none
         $results = $this->db->searchStructured('', 'England Between', 'wars', '');
-        $this->assertEqual($results['matches_estimated'], 1);
+        $this->assertEqual($results->matches_estimated, 1);
 
         # search any + filter
         $results = $this->db->searchStructured('', 'England Between', '', '',
             array(array('f1', 'Billy Bragg')));
-        $this->assertEqual($results['matches_estimated'], 2);
+        $this->assertEqual($results->matches_estimated, 2);
 
         # search any + filter 2
         $results = $this->db->searchStructured('', 'England Between', '', '',
             array(array('f1', 'Melvin Bragg')));
-        $this->assertEqual($results['matches_estimated'], 0);
+        $this->assertEqual($results->matches_estimated, 0);
     }
 
     function testFreetextStemmed() {
@@ -121,14 +121,13 @@ class SearchTestCase extends UnitTestCase {
         $this->db->commit();
 
         $results = $this->db->searchSimple('warring');
-        $this->assertEqual($results['matches_estimated'], 1);
+        $this->assertEqual($results->matches_estimated, 1);
 
         $results = $this->db->searchSimple('warring between');
-        $this->assertEqual($results['matches_estimated'], 1);
+        $this->assertEqual($results->matches_estimated, 1);
 
         $results = $this->db->searchSimple('war OR england');
-        $this->assertEqual($results['matches_estimated'], 2);
-
+        $this->assertEqual($results->matches_estimated, 2);
     }
 
     function testSimilar() {
@@ -138,11 +137,11 @@ class SearchTestCase extends UnitTestCase {
     	$this->db->commit();
 
     	$results = $this->db->searchSimilar('doc2');
-    	$this->assertEqual($results['matches_estimated'], 2);
-    	$this->assertEqual($results['results'][0]['docid'], 'doc2');
+    	$this->assertEqual($results->matches_estimated, 2);
+    	$this->assertEqual($results->results[0]->docid, 'doc2');
 	
     	$results = $this->db->searchSimilar('doc1', 0, 1, 100);
-    	$this->assertEqual($results['matches_estimated'], 1);
+    	$this->assertEqual($results->matches_estimated, 1);
     }    
 }
 
