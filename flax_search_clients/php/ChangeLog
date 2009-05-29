@@ -1,3 +1,7 @@
+Fri May 29 11:45:07 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+    * flax/flaxclient.php,
+    * flax/flaxfield.php: Moved flaxFieldFromJSON into FlaxField class.
+
 Fri May 29 09:32:23 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
     * unittests/test_search.php,
     * unittests/test_fields.php,

@@ -22,6 +22,7 @@
 
 require_once('flaxerrors.php');
 require_once('flaxfield.php');
+//require_once('flaxsearch.php');
 require_once('_restclient_curl.php');
 
 class FlaxSearchService {
@@ -118,7 +119,7 @@ class _FlaxDatabase {
             throw new FlaxFieldError($result[1]);
         }
         
-        return flaxFieldFromJSON($result[1]);
+        return FlaxField::fromJSON($result[1]);
     }
 
     function addField($fieldname, $fielddesc) {

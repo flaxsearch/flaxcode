@@ -26,6 +26,26 @@ require_once('flaxjsonobject.php');
 // Abstract field properties
 abstract class FlaxField extends _FlaxJSONObject {
     public $store = false;
+
+    // return a field
+    static function fromJSON($json) {
+        $store = $json['store'];
+
+        if ($json['type'] == 'text') {
+            if (array_key_exists('freetext', $json)) {
+                return new FlaxFreeTextField($store, $json['freetext']['language']);
+            } 
+            else if (array_key_exists('exacttext', $json)) {
+                return new FlaxExactTextField($store);
+            }
+            else {
+                throw new FlaxFieldError('unsupported text field parameters');
+            }
+        } 
+        else {
+            throw new FlaxFieldError('unsupported field type');
+        }
+    }
 }
 
 // Freetext field properties
@@ -68,26 +88,6 @@ class FlaxExactTextField extends FlaxField {
 
     function __toString() {
         return "FlaxExactTextField[{$this->store}]";
-    }
-}
-
-// return a field
-function flaxFieldFromJSON($json) {
-    $store = $json['store'];
-
-    if ($json['type'] == 'text') {
-        if (array_key_exists('freetext', $json)) {
-            return new FlaxFreeTextField($store, $json['freetext']['language']);
-        } 
-        else if (array_key_exists('exacttext', $json)) {
-            return new FlaxExactTextField($store);
-        }
-        else {
-            throw new FlaxFieldError('unsupported text field parameters');
-        }
-    } 
-    else {
-        throw new FlaxFieldError('unsupported field type');
     }
 }
 
