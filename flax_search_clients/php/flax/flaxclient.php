@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 require_once('flaxerrors.php');
+require_once('flaxfield.php');
 require_once('_restclient_curl.php');
 
 class FlaxSearchService {
@@ -117,7 +118,7 @@ class _FlaxDatabase {
             throw new FlaxFieldError($result[1]);
         }
         
-        return $result[1];
+        return flaxFieldFromJSON($result[1]);
     }
 
     function addField($fieldname, $fielddesc) {
@@ -126,7 +127,8 @@ class _FlaxDatabase {
         }
 
         $result = $this->restclient->do_post(
-            'dbs/'._uencode($this->dbname).'/schema/fields/'._uencode($fieldname), $fielddesc);
+            'dbs/'._uencode($this->dbname).'/schema/fields/'._uencode($fieldname), 
+            $fielddesc->toJSON());
 
         if ($result[0] != 200) {
             throw new FlaxFieldError($result[1]);
@@ -139,7 +141,8 @@ class _FlaxDatabase {
         }
 
         $result = $this->restclient->do_put(
-            'dbs/'._uencode($this->dbname).'/schema/fields/'._uencode($fieldname), $fielddesc);
+            'dbs/'._uencode($this->dbname).'/schema/fields/'._uencode($fieldname), 
+            $fielddesc->toJSON());
 
         if ($result[0] != 200) {
             throw new FlaxFieldError($result[1]);

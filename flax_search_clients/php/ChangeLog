@@ -1,3 +1,11 @@
+Fri May 29 09:32:23 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+    * unittests/test_search.php,
+    * unittests/test_fields.php,
+    * unittests/test_docs.php,
+    * flax/flaxjsonobject.php,
+    * flax/flaxfield.php,
+    * flax/flaxclient.php: Added classes for field types and updated tests.
+
 Thu May 28 14:23:47 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
     * unittests/test_search.php,

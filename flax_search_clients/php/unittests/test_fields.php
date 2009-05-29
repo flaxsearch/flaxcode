@@ -51,8 +51,7 @@ class FieldsTestCase extends UnitTestCase {
     
     function testAddDeleteFields() {
         # add a field
-        $fielddesc = array('store' => true, 'exacttext' => true);
-        $result = $this->db->addField('foo', $fielddesc);
+        $result = $this->db->addField('foo', new FlaxExactTextField(true));
         
         # flush changes
         # FIXME - make changes to DB structure commit automatically?
@@ -64,8 +63,7 @@ class FieldsTestCase extends UnitTestCase {
         $this->assertIdentical($fnames, array('foo'));
 
         $field = $this->db->getField('foo');
-        $this->assertEqual($field['store'], true);
-        $this->assertEqual($field['exacttext'], true);
+        $this->assertEqual($field->__toString(), 'FlaxExactTextField[1]');
 
         # delete the field
         $this->db->deleteField('foo');
@@ -83,22 +81,11 @@ class FieldsTestCase extends UnitTestCase {
     
     function testOverwriteField() {
         # add a field
-        $fielddesc = array('store' => true, 'exacttext' => true);
-        $result = $this->db->addField('foo', $fielddesc);
+        $result = $this->db->addField('foo', new FlaxExactTextField(true));
         $this->db->commit();
 
-#        # check we can't add it again
-#        try {
-#            $result = $this->db->addField('foo', $fielddesc);
-#            $this->fail();
-#        }
-#        catch (FlaxFieldError $e) {
-#            $this->pass();
-#        }
-
         # check we can overwrite it
-        $fielddesc = array('store' => false, 'freetext' => true);
-        $result = $this->db->replaceField('foo', $fielddesc);
+        $result = $this->db->replaceField('foo', new FlaxFreeTextField(true));
         $this->db->commit();
 
         # check it's been added ok
@@ -106,26 +93,8 @@ class FieldsTestCase extends UnitTestCase {
         $this->assertIdentical($fnames, array('foo'));
         
         $field = $this->db->getField('foo');
-        $this->assertIdentical($field, $fielddesc);        
+        $this->assertIdentical($field->__toString(), 'FlaxFreeTextField[1, ]');
     }
-
-    function testInvalidField() {
-        # add an field
-        try {
-            $this->db->addField('foo', array('type' => 1, 'exacttext' => true));
-        }
-        catch (FlaxFieldError $e) {
-            $this->pass();
-        }
-
-        try {
-            $this->db->addField('foo', array('freetext' => array('bob' => 'betty')));
-        }
-        catch (FlaxFieldError $e) {
-            $this->pass();
-        }
-        
-    }   
 }
 
 ?>

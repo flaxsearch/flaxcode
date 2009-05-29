@@ -31,8 +31,7 @@ class DocsTestCase extends UnitTestCase {
     function setUp() {
         $this->dbname = 'tmp'. time();
         $this->db = $this->server->createDatabase($this->dbname);
-        $this->db->addField('foo', array('type' => 'text', 
-            'store' => true, 'freetext' => array()));
+        $this->db->addField('foo', new FlaxFreeTextField(true));
     }
 
     function tearDown() {
