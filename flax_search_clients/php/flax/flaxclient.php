@@ -58,6 +58,7 @@ class FlaxSearchService {
     }
 }
 
+
 class _FlaxDatabase {
     private $restclient;
     private $dbname;
@@ -226,13 +227,18 @@ class _FlaxDatabase {
         }
     }
     
-    function searchSimple($query, $start_rank=0, $end_rank=10) {
+    function searchSimple($query, $start_rank=0, $end_rank=10, $summary_settings=null) {
         if ($this->deleted) {
             throw new FlaxDatabaseError('database has been deleted');
         }
 
         $url = 'dbs/'._uencode($this->dbname).'/search/simple?query='._uencode($query).
                '&start_rank='.$start_rank.'&end_rank='.$end_rank;
+
+        if ($summary_settings != null) {
+            $url .= ($summary_settings->toQueryString());
+        }
+
         $result = $this->restclient->do_get($url);
     
         if ($result[0] != 200) {
@@ -243,7 +249,8 @@ class _FlaxDatabase {
     }
 
     function searchStructured($query_all, $query_any, $query_none, $query_phrase,
-                              $filters=array(), $start_rank=0, $end_rank=10) 
+                              $filters=array(), $start_rank=0, $end_rank=10, 
+                              $summary_settings=null) 
     {
         if ($this->deleted) {
             throw new FlaxDatabaseError('database has been deleted');
@@ -257,6 +264,10 @@ class _FlaxDatabase {
         foreach ($filters as $filter) {
             $url .= '&filter='._uencode($filter[0].':'.$filter[1]);
         }
+
+        if ($summary_settings) {
+            $url .= $summary_settings->toQueryString();
+        }
         
         $result = $this->restclient->do_get($url);
     
@@ -267,7 +278,8 @@ class _FlaxDatabase {
         return new FlaxSearchResultSet($result[1]);
     }
 
-    function searchSimilar($id, $start_rank = 0, $end_rank = 10, $pcutoff = null) 
+    function searchSimilar($id, $start_rank = 0, $end_rank = 10, $pcutoff = null,
+                           $summary_settings=null) 
     {
 	    if($this->deleted) {
 		    throw new FlaxDatabaseError('database has been deleted');
@@ -280,6 +292,10 @@ class _FlaxDatabase {
     	{
     		$url .= '&pcutoff='.$pcutoff;
     	}
+
+        if ($summary_settings) {
+            $url .= $summary_settings->toQueryString();
+        }
 
     	$result = $this->restclient->do_get($url);
         

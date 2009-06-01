@@ -75,5 +75,26 @@ class FlaxSearchResultSet {
     }
 }
 
+class FlaxSummarySettings {
+    public $summary_fields;
+    public $summary_maxlen = 500;
+    public $highlight_bra = '<b>';
+    public $highlight_ket = '</b>';
+
+    function __construct() {
+        $this->summary_fields = func_get_args();
+    }
+
+    function toQueryString() {
+        $ret = '';
+        foreach ($this->summary_fields as $f) {
+            $ret .= '&summary_field='._uencode($f);
+        }
+        return "{$ret}&summary_maxlen={$this->summary_maxlen}".
+               '&highlight_bra='._uencode($this->highlight_bra).
+               '&highlight_ket='._uencode($this->highlight_ket);
+    }
+}
+
 ?>
 

@@ -144,6 +144,12 @@ EOT;
         # check that we can search for it
         $results = $this->db->searchSimple('derrida');
         $this->assertEqual($results->matches_estimated, 1);
+
+        # check summarisation (is this the right place for test?)
+        $results = $this->db->searchSimple('derrida', 0, 10, new FlaxSummarySettings('foo'));
+        $summary = $results->results[0]->data['foo'][0];
+        $this->assertTrue(count($summary) <= 500);
+        $this->assertTrue(strstr($summary, '<b>Derrida</b>'));
     }
 }
 

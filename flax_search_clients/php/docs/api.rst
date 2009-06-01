@@ -89,15 +89,18 @@ Database objects encapsulate most of the API's functionality, with the methods:
     finalised. It causes all document additions and deletions to be committed to
     the database, making them available to searches.
 
-    searchSimple($query, $start_rank=0, $end_rank=10)
-    -------------------------------------------------
+    searchSimple($query, $start_rank=0, $end_rank=10, $summary_settings=null)
+    --------------------------------------------------------------------
     Search for the words in $query in the database, and returns matching documents
     as a FlaxSearchResultSet object (see below). $start_rank and $end_rank specify the 
     start and end indexes (zero-based) of the set of documents to return.
 
+    $summary_settings is an optional FlaxSummarySettings object, to cause the 
+    server to generate summaries (see below).
+
     searchStructured($query_all, $query_any, $query_none, $query_phrase,
-                     $filters=array(), $start_rank=0, $end_rank=10) 
-    --------------------------------------------------------------------
+                     $filters=array(), $start_rank=0, $end_rank=10, $summary_settings) 
+    ----------------------------------------------------------------------------------
     A more complex search API which can be used (for example) to implement "advanced
     search" GUIs:
 

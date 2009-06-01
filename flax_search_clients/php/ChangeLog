@@ -1,3 +1,9 @@
+Mon Jun  1 13:03:26 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+    * unittests/test_docs.php,
+    * docs/api.rst,
+    * flax/flaxclient.php,
+    * flax/flaxsearch.php: Added support and test for search summarisation.
+
 Fri May 29 15:05:34 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
     * docs/api.rst,
     * docs/tutorial/tutorial.rst: Update docs.
