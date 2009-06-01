@@ -85,21 +85,6 @@ Setting the ``synchronous`` flag to ``true`` will commit any pending
 transactions as a side-effect, so the client could use this as a sort of sloppy
 transactional control. 
 
-
-Summaries
-=========
-Extra parameters to support in search methods:
-
-    summary_fields: list of fields (comma-separated) to summarise.
-    summary_maxlen: maximum length of summary, per field (default: 500 chars).
-    highlight_bra:  opening string for highlighted word (optional).
-    highlight_ket:  closing string for highlighted word (optional).
-
-Summaries will NOT be returned separately. Any fields listed in summary_fields will be
-summarised and returned -instead- of the raw field data in the "data" array of the search
-result.
-
-
 Group Methods (not yet implemented)
 ===================================
 

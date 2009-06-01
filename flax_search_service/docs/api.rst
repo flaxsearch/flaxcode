@@ -399,6 +399,10 @@ Optional parameters:
  - start_rank: The rank of the first document to return in the result set
                (defaults to 0).
  - end_rank: One past the rank of the last document to return (defaults to 10).
+ - summary_field: One or more field names to summarise rather than return raw.
+ - summary_maxlen: The maximum summary length (per field).
+ - highlight_bra: String to insert before a highlighted word.
+ - highlight_ket: String to insert after a highlighted word.
 
 These parameters may be used to implement a paging interface.
 

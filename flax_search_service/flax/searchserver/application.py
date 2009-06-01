@@ -413,24 +413,55 @@ class SearchServer(object):
         dbw.delete_document(request.pathinfo['docid'])
         return True
 
+    #### Search methods ####
+    
+    # Define our common decorators once, it saves space and conforms to DRY.
+    # But unlike folding them into a super-decorator, it won't break WSGIWAPI /doc
+
+    _start_rank_decor = wsgiwapi.param('start_rank', 0, 1, '^\d*$', ['0'],
+        """The offset of the first document to return.
+
+        0-based - ie, 0 returns the top document first.
+
+        """)
+    _end_rank_decor = wsgiwapi.param('end_rank', 0, 1, '^\d+$', ['10'],
+        """The rank one past the last hit to return.
+
+        e.g. the defaults return the 10 hits ranked 0-9.
+        Note that the search may return fewer hits than requested.
+        """)
+    _summary_field_decor = wsgiwapi.param('summary_field', 0, None, '^[A-Za-z0-9._%]+$', [],
+        """Field to summarise in returned docs.
+
+        This replaces the whole field returned with just the summary,
+        optionally highlighted.
+
+        """)
+    _summary_maxlen_decor = wsgiwapi.param('summary_maxlen', 0, 1, '^\d+$', ['500'],
+        """The maximum length for the summary in any single field instance.
+
+        """)
+    _highlight_bra_decor = wsgiwapi.param('highlight_bra', 0, 1, '.+', [''],
+        """String to insert before a highlighted word in a summary.
+
+        """)
+    _highlight_ket_decor = wsgiwapi.param('highlight_ket', 0, 1, '.+', [''],
+        """String to insert after a highlighted word in a summary.
+
+        """)
+    
     @wsgiwapi.allow_GET
     @wsgiwapi.pathinfo(dbname_param)
     @wsgiwapi.jsonreturning
+    @_start_rank_decor
+    @_end_rank_decor
+    @_summary_field_decor
+    @_summary_maxlen_decor
+    @_highlight_bra_decor
+    @_highlight_ket_decor
     @wsgiwapi.param('query', 0, None, None, [''],
                     """A user-entered query string.
 
-                    """)
-    @wsgiwapi.param('start_rank', 0, 1, '^\d*$', ['0'],
-                    """The offset of the first document to return.
-
-                    0-based - ie, 0 returns the top document first.
-
-                    """)
-    @wsgiwapi.param('end_rank', 0, 1, '^\d+$', ['10'],
-                    """The rank one past the last hit to return.
-
-                    e.g. the defaults return the 10 hits ranked 0-9.
-                    Note that the search may return fewer hits than requested.
                     """)
     def search_simple(self, request):
         """Perform a search using a simple user-entered query.
@@ -439,6 +470,9 @@ class SearchServer(object):
         dbname = request.pathinfo['dbname']
         start_rank = int(request.params['start_rank'][0])
         end_rank = int(request.params['end_rank'][0])
+        summary_fields = set(request.params['summary_field'])
+        summary_maxlen = int(request.params['summary_maxlen'][0])
+        summary_hl = (request.params['highlight_bra'][0], request.params['highlight_ket'][0])
         db = self.controller.get_db_reader(dbname)
 
         qlist = []
@@ -446,7 +480,8 @@ class SearchServer(object):
             qlist.append(queries.QueryText(querystr))
         search = queries.Search(queries.Query.compose(queries.Query.OR, qlist),
                                 start_rank, end_rank)
-        return db.search_simple(querystr, start_rank, end_rank)
+        return db.search_simple(querystr, start_rank, end_rank, 
+                                summary_fields, summary_maxlen, summary_hl)
         return db.search(search)
 
     @wsgiwapi.allow_GET
@@ -466,21 +501,15 @@ class SearchServer(object):
     @wsgiwapi.allow_GET
     @wsgiwapi.pathinfo(dbname_param)
     @wsgiwapi.jsonreturning
+    @_start_rank_decor
+    @_end_rank_decor
+    @_summary_field_decor
+    @_summary_maxlen_decor
+    @_highlight_bra_decor
+    @_highlight_ket_decor
     @wsgiwapi.param('id', 1, None, None, None,
                     """The ids to use for the similarity search.
 
-                    """)
-    @wsgiwapi.param('start_rank', 0, 1, '^\d*$', ['0'],
-                    """The offset of the first document to return.
-
-                    0-based - ie, 0 returns the top document first.
-
-                    """)
-    @wsgiwapi.param('end_rank', 0, 1, '^\d+$', ['10'],
-                    """The rank one past the last hit to return.
-
-                    e.g. the defaults return the 10 hits ranked 0-9.
-                    Note that the search may return fewer hits than requested.
                     """)
     @wsgiwapi.param('pcutoff', 0, 1, '^\d+$', ['0'],
                     """Percentage cutoff.
@@ -495,13 +524,23 @@ class SearchServer(object):
         ids = request.params['id']
         start_rank = int(request.params['start_rank'][0])
         end_rank = int(request.params['end_rank'][0])
+        summary_fields = set(request.params['summary_field'])
+        summary_maxlen = int(request.params['summary_maxlen'][0])
+        summary_hl = (request.params['highlight_bra'][0], request.params['highlight_ket'][0])
         pcutoff = int(request.params['pcutoff'][0])
         db = self.controller.get_db_reader(dbname)
-        return db.search_similar(ids, start_rank, end_rank, pcutoff)
+        return db.search_similar(ids, pcutoff, start_rank, end_rank, 
+                                 summary_fields, summary_maxlen, summary_hl)
 
     @wsgiwapi.allow_GET
     @wsgiwapi.pathinfo(dbname_param)
     @wsgiwapi.jsonreturning
+    @_start_rank_decor
+    @_end_rank_decor
+    @_summary_field_decor
+    @_summary_maxlen_decor
+    @_highlight_bra_decor
+    @_highlight_ket_decor
     @wsgiwapi.param('query_all', 0, 1, None, [''],
                     """A user-entered query string matching all terms.
 
@@ -524,31 +563,25 @@ class SearchServer(object):
 
                     Format: fieldname:query text
                     """)
-    @wsgiwapi.param('start_rank', 0, 1, '^\d*$', ['0'],
-                    """The offset of the first document to return.
-
-                    0-based - ie, 0 returns the top document first.
-
-                    """)
-    @wsgiwapi.param('end_rank', 0, 1, '^\d+$', ['10'],
-                    """The rank one past the last hit to return.
-
-                    e.g. the defaults return the 10 hits ranked 0-9.
-                    Note that the search may return fewer hits than requested.
-                    """)
     def search_structured(self, request):
         """Search a structured query. 
         
         """
         dbname = request.pathinfo['dbname']
         db = self.controller.get_db_reader(dbname)
+        summary_fields = set(request.params['summary_field'])
+        summary_maxlen = int(request.params['summary_maxlen'][0])
+        summary_hl = (request.params['highlight_bra'][0], request.params['highlight_ket'][0])
         return db.search_structured(request.params['query_all'][0],
                                     request.params['query_any'][0],
                                     request.params['query_none'][0],
                                     request.params['query_phrase'][0],
                                     request.params['filter'],
                                     int(request.params['start_rank'][0]),
-                                    int(request.params['end_rank'][0]),)
+                                    int(request.params['end_rank'][0]),
+                                    summary_fields,
+                                    summary_maxlen,
+                                    summary_hl)
 
     #### end of implementations ####
 

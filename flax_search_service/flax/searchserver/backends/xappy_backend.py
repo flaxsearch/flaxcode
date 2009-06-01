@@ -146,23 +146,27 @@ class DbReader(BaseDbReader):
         """
         return self.searchconn.get_document(doc_id).data
 
-    def search_simple(self, query, start_rank, end_rank):
+    def search_simple(self, query, start_rank, end_rank, 
+                      summary_fields, summary_maxlen, summary_hl):
         """Perform a simple search, for a user-specified query string.
 
         Returns a set of search results.
 
         """
         queryobj = self.searchconn.query_parse(query)
-        return self._search(queryobj, start_rank, end_rank)
+        return self._search(queryobj, start_rank, end_rank, 
+                            summary_fields, summary_maxlen, summary_hl)
 
-    def search_similar(self, ids, start_rank, end_rank, pcutoff):
+    def search_similar(self, ids, pcutoff, start_rank, end_rank, 
+                       summary_fields, summary_maxlen, summary_hl):
         """Perform a similarity search, for a user-specified query string.
 
         Returns a set of search results.
 
         """
         queryobj = self.searchconn.query_similar(ids, simterms=30)
-        return self._search(queryobj, start_rank, end_rank, pcutoff)
+        return self._search(queryobj, start_rank, end_rank, 
+            summary_fields, summary_maxlen, summary_hl, pcutoff=pcutoff)
 
     def search_template(self, tmpl, params):
         if tmpl['content_type'] != 'text/javascript':
@@ -190,11 +194,12 @@ class DbReader(BaseDbReader):
             raise wsgiwapi.HTTPError(400, "Template didn't return a Search.")
 
         queryobj = build_query(self.searchconn, res.query)
-        return self._search(queryobj, res.start_rank, res.end_rank,
-                        res.percent_cutoff)
+        return self._search(queryobj, res.start_rank, res.end_rank, None, None, None,
+                        pcutoff=res.percent_cutoff)
 
     def search_structured(self, query_all, query_any, query_none, query_phrase,
-                          filters, start_rank, end_rank):
+                          filters, start_rank, end_rank, summary_fields,
+                          summary_maxlen, summary_hl):
 
         """Perform a structured search.
 
@@ -242,11 +247,11 @@ class DbReader(BaseDbReader):
             else:
                 query = filterquery
 
-        return self._search(query, start_rank, end_rank)
+        return self._search(query, start_rank, end_rank, 
+                            summary_fields, summary_maxlen, summary_hl)
 
-    def _search(self, queryobj, start_rank, end_rank, pcutoff=None):
-
-        print '-- queryobj:', queryobj
+    def _search(self, queryobj, start_rank, end_rank, 
+                summary_fields, summary_maxlen, summary_hl, pcutoff=None):
 
         if queryobj is None:
             return {
@@ -262,7 +267,17 @@ class DbReader(BaseDbReader):
             }
 
         results = queryobj.search(start_rank, end_rank, percentcutoff=pcutoff)
-        print '-- matches_estimated:', results.matches_estimated
+
+        print '--', summary_fields, summary_maxlen, summary_hl
+
+        def _summarise(result):
+            data = {}
+            for k, v in result.data.iteritems():
+                if k in summary_fields:
+                    data[k] = [result.summarise(k, summary_maxlen, summary_hl)]
+                else:
+                    data[k] = v
+            return data
 
         resultlist = [
             {
@@ -270,7 +285,7 @@ class DbReader(BaseDbReader):
                 "rank": result.rank,
                 "db": self.base_uri,
                 "weight": result.weight,
-                "data": result.data,
+                "data": _summarise(result),
             } for result in results
         ]
 

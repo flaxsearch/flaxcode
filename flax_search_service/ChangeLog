@@ -1,3 +1,10 @@
+Mon Jun  1 12:57:14 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
+    * docs/future.rst,
+    * docs/api.rst,
+    * flax/searchserver/backends/xappy_backend.py,
+    * flax/searchserver/application.py: Added summarisation to search
+      interfaces, and documented (minimally!)
+
 Fri May 29 15:47:56 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
     * flax_search_service/docs/api.rst,
