@@ -185,7 +185,7 @@ class Schema(object):
         allfieldprops = {}
         def merge_args(old, new):
             for (k, v) in new.iteritems():
-                if k not in old:    
+                if k not in old:
                     # Add a new entry
                     old[k] = v
                     continue
@@ -198,7 +198,7 @@ class Schema(object):
                 else:
                     # Otherwise overwrite
                     old[k] = v
-            
+
         # merge the args, which should all be dicts
         for fieldprops in args:
             merge_args(allfieldprops, fieldprops)
@@ -250,6 +250,13 @@ class Database(object):
         uri = self._basepath + '/docs/' + utils.quote(str(docid))
         return utils.json.loads(self._client.do_request(uri, 'GET'))
 
+    def delete_document(self, docid):
+         """Delete a document.
+
+         """
+         uri = self._basepath + '/docs/' + utils.quote(str(docid))
+         return utils.json.loads(self._client.do_request(uri, 'DELETE'))
+
     def flush(self):
         """Flush pending changes, and block until they're done.
 
@@ -274,6 +281,19 @@ class Database(object):
     def search_template(self, name, **kwargs):
         uri = self._basepath + '/search/template/' + utils.quote(name)
         return SearchResults(self._client.do_request(uri, 'GET', queryargs=kwargs))
+
+    def search_structured(self, query_all='', query_any='', query_none='',
+                          query_phrase='', filter=[],
+                          start_rank=0, end_rank=10):
+        return SearchResults(self._client.do_request(self._basepath + '/search/structured', 'GET',
+                             queryargs={'query_all': query_all,
+                             'query_any': query_any,
+                             'query_none': query_none,
+                             'query_phrase': query_phrase,
+                             'filter': filter,
+                             'start_rank': start_rank,
+                             'end_rank': end_rank,
+                             }))
 
 class SearchResults(object):
     def __init__(self, json):
