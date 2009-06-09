@@ -1,27 +1,28 @@
 Mon Jun  1 12:57:14 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
-    * docs/future.rst,
-    * docs/api.rst,
-    * flax/searchserver/backends/xappy_backend.py,
-    * flax/searchserver/application.py: Added summarisation to search
-      interfaces, and documented (minimally!)
+
+	* docs/future.rst,
+	* docs/api.rst,
+	* flax/searchserver/backends/xappy_backend.py,
+	* flax/searchserver/application.py: Added summarisation to search
+	  interfaces, and documented (minimally!)
 
 Fri May 29 15:47:56 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
-    * flax_search_service/docs/api.rst,
-    * flax_search_service/docs/future.rst: Moved/changed description of
-      proposed doc summary API.
+	* flax_search_service/docs/api.rst,
+	* flax_search_service/docs/future.rst: Moved/changed description of
+	proposed doc summary API.
 
 Thu May 21 16:20:38 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
-    * docs/future.rst,
-    * docs/api.rst: Split off documentation of currently unimplemented 
-      features into a separate file, and tidied up the API doc.
+	* docs/future.rst,
+	* docs/api.rst: Split off documentation of currently unimplemented
+	features into a separate file, and tidied up the API doc.
 
 Thu May 21 12:38:01 GMT 2009  Tom Mortimer <tom@lemurconsulting.com>
 
-    * flax/searchserver/backends/xappy_backend.py,
-    * flax/searchserver/backends/base_backend.py,
-    * flax/searchserver/application.py: Added support for deleting docs.
+	* flax/searchserver/backends/xappy_backend.py,
+	* flax/searchserver/backends/base_backend.py,
+	* flax/searchserver/application.py: Added support for deleting docs.
 
 Mon May 18 21:29:22 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
@@ -90,7 +91,7 @@ Sat May 09 11:42:23 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 Sat May 09 08:17:43 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchserver/backends/xappy_backend.py: Remove unwanted
-          parameters, which were added by mistake.
+	  parameters, which were added by mistake.
 
 Fri May 08 23:30:39 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
@@ -101,23 +102,23 @@ Fri May 08 23:30:39 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 Tue May  5 14:41:15 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
-    * runserver.py: Added option to change data directory.
-    * flax/searchserver/backends/xappy_backend.py: Reduced queue size
-      to 1000, to keep memory usage down.
+	* runserver.py: Added option to change data directory.
+	* flax/searchserver/backends/xappy_backend.py: Reduced queue size
+	  to 1000, to keep memory usage down.
 
 Fri May  1 14:07:23 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
-    * flax/searchserver/application.py,
-    * flax/searchserver/backends/xappy_backend.py: Re-implemented 
-      structured search (was search/json) using GET. Added code to
-      process all search params.      
+	* flax/searchserver/application.py,
+	* flax/searchserver/backends/xappy_backend.py: Re-implemented
+	  structured search (was search/json) using GET. Added code to
+	  process all search params.
 
 Fri May  1 10:19:16 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
-    
-    * docs/api.rst: Added a note about search.
-    * flax/searchserver/application.py,
-    * flax/searchserver/backends/xappy_backend.py: Changes to search
-      param names.
+
+	* docs/api.rst: Added a note about search.
+	* flax/searchserver/application.py,
+	* flax/searchserver/backends/xappy_backend.py: Changes to search
+	  param names.
 
 Thu Apr 30 23:54:11 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
@@ -126,35 +127,35 @@ Thu Apr 30 23:54:11 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 Thu Apr 30 17:28:12 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
-    * docs/api.rst: Added paragraph about JSON search.
-    * flax/searchserver/schema.py: Added exacttext support.
-    * flax/searchserver/application.py:  Added search/json resource.
-    * flax/searchserver/backends/xappy_backend.py: Added JSON search
-      implementation.
+	* docs/api.rst: Added paragraph about JSON search.
+	* flax/searchserver/schema.py: Added exacttext support.
+	* flax/searchserver/application.py:  Added search/json resource.
+	* flax/searchserver/backends/xappy_backend.py: Added JSON search
+	  implementation.
 
 Thu Apr 30 11:29:45 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
-    * test_fields.php: Added test for field validation.
+	* test_fields.php: Added test for field validation.
 
 Wed Apr 29 15:29:44 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
-    * flax/searchserver/schema.py: Fixed problem with language code.
-    * flax/searchserver/application.py: Added param conversion to 
-      search_simple.
-    * flax/searchserver/backends/xappy_backend.py: Fixed search_simple.
+	* flax/searchserver/schema.py: Fixed problem with language code.
+	* flax/searchserver/application.py: Added param conversion to
+	  search_simple.
+	* flax/searchserver/backends/xappy_backend.py: Fixed search_simple.
 
 Wed Apr 29 12:37:03 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
-    * docs/api.rst,
-    * flax/searchserver/application.py,
-    * flax/searchserver/controller.py,
-    * flax/searchserver/backends/xappy_backend.py,
-    * flax/searchserver/backends/__init__.py,
-    * flax/searchserver/backends/base_backend.py: Split database 
-      access into reader and writer classes, and moved DB writes 
-      into a separate thread (one per DB). Added temporary flush 
-      resource and support for adding docs with specified ID. 
-      Passes current PHP tests.
+	* docs/api.rst,
+	* flax/searchserver/application.py,
+	* flax/searchserver/controller.py,
+	* flax/searchserver/backends/xappy_backend.py,
+	* flax/searchserver/backends/__init__.py,
+	* flax/searchserver/backends/base_backend.py: Split database
+	  access into reader and writer classes, and moved DB writes
+	  into a separate thread (one per DB). Added temporary flush
+	  resource and support for adding docs with specified ID.
+	  Passes current PHP tests.
 
 Mon Apr 27 09:04:15 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
@@ -188,29 +189,29 @@ Thu Apr 23 00:51:02 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 	  indexing in a separate thread (though this isn't done yet).
 
 Thu Apr  9 11:32:29 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
-    
-    * flax/searchserver/application.py: Tried returning status 201 for
-      doc creation, with ID in Location field. However, this caused the
-      PHP HTTP client lib to interpret it as a redirect (incorrectly).
-      Since we cannot rely on correctness of all client libs, we will
-      use 200 and response body for this and similar.
+
+	* flax/searchserver/application.py: Tried returning status 201 for
+	  doc creation, with ID in Location field. However, this caused the
+	  PHP HTTP client lib to interpret it as a redirect (incorrectly).
+	  Since we cannot rely on correctness of all client libs, we will
+	  use 200 and response body for this and similar.
 
 Wed Apr  8 16:43:23 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
-    * flax/searchserver/schema.py: Added field delete, and got the xappy
-      stuff working correctly with the PHP client unit tests.
-    * flax/searchserver/application.py: Got it working correctly with 
-      the PHP client unit tests.
+	* flax/searchserver/schema.py: Added field delete, and got the xappy
+	  stuff working correctly with the PHP client unit tests.
+	* flax/searchserver/application.py: Got it working correctly with
+	  the PHP client unit tests.
 
 Wed Apr 08 14:39:20 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
-    * flax/searchserver/schema.py: added code for basic indexing/storage
-    * flax/searchserver/application.py: added basic field and doc code,
-      will have to be moved into writer thread.
+	* flax/searchserver/schema.py: added code for basic indexing/storage
+	* flax/searchserver/application.py: added basic field and doc code,
+	  will have to be moved into writer thread.
 
 Mon Apr 06 14:34:22 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
-    
-    * flax/searchserver/schema.py: Added skeletal schema class.
+
+	* flax/searchserver/schema.py: Added skeletal schema class.
 
 Wed Apr 01 14:19:07 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
