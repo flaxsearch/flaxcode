@@ -1,3 +1,7 @@
+Tue Jun 09 20:25:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/queries.py: Add default_op to QueryText.
+
 Tue Jun 09 18:51:13 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchserver/application.py: Allow empty strings for the

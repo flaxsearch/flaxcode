@@ -215,9 +215,10 @@ class QueryText(Query):
 
     """
     op = Query.TEXT
-    def __init__(self, text, fields=None):
+    def __init__(self, text, fields=None, default_op=Query.AND):
         self.text = text
         self.fields = fields
+        self.default_op = default_op
     def __repr__(self):
         return "QueryText(%r)" % self.text
 
