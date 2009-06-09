@@ -263,11 +263,13 @@ class Database(object):
         """
         self._client.do_request(self._basepath + '/flush', 'POST')
 
-    def search_simple(self, searchstring, start_rank=0, end_rank=10):
+    def search_simple(self, searchstring, start_rank=0, end_rank=10,
+                      default_op='AND'):
         return SearchResults(self._client.do_request(self._basepath + '/search/simple', 'GET',
                         queryargs={'query': searchstring,
                         'start_rank': start_rank,
                         'end_rank': end_rank,
+                        'default_op': default_op,
                         }))
 
     def search_similar(self, ids, start_rank=0, end_rank=10, pcutoff=0):
