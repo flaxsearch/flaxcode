@@ -441,11 +441,11 @@ class SearchServer(object):
         """The maximum length for the summary in any single field instance.
 
         """)
-    _highlight_bra_decor = wsgiwapi.param('highlight_bra', 0, 1, '.+', [''],
+    _highlight_bra_decor = wsgiwapi.param('highlight_bra', 0, 1, None, [''],
         """String to insert before a highlighted word in a summary.
 
         """)
-    _highlight_ket_decor = wsgiwapi.param('highlight_ket', 0, 1, '.+', [''],
+    _highlight_ket_decor = wsgiwapi.param('highlight_ket', 0, 1, None, [''],
         """String to insert after a highlighted word in a summary.
 
         """)

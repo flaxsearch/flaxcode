@@ -1,28 +1,31 @@
+Tue Jun 09 18:51:13 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/application.py: Allow empty strings for the
+	  highlighting parameters.
+
 Mon Jun  1 12:57:14 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
-	* docs/future.rst,
-	* docs/api.rst,
-	* flax/searchserver/backends/xappy_backend.py,
-	* flax/searchserver/application.py: Added summarisation to search
+	* docs/future.rst,docs/api.rst,
+	  flax/searchserver/backends/xappy_backend.py,
+	  flax/searchserver/application.py: Added summarisation to search
 	  interfaces, and documented (minimally!)
 
 Fri May 29 15:47:56 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
-	* flax_search_service/docs/api.rst,
-	* flax_search_service/docs/future.rst: Moved/changed description of
-	proposed doc summary API.
+	* docs/api.rst,docs/future.rst: Moved/changed description of
+	  proposed doc summary API.
 
 Thu May 21 16:20:38 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
 
-	* docs/future.rst,
-	* docs/api.rst: Split off documentation of currently unimplemented
-	features into a separate file, and tidied up the API doc.
+	* docs/future.rst,docs/api.rst: Split off documentation of
+	  currently unimplemented features into a separate file, and tidied
+	  up the API doc.
 
 Thu May 21 12:38:01 GMT 2009  Tom Mortimer <tom@lemurconsulting.com>
 
 	* flax/searchserver/backends/xappy_backend.py,
-	* flax/searchserver/backends/base_backend.py,
-	* flax/searchserver/application.py: Added support for deleting docs.
+	  flax/searchserver/backends/base_backend.py,
+	  flax/searchserver/application.py: Added support for deleting docs.
 
 Mon May 18 21:29:22 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
