@@ -430,6 +430,11 @@ class SearchServer(object):
         e.g. the defaults return the 10 hits ranked 0-9.
         Note that the search may return fewer hits than requested.
         """)
+    _default_op_decor = wsgiwapi.param('default_op', 0, 1, '^OR|AND$', ['AND'],
+        """The default operator to use for free-text queries.
+
+        Defaults to AND (ie, all the words are required).
+        """)
     _summary_field_decor = wsgiwapi.param('summary_field', 0, None, '^[A-Za-z0-9._%]+$', [],
         """Field to summarise in returned docs.
 
@@ -455,6 +460,7 @@ class SearchServer(object):
     @wsgiwapi.jsonreturning
     @_start_rank_decor
     @_end_rank_decor
+    @_default_op_decor
     @_summary_field_decor
     @_summary_maxlen_decor
     @_highlight_bra_decor
@@ -470,6 +476,8 @@ class SearchServer(object):
         dbname = request.pathinfo['dbname']
         start_rank = int(request.params['start_rank'][0])
         end_rank = int(request.params['end_rank'][0])
+        default_op = {'AND': queries.Query.AND,
+            'OR': queries.Query.OR}[request.params['default_op'][0]]
         summary_fields = set(request.params['summary_field'])
         summary_maxlen = int(request.params['summary_maxlen'][0])
         summary_hl = (request.params['highlight_bra'][0], request.params['highlight_ket'][0])
@@ -480,7 +488,7 @@ class SearchServer(object):
             qlist.append(queries.QueryText(querystr))
         search = queries.Search(queries.Query.compose(queries.Query.OR, qlist),
                                 start_rank, end_rank)
-        return db.search_simple(querystr, start_rank, end_rank, 
+        return db.search_simple(querystr, start_rank, end_rank, default_op,
                                 summary_fields, summary_maxlen, summary_hl)
         return db.search(search)
 

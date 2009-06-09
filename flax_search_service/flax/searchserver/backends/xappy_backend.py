@@ -24,7 +24,7 @@ __docformat__ = "restructuredtext en"
 
 # Local modules
 from base_backend import BaseBackend, BaseDbReader, BaseDbWriter
-from flax.searchserver import schema, utils
+from flax.searchserver import schema, utils, queries
 
 # Global modules
 import Queue
@@ -146,14 +146,17 @@ class DbReader(BaseDbReader):
         """
         return self.searchconn.get_document(doc_id).data
 
-    def search_simple(self, query, start_rank, end_rank, 
+    def search_simple(self, query, start_rank, end_rank, default_op,
                       summary_fields, summary_maxlen, summary_hl):
         """Perform a simple search, for a user-specified query string.
 
         Returns a set of search results.
 
         """
-        queryobj = self.searchconn.query_parse(query)
+        defop = self.searchconn.OP_AND
+        if default_op == queries.Query.OR:
+            defop = self.searchconn.OP_OR
+        queryobj = self.searchconn.query_parse(query, defop)
         return self._search(queryobj, start_rank, end_rank, 
                             summary_fields, summary_maxlen, summary_hl)
 
@@ -182,9 +185,9 @@ class DbReader(BaseDbReader):
                 self.body = body
 
         cx.add_global('params', params)
-        cx.add_global('Query', Query)
-        cx.add_global('QueryText', QueryText)
-        cx.add_global('Search', Search)
+        cx.add_global('Query', queries.Query)
+        cx.add_global('QueryText', queries.QueryText)
+        cx.add_global('Search', queries.Search)
         cx.add_global('HttpError', JsHttpError)
         res = cx.execute(tmpl)
 

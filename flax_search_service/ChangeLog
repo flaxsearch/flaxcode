@@ -1,3 +1,10 @@
+Tue Jun 09 20:27:43 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/application.py,
+	  flax/searchserver/backends/base_backend.py,
+	  flax/searchserver/backends/xappy_backend.py: Add default_op to
+	  search_simple.
+
 Tue Jun 09 20:25:08 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchserver/queries.py: Add default_op to QueryText.
