@@ -156,7 +156,7 @@ class DbReader(BaseDbReader):
         defop = self.searchconn.OP_AND
         if default_op == queries.Query.OR:
             defop = self.searchconn.OP_OR
-        queryobj = self.searchconn.query_parse(query, defop)
+        queryobj = self.searchconn.query_parse(query, default_op=defop)
         return self._search(queryobj, start_rank, end_rank, 
                             summary_fields, summary_maxlen, summary_hl)
 

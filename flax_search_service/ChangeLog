@@ -1,3 +1,8 @@
+Tue Jun 09 22:39:11 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/backends/xappy_backend.py: Pass default_op to
+	  correct parameter.
+
 Tue Jun 09 20:27:43 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchserver/application.py,
