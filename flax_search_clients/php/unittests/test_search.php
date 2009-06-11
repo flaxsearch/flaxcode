@@ -27,7 +27,7 @@ class SearchTestCase extends UnitTestCase {
     function __construct($server) {
         $this->server = $server;
     }
-    
+
     function setUp() {
         $this->dbname = 'tmp'. time();
         $this->db = $this->server->createDatabase($this->dbname);
@@ -36,7 +36,7 @@ class SearchTestCase extends UnitTestCase {
     function tearDown() {
         $this->db->delete();
     }
-    
+
     function testExact() {
         # test exact indexing and search
 
@@ -48,9 +48,9 @@ class SearchTestCase extends UnitTestCase {
         $this->db->commit();
 
         # check search results
-        $results = $this->db->searchStructured('', '', '', '', 
+        $results = $this->db->searchStructured('', '', '', '',
             array(array('f2','A New England')));
-        
+
         $this->assertEqual($results->matches_estimated, 1);
         $this->assertEqual($results->results[0]->docid, 'doc1');
 
@@ -68,19 +68,19 @@ class SearchTestCase extends UnitTestCase {
         $this->assertEqual($results->matches_estimated, 1);
 
         $results = $this->db->searchStructured('', '', '', '',
-            array(array('f1', 'Billy Bragg'), array('f1', 'The Smiths'), 
+            array(array('f1', 'Billy Bragg'), array('f1', 'The Smiths'),
                   array('f2', 'A New England')));
         $this->assertEqual($results->matches_estimated, 1);
     }
-    
+
     function testFreetext() {
         $this->db->addField('f1', new FlaxExactTextField);
         $this->db->addField('f2', new FlaxFreeTextField);
-    
+
         $this->db->addDocument(array('f1' => 'Billy Bragg', 'f2' => 'A New England'), 'doc1');
         $this->db->addDocument(array('f1' => 'Billy Bragg', 'f2' => 'between the wars'), 'doc2');
         $this->db->commit();
-    
+
         # check search results (freetext search)
         $results = $this->db->searchSimple('A New england');
         $this->assertEqual($results->matches_estimated, 1);
@@ -131,18 +131,19 @@ class SearchTestCase extends UnitTestCase {
     }
 
     function testSimilar() {
-	    $this->db->addField('f1', new FlaxFreeTextField(false, 'en'));
-    	$this->db->addDocument(array('f1' => 'Milkman Of Human Kindness'), 'doc1');
-    	$this->db->addDocument(array('f1' => 'Milk Of Human Kindness'), 'doc2');
-    	$this->db->commit();
+        $this->db->addField('f1', new FlaxFreeTextField(false, 'en'));
+        $this->db->addDocument(array('f1' => 'Milkman Of Human Kindness'), 'doc1');
+        $this->db->addDocument(array('f1' => 'Milk Of Human Kindness'), 'doc2');
+        $this->db->addDocument(array('f1' => 'nothing'), 'doc3');
+        $this->db->commit();
 
-    	$results = $this->db->searchSimilar('doc2');
-    	$this->assertEqual($results->matches_estimated, 2);
-    	$this->assertEqual($results->results[0]->docid, 'doc2');
-	
-    	$results = $this->db->searchSimilar('doc1', 0, 1, 100);
-    	$this->assertEqual($results->matches_estimated, 1);
-    }    
+        $results = $this->db->searchSimilar('doc2');
+        $this->assertEqual($results->matches_estimated, 2);
+        $this->assertEqual($results->results[0]->docid, 'doc2');
+
+        $results = $this->db->searchSimilar('doc1', 0, 1, 100);
+        $this->assertEqual($results->matches_estimated, 1);
+    }
 }
 
 ?>

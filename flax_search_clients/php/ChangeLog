@@ -1,3 +1,11 @@
+Thu Jun 11 12:53:47 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* unittests/test_search.php: Fix similarity search test - was only
+	  returning one document, because the terms in common were in all
+	  documents in the database, and therefore got no weight attached
+	  to them.  Add a third document, with no terms in common, instead.
+	  Also, remove trailing whitespace.
+
 Mon Jun  1 13:03:26 BST 2009  Tom Mortimer <tom@lemurconsulting.com>
     * unittests/test_docs.php,
     * docs/api.rst,
