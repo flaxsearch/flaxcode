@@ -1,3 +1,7 @@
+Thu Jun 11 12:55:40 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/backends/xappy_backend.py: Remove debug print.
+
 Tue Jun 09 22:39:11 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchserver/backends/xappy_backend.py: Pass default_op to

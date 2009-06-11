@@ -271,8 +271,6 @@ class DbReader(BaseDbReader):
 
         results = queryobj.search(start_rank, end_rank, percentcutoff=pcutoff)
 
-        print '--', summary_fields, summary_maxlen, summary_hl
-
         def _summarise(result):
             data = {}
             for k, v in result.data.iteritems():
