@@ -302,6 +302,21 @@ class DbReader(BaseDbReader):
             'results': resultlist,
         }
 
+    def get_terms(self, fieldname, starts_with, max_terms):
+        """Return list of terms (without prefix) for the specified fieldname.
+        
+        `starts_with`: returned terms must start with this string.
+        `max_terms`: maximum number of terms to return.
+        
+        """
+        it = self.searchconn.iter_terms_for_field(fieldname, starts_with)
+        ret = []
+        for term in it:
+            ret.append(term)
+            if len(ret) == max_terms:
+                break
+        
+        return ret
 
 class DbWriter(BaseDbWriter):
     """A reader obtined by Backend.get_db_reader().

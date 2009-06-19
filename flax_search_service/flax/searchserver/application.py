@@ -387,6 +387,7 @@ class SearchServer(object):
         until the doc is (asynchronously) added. A possible solution is to
         set a UUID or similar.
         """
+        assert isinstance(request.json, dict)
         dbname = request.pathinfo['dbname']
         dbw = self.controller.get_db_writer(dbname)
         dbw.add_document(request.json)
@@ -399,6 +400,7 @@ class SearchServer(object):
         """Add or replace a document with a specfied ID.
 
         """
+        assert isinstance(request.json, dict)
         dbname = request.pathinfo['dbname']
         dbw = self.controller.get_db_writer(dbname)
         dbw.add_document(request.json, docid=request.pathinfo['docid'])
@@ -591,6 +593,26 @@ class SearchServer(object):
                                     summary_maxlen,
                                     summary_hl)
 
+    #### term methods (HACK) ####
+
+    @wsgiwapi.allow_GET
+    @wsgiwapi.pathinfo(dbname_param, fieldname_param)
+    @wsgiwapi.jsonreturning
+    @wsgiwapi.param('starts_with', 0, 1, None, [''],
+                    """Only return terms starting with this string.
+
+                    """)
+    @wsgiwapi.param('max_terms', 0, 1, '^\d+$', ['100'],
+                    """Maximum number of terms to return
+
+                    """)
+    def get_terms(self, request):
+        dbname = request.pathinfo['dbname']
+        fieldname = request.pathinfo['fieldname']
+        db = self.controller.get_db_reader(dbname)
+        return db.get_terms(fieldname, request.params['starts_with'][0],
+                            int(request.params['max_terms'][0]))
+
     #### end of implementations ####
 
     def get_urls(self):
@@ -628,8 +650,9 @@ class SearchServer(object):
             'v1/dbs/*/search/similar': self.search_similar,
             'v1/dbs/*/search/structured': self.search_structured,
             'v1/dbs/*/search/template/*': self.search_template,
+            'v1/dbs/*/terms/*': self.get_terms,
         }
 
 def App(*args, **kwargs):
     server = SearchServer(*args, **kwargs)
-    return wsgiwapi.make_application(server.get_urls(), logger=wsgiwapi.VerboseLogger, autodoc='doc')
+    return wsgiwapi.make_application(server.get_urls(), logger=wsgiwapi.VerboseLogger)
