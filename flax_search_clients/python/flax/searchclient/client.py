@@ -1,4 +1,3 @@
-# Copyright (c) 2009 Lemur Consulting Ltd
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -296,6 +295,10 @@ class Database(object):
                              'start_rank': start_rank,
                              'end_rank': end_rank,
                              }))
+
+    def get_terms(self, fieldname, **kwargs):
+        uri = self._basepath + '/terms/%s' % utils.quote(fieldname)
+        return utils.json.loads(self._client.do_request(uri, 'GET', queryargs=kwargs))
 
 class SearchResults(object):
     def __init__(self, json):

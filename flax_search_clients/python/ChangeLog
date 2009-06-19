@@ -1,3 +1,7 @@
+Fri Jun 19 12:52:26 BST 2009  Tom Mortimer <tom@flax.co.uk>
+
+    * flax/searchclient/client.py: Added get_terms() db method.
+
 Tue Jun 09 20:34:39 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchclient/client.py: Add setting of default_op.
