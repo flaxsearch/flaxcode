@@ -1,8 +1,12 @@
+Thu Jun 25 00:50:06 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* docs/api.rst: Minor tweaks - typos and parameter names.
+
 Fri Jun 19 12:38:01 BST 2009  Tom Mortimer <tom@flax.co.uk>
 
-    * flax/searchserver/backends/xappy_backend.py,
-    * flax/searchserver/application.py: Added provisional feature for
-      returning terms for a specified field.
+	* flax/searchserver/backends/xappy_backend.py,
+	  flax/searchserver/application.py: Added provisional feature for
+	  returning terms for a specified field.
 
 Thu Jun 11 12:55:40 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 

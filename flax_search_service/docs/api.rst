@@ -49,11 +49,11 @@ Set of documents         /v1/dbs/<db_name>/docs
 ------------------------ --------------------------------------------------  
 Document                 /v1/dbs/<db_name>/docs/<doc_id>  [#docids]_
 ------------------------ --------------------------------------------------  
-Search (Simple)          /v1/dbs/<db_name>/search/simple?<query_str>
+Search (Simple)          /v1/dbs/<db_name>/search/simple?<query_params>
 ------------------------ --------------------------------------------------  
-Search (Structured)      /v1/dbs/<db_name>/search/structured?<query_str>
+Search (Structured)      /v1/dbs/<db_name>/search/structured?<query_params>
 ------------------------ --------------------------------------------------  
-Search (Similar)         /v1/dbs/<db_name>/search/simple?<query_str>
+Search (Similar)         /v1/dbs/<db_name>/search/similar?<query_params>
 ------------------------ --------------------------------------------------  
 Flush control            /v1/dbs/<db_name>/flush
 ------------------------ --------------------------------------------------  
@@ -437,10 +437,4 @@ Similarity search
 This method finds documents similar to the one specified by <doc_id>, and returns
 them ranked in order of similarity. Like the other search methods, it has the
 optional parameters start_rank and end_rank.
-
-
-
-
-
-
 
