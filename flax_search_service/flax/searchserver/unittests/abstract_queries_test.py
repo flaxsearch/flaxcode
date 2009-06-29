@@ -36,30 +36,29 @@ class AbstractQueryTest(TestCase):
     def test_query1(self):
         qnames = [q[0] for q in queries.query_types]
         self.assertEqual(qnames,
-            ['Query', 'QueryAnd', 'QueryMultWeight', 'QueryNot', 'QueryOr',
-             'QueryText', 'QueryXor',
-            ])
+            ['Query', 'QueryAnd', 'QueryExact', 'QueryMultWeight', 'QueryNot',
+             'QueryOr', 'QuerySimilar', 'QueryText', 'QueryXor'])
 
         q = queries.Query()
         self.assertEqual(unicode(q), u'Query()')
 
-        q = queries.QueryText('hello')
-        self.assertEqual(unicode(q), u'QueryText(\'hello\')')
+        q = queries.QueryText(u'hello')
+        self.assertEqual(unicode(q), u'QueryText(u\'hello\')')
 
         q = q * 2
-        self.assertEqual(unicode(q), u'(QueryText(\'hello\') * 2)')
+        self.assertEqual(unicode(q), u'(QueryText(u\'hello\') * 2)')
 
         q2 = q & q
-        self.assertEqual(unicode(q2), u'(QueryText(\'hello\') * 2) & (QueryText(\'hello\') * 2)')
+        self.assertEqual(unicode(q2), u'((QueryText(u\'hello\') * 2) & (QueryText(u\'hello\') * 2))')
 
         q2 = q | q
-        self.assertEqual(unicode(q2), u'(QueryText(\'hello\') * 2) | (QueryText(\'hello\') * 2)')
+        self.assertEqual(unicode(q2), u'((QueryText(u\'hello\') * 2) | (QueryText(u\'hello\') * 2))')
 
         q2 = q ^ q
-        self.assertEqual(unicode(q2), u'(QueryText(\'hello\') * 2) ^ (QueryText(\'hello\') * 2)')
+        self.assertEqual(unicode(q2), u'((QueryText(u\'hello\') * 2) ^ (QueryText(u\'hello\') * 2))')
 
         q2 = q - q
-        self.assertEqual(unicode(q2), u'(QueryText(\'hello\') * 2) - (QueryText(\'hello\') * 2)')
+        self.assertEqual(unicode(q2), u'((QueryText(u\'hello\') * 2) - (QueryText(u\'hello\') * 2))')
 
 
 if __name__ == '__main__':

@@ -1,3 +1,9 @@
+Mon Jun 29 19:37:30 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/queries.py,
+	  flax/searchserver/unittests/abstract_queries_test.py: Rework, and
+	  add QueryExact and QuerySimilar.
+
 Thu Jun 25 00:50:47 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* docs/presentations/europython2009.odp: First draft of slides for
