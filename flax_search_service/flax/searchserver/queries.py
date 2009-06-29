@@ -37,7 +37,7 @@ class Query(object):
         return u"Query()"
 
     def __repr__(self):
-        return repr(unicode(self))
+        return u"Query()"
 
     # Constants used to represent the operators.
     OR = 0
@@ -193,6 +193,10 @@ class QueryCombination(Query):
         joinsym = u' ' + Query.opsym(self.op) + u' '
         return u'(' + joinsym.join(unicode(q) for q in self.subqs) + u')'
 
+    def __repr__(self):
+        joinsym = ' ' + Query.opsym(self.op) + ' '
+        return '(' + joinsym.join(__repr__(q) for q in self.subqs) + ')'
+
 class QueryOr(QueryCombination):
     """A query which matches a document if any of its subqueries match.
 
@@ -244,7 +248,9 @@ class QueryMultWeight(Query):
         self.subq = subq
         self.mult = float(mult)
     def __unicode__(self):
-        return u"(%s * %.4g)" % (self.subq, self.mult)
+        return u"(%s * %.4g)" % (unicode(self.subq), self.mult)
+    def __repr__(self):
+        return "(%s * %.4g)" % (repr(self.subq), self.mult)
 
 class QueryText(Query):
     """A free-text query for a piece of text.
@@ -271,6 +277,8 @@ class QueryText(Query):
 
     def __unicode__(self):
         return u"QueryText(%r)" % (self.text, )
+    def __repr__(self):
+        return "QueryText(%r)" % (self.text, )
 
 class QueryExact(Query):
     """A query which returns documents containing the exact field contents.
@@ -289,6 +297,8 @@ class QueryExact(Query):
 
     def __unicode__(self):
         return u"QueryExact(%r, %r)" % (self.text, self.fields, )
+    def __repr__(self):
+        return "QueryExact(%r, %r)" % (self.text, self.fields, )
 
 class QuerySimilar(Query):
     """A query which returns similar documents to a given set of documents.
@@ -313,6 +323,8 @@ class QuerySimilar(Query):
 
     def __unicode__(self):
         return u"QuerySimilar(%r)" % (self.ids, )
+    def __repr__(self):
+        return "QuerySimilar(%r)" % (self.ids, )
 
 class Search(object):
     def __init__(self, query, start_rank, end_rank, percent_cutoff=None,
@@ -332,6 +344,12 @@ class Search(object):
         if self.percent_cutoff is not None and self.percent_cutoff > 0:
             r += u", %d" % self.percent_cutoff
         return u"Search(%s)" % r
+    def __repr__(self):
+        r = "%r, %d, %d" % (self.query, self.start_rank, self.end_rank)
+        if self.percent_cutoff is not None and self.percent_cutoff > 0:
+            r += ", %d" % self.percent_cutoff
+        return "Search(%s)" % r
+
 
 query_types = 'Query,QueryOr,QueryAnd,QueryXor,QueryNot,' \
               'QueryMultWeight,QueryText,' \

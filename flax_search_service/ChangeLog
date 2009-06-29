@@ -1,3 +1,8 @@
+Mon Jun 29 20:21:21 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/queries.py: Fix repr() to produce what the test
+	  expects.
+
 Mon Jun 29 20:18:11 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchserver/jstemplates.py,
