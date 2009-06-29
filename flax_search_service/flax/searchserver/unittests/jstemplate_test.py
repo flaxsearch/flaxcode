@@ -23,6 +23,7 @@ r"""Test creation and deletion of databases
 __docformat__ = "restructuredtext en"
 
 from harness import *
+from flax.searchserver import jstemplates, queries
 
 class JSQueryTemplateTest(TestCase):
     def setUp(self):
@@ -32,18 +33,17 @@ class JSQueryTemplateTest(TestCase):
         pass
 
     def test_jsquery1(self):
-        from flax.searchserver import jstemplates, queries
-
+        evaluator = jstemplates.JsTemplateEvaluator()
         self.assertRaisesMessage(wsgiwapi.HTTPError,
                                  u"^400 Bad Request\nTemplate didn't return a Search\.$",
-                                 jstemplates.evaluate_search_template,
+                                 evaluator.search_template,
                                  '', {}
                                 )
 
-        s = jstemplates.evaluate_search_template('Search(Query(), 0, 0)', {})
+        s = evaluator.search_template('Search(Query(), 0, 0)', {})
         self.assertEqual(unicode(s), u'Search(Query(), 0, 0)')
 
-        s = jstemplates.evaluate_search_template('q = QueryText("foo"); Search(q, 0, 0)', {})
+        s = evaluator.search_template('q = QueryText("foo"); Search(q, 0, 0)', {})
         self.assertEqual(unicode(s), u'Search(QueryText(u\'foo\'), 0, 0)')
 
 if __name__ == '__main__':
