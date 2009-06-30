@@ -35,17 +35,70 @@ import xappy
 # The metadata key used to hold schemas.
 SCHEMA_KEY = "_flax_schema"
 
-def build_query(conn, queryobj):
-    """Build a xappy query from a connection and query object.
+op_convert = {
+    queries.Query.AND: xappy.SearchConnection.OP_AND,
+    queries.Query.OR: xappy.SearchConnection.OP_OR,
+}
+
+def build_query(conn, query):
+    """Build a xappy query from a connection and a Query object.
 
     """
-    if queryobj is None:
+    if query is None or query.op is None:
         return conn.query_none()
 
-    if queryobj.op == 'text':
-        conn.query_parse(queryobj.search)
+    if isinstance(query, queries.QueryCombination):
+        if len(query.subqs) == 0:
+            return conn.query_none()
+        subqs = [build_query(conn, subq) for subq in query.subqs]
+
+        if isinstance(query, queries.QueryOr):
+            return conn.query_composite(conn.OP_OR, subqs)
+
+        elif isinstance(query, queries.QueryAnd):
+            return conn.query_composite(conn.OP_AND, subqs)
+
+        elif isinstance(query, queries.QueryXor):
+            res = subqs[0]
+            for subq in subqs[1]:
+                res = res ^ subq
+            return res
+
+        elif isinstance(query, queries.QueryNot):
+            lhs = subqs[0]
+            rhs = conn.query_composite(conn.OP_OR, subqs[1:])
+            return lhs.and_not(rhs)
+
+        raise wsgiwapi.HTTPError(400, "Invalid combination query type (%r)" % query.op)
+
+    elif isinstance(query, queries.QueryMultWeight):
+        return build_query(conn, query.subq) * query.mult
+
+    elif isinstance(query, queries.QueryText):
+        defop = op_convert.get(query.default_op)
+        if defop is None:
+            raise wsgiwapi.HTTPError(400, "Invalid operator specified for "
+                                     "default operator for text query.")
+
+        if query.fields is not None:
+            raise wsgiwapi.HTTPError(400, "Searching within specific fields not yet implemented")
+
+        return conn.query_parse(query.text,
+                                allow=query.fields,
+                                default_op=defop)
+
+    elif isinstance(query, queries.QueryExact):
+        # FIXME - this only works correctly if all the fields supplied have
+        # been marked as index-as-exact: but this isn't checked.
+        return conn.query_composite(conn.OP_AND,
+                                    [conn.query_field(field, query.text)
+                                    for field in query.fields])
+
+    elif isinstance(query, queries.QuerySimilar):
+        return conn.query_similar(query.ids, simterms=query.simterms)
+
     else:
-        raise wsgiwapi.HTTPError(400, "Invalid query type")
+        raise wsgiwapi.HTTPError(400, "Invalid query type (%r)" % query.op)
 
 class Backend(BaseBackend):
     """The xappy backend for flax search server.
@@ -146,116 +199,14 @@ class DbReader(BaseDbReader):
         """
         return self.searchconn.get_document(doc_id).data
 
-    def search_simple(self, query, start_rank, end_rank, default_op,
-                      summary_fields, summary_maxlen, summary_hl):
-        """Perform a simple search, for a user-specified query string.
+    def search(self, search):
+        """Perform a search, as described by a Search object.
 
-        Returns a set of search results.
-
-        """
-        defop = self.searchconn.OP_AND
-        if default_op == queries.Query.OR:
-            defop = self.searchconn.OP_OR
-        queryobj = self.searchconn.query_parse(query, default_op=defop)
-        return self._search(queryobj, start_rank, end_rank, 
-                            summary_fields, summary_maxlen, summary_hl)
-
-    def search_similar(self, ids, pcutoff, start_rank, end_rank, 
-                       summary_fields, summary_maxlen, summary_hl):
-        """Perform a similarity search, for a user-specified query string.
-
-        Returns a set of search results.
+        Returns a dictionary of properties giving information about the search
+        results.
 
         """
-        queryobj = self.searchconn.query_similar(ids, simterms=30)
-        return self._search(queryobj, start_rank, end_rank, 
-            summary_fields, summary_maxlen, summary_hl, pcutoff=pcutoff)
-
-    def search_template(self, tmpl, params):
-        if tmpl['content_type'] != 'text/javascript':
-            raise ValueError('Template not in known language')
-        tmpl = tmpl['template']
-        import spidermonkey
-        rt = spidermonkey.Runtime()
-        cx = rt.new_context()
-
-        class JsHttpError(object):
-            def __init__(self, code, body):
-                self.code = code
-                self.body = body
-
-        cx.add_global('params', params)
-        cx.add_global('Query', queries.Query)
-        cx.add_global('QueryText', queries.QueryText)
-        cx.add_global('Search', queries.Search)
-        cx.add_global('HttpError', JsHttpError)
-        res = cx.execute(tmpl)
-
-        if isinstance(res, JsHttpError):
-            raise wsgiwapi.HTTPError(res.code, body=res.body)
-        if not isinstance(res, Search):
-            raise wsgiwapi.HTTPError(400, "Template didn't return a Search.")
-
-        queryobj = build_query(self.searchconn, res.query)
-        return self._search(queryobj, res.start_rank, res.end_rank, None, None, None,
-                        pcutoff=res.percent_cutoff)
-
-    def search_structured(self, query_all, query_any, query_none, query_phrase,
-                          filters, start_rank, end_rank, summary_fields,
-                          summary_maxlen, summary_hl):
-
-        """Perform a structured search.
-
-        FIXME: document
-
-        """
-
-        def combine_queries(q1, q2):
-            if q1:
-                return q1 & q2
-            else:
-                return q2
-
-        query = None
-        if query_all:
-            query = self.searchconn.query_parse(query_all, default_op=self.searchconn.OP_AND)
-
-        if query_any:
-            query = combine_queries(query, self.searchconn.query_parse(
-                query_any, default_op=self.searchconn.OP_OR))
-
-        if query_none:
-            if query is None:
-                query = self.searchconn.query_all()
-            query = query.and_not(self.searchconn.query_parse(query_none,
-                                  default_op=self.searchconn.OP_OR))
-
-        if query_phrase:   # FIXME - support in Xappy?
-            raise NotImplementedError
-
-        # we want filters to be ORd within fields, ANDed between fields
-        if filters:
-            filterdict = {}
-            for f in filters:
-                p = f.index(':')
-                filterdict.setdefault(f[:p], []).append(
-                    self.searchconn.query_field(f[:p], f[p+1:]))
-
-            filterquery = self.searchconn.query_composite(self.searchconn.OP_AND,
-                [self.searchconn.query_composite(self.searchconn.OP_OR, x)
-                for x in filterdict.itervalues()])
-
-            if query:
-                query = query.filter(filterquery)
-            else:
-                query = filterquery
-
-        return self._search(query, start_rank, end_rank, 
-                            summary_fields, summary_maxlen, summary_hl)
-
-    def _search(self, queryobj, start_rank, end_rank, 
-                summary_fields, summary_maxlen, summary_hl, pcutoff=None):
-
+        queryobj = build_query(self.searchconn, search.query)
         if queryobj is None:
             return {
                 'matches_estimated': 0,
@@ -269,13 +220,15 @@ class DbReader(BaseDbReader):
                 'results': [],
             }
 
-        results = queryobj.search(start_rank, end_rank, percentcutoff=pcutoff)
+        results = queryobj.search(search.start_rank, search.end_rank,
+                                  None, None, None,
+                                  percentcutoff=search.percent_cutoff)
 
         def _summarise(result):
             data = {}
             for k, v in result.data.iteritems():
-                if k in summary_fields:
-                    data[k] = [result.summarise(k, summary_maxlen, summary_hl)]
+                if k in search.summary_fields:
+                    data[k] = [result.summarise(k, search.summary_maxlen, search.summary_hl)]
                 else:
                     data[k] = v
             return data
@@ -301,6 +254,9 @@ class DbReader(BaseDbReader):
             'end_rank': results.endrank,
             'results': resultlist,
         }
+
+    def spell_correct(self, query):
+        return self.searchconn.spell_correct(query)
 
     def get_terms(self, fieldname, starts_with, max_terms):
         """Return list of terms (without prefix) for the specified fieldname.
