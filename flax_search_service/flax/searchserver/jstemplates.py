@@ -35,8 +35,16 @@ class JsHttpError(object):
         self.code = code
         self.body = body
 
+import traceback
 def access_checker(obj, name):
-    return not name.startswith('_') or name in ('__call__',)
+    try:
+        if isinstance(name, int):
+            return True
+        return not name.startswith('_') or name in ('__call__',)
+    except:
+        # Don't pass error to javascript.
+        # FIXME - should log this somewhere.
+        return False
 
 class JsTemplateEvaluator(object):
     def __init__(self):
