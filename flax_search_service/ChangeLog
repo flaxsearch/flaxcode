@@ -1,3 +1,7 @@
+Tue Jun 30 12:09:31 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/application.py: Fix copy-and-paste bug.
+
 Tue Jun 30 10:32:20 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchserver/application.py,

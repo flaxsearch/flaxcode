@@ -522,9 +522,9 @@ class SearchServer(object):
         if tmpl['content_type'] != 'text/javascript':
             raise ValueError('Template not in known language')
         tmpl = tmpl['template']
-        import jstemplate
-        env = jstemplate.JsTemplateEvaluator()
-        search = env.search_template(tmpl['template'], request.params)
+        import jstemplates
+        env = jstemplates.JsTemplateEvaluator()
+        search = env.search_template(tmpl, request.params)
         return db.search(search)
 
     @allow_GETHEAD
