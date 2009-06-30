@@ -271,6 +271,10 @@ class Database(object):
                         'default_op': default_op,
                         }))
 
+    def spell_correct(self, searchstring):
+        return self._client.do_request(self._basepath + '/search/spell', 'GET',
+                                       queryargs={'query': searchstring})
+
     def search_similar(self, ids, start_rank=0, end_rank=10, pcutoff=0):
         return SearchResults(self._client.do_request(self._basepath + '/search/similar', 'GET',
                         queryargs={'id': ids,
