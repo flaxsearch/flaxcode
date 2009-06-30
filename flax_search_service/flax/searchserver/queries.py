@@ -201,7 +201,7 @@ class QueryCombination(Query):
 
     def __repr__(self):
         joinsym = ' ' + Query.opsym(self.op) + ' '
-        return '(' + joinsym.join(__repr__(q) for q in self.subqs) + ')'
+        return '(' + joinsym.join(repr(q) for q in self.subqs) + ')'
 
 class QueryOr(QueryCombination):
     """A query which matches a document if any of its subqueries match.
@@ -299,6 +299,8 @@ class QueryExact(Query):
             raise TypeError("Text supplied was not unicode")
 
         self.text = text
+        if isinstance(fields, basestring):
+            fields = [fields]
         self.fields = fields
 
     def __unicode__(self):
