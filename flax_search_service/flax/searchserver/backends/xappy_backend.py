@@ -225,6 +225,8 @@ class DbReader(BaseDbReader):
                                   percentcutoff=search.percent_cutoff)
 
         def _summarise(result):
+            if search.summary_fields is None:
+                return result.data
             data = {}
             for k, v in result.data.iteritems():
                 if k in search.summary_fields:

@@ -1,3 +1,8 @@
+Tue Jun 30 13:05:04 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/backends/xappy_backend.py: Handle
+	  summary_fields being set to None.
+
 Tue Jun 30 12:49:09 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchserver/jstemplates.py: Slightly more robust template
