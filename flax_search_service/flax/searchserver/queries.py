@@ -178,6 +178,12 @@ class Query(object):
             return NotImplemented
         return QueryNot((self, other))
 
+    def filter(self, other):
+        """Return a query filtered by another query.
+
+        """
+        return QueryAnd((self, other * 0))
+
 class QueryCombination(Query):
     """A query which represents a combination of other queries.
 

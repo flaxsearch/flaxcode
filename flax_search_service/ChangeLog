@@ -1,3 +1,7 @@
+Tue Jun 30 04:40:29 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* flax/searchserver/queries.py: Add Query.filter() method.
+
 Mon Jun 29 20:21:21 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* flax/searchserver/queries.py: Fix repr() to produce what the test
