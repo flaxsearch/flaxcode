@@ -146,21 +146,19 @@ class Schema(object):
                     if freetext is True or freetext == []:
                         freetext = {}
                         
-                    term_frequency_multiplier = freetext.get('term_frequency_multiplier', 1)
-                    enable_phrase_search = freetext.get('enable_phrase_search')
+                    opts = {}
+                    opts['weight'] = freetext.get('term_frequency_multiplier', 1)
+                    opts['nopos'] = freetext.get('enable_phrase_search')
+                    if fieldprops.get('spelling_source'):
+                        opts['spell'] = True
 
                     language = freetext.get('language')
-                    if language is None:
-                        indexer_connection.add_field_action(fieldname, 
-                            xappy.FieldActions.INDEX_FREETEXT, 
-                            weight = term_frequency_multiplier,
-                            nopos = not enable_phrase_search)
-                    else:
-                        indexer_connection.add_field_action(fieldname, 
-                            xappy.FieldActions.INDEX_FREETEXT, 
-                            weight = term_frequency_multiplier,
-                            language = language,
-                            nopos = not enable_phrase_search)
+                    if language is not None:
+                        opts['language'] = language
+
+                    indexer_connection.add_field_action(fieldname, 
+                        xappy.FieldActions.INDEX_FREETEXT, 
+                        **opts)
 
                 if fieldprops.get('exacttext'):
                     indexer_connection.add_field_action(fieldname,
