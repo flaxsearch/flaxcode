@@ -98,7 +98,11 @@ sub _do_http_request {
     my $json = new JSON;
     my $req = HTTP::Request->new($method, $url);
     if ($content) {
-        $req->content($json->encode($content));
+        my $jdata = $json->encode($content);
+        if (defined($jdata) && utf8::is_utf8($jdata)) {
+            utf8::encode($jdata);
+        }
+        $req->content($jdata);
         $req->header('Content-type' => 'text/json');
     }
 

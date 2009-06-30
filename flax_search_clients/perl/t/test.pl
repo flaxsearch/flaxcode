@@ -363,6 +363,7 @@ sub testSimilar {
     $db->addField('f1', Flax::Field::FreeText->new('store'=>0, 'lang'=> 'en'));
     $db->addDocument({'f1' => 'Milkman Of Human Kindness'}, 'doc1');
     $db->addDocument({'f1' => 'Milk Of Human Kindness'}, 'doc2');
+    $db->addDocument({'f1' => 'nothing'}, 'doc3');
     $db->commit();
 
     my $res1 = $db->searchSimilar('doc2');

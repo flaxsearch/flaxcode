@@ -38,7 +38,7 @@ use URI::Escape qw(uri_escape_utf8 uri_escape);
 
 sub flax_uri_escape {
     my $text = shift;
-    return uri_escape_utf8($text, "^A-Za-z0-9 ");
+    return uri_escape_utf8($text, '^A-Za-z0-9 _\.');
 }
 
 1;

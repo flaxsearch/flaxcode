@@ -1,3 +1,8 @@
+Tue Jun 30 09:50:00 BST 2009  Vittal Aithal <vittal.aithal@cognidox.com>
+	* Flax/RestClient.pm: Handle UTF-8 encoding issue when posting JSON
+	* Flax/Util.pm: Encode URLs according the the API doc
+	* t/test.pl: Sync with php unittest
+
 Mon Jun 29 19:57:20 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
 
 	* Flax.pm,Flax/,README,t/test.pl: Initial import of flax client for
