@@ -35,7 +35,6 @@ class JsHttpError(object):
         self.code = code
         self.body = body
 
-import traceback
 def access_checker(obj, name):
     try:
         if isinstance(name, int):
