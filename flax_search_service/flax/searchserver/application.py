@@ -42,6 +42,7 @@ dbname_param = ('dbname', '^[A-Za-z0-9._%]+$')
 fieldname_param = ('fieldname', '^[A-Za-z0-9._%]+$')
 tmplname_param = ('tmplname', '^[A-Za-z0-9._%]+$')
 docid_param = ('docid', '^[A-Za-z0-9._%]+$')
+metakey_param = ('metakey', '^[A-Za-z0-9._%]+$')
 
 
 class DbResource(Resource):
@@ -677,8 +678,6 @@ class SearchServer(object):
         print repr(search)
         return db.search(search)
 
-
-
     #### term methods (HACK) ####
 
     @allow_GETHEAD
@@ -699,6 +698,33 @@ class SearchServer(object):
         return db.get_terms(fieldname, request.params['starts_with'][0],
                             int(request.params['max_terms'][0]))
 
+    #### metadata methods ####
+    
+    @allow_GETHEAD
+    @pathinfo(dbname_param, metakey_param)
+    @jsonreturning
+    def metadata_get(self, request):    
+        dbname = request.pathinfo['dbname']
+        metakey = request.pathinfo['metakey']
+
+        db = self.controller.get_db_reader(dbname)
+        try:
+            return db.get_metadata(metakey)
+        except KeyError:
+            raise HTTPNotFound()
+
+    @allow_POST
+    @allow_PUT
+    @pathinfo(dbname_param, metakey_param)
+    @jsonreturning
+    def metadata_set(self, request):    
+        dbname = request.pathinfo['dbname']
+        metakey = request.pathinfo['metakey']
+
+        db = self.controller.get_db_writer(dbname)
+        db.set_metadata(metakey, request.json)
+        return 1
+        
     #### end of implementations ####
 
     def get_urls(self):
@@ -735,6 +761,10 @@ class SearchServer(object):
             'v1/dbs/*/search/structured': self.search_structured,
             'v1/dbs/*/search/template/*': self.search_template,
             'v1/dbs/*/terms/*': self.get_terms,
+            'v1/dbs/*/meta/*': Resource(
+                get=self.metadata_get,
+                post=self.metadata_set,
+                put=self.metadata_set),
         }
 
 def App(*args, **kwargs):

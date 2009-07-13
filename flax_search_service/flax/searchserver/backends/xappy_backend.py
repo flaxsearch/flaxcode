@@ -276,6 +276,17 @@ class DbReader(BaseDbReader):
         
         return ret
 
+    def get_metadata(self, key):
+        """Get a piece of metadata.
+
+        """
+        data = self.searchconn.get_metadata(key)
+        if data:
+            return utils.json.loads(data)
+        else:
+            return None
+
+
 class DbWriter(BaseDbWriter):
     """A reader obtined by Backend.get_db_reader().
 
@@ -332,6 +343,14 @@ class DbWriter(BaseDbWriter):
          """
          self.queue.put(DbWriter.CommitAction(self))
 
+    def set_metadata(self, key, data):
+        """Set a peice of metadata.
+
+         This will be done asynchronously in the write thread.
+
+        """
+        print '-- queueing metadata set:', key, data
+        self.queue.put(DbWriter.SetMetadataAction(self, key, data))
 
     class SetSchemaAction(object):
         """Action to set the schema for a Xappy database.
@@ -402,3 +421,21 @@ class DbWriter(BaseDbWriter):
 
         def __str__(self):
             return 'CommitAction(%s)' % self.db_writer.db_path
+            
+    class SetMetadataAction(object):
+        """Action to set a piece of metadata.
+        
+        """
+        def __init__(self, db_writer, key, data):
+            self.db_writer = db_writer
+            self.key = key
+            self.data = data
+        
+        def perform(self):
+            self.db_writer.iconn.set_metadata(self.key, utils.json.dumps(self.data))
+            print '-- set metadata:', self.key, self.data
+
+        def __str__(self):
+            return 'SetMetadataAction(%s: %s)' % (self.key, self.data)
+              
+            
