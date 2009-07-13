@@ -1,0 +1,34 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/" py:strip="">
+
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="/static/ext/jquery/jquery.autocomplete.css"/>
+    <link rel="stylesheet" href="/static/bamboo_menu.css"/>
+    <link rel="stylesheet" href="/static/bamboo.css"/>
+    <script type="text/javascript" src="/static/ext/jquery/1.3.2/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/ext/jquery/jquery.autocomplete.js"></script>
+    <script type="text/javascript" src="/static/ext/json/json2.js"></script>
+    <script type="text/javascript" src="/static/bamboo_editutils.js"></script>
+    <script type="text/javascript" src="/static/bamboo_menu.js"></script>
+
+    <title>$title</title>
+
+    <!--! root menu -->
+    <div py:def="root_menu" class="bam_rootmenu">
+        <div style="float:left">
+            <span style="font-size:20px;font-weight:bold;color:darkblue">Bamboo</span>
+            &nbsp;
+            database: $db_name
+            &nbsp;
+            ($doccount documents)
+        </div>
+
+        <div style="float:right;padding-top:5px;padding-right:10px;">
+            <a href="/dbs/naga/new/doc/edit">New Document</a>
+            &nbsp;|&nbsp;
+            <a href="/dbs/naga/search">Search</a>
+        </div>
+
+        <div style="clear:both"></div>
+    </div>
+</html>

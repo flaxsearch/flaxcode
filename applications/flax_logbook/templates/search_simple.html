@@ -1,0 +1,39 @@
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+<head>
+<xi:include href="header_common.html" />
+</head>
+
+<body>
+${root_menu()}
+
+<div class="bam_content">
+
+    <h1>$title</h1>
+    <py:choose test="search_type">
+        <form method="GET" py:when="'simple'">
+            <input name="q" value="$q"/>
+        </form>
+        <h2 py:when="'similar'">Documents similar to $doc_id</h2>
+    </py:choose>
+
+    <div id="bam_searchinfo">$info</div>
+
+    <div py:for="hit in hits">
+        <div class="bam_hit">
+            <div>
+                ${hit.rank}.
+                <a href="${hit.view_href}">${hit.caption}</a>
+            </div>
+            <div>${hit.sample}</div>
+            <div>
+                <a href="${hit.edit_href}">edit</a> &nbsp;
+                <a href="${hit.similar_href}">similar</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
