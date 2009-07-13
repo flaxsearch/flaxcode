@@ -16,8 +16,6 @@ loader = TemplateLoader(
     auto_reload=True
 )
 
-print '-- render:', __file__
-
 def doc_edit(db_name, db, schema, doc_id, doc):
     """Render a Bamboo document for editing.
     
