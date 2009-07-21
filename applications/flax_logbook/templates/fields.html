@@ -19,7 +19,8 @@
         <py:when test="'text'">
             <textarea name="${field[0]}"
              class="bam_textarea">${field[1]}</textarea><img
-             src="/static/images/toggle_size.png" 
+             src="/static/images/toggle_size.png"
+             title="Toggle text box size" 
              style="vertical-align:top; margin-top:3px;"
              class="bam_resize_toggle"/>
         </py:when>
@@ -28,6 +29,7 @@
             <textarea name="${field[0]}"
              class="bam_textarea">${field[1]}</textarea><img
              src="/static/images/toggle_size.png" 
+             title="Toggle text box size" 
              style="vertical-align:top; margin-top:3px;"
              class="bam_resize_toggle"/>
         </py:when>
@@ -53,9 +55,12 @@
         </py:otherwise>
     </td>
     <td class="bam_ctrl"><a href="bam_field_dup"
-     class="bam_icon"><img src="/static/images/dup_icon.png"/></a><a href="bam_field_choice"
-     class="bam_icon"><img src="/static/images/add_icon.png"/></a><a href="bam_field_del" 
-     class="bam_icon"><img src="/static/images/del_icon.png"/></a></td>
+     class="bam_icon"><img src="/static/images/dup_icon.png"
+     title="Add another field of this type"/></a><a href="bam_field_choice"
+     class="bam_icon"><img src="/static/images/add_icon.png"
+     title="Add a field from a list"/></a><a href="bam_field_del" 
+     class="bam_icon"><img src="/static/images/del_icon.png"
+     title="Delete this field"/></a></td>
 </tr>
 <!--! end field editor definition -->
 
