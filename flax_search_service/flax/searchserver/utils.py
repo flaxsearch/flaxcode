@@ -25,9 +25,16 @@ __docformat__ = "restructuredtext en"
 # Global modules.
 import os
 import re
-import sha
 import unicodedata
 import urllib
+
+try:
+    import hashlib
+    sha_fn = hashlib.sha1
+except ImportError:
+    import sha
+    sha_fn = sha.sha
+
 import wsgiwapi
 
 # Import a json handling library as "json".
@@ -60,7 +67,7 @@ def dbname_to_filename(dbname):
     """Convert a database name, as supplied in the URL string, to a filename.
 
     """
-    namehash = sha.sha(dbname).hexdigest()[:20]
+    namehash = sha_fn(dbname).hexdigest()[:20]
     normname = unicodedata.normalize('NFKD', dbname).encode('ascii', 'ignore')
     normname = spaceunderdash_re.sub(' ', normname).strip()
     normname = alnumspace_re.sub('', normname)

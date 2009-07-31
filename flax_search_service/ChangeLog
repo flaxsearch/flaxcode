@@ -1,3 +1,7 @@
+Fri Jul 31 14:20:19 BST 2009  Tom Mortimer <tom@flax.co.uk>
+
+    * flax/searchserver/utils.py: Use hashlib module in preference to sha.
+
 Mon Jul 13 17:21:53 BST 2009  Tom Mortimer <tom@flax.co.uk>
 
     * flax/searchserver/backends/xappy_backend.py,
