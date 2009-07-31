@@ -11,5 +11,5 @@ schema = conn.schema('books')
 
 # add some field definitions
 schema.add_field('title', {'freetext': {'language': 'en'}, 'store': True})
-schema.add_field('first', {'freetext': {'language': 'en'}, 'store': True})
+schema.add_field('first', {'freetext': {'language': 'en'}, 'store': False})
 schema.add_field('author', {'exacttext': True, 'store': True})
