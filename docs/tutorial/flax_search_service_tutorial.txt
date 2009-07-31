@@ -1,0 +1,74 @@
+============================
+Flax Search Service Tutorial
+============================
+
+Overview
+========
+
+This document, and associated files, covers the basics of running the Flax Search Service
+and using it to index, retrieve, and search for documents using a simple schema. It is 
+applicable to all the existing client libraries (Python, PHP and Perl).
+
+
+Requirements
+============
+
+To follow this tutorial, you will need:  
+FIXME: links
+
+    1. Xapian 1.0.6 or later installed on your computer.
+    2. Python 2.5 or 2.6 (required for the search service).
+    3. Xapian Python bindings.
+    4. Flax Search Service and Search Clients.
+
+To follow the tutorial with the PHP client library, you will need the PHP 5 command-line 
+interpreter. Perl 5 is required for the Perl client.
+
+The ``curl`` command may be useful for talking directly to the Search Service from the 
+command line.
+
+
+Getting Started
+===============
+
+If necessary, install the required software. Then start the Search Service by cd'ing 
+to the ``flax_search_service`` directory and running:
+
+    ``python runserver.py``
+    
+This will start the server listening on port 8080. To use a different port (if for example
+you have an existing service on 8080), edit the ``settings.py`` file and replace "8080"
+in the ``server_bind_address`` parameter with a suitable value.
+
+By default, the search service stores data in ``/tmp``. To specify a different location,
+supply it as a parameter when starting the service, e.g.:
+
+    ``python runserver.py /usr/lib/flaxdata``
+
+If you have the ``curl`` command available, you can test Flax by opening another terminal
+window and running:
+
+    ``curl http://localhost:8080/'
+
+This will return information about the search service, formatted as JSON, e.g.:
+
+    ``{"backends": {}, "versions": {"PROTOCOL": "dev20090312", "SERVER": "0.1"}}``
+
+Don't worry about the exact meaning of these values for now!
+
+
+Indexing Documents
+==================
+
+
+Retrieving Documents
+====================
+
+
+Searching
+=========
+
+
+Further Information
+===================
+
