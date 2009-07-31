@@ -1,0 +1,34 @@
+title:  The Periodic Table
+author: Primo Levi
+first:  There are the so-called inert gases in the air we breathe.
+isbn:   0-349-12198-2
+
+title:  The Concept of Mind
+author: Gilbert Ryle
+first:  There is a doctine about the nature and place of minds which is so prevelent among theorists and even among laymen that it deserves to be described as the official theory.
+isbn:   0-14-118217-2
+
+title:  The Hotel New Hampshire
+author: John Irving
+first:  The summer my father bought the bear, none of us was born - we weren't even conceived; not Frank, the eldest; not Franny, the loudest; not me, the next; and not the youngest of us, Lilly and Egg.
+isbn:   0-345-40047-x
+
+title:  The World According to Garp
+author: John Irving
+first:  Garp's mother, Jenny Fields, was arrested in Boston in 1942 for wounding a man in a movie theatre.
+isbn:   0-552-99205-4
+
+title:  Darwin's Dangerous Idea
+author: Daniel C Dennett
+first:  We used to sing a lot when I was a child, around the campfire at summer camp, at school and Sunday school, or gathered around the piano at home.
+isbn:   978-0-140-16734-4
+
+title:  Demon
+author: John Varley
+first:  The location scout was the first into the valley.
+isbn:   0-7088-8160-2
+
+title:  The Hitch-Hiker's Guide to the Galaxy
+author: Douglas Adams
+first:  Far out in the uncharted backwaters of the unfashionable end of the Western Spiral arm of the Galaxy lies a small unregarded yellow sun.
+isbn:   0-330-25864-8

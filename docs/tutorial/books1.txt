@@ -1,0 +1,24 @@
+title:  Ham On Rye
+author: Charles Bukowski
+first:  The first thing I remember is being under something.
+isbn:   1-841-95163-3
+
+title:  Tales of the City
+author: Armistead Maupin
+first:  Mary Ann Singleton was twenty-five years old when she saw San Francisco for the first time.
+isbn:   0-552-99876-1
+
+title:  Matter
+author: Iain M. Banks
+first:  A light breeze produced a dry rattling sound from some nearby bushes.
+isbn:   978-1-84149-419-7
+
+title:  The Periodic Table
+author: Primo Levi
+first:  There are the so-called inert gases in the air we breathe.
+isbn:   0-349-12198-2
+
+title:  The Concept of Mind
+author: Gilbert Ryle
+first:  There is a doctine about the nature and place of minds which is so prevelent among theorists and even among laymen that it deserves to be described as the official theory.
+isbn:   0-14-118217-2
