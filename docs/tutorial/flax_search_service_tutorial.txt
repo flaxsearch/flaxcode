@@ -114,6 +114,9 @@ requirements, but it shows that this is possible. In addition, we will set the `
 parameter of the free text fields to be ``en``, which will apply English stemming to the
 indexing and search processes (FIXME).
 
+Note that there is no ``isbn`` field, as we will use this as the document ID (which is
+separate from the field structure).
+
 To create a database called "books" and set this schema on it, run the ``t1_create_db``
 script in your language of choice. Each step is described by comments in the script file.
 
@@ -124,11 +127,32 @@ the ``dbs`` resource on the server, e.g. using ``curl``::
     curl http://localhost:8080/v1/dbs
     ["books"]
 
-You can also check the schema by running the script ``t2_show_schema``.
+Or to get the database schema::
+
+    curl http://localhost:8080/v1/dbs/books/schema
+    {"templates": {}, "fields": {"author": {"exacttext": true, "store": true}, 
+    "first": {"store": true, "freetext": {"language": "en"}}, 
+    "title": {"store": true, "freetext": {"language": "en"}}}, 
+    "groups": {}, "language": "none"}
+
+The script ``t2_show_schema`` does a similar job using the client libraries, but separates
+out the field information from the rest of the schema and displays it more tidily.
 
 
 Indexing Documents
 ==================
+
+Documents are
+
+flush
+
+books1.txt
+
+doccount
+
+book2.txt
+
+doccount
 
 
 
