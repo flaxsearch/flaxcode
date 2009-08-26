@@ -118,12 +118,15 @@ Source: "%(this_dir)s\..\docs\img\*.png"; DestDir: "{app}\static\docs\img"; Flag
 ; NOTE: Do not use "Flags: ignoreversion" on any shared system files
 
 [Icons]
-Name: "{group}\%(name)s (Manual Start)"; Filename: "{app}\startflax.exe"; IconFilename: "{app}\install.ico"
-Name: "{group}\{cm:ProgramOnTheWeb,%(name)s}"; Filename: "http://www.flax.co.uk"
-Name: "{group}\Getting Started Guide"; Filename: "file://{app}\gettingstarted\GettingStartedOnWindows.htm"
-Name: "{group}\Reference Manual"; Filename: "file://{app}\static\docs\reference.html"
+Name: "{group}\Start %(name)s server manually"; Filename: "{app}\startflax.exe"; IconFilename: "{app}\install.ico"; Comment: "Run this to start the Flax Basic program if you didn't install it as a Windows Service"
+Name: "{group}\%(name)s Search"; Filename: "http://localhost:8090"; IconFilename: "{app}\install.ico"; Comment: "Show the Search page in a browser"
+Name: "{group}\%(name)s Admin"; Filename: "http://localhost:8090/admin"; IconFilename: "{app}\install.ico"; Comment: "Show the Admin page in a browser"
+Name: "{group}\%(name)s Website"; Filename: "http://www.flax.co.uk"; Comment: "Show the %(name)s website"
+Name: "{group}\Getting Started Guide"; Filename: "file://{app}\gettingstarted\GettingStartedOnWindows.htm"; IconFilename: "{app}\install.ico"
+Name: "{group}\Reference Manual"; Filename: "file://{app}\static\docs\reference.html"; IconFilename: "{app}\install.ico"
 Name: "{group}\{cm:UninstallProgram,%(name)s}"; Filename: "{uninstallexe}"; IconFilename: "{app}\uninstall.ico"
-Name: "{commondesktop}\%(name)s"; Filename: "{app}\startflax.exe"; Tasks: desktopicon; IconFilename: "{app}\install.ico"
+Name: "{commondesktop}\%(name)s Search"; Filename: "http://localhost:8090"; IconFilename: "{app}\install.ico"; Comment: "Show the Search page in a browser"
+Name: "{commondesktop}\%(name)s Admin"; Filename: "http://localhost:8090/admin"; IconFilename: "{app}\install.ico"; Comment: "Show the Admin page in a browser"
 
 [Registry]
 Root: HKLM; Subkey: "Software\%(publisher)s"; Flags: uninsdeletekeyifempty
@@ -170,12 +173,14 @@ LightMsgPage := CreateOutputMsgPage(wpPreparing,
     'Set Administration Password', 'Set Administration Password',
     'During installation, Setup will ask you to enter a password for the Administration pages of %(name)s.'#13#13 +
     'To view these pages you will need to use a username of ' + '"admin"' + ' and the password you choose. '#13#13 +
-    'You will be asked to confirm the password by typing it twice.');
+    'You will be asked to confirm the password by typing it twice: note that the password will not be shown as you type it.');
 
 OtherOptPage := CreateInputOptionPage(wpSelectDir,
   'Select extra options', 'Select extra installation options below:',
-  'You can install Flax as a Windows Service, which means it will run automatically in the background when you start Windows.'#13#13 + 'You can also open a Getting Started guide in your web browser. If it necessary to restart the computer at the end of installation, the Getting Started guide is also available in the Programs menu.',
-  False, False);
+  'We recommend you install Flax as a Windows Service, which means it will run automatically in the background when you start Windows. ' +
+  'If you choose not to do this you can still start the Flax program manually. '#13#13 + 'You can also open a Getting Started guide in your web ' +
+  'browser. If it is necessary to restart the computer at the end of installation, the Getting Started guide is also available from the ' +
+  'Programs menu.', False, False);
 OtherOptPage.Add('Install Flax as a Windows Service');
 OtherOptPage.Add('Open the Getting Started guide in your web browser');
 OtherOptPage.Values[0] := True;
