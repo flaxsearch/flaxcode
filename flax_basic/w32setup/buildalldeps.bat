@@ -1,34 +1,15 @@
 rem Build all Flax dependencies, then Flax itself
 rem .
 rem first make sure the Visual C++ environment is set up correctly 
+
+
 call setupvc.bat
+if (%1) == (nobindings) goto cont3
 cd ..\libs\xappy\libs
-rem python get_xapian.py
-if errorlevel 0 goto cont1
-echo ERROR: could not get the latest Xapian
-cd ..\..\..\
-goto end
-
-:cont1
-cd xapian-core/win32
-cd makedepend
-nmake -f makedepend.mak
-copy makedepend.exe ..
-cd ..
-rem nmake check
-nmake
-if errorlevel 0 goto cont2
-echo ERROR: could not build Xapian
-cd ..\..\..\..\..\
-goto end
-
-:cont2
-cd ..\..\xapian-bindings\python
-rem nmake check
-nmake
+call build_xapian_win32.bat 25
 if errorlevel 0 goto cont21
-echo ERROR: could not build Xapian Bindings
-cd ..\..\..\..\..\
+echo ERROR: could not build Xapian python bindings
+cd ..\..\..\
 goto end
 
 :cont21
@@ -43,20 +24,40 @@ cd ..\..\..\..\..\..\..
 rem These are necessary to force Distutils to use Visual C++ Express Edition and the Platform SDK
 set DISTUTILS_USE_SDK=1
 set MSSDK=1
-python utils/install_dependencies.py
+python ../utils/install_dependencies.py
+if errorlevel 0 goto cont31
+echo ERROR: could install Flax dependencies
+goto end
+
+:cont31
 rem Must wedge a manifest into processing and htmltotext, otherwise they won't load the VC library correctly
-cd localinst/processing
+cd ../localinst/processing
 mt.exe -outputresource:_processing.pyd;#2 -manifest _processing.pyd.manifest
 cd ..
 rem TODO check whether this one is needed!
-rem mt.exe -outputresource:htmltotext.pyd;#2 -manifest htmltotext.pyd.manifest
+mt.exe -outputresource:htmltotext.pyd;#2 -manifest htmltotext.pyd.manifest
 cd ..
 if errorlevel 0 goto cont4
 echo ERROR: could not build Flax dependencies
 goto end
 
 :cont4
-cd w32setup
+rem install Xappy so our setup_svc.py will pick it up later
+cd libs\xappy
+python setup.py install
+if errorlevel 0 goto cont41
+echo ERROR: could not install xappy
+goto end
+:cont41
+rem install htmltotext so our setup_svc.py will pick it up later
+cd ..\..\libs\htmltotext
+python setup.py install
+if errorlevel 0 goto cont42
+echo ERROR: could not install htmltotext
+goto end
+:cont42
+rem build Flax itself
+cd ..\..\w32setup
 call buildflaxonly.bat
 if errorlevel 0 goto cont5
 echo ERROR: could not build Flax 
