@@ -395,9 +395,9 @@ setup(
     # We take our dependencies from the localinst folder. The rest is picked up from the main Python folder
     options=opts,
     package_dir = {'': '../localinst'},
-    packages = ['cherrypy', 'cherrypy.lib', 'cherrypy.wsgiserver', 'processing', 'xappy'
+    packages = ['cherrypy', 'cherrypy.lib', 'cherrypy.wsgiserver', 'processing'
                 ],
-    py_modules = ['HTMLTemplate'],
+    py_modules = ['HTMLTemplate', 'xappy'],
     
     # Other files we need
     data_files=[

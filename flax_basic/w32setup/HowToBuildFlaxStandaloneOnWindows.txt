@@ -1,10 +1,17 @@
+---------------------------------------------
+How to build Flax Basic standalone on Windows
+---------------------------------------------
+Charlie Hull, Lemur Consulting Ltd
+25/8/09
+
 -- Creating the build environment --
 
 1. Make a folder for Flax, say c:\Flax
 2. Check out the Flax sources to this folder 
 3. Install Python 2.5.1 (to the default folder, C:\Python25) and add this folder to your Path (Control Panel, System, Advanced, Environment  Variables) [NOT Python 2.5, we have found at least one situation where this matters]
 4. Install a recent Perl (say 5.8.8 from Active State at http://www.activestate.com/Products/activeperl/) - make a note of the Path to this for config.mak later.
-5.a. Install Visual C++ 2003 Express Edition from http://npg.dl.ac.uk/MIDAS/download/midassort/midassort_Windows.html
+5.a. Install Visual C++ 2005 Express Edition from
+http://msdn.microsoft.com/en-us/vstudio/cc952313.aspx
 5.b. Install the Microsoft Platform SDK for Windows 2003 Server R2 from http://www.microsoft.com/downloads/details.aspx?familyid=0baf2b35-c656-4969-ace8-e4c0c0716adb&displaylang=en
 5.c. Install the .NET SDK 1.1 from http://www.microsoft.com/downloads/details.aspx?FamilyID=9b3a2ca6-3647-4070-9f41-a333c6b9181d
 5.d. Run the file 'vc2003.reg' in this folder - this creates some missing registry entries
@@ -33,12 +40,14 @@ c. Download msvcp71.dll from http://www.dll-files.com/dllindex/dll-files.shtml?m
 -- Building Xapian & Flax --
 
 11. To build Xapian and the other Flax dependencies:
-a. cd to ..\libs\xappy\libs and run 'python get_xapian.py' to obtain the correct version of Xapian.
+
+[[ a. cd to ..\libs\xappy\libs and run 'python get_xapian.py' to obtain the correct version of Xapian.
 b. modify xapian-core\win32\config.mak to match your system (Python path, Perl path, Zlib path)
 c. modify xapian-core\win32\win32_bindings_python.mak to comment out lines 70-77 (the block that starts with 'modern/xapian_wrap.cc...'
 TEMP: change the first line of win32msvc\version.rc.python to
-#include "winresrc.h"
-d. run the batch file 'buildalldeps' 
+#include "winresrc.h" ]]
+
+d. run the batch file 'buildalldeps' (if you already have the Xapian bindings built, use the 'nobindings' command line option to skip rebuilding them)
      
 12. To build Flax only, run the batch file 'buildflaxonly'
 13. The packaged, standalone Flax should be in the package/ subfolder
