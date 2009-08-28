@@ -5,9 +5,10 @@ Flax Search Service Tutorial
 Overview
 ========
 
-This document, and associated files, covers the basics of running the Flax Search Service
-and using it to index, retrieve, and search for documents using a simple schema. It is 
-applicable to all the existing client libraries (Python, PHP and Perl).
+This document, and associated files, covers the basics of running the Flax 
+Search Service and using it to index, retrieve, and search for documents using 
+a simple schema. It is applicable to all the existing client libraries (Python,
+PHP and Perl).
 
 
 Requirements
@@ -21,32 +22,33 @@ FIXME: links
     3. Xapian Python bindings.
     4. Flax Search Service and Search Clients.
 
-To follow the tutorial with the PHP client library, you will need the PHP 5 command-line 
-interpreter. Perl 5 is required for the Perl client.
+To follow the tutorial with the PHP client library, you will need the PHP 5 
+command-line interpreter. Perl 5 is required for the Perl client.
 
-The ``curl`` command may be useful for talking directly to the Search Service from the 
-command line.
+The ``curl`` command may be useful for talking directly to the Search Service 
+from the command line.
 
 
 Getting Started
 ===============
 
-If necessary, install the required software. Then start the Search Service by cd'ing 
-to the ``flax_search_service`` directory and running::
+If necessary, install the required software. Then start the Search Service by 
+cd'ing to the ``flax_search_service`` directory and running::
 
     python runserver.py
     
-This will start the server listening on port 8080. To use a different port (if for example
-you have an existing service on 8080), edit the ``settings.py`` file and replace "8080"
-in the ``server_bind_address`` parameter with a suitable value.
+This will start the server listening on port 8080. To use a different port (if 
+for example you have an existing service on 8080), edit the ``settings.py`` 
+file and replace "8080"in the ``server_bind_address`` parameter with a suitable 
+value.
 
-By default, the search service stores data in ``/tmp``. To specify a different location,
-supply it as a parameter when starting the service, e.g.::
+By default, the search service stores data in ``/tmp``. To specify a different 
+location, supply it as a parameter when starting the service, e.g.::
 
     python runserver.py /usr/lib/flaxdata
 
-If you have the ``curl`` command available, you can test Flax by opening another terminal
-window and running::
+If you have the ``curl`` command available, you can test Flax by opening another
+terminal window and running::
 
     curl http://localhost:8080/
 
@@ -60,42 +62,47 @@ Don't worry about the exact meaning of these values for now!
 Loading the client libraries
 ============================
 
-In order to run the examples for Python, Perl or PHP, the relevant interpreter needs to be
-able to locate the client libraries for loading. These are located in subdirectories
-of ``flax_search_clients``. The simplest method may be to create symbolic links from the
-appropriate client directory into the tutorial directory, e.g. for Python::
+In order to run the examples for Python, Perl or PHP, the relevant interpreter 
+needs to be able to locate the client libraries for loading. These are located 
+in subdirectories of ``flax_search_clients``. The simplest method may be to 
+create symbolic links from the appropriate client directory into the tutorial \
+directory, e.g. for Python::
 
     cd docs/tutorial/python
     ln -s ../../../flax_search_clients/python/flax .
 
-Alternatively, add the location of the client library to ``PYTHONPATH`` (for Python), 
-``@INC`` (for Perl), or your PHP configuration file.
+Alternatively, add the location of the client library to ``PYTHONPATH`` (for 
+Python), ``@INC`` (for Perl), or your PHP configuration file.
 
 
 Creating a Database
 ===================
 
-The search server can support multiple databases, each of which is identified by a name.
-Currently, the name must only consist of ASCII letters and numbers, plus the characters "."
-and/or "_" (we plan to lift this restriction in a future release).
+The search server can support multiple databases, each of which is identified by
+a name. Currently, the name must only consist of ASCII letters and numbers, plus
+the characters "." and/or "_" (we plan to lift this restriction in a future 
+release).
 
-To create a database, an HTTP POST request is made to the database resource URL on the
-search server. This will usually be done via the client libraries, and in this tutorial
-is handled in the next setp.
+To create a database, an HTTP POST request is made to the database resource URL
+on the search server. This will usually be done via the client libraries, and in
+this tutorial is handled in the next setp.
 
 
 Setting up a Schema
 ===================
 
-In Flax, documents consist of a simple flat set of named fields, where each field has one
-or more string values. Fields may be indexed for full-text searching or act as Boolean filters,
-and may be stored in the database or not (indexed fields do not need to be stored in order
-to be used for searching). Other options, e.g. for spelling correction or stemming (FIXME)
-can also be set on a field-by-field basis. The set of named fields and associated parameters
-is called a *schema*, and must be configured before documents are added to the database.
+In Flax, documents consist of a simple flat set of named fields, where each 
+field has one or more string values. Fields may be indexed for full-text 
+searching or act as Boolean filters, and may be stored in the database or not 
+(indexed fields do not need to be stored in order to be used for searching). 
+Other options, e.g. for spelling correction or stemming (FIXME) can also be set
+on a field-by-field basis. The set of named fields and associated parameters is
+called a *schema*, and must be configured before documents are added to the
+database.
 
-The example data in this tutorial consists of a short set of book descriptions, stored in the
-files `books1.txt` and `books2.txt`. Each record has the following fields:
+The example data in this tutorial consists of a short set of book descriptions,
+stored in the files `books1.txt` and `books2.txt`. Each record has the following
+fields:
 
     * ``title``:    The title of the book.
     * ``author``:   The author of the book.
@@ -109,20 +116,21 @@ We will handle these fields as follow:
     * ``first``:    Index as free text, and *don't* store.
     * ``isbn``:     Use as document ID.
 
-It is slightly artificial not to store the ``first`` field, since it has such low storage
-requirements, but it shows that this is possible. In addition, we will set the ``language``
-parameter of the free text fields to be ``en``, which will apply English stemming to the
-indexing and search processes (FIXME).
+It is slightly artificial not to store the ``first`` field, since it has such 
+low storage requirements, but it shows that this is possible. In addition, we
+will set the ``language`` parameter of the free text fields to be ``en``, which
+will apply English stemming to the indexing and search processes (FIXME).
 
-Note that there is no ``isbn`` field, as we will use this as the document ID (which is
-separate from the field structure).
+Note that there is no ``isbn`` field, as we will use this as the document ID 
+(which is separate from the field structure).
 
-To create a database called "books" and set this schema on it, run the ``t1_create_db``
-script in your language of choice. Each step is described by comments in the script file.
+To create a database called "books" and set this schema on it, run the 
+``t1_create_db`` script in your language of choice. Each step is described by 
+comments in the script file.
 
-Assuming this runs without error, you will now have a database called "books" with a
-suitable schema for indexing the book data. You can get a list of databases by GETing
-the ``dbs`` resource on the server, e.g. using ``curl``::
+Assuming this runs without error, you will now have a database called "books" 
+with a suitable schema for indexing the book data. You can get a list of 
+databases by GETing the ``dbs`` resource on the server, e.g. using ``curl``::
 
     curl http://localhost:8080/v1/dbs
     ["books"]
@@ -135,20 +143,22 @@ Or to get the database schema::
     "title": {"store": true, "freetext": {"language": "en"}}}, 
     "groups": {}, "language": "none"}
 
-The script ``t2_show_schema`` does a similar job using the client libraries, but separates
-out the field information from the rest of the schema and displays it more tidily.
+The script ``t2_show_schema`` does a similar job using the client libraries, 
+but separates out the field information from the rest of the schema and displays
+it more tidily.
 
 
 Indexing Documents
 ==================
 
-Documents are added to a database by POSTing them to the /docs/ resource of the search
-server. They are represented as JSON objects, where keys are fieldnames and values are
-strings (or lists of strings, for multiple field values). In the client libraries, this
-is represented by the ``add_document`` method of the database object.
+Documents are added to a database by POSTing them to the /docs/ resource of the
+search server. They are represented as JSON objects, where keys are fieldnames
+and values are strings (or lists of strings, for multiple field values). In the
+client libraries, this is represented by the ``add_document`` method of the 
+database object.
 
-For reasons of efficiency, Flax does not make added documents immediately available for
-searching. 
+For reasons of efficiency, Flax does not make added documents immediately 
+available for searching. 
 
 flush
 
