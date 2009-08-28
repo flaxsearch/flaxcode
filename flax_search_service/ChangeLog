@@ -1,3 +1,10 @@
+Fri 28 Aug 2009 14:45:17 BST  Tom Mortimer <tom@flax.co.uk>
+
+    * tutorial/flax_search_service_tutorial.txt,
+    * tutorial/python/t6_search.py,
+    * tutorial/python/t7_search_author.py: Added search bit to tutorial and
+      made the scripts report "no results" in a more helpful way.
+
 Fri 28 Aug 2009 11:25:43 BST  Tom Mortimer <tom@flax.co.uk>
 
     * completed Indexing Documents section of tutorial.

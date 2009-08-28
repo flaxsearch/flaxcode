@@ -64,12 +64,12 @@ Loading the client libraries
 
 In order to run the examples for Python, Perl or PHP, the relevant interpreter 
 needs to be able to locate the client libraries for loading. These are located 
-in subdirectories of ``flax_search_clients``. The simplest method may be to 
-create symbolic links from the appropriate client directory into the tutorial \
-directory, e.g. for Python::
+in subdirectories of ``clients``. The simplest method may be to create symbolic
+links from the appropriate client directory into the tutorial directory, 
+e.g. for Python::
 
-    cd docs/tutorial/python
-    ln -s ../../../flax_search_clients/python/flax .
+    $ cd docs/tutorial/python
+    $ ln -s ../../../clients/python/flax .
 
 Alternatively, add the location of the client library to ``PYTHONPATH`` (for 
 Python), ``@INC`` (for Perl), or your PHP configuration file.
@@ -132,12 +132,14 @@ Assuming this runs without error, you will now have a database called "books"
 with a suitable schema for indexing the book data. You can get a list of 
 databases by GETing the ``dbs`` resource on the server, e.g. using ``curl``::
 
-    curl http://localhost:8080/v1/dbs
+    $ curl http://localhost:8080/v1/dbs
+    
     ["books"]
 
 Or to get the database schema::
 
-    curl http://localhost:8080/v1/dbs/books/schema
+    $ curl http://localhost:8080/v1/dbs/books/schema
+    
     {"templates": {}, "fields": {"author": {"exacttext": true, "store": true}, 
     "first": {"store": true, "freetext": {"language": "en"}}, 
     "title": {"store": true, "freetext": {"language": "en"}}}, 
@@ -151,11 +153,11 @@ it more tidily.
 Indexing Documents
 ==================
 
-Documents are added to a database by POSTing them to the docs/ resource on the
-search server. They are represented as JSON objects, where keys are fieldnames
-and values are strings (or lists of strings, for multiple field values). In the
-client libraries, this is represented by the ``add_document`` method of the 
-database object.
+Documents are added to a database by POSTing them to the ``docs`` resource on
+the search server. They are represented as JSON objects, where keys are 
+fieldnames and values are strings (or lists of strings, for multiple field 
+values). In the client libraries, this is represented by the ``add_document``
+method of the database object.
 
 For reasons of efficiency, Flax does not make added documents immediately 
 available for searching. Instead, it batches them in memory. The database may
@@ -167,7 +169,7 @@ client libraries, the flush() method of database objects has the same effect.
 To add the first batch of 5 books to the database, run the ``t3_index_books``
 script, on the ``books1.txt`` file, e.g.:
 
-    python t3_index_books.py ../books1.txt
+    $ python t3_index_books.py ../books1.txt
     
 This script reads each book object from the text file and creates a Flax
 document from it (the exact API depends on the scripting language; in Python,
@@ -191,11 +193,70 @@ a total document count of 10.
 Retrieving Documents
 ====================
 
+Each document in a database is represented on the Flax server by a resource
+with the path: ``docs/<doc_id>``. Like database names, document IDs can only 
+consist of letters, numbers, "." and "_". The client libraries work around this
+by URL-encoding document IDs, which can thus consist of an arbitrary string.
+
+If you have ``curl``, you can access a document with it, e.g.:
+
+    $ curl http://localhost:8080/v1/dbs/books/docs/0%2D330%2D25864%2D8
+
+Which will return the stored information for The Hitch-Hiker's Guide to the
+Galaxy. The trailing path component is the URL-encoded version of 0-330-25864-8.
+Also notice how the ``first`` field is not returned, as the database schema 
+specifies that it is not stored.
+
+In the client libraries, documents can be retrieved using the ``get_document``
+method of database objects, as in the ``t5_get_doc`` script, e.g.:
+
+    $ python t5_get_doc.py 978-1-84149-419-7
+    
+    {u'author': [u'Iain M. Banks'], u'title': [u'Matter']}
+
 
 Searching
 =========
 
+Searching is accessed on the server through the ``search`` resource, which has
+``simple``, ``structured`` and ``similar`` variants. To search, the client 
+sends a GET request with a query string containing the search words and other
+necessary parameters. Try this with ``curl`` if you have it:
+
+    $ curl http://localhost:8080/v1/dbs/books/search/simple?query=bear
+
+which will return a JSON object containing information about the documents
+matching the query. 
+
+The client libraries provide search functionality via methods on database 
+objects, which return match result objects. The ``t6_search`` script 
+demonstrates this by running a search on the server and printing selected 
+information about the documents found. For example:
+
+    $ python t6_search.py first
+
+    1 to 3 of 3 results:
+    (1) Demon
+    (2) Ham On Rye
+    (3) Tales of the City
+
+An example of a structured search is shown in the script ``t7_search_author``,
+which searches in the author field. Since author was indexed as a Boolean
+filter, we must supply the value exactly as it appears in the document. e.g.:
+
+    $ python t7_search_author.py John
+
+    no results
+
+    $ python t7_search_author.py "John Irving"
+
+    1 to 2 of 2 results:
+    (1) The Hotel New Hampshire
+    (2) The World According to Garp
+
 
 Further Information
 ===================
+info@flax.co.uk
 
+FIXME
