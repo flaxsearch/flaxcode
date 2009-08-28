@@ -60,6 +60,10 @@
 	       name="format" value="doc"></input>
 	<label for="format_doc">Word</label>
       </div>
+      <div  class="save_selections" style="text-align:right" >
+        <input node="con:save" type="checkbox" id="save" name="save" value="save"/>
+        <label for="save">Save Selections</label>
+      </div>
     </div>
   </form>
   
@@ -83,7 +87,10 @@
     <!-- the contents of this div will be replaced by the results of
          the search -->
     <div node="rep:results" class="search_hit">
-      <a node="con:res_link" class="search_hit_link"></a>
+      <a node="con:res_link" class="search_hit_link">
+        <span node="con:res_link_display"></span>
+        <img node="con:res_preview" class="search_link_preview" src=""/>
+      </a>
       <div node="con:res_content" class="search_hit_content"></div>
       <div class="search_hit_meta">
 	Size: <span node="con:res_size" class="search_hit_meta_item"></span>

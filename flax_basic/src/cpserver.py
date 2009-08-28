@@ -34,6 +34,7 @@ if _is_windows:
     import win32api
     import string
 
+import image_preview
 
 class FlaxResource(object):
     "Abstract class supporting common error handling across all Flax web pages"
@@ -255,6 +256,7 @@ class SearchForm(object):
     the results.
 
     """
+
     def __init__(self, flax_data, search_template, advanced_template):
         """Constructor.
 
@@ -268,8 +270,36 @@ class SearchForm(object):
         self._template = search_template
         self._advanced_template = advanced_template
 
+    # cookie handling
+    # cols and formats are both lists of strings
+    def parse_string_rep(self, str):
+        return str.split(',')
+
+    def make_string_rep(self, l):
+        return ','.join(l)
+
+    def read_string_list_from_cookie(self, key, universe):
+        cookie = cherrypy.request.cookie
+        try:
+            vals =  self.parse_string_rep(cookie[key].value)
+            return [val for val in vals if val in universe]
+        except KeyError:
+            return []
+    
+    def save_options_to_cookie(self, cols, formats):
+        """ Write the options to the response cookie. """
+        cookie = cherrypy.response.cookie
+        cookie['formats'] = self.make_string_rep(formats)
+        cookie['cols'] = self.make_string_rep(cols)
+        
+    def read_cols_from_cookie(self, all_collections):
+        return self.read_string_list_from_cookie('cols', all_collections)
+
+    def read_formats_from_cookie(self, all_formats):
+        return self.read_string_list_from_cookie('formats', all_formats)
+
     def search(self, query=None, col=None, col_id=None, doc_id=None, advanced=False, format=None,
-               exact=None, exclusions=None, tophit=0, maxhits=10):
+               exact=None, exclusions=None, tophit=0, maxhits=10, save=None):
         """Search document collections.
 
         :Parameters:
@@ -291,18 +321,30 @@ class SearchForm(object):
         """
         assert not (query and doc_id)
         template = self._advanced_template if advanced else self._template
+
+        if col:
+            cols = util.listify(col)
+        else:
+            cols = self.read_cols_from_cookie(self._flax_data.collections)
+
+        if format:
+            formats = util.listify(format)
+        else:
+            formats = self.read_formats_from_cookie(self._flax_data.formats)
+            
+        if save:
+            self.save_options_to_cookie(cols, formats)
+
         tophit = int (tophit)
         maxhits = int (maxhits)
         if (query or exact or exclusions or format) or (col_id and doc_id):
-            cols = util.listify(col) if col else None
-            formats = util.listify(format)
             if 'html' in formats:
                 formats.append('htm')
             results = self._flax_data.collections.search(query, col_id=col_id, doc_id=doc_id, cols=cols, format=format,
                                                exact=exact, exclusions=exclusions, tophit=tophit, maxhits=maxhits)
-            return template(self._flax_data.collections, results, cols, self._flax_data.formats)
+            return template(self._flax_data.collections, results, cols, self._flax_data.formats, formats)
         else:
-            return template(self._flax_data.collections, None, None, self._flax_data.formats )
+            return template(self._flax_data.collections, None, cols, self._flax_data.formats, formats)
 
 class Top(FlaxResource):
     """
@@ -372,6 +414,10 @@ class Top(FlaxResource):
 
         # We can't find either the collection or the file named by file_id
         raise cherrypy.NotFound()
+
+    @cherrypy.expose
+    def make_preview(self, filename, *unused):
+        return image_preview.make_preview(filename)
 
     @cherrypy.expose
     def about(self):

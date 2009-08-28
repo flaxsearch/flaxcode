@@ -252,6 +252,10 @@ div.info_wide {
     color: darkred; 
 }
 
+.search_hit_link img {height: 0; width: 0; border-width:0;}
+
+.search_hit_link:hover img {position:absolute; top: 190px; left 55px; height: 400px; width: 300px}
+
 .search_sim_link { 
     text-decoration: none; color: darkblue; 
 }
@@ -315,3 +319,4 @@ div.info_wide {
   color: red;
   font-weight: bold;
 }
+

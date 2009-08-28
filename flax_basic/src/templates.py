@@ -181,11 +181,13 @@ def render_options(template, flax_data):
 
 ##### Search Templates #####
 
-def render_search(template, isAdmin, renderer, advanced, collections, results=None, selcols=None, formats=[]):    
+def render_search(template, isAdmin, renderer, advanced, collections, results=None, selcols=None, formats=[], selformats=[]):
     if not advanced:
         template.main.search_form.advanced_holder.omit()
+    else:
+        render_formats(template.main.search_form.advanced_holder, selformats)
     cols = list(collections.itervalues())
-    template.main.search_form.collections.repeat(render_search_collection, cols, len(cols))
+    template.main.search_form.collections.repeat(render_search_collection, cols, len(cols), selcols)
     if results and cols:
         render_search_result(template.main, results, collections, selcols, formats)
         template.main.descriptions.omit()
@@ -356,6 +358,13 @@ def render_collection_detail(template, collection, formats, languages):
 def render_searched_collection(node, col):
     node.content = col
 
+def render_formats(node, formats):
+    if formats:
+        for format in util.listify(formats):
+            if format !='htm':
+                getattr(node, format).atts['checked'] = 'on'       
+    
+
 def render_search_result (node, results, collections, selcols, formats):
     # collections is the list of available collections
     # selcols is a list of selected collections
@@ -376,10 +385,8 @@ def render_search_result (node, results, collections, selcols, formats):
         if results.exclusions:
             node.search_form.advanced_holder.exclusions.atts['value'] = results.exclusions
 
-        if results.formats:
-            for format in util.listify(results.formats):
-                if format !='htm':
-                    getattr(node.search_form.advanced_holder, format).atts['checked'] = 'on'       
+        render_formats(node.search_form.advanced_holder, results.formats)
+
     else:
         node.search_form.omit()
         q_or_ids = "?doc_id=%s&col_id=%s" % (
@@ -407,11 +414,12 @@ def render_search_result (node, results, collections, selcols, formats):
             collection = res.data['collection'][0]
             url = collections[collection].url_for_doc(filename)
             if 'title' in res.data:
-                title = res.data['title'][0].encode('utf-8')
+                title = (res.data['title'][0] + " -  " + filename).encode('utf-8')
             else:
                 title = filename
             node.res_link.atts['href'] = url
-            node.res_link.content = '%d. %s' % (res.rank + 1, title)
+            node.res_link.res_link_display.content = '%d. %s' % (res.rank + 1, title)
+            node.res_link.res_preview.atts['src']="/make_preview?filename=%s" % filename
             node.sim_link.atts['href'] = './search?doc_id=%s&col_id=%s' % (filename, collection)
 
         if 'content' in res.data:
@@ -509,7 +517,7 @@ class Renderer(object):
             nav_id = 'similar'
         return self._tman.create_admin_template("search.html", render_search, nav_id=nav_id).render(True, self, False, *args)
 
-    def user_search_render(self, *args):
+    def user_search_render(self, *args, **kwargs):
         "Render the user search page."
         # HACK to highlight Search link when similarity searching
         nav_id = 'search'

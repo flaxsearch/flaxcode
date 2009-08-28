@@ -21,6 +21,7 @@ __docformat__ = "restructuredtext en"
 import logging
 import threading
 import types
+import time
 
 import doc_collection
 import flax
@@ -271,7 +272,7 @@ class CollectionList(object):
         doc_id.
 
         """
-        if cols is None:
+        if not cols:
             cols = self._collections.keys()
         dbnames_to_search = [self._collections[col].name for col in cols]
         if doc_id and col_id:
