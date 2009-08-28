@@ -56,6 +56,6 @@ Further documentation
 ---------------------
 The FSS API is documented in the file docs/API.rst.
 
-Client documentation and examples are included in the flax_search_clients packages.
+Client documentation and examples are included in the clients/ directory.
 
 

@@ -1,3 +1,7 @@
+Fri 28 Aug 2009 09:54:50 BST  Tom Mortimer <tom@flax.co.uk>
+
+    * moved tutorial to flax_search_server/docs
+
 Fri 28 Aug 2009 09:43:50 BST  Tom Mortimer <tom@flax.co.uk>
 
     * moved client libraries under flax_search_server as they are
