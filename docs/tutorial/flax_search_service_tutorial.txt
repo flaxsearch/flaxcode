@@ -142,7 +142,13 @@ out the field information from the rest of the schema and displays it more tidil
 Indexing Documents
 ==================
 
-Documents are
+Documents are added to a database by POSTing them to the /docs/ resource of the search
+server. They are represented as JSON objects, where keys are fieldnames and values are
+strings (or lists of strings, for multiple field values). In the client libraries, this
+is represented by the ``add_document`` method of the database object.
+
+For reasons of efficiency, Flax does not make added documents immediately available for
+searching. 
 
 flush
 
