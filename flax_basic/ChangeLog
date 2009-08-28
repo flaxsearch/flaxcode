@@ -1,3 +1,12 @@
+Fri Aug 28 14:29:00 GMT 2009  Charlie Hull <charlie@flax.co.uk>
+
+    * filespec.py, flax.py, setup_svc.py: allow multiple file extensions for each file type,
+      to cope with Office 97 files, and warn about this during installation
+    * w32setup/setup_svc.py, gettingstarted guide: add direct links from Program 
+      Files menu and Desktop to the Search and Admin pages, and improve help
+    * w32setup/buildalldeps.bat, w32setup/HowToBuildFlaxStandaloneOnWindows.txt: 
+      update build process now Xappy has a Win32 build file
+
 Sun Jul 27 07:46:34 GMT 2008  Richard Boulton <richard@lemurconsulting.com>
 
 	* LICENSE: Improve formatting a bit.

@@ -34,8 +34,16 @@ class FlaxOptions(object):
 
     """
 
-    # The formats which we support.
+    # The formats which we support and the extensions of variants
     formats = sorted(["txt", "doc", "rtf", "html", "htm", "pdf", "xls", "ppt",])
+    fileexts = {'txt' : ["txt"],
+               'doc'  : ["doc","dot","docx","docm"],
+               'rtf'  : ["rtf"],
+               'xls'  : ["xls","xlt","xlsb","xlsm","xlss"],
+               'ppt'  : ["ppt","pos","pps","pptm","ppts"],
+               'html' : ["htm","html","shtml","shtm"],
+               'pdf'  : ["pdf"]
+               }
 
     # A list of the logger names in use.
     # FIXME - this should probably be kept in the logclient module, and

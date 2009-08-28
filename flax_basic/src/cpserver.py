@@ -34,7 +34,7 @@ if _is_windows:
     import win32api
     import string
 
-import image_preview
+#import image_preview
 
 class FlaxResource(object):
     "Abstract class supporting common error handling across all Flax web pages"
@@ -417,7 +417,8 @@ class Top(FlaxResource):
 
     @cherrypy.expose
     def make_preview(self, filename, *unused):
-        return image_preview.make_preview(filename)
+#        return image_preview.make_preview(filename)
+        return None
 
     @cherrypy.expose
     def about(self):

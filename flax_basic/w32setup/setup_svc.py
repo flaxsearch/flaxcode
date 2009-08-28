@@ -289,6 +289,9 @@ begin
         ShellExec('open',ExpandConstant('{app}\gettingstarted\GettingStartedOnWindows.htm'),'', '', SW_HIDE, ewNoWait, ResultCode);
         end;
     { Check IFilters }
+    if not RegKeyExists(HKLM, 'SOFTWARE\Classes\.docx\PersistentHandler') then
+    {There is no IFilter registered for Office 2007 files}
+      MsgBox('There is no IFilter registered for MsOffice 2007 files; this will mean you cannot build indexes of these files. You can download the free IFilter from the Microsoft website - see the FAQ for details.', mbInformation, MB_OK);
     if not RegKeyExists(HKLM, 'SOFTWARE\Classes\.htm\PersistentHandler') then
       {There is no IFilter registered for HTML files; this usually occurs on Windows 2000 Server}
       begin

@@ -25,14 +25,16 @@ import fnmatch
 import logging
 
 import util
+import flax
 
 class FileSpec(object):
     """Filespec: define a set of files and then do things with them.
 
     Paths - a set of absolute paths. If a path is a directory then in
     stands for all the files (recursively) contained within it.
-
-    formats - filetypes to be included.
+    
+    formats - file formats to be included. This will generate:
+        fileextensions - file extensions to be included.
 
     oldest:timedelta - a duration, when an operation is performed
     anything modified more than this amount of time ago is excluded.
@@ -46,8 +48,14 @@ class FileSpec(object):
             paths = []
         self.paths = [paths] if isinstance(paths, str) else paths
         self.oldest = oldest
-        self.formats = util.listify(formats) if formats else []
-
+        # each file format can have several extensions, make sure we have them all
+        self.fileextensions = []
+        self.formats = util.listify(formats);
+        for f,v in flax.options.fileexts.iteritems():
+            if f in self.formats:
+                self.fileextensions.extend(v);
+            
+        
     def files(self):
         """Returns an iterator over the files defined by this FileSpec."""
 
@@ -85,7 +93,6 @@ class FileSpec(object):
             else:
                 logger_indexing.error("File path %s is neither a directory or a file" % p )
 
-
     def _get_oldest(self):
         return self._oldest
 
@@ -110,7 +117,7 @@ class FileSpec(object):
         """ is the file name by fname included in this spec? """
 
         # is this file one of the permitted formats?
-        if not any ((fnmatch.fnmatch(fname, '*.'+e) for e in self.formats)):
+        if not any ((fnmatch.fnmatch(fname, '*.'+e) for e in self.fileextensions)):
             logger_indexing.debug("File %s is not included in format list" % fname)
             return False
 
