@@ -151,26 +151,41 @@ it more tidily.
 Indexing Documents
 ==================
 
-Documents are added to a database by POSTing them to the /docs/ resource of the
+Documents are added to a database by POSTing them to the docs/ resource on the
 search server. They are represented as JSON objects, where keys are fieldnames
 and values are strings (or lists of strings, for multiple field values). In the
 client libraries, this is represented by the ``add_document`` method of the 
 database object.
 
 For reasons of efficiency, Flax does not make added documents immediately 
-available for searching. 
+available for searching. Instead, it batches them in memory. The database may
+be flushed at any time to write these changes to disk and make them available
+to searches. Flax search server exposes this functionality through the flush/
+resource, which responds to a POST request by flushing the database. In the
+client libraries, the flush() method of database objects has the same effect.
 
-flush
+To add the first batch of 5 books to the database, run the ``t3_index_books``
+script, on the ``books1.txt`` file, e.g.:
 
-books1.txt
+    python t3_index_books.py ../books1.txt
+    
+This script reads each book object from the text file and creates a Flax
+document from it (the exact API depends on the scripting language; in Python,
+a Flax document is just a Python dict keyed by fieldname). Notice how the
+ISBN code is used as the document ID. After adding the books, the script
+flushes the database.
 
-doccount
+To check that the books have been added, run the ``t4_show_db_info`` script.
+This will display, amongst other things, a ``doccount`` field with a value
+of 5. This is the number of documents in the database.
 
-book2.txt
-
-doccount
-
-
+Now add the second batch of books, ``books2.txt`` using ``t3_index_books``.
+If you compare the two books files, you will see that there are two books in
+common, The Periodic Table by Primo Levi and The Concept of Mind by Gilbert
+Ryle. These have the same ISBN number. As we are using this for the document
+ID, the data in ``books2.txt`` should replace the documents previously added.
+Check this by running ``t4_show_db_info`` again, which will correctly give
+a total document count of 10.
 
 
 Retrieving Documents

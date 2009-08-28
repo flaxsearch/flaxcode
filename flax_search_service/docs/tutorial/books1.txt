@@ -15,10 +15,10 @@ isbn:   978-1-84149-419-7
 
 title:  The Periodic Table
 author: Primo Levi
-first:  There are the so-called inert gases in the air we breathe.
+first:  I'll add this later.
 isbn:   0-349-12198-2
 
 title:  The Concept of Mind
 author: Gilbert Ryle
-first:  There is a doctine about the nature and place of minds which is so prevelent among theorists and even among laymen that it deserves to be described as the official theory.
+first:  I'll add this later.
 isbn:   0-14-118217-2
