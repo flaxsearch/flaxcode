@@ -255,9 +255,9 @@ change the implementation of the class cpLogger_.)
 Persistence
 ===========
 
-The main process save some of its state to a file on exiting, and
+The main process saves some of its state to a file on exiting, and
 every so often (to protect against abnormal termination). This is done
-simple by using the standard shelve module to pickle to a file. There
+simply by using the standard shelve module to pickle to a file. There
 is a separate thread for the periodic saving - code that changes data
 which is to be saved sets an event that the thread examines. The code
 for this is in the module persist_.
@@ -458,7 +458,7 @@ reasonably large amount of memory.
 Multiple documents per file
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-in the future it may be desirable to change the one-to-one mapping
+In the future it may be desirable to change the one-to-one mapping
 from files to Xapian documents that we currently have. For example, if
 a file is actually an archive of some sort we might want it to yield
 document data for each contained file (possibly recursively since an
