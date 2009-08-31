@@ -263,8 +263,9 @@ class CollectionList(object):
             log.error("Failed attempt to delete collection %s, which does not"
                       " exist" % name)
 
-    def search(self, query=None, col_id=None, doc_id=None, cols=None, format=None,
-               exact=None, exclusions=None, tophit=0, maxhits=10, sort_by=None):
+    def search(self, query=None, col_id=None, doc_id=None, cols=None,
+               format=None, exact=None, exclusions=None, tophit=0,
+               maxhits=10, sort_by=None, filenameq=None):
         """Perform a search.
 
         Either query or (col_id and doc_id) should be passed, the latter
@@ -279,7 +280,8 @@ class CollectionList(object):
             query = (self._collections[col_id], doc_id)
         if query or exact or exclusions:
             return search.search(query, exact, exclusions, format,
-                                 dbnames_to_search, tophit, maxhits, sort_by)
+                                 dbnames_to_search, tophit, maxhits, sort_by,
+                                 filenameq)
         else:
             return None
 

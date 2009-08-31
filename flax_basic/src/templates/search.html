@@ -37,6 +37,10 @@
         <input node="con:exclusions" name="exclusions" size="50"> </input>
       </div>
       <div class="search_adv">
+        <label class="main_label" for="filenameq">Filename contains:</label>
+        <input node="con:filenameq" name="filenameq" size="50"> </input>
+      </div>
+      <div class="search_adv">
 	<label class="main_label" for="formats">Formats:</label>
 	<input node="con:xls" type="checkbox" id="format_xls"
 	       name="format" value="xls"></input>
@@ -61,7 +65,7 @@
 	<label for="format_doc">Word</label>
       </div>
       <div class="search_adv">
-        <label id="sort_label" for="sort_by">Sort by:</label>
+        <label id="sort_label" class="main_label" for="sort_by">Sort by:</label>
         <select name="sort_by">
           <option node="con:sort_1" value="1">Relevance</option>
           <option node="con:sort_2" value="2">Date, new first</option>

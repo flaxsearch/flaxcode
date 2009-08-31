@@ -183,18 +183,20 @@ def render_options(template, flax_data):
 
 def render_search(template, isAdmin, renderer, advanced, collections,
                   results=None, selcols=None, formats=[], selformats=[],
-                  sort_by=None):
+                  sort_by=None, filenameq=None):
     if not advanced:
         template.main.search_form.advanced_holder.omit()
     else:
-        render_formats(template.main.search_form.advanced_holder, selformats)
-        render_sort(template.main.search_form.advanced_holder, sort_by)
+        advanced_holder = template.main.search_form.advanced_holder
+        render_formats(advanced_holder, selformats)
+        render_sort(advanced_holder, sort_by)
+        render_filenameq(advanced_holder, filenameq)
     cols = list(collections.itervalues())
     template.main.search_form.collections.repeat(
         render_search_collection, cols, len(cols), selcols)
     if results and cols:
         render_search_result(
-            template.main, results, collections, selcols, formats)
+           template.main, results, collections, selcols, formats)
         template.main.descriptions.omit()
     else:
         template.main.descriptions.col_descriptions.name_and_desc.repeat(
@@ -376,6 +378,11 @@ def render_sort(node, sort_by):
         snode = getattr(node, node_name)
         if snode:
             snode.atts['selected'] = "selected"
+
+def render_filenameq(node, filenameq):
+    if filenameq:
+        node = getattr(node, "filenameq")
+        node.atts['value'] = filenameq
 
 def render_search_result (node, results, collections, selcols, formats):
     # collections is the list of available collections

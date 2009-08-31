@@ -300,7 +300,8 @@ class SearchForm(object):
 
     def search(self, query=None, col=None, col_id=None, doc_id=None,
                advanced=False, format=None, exact=None, exclusions=None,
-               tophit=0, maxhits=10, save=None, sort_by=None):
+               tophit=0, maxhits=10, save=None, sort_by=None,
+               filenameq=None):
         """Search document collections.
 
         :Parameters:
@@ -344,12 +345,14 @@ class SearchForm(object):
             results = self._flax_data.collections.search(
                 query, col_id=col_id, doc_id=doc_id, cols=cols, format=format,
                 exact=exact, exclusions=exclusions, tophit=tophit,
-                maxhits=maxhits, sort_by=sort_by)
+                maxhits=maxhits, sort_by=sort_by, filenameq=filenameq)
             return template(self._flax_data.collections, results, cols,
-                            self._flax_data.formats, formats, sort_by)
+                            self._flax_data.formats, formats, sort_by,
+                            filenameq)
         else:
             return template(self._flax_data.collections, None, cols,
-                            self._flax_data.formats, formats, sort_by)
+                            self._flax_data.formats, formats, sort_by,
+                            filenameq)
 
 class Top(FlaxResource):
     """

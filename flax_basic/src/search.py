@@ -48,7 +48,7 @@ class Results (object):
                 '3' : 'mtime'}
 
     def __init__(self, query, exact, exclusions, formats, dbnames,
-                 tophit, maxhits, sort_by):
+                 tophit, maxhits, sort_by, filenameq):
 
         if len(dbnames) == 0:
             self.query = query
@@ -67,11 +67,13 @@ class Results (object):
 
         self.sort_by = self.sort_map[sort_by]
 
+        self.filenameq = filenameq
+
         conn = self.conn_for_dbs(dbnames)
         is_string_query = isinstance(query, types.StringType)
         if is_string_query:
             self.xap_query, self.highlight_query = self.make_xap_query(
-                conn, query, exact, exclusions, formats)
+                conn, query, exact, exclusions, formats, filenameq)
             corrected = conn.spell_correct(self.query)
             self.spell_corrected_query = (corrected if corrected != query
                                           else None)
@@ -95,7 +97,8 @@ class Results (object):
             else:
                 self.spell_corrected_query = None
 
-    def make_xap_query(self, conn, query, exact, exclusions, formats):
+    def make_xap_query(self, conn, query, exact, exclusions, formats,
+                       filenameq):
         """Make the xapian query for a given set of search parameters.
 
         Returns a pair: (xap_query, highlight_query), where xap_query is the
@@ -119,6 +122,10 @@ class Results (object):
         # Work out xq, which is the actual query to be executed, but adding the
         # filters and filetypes.
         xq = hq
+        if filenameq:
+            fq = conn.query_parse(filenameq, default_allow=["nametext"])
+            xq = conn.query_composite(conn.OP_AND, (xq, fq))
+
         if exclusions:
             xq = conn.query_filter(xq, conn.query_parse( ' '.join(util.listify(exclusions))), True )
         if formats:
@@ -139,7 +146,7 @@ class Results (object):
         return flax.options.collections.get_search_connection(dbnames)
 
 def search(query, exact, exclusions, formats, dbnames,
-           tophit = 0, maxhits = 10, sort_by=None):
+           tophit = 0, maxhits = 10, sort_by=None, filenameq=None):
     """Search the xapian databases at the paths listed in `dbnames` with `query`.
     
     Return a Results() object holding the results of the search.
@@ -152,4 +159,4 @@ def search(query, exact, exclusions, formats, dbnames,
 
     """
     return Results(query, exact, exclusions, formats, dbnames,
-                   tophit, maxhits, sort_by)
+                   tophit, maxhits, sort_by, filenameq)
