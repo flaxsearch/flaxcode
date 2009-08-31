@@ -34,7 +34,7 @@ if _is_windows:
     import win32api
     import string
 
-#import image_preview
+import image_preview
 
 class FlaxResource(object):
     "Abstract class supporting common error handling across all Flax web pages"
@@ -241,12 +241,12 @@ class Collections(FlaxResource):
             ret = []
             for c in cols:
                 status, fc, ec = self._index_server.indexing_info (c)
-                ret.append ({"name":        c.name, 
-                             "status":      int(status), 
+                ret.append ({"name":        c.name,
+                             "status":      int(status),
                              "index_due":   int(c.indexing_due),
-                             "index_held":  int(c.indexing_held), 
-                             "doc_count":   c.document_count, 
-                             "file_count":  fc, 
+                             "index_held":  int(c.indexing_held),
+                             "doc_count":   c.document_count,
+                             "file_count":  fc,
                              "error_count": ec })
             return repr (ret)
 
@@ -285,21 +285,22 @@ class SearchForm(object):
             return [val for val in vals if val in universe]
         except KeyError:
             return []
-    
+
     def save_options_to_cookie(self, cols, formats):
         """ Write the options to the response cookie. """
         cookie = cherrypy.response.cookie
         cookie['formats'] = self.make_string_rep(formats)
         cookie['cols'] = self.make_string_rep(cols)
-        
+
     def read_cols_from_cookie(self, all_collections):
         return self.read_string_list_from_cookie('cols', all_collections)
 
     def read_formats_from_cookie(self, all_formats):
         return self.read_string_list_from_cookie('formats', all_formats)
 
-    def search(self, query=None, col=None, col_id=None, doc_id=None, advanced=False, format=None,
-               exact=None, exclusions=None, tophit=0, maxhits=10, save=None):
+    def search(self, query=None, col=None, col_id=None, doc_id=None,
+               advanced=False, format=None, exact=None, exclusions=None,
+               tophit=0, maxhits=10, save=None, sort_by=None):
         """Search document collections.
 
         :Parameters:
@@ -331,7 +332,7 @@ class SearchForm(object):
             formats = util.listify(format)
         else:
             formats = self.read_formats_from_cookie(self._flax_data.formats)
-            
+
         if save:
             self.save_options_to_cookie(cols, formats)
 
@@ -340,11 +341,15 @@ class SearchForm(object):
         if (query or exact or exclusions or format) or (col_id and doc_id):
             if 'html' in formats:
                 formats.append('htm')
-            results = self._flax_data.collections.search(query, col_id=col_id, doc_id=doc_id, cols=cols, format=format,
-                                               exact=exact, exclusions=exclusions, tophit=tophit, maxhits=maxhits)
-            return template(self._flax_data.collections, results, cols, self._flax_data.formats, formats)
+            results = self._flax_data.collections.search(
+                query, col_id=col_id, doc_id=doc_id, cols=cols, format=format,
+                exact=exact, exclusions=exclusions, tophit=tophit,
+                maxhits=maxhits, sort_by=sort_by)
+            return template(self._flax_data.collections, results, cols,
+                            self._flax_data.formats, formats, sort_by)
         else:
-            return template(self._flax_data.collections, None, cols, self._flax_data.formats, formats)
+            return template(self._flax_data.collections, None, cols,
+                            self._flax_data.formats, formats, sort_by)
 
 class Top(FlaxResource):
     """
@@ -388,7 +393,7 @@ class Top(FlaxResource):
     @cherrypy.expose
     def source(self, col, *unused):
         """Serve a source file for a document.
-        
+
         The document collection is specified in the first part of the path,
         followed by the filename of the document.
 
@@ -417,8 +422,7 @@ class Top(FlaxResource):
 
     @cherrypy.expose
     def make_preview(self, filename, *unused):
-#        return image_preview.make_preview(filename)
-        return None
+        return image_preview.make_preview(filename)
 
     @cherrypy.expose
     def about(self):
@@ -476,19 +480,19 @@ class Admin(Top):
 
     @cherrypy.expose
     def filebrowser(self):
-        """Return a file browser. 
-        
+        """Return a file browser.
+
         This is under Admin so that normal users cannot access it.
-        
+
         """
         return self._filebrowser_template()
 
     @cherrypy.expose
     def listfiles(self, fpath=''):
         """List files in fpath (assuming it is a directory).
-        
+
         Returns a JSON list:
-        
+
         [[filepath, filename, is-dir, is-readable], ...]
 
         """
@@ -509,11 +513,11 @@ class Admin(Top):
 
             # in the case of errors, log them but return an empty list to the browser
             except Exception, e:
-                logging.getLogger('collection').error('error file-listing %s: %s' % 
+                logging.getLogger('collection').error('error file-listing %s: %s' %
                     (fpath, e))
 
             return repr(ret)
-        
+
         else:
             # special case - return list of filesystem roots
             # filter out floppy drives
@@ -524,7 +528,7 @@ class Admin(Top):
                           if d and d not in ('A:\\', 'B:\\')]
                 return repr(drives)
             else:
-                return "[['/', '/', 1, 1]]"                
+                return "[['/', '/', 1, 1]]"
 
 
 def start_web_server(flax_data, index_server, conf_path, templates_path, blocking=True):
@@ -551,11 +555,11 @@ def start_web_server(flax_data, index_server, conf_path, templates_path, blockin
 
     admin.collections = collections
     top.admin = admin
-    
+
     # HACK - customise the generic error template
     cherrypy._cperror._HTTPErrorTemplate = open(
         os.path.join(templates_path, 'cp_http_error.html')).read()
-    
+
     cherrypy.config.update(conf_path)
     cherrypy.tree.mount(top, '/', config=conf_path)
     cherrypy.server.quickstart()

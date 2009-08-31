@@ -252,9 +252,13 @@ div.info_wide {
     color: darkred; 
 }
 
+
 .search_hit_link img {height: 0; width: 0; border-width:0;}
 
-.search_hit_link:hover img {position:absolute; top: 190px; left 55px; height: 400px; width: 300px}
+
+.search_hit_link:hover img {
+    position:fixed; display:block; z-index:1; height: 300px; width: 200px; top:100px; right:10px;
+}
 
 .search_sim_link { 
     text-decoration: none; color: darkblue; 

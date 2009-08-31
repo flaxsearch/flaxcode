@@ -60,6 +60,14 @@
 	       name="format" value="doc"></input>
 	<label for="format_doc">Word</label>
       </div>
+      <div class="search_adv">
+        <label id="sort_label" for="sort_by">Sort by:</label>
+        <select name="sort_by">
+          <option node="con:sort_1" value="1">Relevance</option>
+          <option node="con:sort_2" value="2">Date, new first</option>
+          <option node="con:sort_3" value="3">Date, old first</option>
+        </select>
+      </div>
       <div  class="save_selections" style="text-align:right" >
         <input node="con:save" type="checkbox" id="save" name="save" value="save"/>
         <label for="save">Save Selections</label>

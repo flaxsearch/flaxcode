@@ -19,8 +19,13 @@ import zipfile
 import subprocess
 import tempfile
 
-import uno
-from com.sun.star.beans import PropertyValue
+try:
+    import uno
+    from com.sun.star.beans import PropertyValue
+    from com.sun.star.connection import NoConnectException
+    UNO_AVAILABLE = True
+except ImportError:
+    UNO_AVAILABLE = False
 
 # this depends on an openoffice being available to convert things on localhost:8100
 # start with e.g.
@@ -33,29 +38,37 @@ def convert_file_to_oo(infile, outfile):
     local = uno.getComponentContext()
     resolver = local.ServiceManager.createInstanceWithContext(
         "com.sun.star.bridge.UnoUrlResolver", local)
-    context = resolver.resolve(
-        "uno:socket,host=localhost,port=8100;urp;StarOffice.ComponentContext")
+    try:
+        context = resolver.resolve(
+            "uno:socket,host=localhost,port=8100;urp;StarOffice.ComponentContext")
+    except NoConnectException:
+        return False
     desktop = context.ServiceManager.createInstanceWithContext(
         "com.sun.star.frame.Desktop", context)
-
+    
     # the above stuff probably only needs to be done once - should be
     # cached somewhere.
 
     document = desktop.loadComponentFromURL(
         filename_to_url(infile) ,"_blank", 0, ())
 
-    props = (PropertyValue("FilterName", 0, "writer8", 0),)
-    document.storeToURL(filename_to_url(outfile), props)
+    if document:
+        props = (PropertyValue("FilterName", 0, "writer8", 0),)
+        document.storeToURL(filename_to_url(outfile), props)
+        document.close(False)
+        return True
 
 def make_doc_preview_oo(filename, width, height):
     unused, temp = tempfile.mkstemp(suffix=".odt")
-    convert_file_to_oo(filename, temp)
-    z = zipfile.ZipFile(temp)
-    p = z.open('Thumbnails/thumbnail.png')
-    return p.read()
+    if convert_file_to_oo(filename, temp):
+        z = zipfile.ZipFile(temp)
+        p = z.open('Thumbnails/thumbnail.png')
+        return p.read()
 
-preview_maker_map = {'doc' : make_doc_preview_oo,
-                     'html' : make_doc_preview_oo}
+preview_maker_map = {}
+if UNO_AVAILABLE:
+    preview_maker_map.update( {'doc' : make_doc_preview_oo,
+                               'html' : make_doc_preview_oo})
 
 def make_preview(filename, width=100, height=100):
     unused, ext = os.path.splitext(filename)

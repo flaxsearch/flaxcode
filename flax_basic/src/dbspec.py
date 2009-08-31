@@ -132,7 +132,9 @@ def add_internal_field_actions(conn, stopwords, language):
     # This is stored in seconds since the epoch (ie, time.gmtime(0))
     conn.add_field_action("mtime", xappy.FieldActions.INDEX_EXACT)
     conn.add_field_action("mtime", xappy.FieldActions.STORE_CONTENT)
-
+    # so that we can sort by date
+    conn.add_field_action("mtime", xappy.FieldActions.SORTABLE, type='float')
+    
     # The size is just used for display.
     conn.add_field_action("size", xappy.FieldActions.STORE_CONTENT)
 

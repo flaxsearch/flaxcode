@@ -37,11 +37,18 @@ class Results (object):
     `is_results_corrected`: if results is for the spell_corrected_query rather than original_query
     `tophit`: rank of the first result in results
     `maxhits`: max number of results
+    `sort_by`: how to order the results.
     """
 
     log = logging.getLogger("searching")
 
-    def __init__(self, query, exact, exclusions, formats, dbnames, tophit, maxhits):
+    sort_map = {None: None,
+                '1' : None,
+                '2' : '-mtime',
+                '3' : 'mtime'}
+
+    def __init__(self, query, exact, exclusions, formats, dbnames,
+                 tophit, maxhits, sort_by):
 
         if len(dbnames) == 0:
             self.query = query
@@ -58,12 +65,16 @@ class Results (object):
         self.tophit = tophit
         self.maxhits = maxhits
 
+        self.sort_by = self.sort_map[sort_by]
+
         conn = self.conn_for_dbs(dbnames)
         is_string_query = isinstance(query, types.StringType)
         if is_string_query:
-            self.xap_query, self.highlight_query = self.make_xap_query(conn, query, exact, exclusions, formats)
+            self.xap_query, self.highlight_query = self.make_xap_query(
+                conn, query, exact, exclusions, formats)
             corrected = conn.spell_correct(self.query)
-            self.spell_corrected_query = corrected if corrected != query else None
+            self.spell_corrected_query = (corrected if corrected != query
+                                          else None)
 
         else:
             conn_for_sim = query[0].search_conn()
@@ -116,16 +127,19 @@ class Results (object):
         return xq, hq
 
     def do_search(self, conn):
-        self.log.info("Search databases %s with query %s" % (self.dbnames, self.xap_query))
+        self.log.info("Search databases %s with query %s" %
+                      (self.dbnames, self.xap_query))
         self.xap_results = conn.search(self.xap_query,
                                        self.tophit,
                                        self.tophit + self.maxhits,
-                                       100)
+                                       100,
+                                       sortby=self.sort_by)
 
     def conn_for_dbs(self, dbnames):
         return flax.options.collections.get_search_connection(dbnames)
 
-def search(query, exact, exclusions, formats, dbnames, tophit = 0, maxhits = 10):
+def search(query, exact, exclusions, formats, dbnames,
+           tophit = 0, maxhits = 10, sort_by=None):
     """Search the xapian databases at the paths listed in `dbnames` with `query`.
     
     Return a Results() object holding the results of the search.
@@ -137,4 +151,5 @@ def search(query, exact, exclusions, formats, dbnames, tophit = 0, maxhits = 10)
     empty then the results are for the spell corrected query.
 
     """
-    return Results(query, exact, exclusions, formats, dbnames, tophit, maxhits)
+    return Results(query, exact, exclusions, formats, dbnames,
+                   tophit, maxhits, sort_by)

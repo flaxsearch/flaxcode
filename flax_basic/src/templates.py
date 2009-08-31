@@ -181,18 +181,24 @@ def render_options(template, flax_data):
 
 ##### Search Templates #####
 
-def render_search(template, isAdmin, renderer, advanced, collections, results=None, selcols=None, formats=[], selformats=[]):
+def render_search(template, isAdmin, renderer, advanced, collections,
+                  results=None, selcols=None, formats=[], selformats=[],
+                  sort_by=None):
     if not advanced:
         template.main.search_form.advanced_holder.omit()
     else:
         render_formats(template.main.search_form.advanced_holder, selformats)
+        render_sort(template.main.search_form.advanced_holder, sort_by)
     cols = list(collections.itervalues())
-    template.main.search_form.collections.repeat(render_search_collection, cols, len(cols), selcols)
+    template.main.search_form.collections.repeat(
+        render_search_collection, cols, len(cols), selcols)
     if results and cols:
-        render_search_result(template.main, results, collections, selcols, formats)
+        render_search_result(
+            template.main, results, collections, selcols, formats)
         template.main.descriptions.omit()
     else:
-        template.main.descriptions.col_descriptions.name_and_desc.repeat(render_collection_descriptions, cols)
+        template.main.descriptions.col_descriptions.name_and_desc.repeat(
+            render_collection_descriptions, cols)
         template.main.results.omit()
 
 def render_collection_descriptions(node, collection):
@@ -363,7 +369,13 @@ def render_formats(node, formats):
         for format in util.listify(formats):
             if format !='htm':
                 getattr(node, format).atts['checked'] = 'on'       
-    
+
+def render_sort(node, sort_by):
+    if sort_by:
+        node_name="sort_"+sort_by
+        snode = getattr(node, node_name)
+        if snode:
+            snode.atts['selected'] = "selected"
 
 def render_search_result (node, results, collections, selcols, formats):
     # collections is the list of available collections
