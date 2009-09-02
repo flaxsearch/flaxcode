@@ -257,7 +257,7 @@ div.info_wide {
 
 
 .search_hit_link:hover img {
-    position:fixed; display:block; z-index:1; height: 300px; width: 200px; top:100px; right:10px;
+    position:fixed; display:block; z-index:1; height: 400px; width: 300px; top:100px; right:10px;
 }
 
 .search_sim_link { 

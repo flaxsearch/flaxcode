@@ -567,6 +567,31 @@ def start_web_server(flax_data, index_server, conf_path, templates_path, blockin
     cherrypy.tree.mount(top, '/', config=conf_path)
     cherrypy.server.quickstart()
     cherrypy.log = cplogger.cpLogger()
+
+    if _is_windows:
+        
+        # this is necessary because we make COM calls withing the
+        # threads that cp creates. At the time of writing this is only
+        # done from Top.make_preview.
+
+        import pythoncom
+
+        def InitializeCOM(threadIndex):
+            pythoncom.CoInitialize()
+
+        def UninitializeCOM(threadIndex):
+            pythoncom.CoUninitialize()
+
+        
+        # subscription protocol varies amongst cherrypy versions - if
+        # this errors google "cherrypy engine subscribe" - for 3.1 or
+        # newer the following 2 lines should work:      
+        #cherrypy.engine.subscribe('start_thread', InitializeCOM)
+        #cherrypy.engine.subscribe('stop_thread', UninitializeCOM)
+
+        cherrypy.engine.on_start_thread_list.append(InitializeCOM)
+        cherrypy.engine.on_stop_thread_list.append(UninitializeCOM)
+
     cherrypy.engine.start(blocking)
 
 def stop_web_server():
