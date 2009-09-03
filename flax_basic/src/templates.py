@@ -178,6 +178,8 @@ def render_options(template, flax_data):
 
     template.main.level_meaning.repeat(fill_meanings, flax_data.log_levels)
 
+    if flax_data.advanced_as_default:
+        template.main.advanced_as_default.atts['checked'] = 'on'
 
 ##### Search Templates #####
 
@@ -340,7 +342,7 @@ def render_collection_detail(template, collection, formats, languages):
         node.atts["value"] = val[0]
         node.content = val[1]
         if collection and val[0] == collection.language:
-            node.atts['selected'] = "selected"
+            node.atts['checked'] = 'on'
 
     form.language_option.repeat(fill_languages, languages)
 #    if collection:
@@ -433,9 +435,10 @@ def render_search_result (node, results, collections, selcols, formats):
             collection = res.data['collection'][0]
             url = collections[collection].url_for_doc(filename)
             if 'title' in res.data:
-                title = (res.data['title'][0] + " -  " + filename).encode('utf-8')
+                title = (res.data['title'][0]).encode('utf-8')
             else:
-                title = filename
+                title = os.path.basename(filename)
+            node.filename.content = filename
             node.res_link.atts['href'] = url
             node.res_link.res_link_display.content = '%d. %s' % (res.rank + 1, title)
             node.res_link.res_preview.atts['src']="/make_preview?filename=%s" % filename

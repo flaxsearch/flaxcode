@@ -377,7 +377,9 @@ class Top(FlaxResource):
 
     @cherrypy.expose
     def index(self):
-        raise cherrypy.HTTPRedirect('search')
+        raise cherrypy.HTTPRedirect('advanced_search'
+                                    if self._flax_data.advanced_as_default
+                                    else 'search')
 
     @cherrypy.expose
     def search(self, **kwargs):
@@ -464,11 +466,15 @@ class Admin(Top):
                                     about_template)
 
     @cherrypy.expose
-    def options(self, **kwargs):
+    def options(self, advanced_as_default=None, **kwargs):
         """Render the options template.
 
         """
+
         if cherrypy.request.method == "POST":
+            if self._flax_data.advanced_as_default != advanced_as_default:
+                self._flax_data.advanced_as_default = advanced_as_default
+                self._signal_data_changed()
             self._flax_data.log_settings = kwargs
             # Redirect to prevent reloads redoing the POST.
             raise cherrypy.HTTPRedirect('options')

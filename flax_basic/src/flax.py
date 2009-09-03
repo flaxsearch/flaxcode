@@ -28,7 +28,7 @@ import logclient
 
 # The current configuration file version - update this each time things change
 # incompatibly.
-current_version = 12
+current_version = 13
 
 class FlaxOptions(object):
     """Global options for Flax.
@@ -83,6 +83,7 @@ class FlaxOptions(object):
 
     def __init__(self):
         self.collections = None
+        self.advanced_as_default = False
 
     def initialised(self):
         """Check if this options object has been initialised."""
@@ -106,6 +107,8 @@ class FlaxOptions(object):
 
             # These are the default filter settings.
             'filter_settings': self.filter_settings,
+
+            'advanced_as_default': self.advanced_as_default,
         }
 
     def from_dict(self, settings):
@@ -116,7 +119,8 @@ class FlaxOptions(object):
             self.collections = collection_list.CollectionList()
         self.collections.from_dict(settings['collections'])
         self.filter_settings = settings['filter_settings']
-
+        self.advanced_as_default = settings['advanced_as_default']
+        
     def set_to_defaults(self):
         """Set the settings to default values.
 
@@ -135,6 +139,8 @@ class FlaxOptions(object):
                 
         self.filter_settings = filter_settings
         self.collections = collection_list.CollectionList()
+        self.advanced_as_default = False
+
 
     def _set_log_settings(self, vals):
         new_levels = {}
