@@ -598,10 +598,10 @@ def start_web_server(flax_data, index_server, conf_path, templates_path, blockin
         cherrypy.engine.on_start_thread_list.append(InitializeCOM)
         cherrypy.engine.on_stop_thread_list.append(UninitializeCOM)
         
-    def get_previewer(threadindex):
+    def create_previewer(threadindex):
         cherrypy.thread_data.previewer = image_preview.get_previewer()
     #note the comments about subscription above
-    cherrypy.engine.on_start_thread_list.append(get_previewer)
+    cherrypy.engine.on_start_thread_list.append(create_previewer)
         
     cherrypy.engine.start(blocking)
 

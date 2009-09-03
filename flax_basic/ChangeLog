@@ -1,3 +1,8 @@
+Thu Sep 03 16:21:31 GMT 2009  Richard Boulton <richard@lemurconsulting.com>
+
+	* src/cpserver.py: Rename get_previewer() which isn't a getter to
+	  create_previewer().
+
 Thu Sep 3  10:48:00 GMT 2009  Charlie Hull <charlie@flax.co.uk>
 
     * runflax.bat : added comments
