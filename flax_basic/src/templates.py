@@ -434,10 +434,11 @@ def render_search_result (node, results, collections, selcols, formats):
             filename = res.data['filename'][0]
             collection = res.data['collection'][0]
             url = collections[collection].url_for_doc(filename)
+            title = os.path.basename(filename)
             if 'title' in res.data:
-                title = (res.data['title'][0]).encode('utf-8')
-            else:
-                title = os.path.basename(filename)
+                cleantitle = (res.data['title'][0]).encode('utf-8')
+                if ( (not cleantitle.isspace()) and len(cleantitle)>0 ):
+                    title = cleantitle
             node.filename.content = filename
             node.res_link.atts['href'] = url
             node.res_link.res_link_display.content = '%d. %s' % (res.rank + 1, title)
@@ -456,6 +457,7 @@ def render_search_result (node, results, collections, selcols, formats):
         node.res_size.content = format_size (size[0]) if size else 'unknown'
         mtime = res.data.get ('mtime')
         node.res_mtime.content = format_date (mtime[0]) if mtime else 'unknown'
+        node.res_collection.content = collection
 
     cols = list(collections.itervalues())
     node.search_form.collections.repeat (render_search_collection, cols, len(cols), selcols)
