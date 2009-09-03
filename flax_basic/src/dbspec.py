@@ -96,7 +96,7 @@ def internal_fields():
     Such fields must not be returned by filters.
 
     """
-    return ('filename', 'uri', 'nametext', 'mtime', 'size', 'collection', 'filetype',)
+    return ('filename', 'uri', 'nametext', 'filepathtext', 'mtime', 'size', 'collection', 'filetype',)
 
 def add_internal_field_actions(conn, stopwords, language):
     """Add field actions for the internal fields.
@@ -122,11 +122,16 @@ def add_internal_field_actions(conn, stopwords, language):
     conn.add_field_action("uri", xappy.FieldActions.INDEX_EXACT)
     conn.add_field_action("uri", xappy.FieldActions.STORE_CONTENT)
 
-    # Text extracted from the filepath.
+    # Text extracted from the file basename
     # This is used to allow the filename to have some influence on the
     # search results.
     conn.add_field_action("nametext", xappy.FieldActions.INDEX_FREETEXT,
                           **free_text_options)
+
+    # text extracted from the full file path - this is to allow
+    # searching on filename components
+    conn.add_field_action("filepathtext", xappy.FieldActions.INDEX_FREETEXT,
+                          search_by_default=False)
 
     # The time that a document was last modified.
     # This is stored in seconds since the epoch (ie, time.gmtime(0))

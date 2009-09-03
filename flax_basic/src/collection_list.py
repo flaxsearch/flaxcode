@@ -278,7 +278,7 @@ class CollectionList(object):
         dbnames_to_search = [self._collections[col].name for col in cols]
         if doc_id and col_id:
             query = (self._collections[col_id], doc_id)
-        if query or exact or exclusions:
+        if query or exact or exclusions or filenameq:
             return search.search(query, exact, exclusions, format,
                                  dbnames_to_search, tophit, maxhits, sort_by,
                                  filenameq)

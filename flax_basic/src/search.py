@@ -106,7 +106,7 @@ class Results (object):
         to be used for highlighting.
 
         """
-        if not any((query, exact, exclusions, formats)):
+        if not any((query, exact, exclusions, formats, filenameq)):
             empty_query = conn.query_none()
             return empty_query, empty_query
 
@@ -123,7 +123,7 @@ class Results (object):
         # filters and filetypes.
         xq = hq
         if filenameq:
-            fq = conn.query_parse(filenameq, default_allow=["nametext"])
+            fq = conn.query_parse(filenameq, default_allow=["filepathtext"])
             xq = conn.query_composite(conn.OP_AND, (xq, fq))
 
         if exclusions:
