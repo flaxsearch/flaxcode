@@ -14,33 +14,26 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import os
-import sys
+from win32com.client.dynamic import Dispatch
+import pywintypes
+import pythoncom
 
-WINDOWS = (sys.platform == "win32")
+import ooutils
 
-previewer = None
+class OOComPreviewer(ooutils.OOoImagePreviewer):
 
-if WINDOWS:
-    try:
-        import com_oo_preview
-        previewer = com_oo_preview.get_previewer()
-    except ImportError:
-        previewer = None
+    def __init__(self):
+        self.service_man = Dispatch('com.sun.star.ServiceManager')
+        service_man._FlagAsMethod("Bridge_GetStruct")
+        self.desktop = self.service_man.CreateInstance(
+            'com.sun.star.frame.Desktop') 
 
-if not previewer:
-    try:
-        import uno_oo_preview
-        previewer = uno_oo_preview.get_previewer()
-    except ImportError:
-        previewer = None
+    def _make_prop(self, name, value):
+        prop = self.service_man.Bridge_GetStruct(
+            'com.sun.star.beans.PropertyValue')
+        prop.Name = name
+        prop.Value = value
+        return prop
 
-preview_maker_map = {'doc' : previewer.get_preview }
-
-def make_preview(filename):
-    unused, ext = os.path.splitext(filename)
-    ext = ext[1:]
-    try:
-        return preview_maker_map[ext](filename)
-    except KeyError:
-        return None
+def get_previewer():
+    return OOoImagePreviewer()
