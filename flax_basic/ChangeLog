@@ -1,3 +1,7 @@
+Thu Sep 3  10:48:00 GMT 2009  Charlie Hull <charlie@flax.co.uk>
+
+    * runflax.bat : added comments
+
 Fri Aug 28 14:29:00 GMT 2009  Charlie Hull <charlie@flax.co.uk>
 
     * filespec.py, flax.py, setup_svc.py: allow multiple file extensions for each file type,
