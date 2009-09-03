@@ -20,6 +20,7 @@ __docformat__ = "restructuredtext en"
 
 import logging
 import os
+import sys
 
 import collection_list
 import flaxpaths
@@ -42,6 +43,7 @@ class FlaxOptions(object):
                'xls'  : ["xls","xlt","xlsb","xlsm","xlss"],
                'ppt'  : ["ppt","pos","pps","pptm","ppts"],
                'html' : ["htm","html","shtml","shtm"],
+               'htm'  : ["htm","html","shtml","shtm"],
                'pdf'  : ["pdf"]
                }
 
@@ -123,10 +125,14 @@ class FlaxOptions(object):
             default_filter = 'IFilter'
         else:
             default_filter = 'Text'
-        filter_settings = dict( (f, default_filter) for f in FlaxOptions.formats)
-        filter_settings['html'] = filter_settings['htm'] = 'Xapian'
-        filter_settings['txt'] = 'Text'
 
+        filter_settings = dict()
+        for f,v in FlaxOptions.fileexts.iteritems():
+            if(f == 'html'): use_filter = 'Xapian'
+            else: use_filter = default_filter
+            for g in v:
+               filter_settings[g] = use_filter;
+                
         self.filter_settings = filter_settings
         self.collections = collection_list.CollectionList()
 
