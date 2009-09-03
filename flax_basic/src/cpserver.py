@@ -425,7 +425,7 @@ class Top(FlaxResource):
 
     @cherrypy.expose
     def make_preview(self, filename, *unused):
-        return image_preview.make_preview(filename)
+        return cherrypy.thread_data.previewer(filename)
 
     @cherrypy.expose
     def about(self):
@@ -577,7 +577,7 @@ def start_web_server(flax_data, index_server, conf_path, templates_path, blockin
         import pythoncom
 
         def InitializeCOM(threadIndex):
-            pythoncom.CoInitialize()
+            pythoncom.CoInitializeEx(pythoncom.COINIT_MULTITHREADED)
 
         def UninitializeCOM(threadIndex):
             pythoncom.CoUninitialize()
@@ -591,7 +591,12 @@ def start_web_server(flax_data, index_server, conf_path, templates_path, blockin
 
         cherrypy.engine.on_start_thread_list.append(InitializeCOM)
         cherrypy.engine.on_stop_thread_list.append(UninitializeCOM)
-
+        
+    def get_previewer(threadindex):
+        cherrypy.thread_data.previewer = image_preview.get_previewer()
+    #note the comments about subscription above
+    cherrypy.engine.on_start_thread_list.append(get_previewer)
+        
     cherrypy.engine.start(blocking)
 
 def stop_web_server():

@@ -25,10 +25,10 @@
 #endif
 
 #include <string.h>
-#ifdef HAVE_STRINGS_H
+//#ifdef HAVE_STRINGS_H
 // On Solaris, strcasecmp is in strings.h.
-# include <strings.h>
-#endif
+//# include <strings.h>
+//#endif
 
 #ifdef _MSC_VER
 # define strcasecmp stricmp

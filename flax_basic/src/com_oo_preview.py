@@ -20,15 +20,15 @@ import pythoncom
 
 import ooutils
 
-class OOComPreviewer(ooutils.OOoImagePreviewer):
+class OOoComPreviewer(ooutils.OOoImagePreviewer):
 
     def __init__(self):
         self.service_man = Dispatch('com.sun.star.ServiceManager')
-        service_man._FlagAsMethod("Bridge_GetStruct")
+        self.service_man._FlagAsMethod("Bridge_GetStruct")
         self.desktop = self.service_man.CreateInstance(
             'com.sun.star.frame.Desktop') 
 
-    def _make_prop(self, name, value):
+    def make_prop(self, name, value):
         prop = self.service_man.Bridge_GetStruct(
             'com.sun.star.beans.PropertyValue')
         prop.Name = name
@@ -36,4 +36,4 @@ class OOComPreviewer(ooutils.OOoImagePreviewer):
         return prop
 
 def get_previewer():
-    return OOoImagePreviewer()
+    return OOoComPreviewer()

@@ -17,30 +17,33 @@
 import os
 import sys
 
-WINDOWS = (sys.platform == "win32")
 
-previewer = None
+def get_previewer():
+    WINDOWS = (sys.platform == "win32")
+    previewer = None
 
-if WINDOWS:
-    try:
-        import com_oo_preview
-        previewer = com_oo_preview.get_previewer()
-    except ImportError:
-        previewer = None
+    if WINDOWS:
+        try:
+            import com_oo_preview
+            previewer = com_oo_preview.get_previewer()
+        except ImportError:
+            previewer = None
 
-if not previewer:
-    try:
-        import uno_oo_preview
-        previewer = uno_oo_preview.get_previewer()
-    except ImportError:
-        previewer = None
+        if not previewer:
+            try:
+                import uno_oo_preview
+                previewer = uno_oo_preview.get_previewer()
+            except ImportError:
+                previewer = None
 
-preview_maker_map = {'doc' : previewer.get_preview }
+    preview_maker_map = {'doc' : previewer.get_preview }
 
-def make_preview(filename):
-    unused, ext = os.path.splitext(filename)
-    ext = ext[1:]
-    try:
-        return preview_maker_map[ext](filename)
-    except KeyError:
-        return None
+    def make_preview(filename):
+        unused, ext = os.path.splitext(filename)
+        ext = ext[1:]
+        try:
+            return preview_maker_map[ext](filename)
+        except KeyError:
+            return None
+    
+    return make_preview
