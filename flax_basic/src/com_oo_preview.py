@@ -23,6 +23,7 @@ import ooutils
 class OOoComPreviewer(ooutils.OOoImagePreviewer):
 
     def __init__(self):
+        super(OOoComPreviewer, self).__init__()
         self.service_man = Dispatch('com.sun.star.ServiceManager')
         self.service_man._FlagAsMethod("Bridge_GetStruct")
         self.desktop = self.service_man.CreateInstance(

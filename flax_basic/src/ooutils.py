@@ -17,6 +17,26 @@
 import os
 import tempfile
 import zipfile
+import PythonMagickWand
+from ctypes import c_size_t, pointer
+     
+def fixup_environ(OOoBasePath='C:\\Program Files\\OpenOffice 3\\'):
+    """On windows using uno is tricky since it really expects to be
+    run using the version of python shipped with Ooo. Calling this
+    should fix things, but note that you still need to be binary
+    compatible (probably exactly the same version of python). If you
+    want to use a different version of python you will need to rebuild
+    the pyuno module.
+
+    """
+    path_extra = ';'+OOoBasePath + 'URE\\bin;' + OOoBasePath+'Basis\\program'
+    os.environ['PATH']=os.environ['PATH']+path_extra
+    url = OOoBasePath.replace('\\', '/')
+    url = url.replace(' ', '%20')
+    url = 'file:///'+url
+    os.environ['URE_BOOTSTRAP'] = url
+
+fixup_environ()
 
 class OOoImagePreviewer(object):
     """ Abstract base class providing a common framework for
@@ -24,8 +44,14 @@ class OOoImagePreviewer(object):
 
     """
     
-    def _make_props(self, prop_pairs):
-        return tuple([self.make_prop(*pair) for pair in prop_pairs])
+    def __init__(self):
+        self._wand = PythonMagickWand.NewMagickWand()
+
+        self._odt_save_props = ( self.make_prop("FilterName", "writer8"), )
+        pdf_filter_props =     ( self.make_prop("PageRange", "1"), )
+        self._pdf_save_props = ( self.make_prop("FilterName", "writer_pdf_Export"),
+                                 self.make_prop("FilterData", pdf_filter_props) )
+        self._load_props = ( self.make_prop("Hidden", True), )
 
     _file_url_prefix = "file:///"
     def _filename_to_url(self, filename):
@@ -33,23 +59,20 @@ class OOoImagePreviewer(object):
         filename = filename.replace("\\", "/")
         return self._file_url_prefix + filename
 
-    _load_props = (("Hidden", True),)
     def _load_document(self, infile):
-        props = self._make_props(self._load_props)
+        props = self._load_props
         infile_url = self._filename_to_url(infile)
         return self.desktop.loadComponentFromURL(
             infile_url ,"_blank", 0, props)
 
-    _save_props = (("FilterName", "writer8"),)
-    def _save_document_as_odt(self, document, outfile):
-        props = self._make_props(self._save_props)
+    def _save_document(self, document, outfile, save_props):
         outfile_url = self._filename_to_url(outfile)
-        document.storeToURL(outfile_url, props)
+        document.storeToURL(outfile_url, save_props)
         document.close(True)
         return True
      
-    def _temp_filename(self):
-        return tempfile.mktemp(suffix=".odt")
+    def _temp_filename(self, suffix=".odt"):
+        return tempfile.mktemp(suffix=suffix)
 
     _thumbnail_path = 'Thumbnails/thumbnail.png'
     def _extract_thumb_from_odt(self, odt_file):
@@ -59,15 +82,27 @@ class OOoImagePreviewer(object):
         z.close()
         return rv
 
+    def _pdf_to_image(self, pdf):
+        PythonMagickWand.ClearMagickWand(self._wand)
+        PythonMagickWand.MagickReadImage(self._wand, pdf)
+        PythonMagickWand.MagickSetImageFormat(self._wand, "PNG")
+        PythonMagickWand.MagickScaleImage(self._wand, 400, 500)
+        image_file = self._temp_filename(suffix=".png")
+        PythonMagickWand.MagickWriteImage(self._wand, image_file)
+        with open(image_file, 'rb') as f:
+            rv = f.read()
+        return rv
+
     def get_preview(self, infile):
         doc = self._load_document(infile)
         if not doc:
             return False
-        tempfile = self._temp_filename()
-        if not self._save_document_as_odt(doc, tempfile):
+        #tempfile = self._temp_filename(suffix=".odt")
+        tempfile = self._temp_filename(suffix=".pdf")
+        if not self._save_document(doc, tempfile, self._pdf_save_props):
             return False
-        rv =  self._extract_thumb_from_odt(tempfile)
+        #rv =  self._extract_thumb_from_odt(tempfile)
+        rv =  self._pdf_to_image(tempfile)
         if os.path.exists(tempfile):
             os.remove(tempfile)
         return rv
-     

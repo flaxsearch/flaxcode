@@ -25,22 +25,28 @@ import ooutils
 
 # openoffice.org -accept="socket,host=localhost,port=8100;urp;" -invisible -headless
 
+# On windows. e.g.
+# "C:\Program Files\OpenOffice.org 3\program\soffice.exe" -accept="socket,host=localhost,port=8100;urp;" -invisible -headless
 
 class OOUnoPreviewer(ooutils.OOoImagePreviewer):
 
     def __init__(self):
+        super(OOUnoPreviewer, self).__init__()
         local = uno.getComponentContext()
         resolver = local.ServiceManager.createInstanceWithContext(
             "com.sun.star.bridge.UnoUrlResolver", local)
         context = resolver.resolve(
             "uno:socket,host=localhost,port=8100;urp;StarOffice.ComponentContext")
-        self.desktop = local.ServiceManager.createInstanceWithContext(
+        self.desktop = context.ServiceManager.createInstanceWithContext(
             'com.sun.star.frame.Desktop', context)
 
     def make_prop(self, name, value):
         prop = PropertyValue()
         prop.Name = name
-        prop.Value = value
+        if isinstance(value, (list, tuple)):
+            prop.Value = uno.Any("[]com.sun.star.beans.PropertyValue", value)
+        else:
+            prop.Value = value
         return prop
 
 def get_previewer():

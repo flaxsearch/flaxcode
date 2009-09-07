@@ -17,24 +17,25 @@
 import os
 import sys
 
+import util
 
 def get_previewer():
-    WINDOWS = (sys.platform == "win32")
+    WINDOWS = util.is_windows()
     previewer = None
 
-    if WINDOWS:
+    if False: #WINDOWS:
         try:
             import com_oo_preview
             previewer = com_oo_preview.get_previewer()
         except ImportError:
             previewer = None
 
-        if not previewer:
-            try:
-                import uno_oo_preview
-                previewer = uno_oo_preview.get_previewer()
-            except ImportError:
-                previewer = None
+    if not previewer:
+        try:
+            import uno_oo_preview
+            previewer = uno_oo_preview.get_previewer()
+        except ImportError:
+            previewer = None
 
     preview_maker_map = {}
     if previewer:

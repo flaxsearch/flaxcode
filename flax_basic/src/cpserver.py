@@ -427,6 +427,7 @@ class Top(FlaxResource):
 
     @cherrypy.expose
     def make_preview(self, filename, *unused):
+        cherrypy.response.headers['Content-Type'] = "image/png"
         return cherrypy.thread_data.previewer(filename)
 
     @cherrypy.expose
