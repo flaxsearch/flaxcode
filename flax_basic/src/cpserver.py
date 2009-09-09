@@ -339,7 +339,8 @@ class SearchForm(object):
 
         tophit = int (tophit)
         maxhits = int (maxhits)
-        if (query or exact or exclusions or format) or (col_id and doc_id):
+        if ((query or exact or exclusions or format or filenameq)
+            or (col_id and doc_id)):
             if 'html' in formats:
                 formats.append('htm')
             results = self._flax_data.collections.search(
