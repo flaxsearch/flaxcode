@@ -431,7 +431,8 @@ entered in the search input, and return a list ordered by relevance.
 
 Each search result is comprised of the document title (if available -
 otherwise the filename is used), a highlighted summary of the document
-text, and the document size and modification time. The title is
+text, the full filename, the collection the document came from, 
+and the document size and modification time. The title is
 hyperlinked to the document itself, using the mapping mechanism set up
 in the collection details.  If there are more than 10 matching
 documents, use the links at the bottom of the list to page through the
@@ -476,12 +477,14 @@ Advanced Search
 
 This page is accessed from the **Advanced Search** link in the top
 menu. It is similar to the basic search page (the main search box will
-still match all words entered) but adds three new optional fields to
+still match all words entered) but adds several new optional fields to
 the search. These can be used together or alone:
 
     :Exact Phrase: matches text exactly as entered.
     :Without the words: excludes any words entered here from the results.
+    :Filename words: if any words are entered here, results will be restricted to files with filenames contained those words.
     :Formats: if any of the formats are selected, results will be restricted to files with those formats.
+    :Sort by: this dropdown box changes the order of results shown, from Relevance order to Date order 
 
 Searching with Syntax
 ---------------------
