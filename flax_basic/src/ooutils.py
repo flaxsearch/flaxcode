@@ -66,10 +66,14 @@ class OOoImagePreviewer(object):
             infile_url ,"_blank", 0, props)
 
     def _save_document(self, document, outfile, save_props):
+        rv = False
         outfile_url = self._filename_to_url(outfile)
-        document.storeToURL(outfile_url, save_props)
-        document.close(True)
-        return True
+        try:
+            document.storeToURL(outfile_url, save_props)
+            rv = True
+        finally:
+            document.close(True)
+        return rv
      
     def _temp_filename(self, suffix=".odt"):
         return tempfile.mktemp(suffix=suffix)
@@ -91,6 +95,7 @@ class OOoImagePreviewer(object):
         PythonMagickWand.MagickWriteImage(self._wand, image_file)
         with open(image_file, 'rb') as f:
             rv = f.read()
+        os.remove(image_file)
         return rv
 
     def get_preview(self, infile):
