@@ -75,8 +75,12 @@ and save it to a new file.
 
 """
 import ctypes
+import sys
+WINDOWS = (sys.platform == "win32")
 #FIXME: find the dll automatically
-_magick = ctypes.CDLL('c:/Program Files/ImageMagick-6.5.5-Q16/CORE_RL_wand_.dll')
+dll = ('c:/Program Files/ImageMagick-6.5.5-Q16/CORE_RL_wand_.dll' if WINDOWS
+       else '/usr/lib/libWand.so.10')
+_magick = ctypes.CDLL(dll)
 _magick.MagickWandGenesis()
 
 class MetricType(ctypes.c_int): pass
