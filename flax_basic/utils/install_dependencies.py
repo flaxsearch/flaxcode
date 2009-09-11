@@ -75,6 +75,12 @@ python_dependencies = (
      '',
      (),
     ),
+    ('Preview generation library',
+     'libs://previewgen',
+     '',
+     '',
+     (),
+     ),
 )
 
 # List of the non-pure-python dependencies.

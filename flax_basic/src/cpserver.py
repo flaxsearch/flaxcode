@@ -34,7 +34,7 @@ if _is_windows:
     import win32api
     import string
 
-import image_preview
+from previewgen import get_previewer
 
 class FlaxResource(object):
     "Abstract class supporting common error handling across all Flax web pages"
@@ -601,7 +601,7 @@ def start_web_server(flax_data, index_server, conf_path, templates_path, blockin
         cherrypy.engine.on_stop_thread_list.append(UninitializeCOM)
         
     def create_previewer(threadindex):
-        cherrypy.thread_data.previewer = image_preview.get_previewer()
+        cherrypy.thread_data.previewer = get_previewer()
     #note the comments about subscription above
     cherrypy.engine.on_start_thread_list.append(create_previewer)
         

@@ -16,8 +16,9 @@
 
 import os
 import sys
-
 import util
+
+util.setup_sys_path()
 
 def get_previewer():
     WINDOWS = util.is_windows()
