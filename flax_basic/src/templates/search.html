@@ -8,8 +8,11 @@
   <script type="text/javascript">
   function on_load() {
       document.forms[0].query.focus();
+      populateFormFromCookie();
   }
   </script>
+
+  <script type="text/javascript" src="/static/js/search_options.js"></script>
 </div>
 
 <div node="con:body" id="search">
@@ -66,15 +69,14 @@
       </div>
       <div class="search_adv">
         <label id="sort_label" class="main_label" for="sort_by">Sort by:</label>
-        <select name="sort_by">
+        <select name="sort_by" id="sort_by">
           <option node="con:sort_1" value="1">Relevance</option>
           <option node="con:sort_2" value="2">Date, new first</option>
           <option node="con:sort_3" value="3">Date, old first</option>
         </select>
       </div>
       <div  class="save_selections" style="text-align:right" >
-        <input node="con:save" type="checkbox" id="save" name="save" value="save"/>
-        <label for="save">Save Selections</label>
+        <button id="save" onClick="saveOptionsToCookie()">Save Selections</button>
       </div>
     </div>
   </form>

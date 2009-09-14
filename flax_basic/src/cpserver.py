@@ -270,37 +270,9 @@ class SearchForm(object):
         self._template = search_template
         self._advanced_template = advanced_template
 
-    # cookie handling
-    # cols and formats are both lists of strings
-    def parse_string_rep(self, str):
-        return str.split(',')
-
-    def make_string_rep(self, l):
-        return ','.join(l)
-
-    def read_string_list_from_cookie(self, key, universe):
-        cookie = cherrypy.request.cookie
-        try:
-            vals =  self.parse_string_rep(cookie[key].value)
-            return [val for val in vals if val in universe]
-        except KeyError:
-            return []
-
-    def save_options_to_cookie(self, cols, formats):
-        """ Write the options to the response cookie. """
-        cookie = cherrypy.response.cookie
-        cookie['formats'] = self.make_string_rep(formats)
-        cookie['cols'] = self.make_string_rep(cols)
-
-    def read_cols_from_cookie(self, all_collections):
-        return self.read_string_list_from_cookie('cols', all_collections)
-
-    def read_formats_from_cookie(self, all_formats):
-        return self.read_string_list_from_cookie('formats', all_formats)
-
     def search(self, query=None, col=None, col_id=None, doc_id=None,
                advanced=False, format=None, exact=None, exclusions=None,
-               tophit=0, maxhits=10, save=None, sort_by=None,
+               tophit=0, maxhits=10, sort_by=None,
                filenameq=None):
         """Search document collections.
 
@@ -327,15 +299,12 @@ class SearchForm(object):
         if col:
             cols = util.listify(col)
         else:
-            cols = self.read_cols_from_cookie(self._flax_data.collections)
+            cols = []
 
         if format:
             formats = util.listify(format)
         else:
-            formats = self.read_formats_from_cookie(self._flax_data.formats)
-
-        if save:
-            self.save_options_to_cookie(cols, formats)
+            formats = []
 
         tophit = int (tophit)
         maxhits = int (maxhits)
