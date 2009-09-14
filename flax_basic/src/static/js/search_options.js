@@ -52,7 +52,7 @@ function setCheckBoxesFromString(s) {
 
 function populateFormFromCookie() {
     setCheckBoxesFromString(getCookie("checked_formats"));
-    setCheckBoxesFromString(getCookie("checked_cols"));
+    setCheckBoxesFromString(getCookie("checked_collections"));
     sort_by = getCookie("sort_by");
     el = document.getElementById("sort_by");
     if (el)

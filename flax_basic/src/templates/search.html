@@ -22,63 +22,75 @@
       <input name="query" class="search_query" node="con:query" />
       <input type="submit" value="search"/>
     </div>
+
     <div class="search_cols">
-      Search collections:&nbsp;&nbsp;
-      <span node="-rep:collections">
-        <input node="con:col_select" type="checkbox" name="col" value="col name"></input>
-        <label node="con:col_name">Collection name</label>
-      </span>
+        <div class="search_adv_sel"> 
+           <label class="main_label" for="search_cols">Search collections:</label>
+            <span node="-rep:collections">
+                <input node="con:col_select" type="checkbox" name="col" value="col name"></input>
+                <label node="con:col_name">Collection name</label>
+            </span>
+        </div>
+    </div>
+    
+    <div node="con:advanced_holder"> <!-- this div contains items only shown during Advanced search -->
+        <div class="search_adv_sel"> 
+            <div class="search_adv_sel_item">
+                <label class="main_label" for="formats">Formats:</label>
+                <input node="con:xls" type="checkbox" id="format_xls"
+                    name="format" value="xls"></input>
+                <label for="format_xls">Excel</label>
+                <input node="con:html" type="checkbox" id="format_html"
+                    name="format" value="html"></input>
+                <label for="format_html">HTML</label>
+                <input node="con:pdf" type="checkbox" id="format_pdf"
+                    name="format" value="pdf"></input>
+                <label for="format_pdf">PDF</label>
+                <input node="con:ppt" type="checkbox" id="format_ppt"
+                    name="format" value="ppt"></input>
+                <label for="format_ppt">Power Point</label>
+                <input node="con:rtf" type="checkbox" id="format_rtf"
+                    name="format" value="rtf"></input>
+                <label for="format_rtf">RTF</label>
+                <input node="con:txt" type="checkbox" id="format_txt"
+                    name="format" value="txt"></input>
+                <label for="format_txt">Text</label>
+                <input node="con:doc" type="checkbox" id="format_doc"
+                    name="format" value="doc"></input>
+                <label for="format_doc">Word</label>
+            </div>
+
+            <div class="search_adv_sel_item"> 
+                <label id="sort_label" class="main_label" for="sort_by">Sort by:</label>
+                <select name="sort_by" id="sort_by">
+                <option node="con:sort_1" value="1">Relevance</option>
+                <option node="con:sort_2" value="2">Date, new first</option>
+                <option node="con:sort_3" value="3">Date, old first</option>
+                </select>
+            </div> 
+
+            <div class="search_adv_sel_item"> 
+                <div  class="save_selections" style="text-align:right" >
+                    <button id="save" onClick="saveOptionsToCookie()">Save Selections</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="search_adv" style="margin-top:5px">
+            <label class="main_label" for="exact">Exact Phrase:</label>
+            <input node="con:exact" name="exact" size="50"> </input>
+        </div>
+        <div class="search_adv">
+            <label class="main_label" for="exclusions">Without the words:</label>
+            <input node="con:exclusions" name="exclusions" size="50"> </input>
+        </div>
+        <div class="search_adv">
+            <label class="main_label" for="filenameq">Filename words:</label>
+            <input node="con:filenameq" name="filenameq" size="50"> </input>
+        </div>
+
     </div>
 
-    <div node="con:advanced_holder">
-      <div class="search_adv" style="margin-top:5px">
-        <label class="main_label" for="exact">Exact Phrase:</label>
-        <input node="con:exact" name="exact" size="50"> </input>
-      </div>
-      <div class="search_adv">
-        <label class="main_label" for="exclusions">Without the words:</label>
-        <input node="con:exclusions" name="exclusions" size="50"> </input>
-      </div>
-      <div class="search_adv">
-        <label class="main_label" for="filenameq">Filename words:</label>
-        <input node="con:filenameq" name="filenameq" size="50"> </input>
-      </div>
-      <div class="search_adv">
-	<label class="main_label" for="formats">Formats:</label>
-	<input node="con:xls" type="checkbox" id="format_xls"
-	       name="format" value="xls"></input>
-	<label for="format_xls">Excel</label>
-	<input node="con:html" type="checkbox" id="format_html"
-	       name="format" value="html"></input>
-	<label for="format_html">HTML</label>
-	<input node="con:pdf" type="checkbox" id="format_pdf"
-	       name="format" value="pdf"></input>
-	<label for="format_pdf">PDF</label>
-	<input node="con:ppt" type="checkbox" id="format_ppt"
-	       name="format" value="ppt"></input>
-	<label for="format_ppt">Power Point</label>
-	<input node="con:rtf" type="checkbox" id="format_rtf"
-	       name="format" value="rtf"></input>
-	<label for="format_rtf">RTF</label>
-	<input node="con:txt" type="checkbox" id="format_txt"
-	       name="format" value="txt"></input>
-	<label for="format_txt">Text</label>
-	<input node="con:doc" type="checkbox" id="format_doc"
-	       name="format" value="doc"></input>
-	<label for="format_doc">Word</label>
-      </div>
-      <div class="search_adv">
-        <label id="sort_label" class="main_label" for="sort_by">Sort by:</label>
-        <select name="sort_by" id="sort_by">
-          <option node="con:sort_1" value="1">Relevance</option>
-          <option node="con:sort_2" value="2">Date, new first</option>
-          <option node="con:sort_3" value="3">Date, old first</option>
-        </select>
-      </div>
-      <div  class="save_selections" style="text-align:right" >
-        <button id="save" onClick="saveOptionsToCookie()">Save Selections</button>
-      </div>
-    </div>
   </form>
   
   <div style="margin-top:30px" node="con:descriptions">
