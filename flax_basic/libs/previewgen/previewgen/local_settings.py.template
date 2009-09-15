@@ -1,0 +1,11 @@
+""" 
+
+Put local customizations for settings.py here rather that editing that file.
+
+"""
+
+#ooo_python_paths = ['c:/Program Files/OpenOffice.org 3/Basis/program']
+
+#lib_wand = ('c:/Program Files/ImageMagick-6.5.5-Q16/CORE_RL_wand.dll'
+#            if util.is_windows()
+#            else '/usr/lib/libWand.so.10')

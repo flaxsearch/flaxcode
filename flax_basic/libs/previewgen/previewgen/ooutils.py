@@ -19,24 +19,7 @@ import tempfile
 import zipfile
 import PythonMagickWand
 from ctypes import c_size_t, pointer
-     
-def fixup_environ(OOoBasePath='C:\\Program Files\\OpenOffice 3\\'):
-    """On windows using uno is tricky since it really expects to be
-    run using the version of python shipped with Ooo. Calling this
-    should fix things, but note that you still need to be binary
-    compatible (probably exactly the same version of python). If you
-    want to use a different version of python you will need to rebuild
-    the pyuno module.
 
-    """
-    path_extra = ';'+OOoBasePath + 'URE\\bin;' + OOoBasePath+'Basis\\program'
-    os.environ['PATH']=os.environ['PATH']+path_extra
-    url = OOoBasePath.replace('\\', '/')
-    url = url.replace(' ', '%20')
-    url = 'file:///'+url
-    os.environ['URE_BOOTSTRAP'] = url
-
-fixup_environ()
 
 class OOoImagePreviewer(object):
     """ Abstract base class providing a common framework for
