@@ -11,7 +11,8 @@ import sys
 import os
 
 
-dirname = os.path.dirname(__file__)
+
+dirname = os.path.dirname(os.path.abspath(__file__))
 parent = os.path.abspath(os.path.dirname(dirname))
 sys.path = [parent] + sys.path
 
@@ -31,3 +32,5 @@ class DependeciesTestCase(unittest.TestCase):
     def test_ghostscript_present(self):
         subprocess.check_call(["ghostscript", "-v"])
         
+if __name__ == "__main__":
+    unittest.main()
