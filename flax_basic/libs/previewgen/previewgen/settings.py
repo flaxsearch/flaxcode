@@ -7,7 +7,7 @@ ooo_python_paths = ['c:/Program Files/OpenOffice.org 3/Basis/program']
 ooo_environment_PATH =  (';' + ooo_base_path + 'URE/bin;' +
                           ooo_base_path + 'Basis/Program')
 
-ooo_environment_URE_BOOTSTRAP = ooo_base_path
+ooo_environment_URE_BOOTSTRAP = ooo_base_path + 'program/fundamental.ini'
 
 
 ooo_connection_string = (
