@@ -34,7 +34,7 @@ if _is_windows:
     import win32api
     import string
 
-from previewgen import get_previewer
+from previewgen import WSGIPreviewGen
 
 class FlaxResource(object):
     "Abstract class supporting common error handling across all Flax web pages"
@@ -396,11 +396,6 @@ class Top(FlaxResource):
         raise cherrypy.NotFound()
 
     @cherrypy.expose
-    def make_preview(self, filename, *unused):
-        cherrypy.response.headers['Content-Type'] = "image/png"
-        return cherrypy.thread_data.previewer(filename)
-
-    @cherrypy.expose
     def about(self):
         """Display the "About" page.
 
@@ -536,15 +531,20 @@ def start_web_server(flax_data, index_server, conf_path, templates_path, blockin
     admin.collections = collections
     top.admin = admin
 
+    # this has to come before cherrypy makes any application objects
+    # if cp logging is to be properly integrated with the rest of flax
+    # logging.
+    cherrypy.log.logger_root = 'webserver'
+
     # HACK - customise the generic error template
     cherrypy._cperror._HTTPErrorTemplate = open(
         os.path.join(templates_path, 'cp_http_error.html')).read()
 
     cherrypy.config.update(conf_path)
     cherrypy.tree.mount(top, '/', config=conf_path)
-    cherrypy.server.quickstart()
-    cherrypy.log = cplogger.cpLogger()
-
+    cherrypy.tree.graft(WSGIPreviewGen(),
+                        '/make_preview')
+    
     if _is_windows:
         
         # this is necessary because we make COM calls withing the
@@ -563,18 +563,17 @@ def start_web_server(flax_data, index_server, conf_path, templates_path, blockin
         # subscription protocol varies amongst cherrypy versions - if
         # this errors google "cherrypy engine subscribe" - for 3.1 or
         # newer the following 2 lines should work:      
-        #cherrypy.engine.subscribe('start_thread', InitializeCOM)
-        #cherrypy.engine.subscribe('stop_thread', UninitializeCOM)
+        cherrypy.engine.subscribe('start_thread', InitializeCOM)
+        cherrypy.engine.subscribe('stop_thread', UninitializeCOM)
 
-        cherrypy.engine.on_start_thread_list.append(InitializeCOM)
-        cherrypy.engine.on_stop_thread_list.append(UninitializeCOM)
+        # On older versions the following two lines should work:
+        #cherrypy.engine.on_start_thread_list.append(InitializeCOM)
+        #cherrypy.engine.on_stop_thread_list.append(UninitializeCOM)
         
-    def create_previewer(threadindex):
-        cherrypy.thread_data.previewer = get_previewer()
-    #note the comments about subscription above
-    cherrypy.engine.on_start_thread_list.append(create_previewer)
-        
-    cherrypy.engine.start(blocking)
+
+    cherrypy.engine.start()
+    if blocking:
+        cherrypy.engine.block()
 
 def stop_web_server():
     """Stop the flax web server.
