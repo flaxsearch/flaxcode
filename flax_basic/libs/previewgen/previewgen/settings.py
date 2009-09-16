@@ -14,7 +14,7 @@ ooo_connection_string = (
     "uno:socket,host=localhost,port=8100;urp;StarOffice.ComponentContext")
 
 
-lib_wand = ('c:/Program Files/ImageMagick-6.5.5-Q16/CORE_RL_wand.dll'
+lib_wand = ('c:/Program Files/ImageMagick-6.5.5-Q16/CORE_RL_wand_.dll'
             if util.is_windows()
             else '/usr/lib/libWand.so.10')
 
