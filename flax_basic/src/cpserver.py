@@ -22,7 +22,6 @@ import os
 import re
 import setuppaths
 import cherrypy
-import cplogger
 import templates
 import persist
 import util
