@@ -82,15 +82,20 @@ class OOoImagePreviewer(object):
         return rv
 
     def get_preview(self, infile):
-        doc = self._load_document(infile)
-        if not doc:
-            return False
-        #tempfile = self._temp_filename(suffix=".odt")
-        tempfile = self._temp_filename(suffix=".pdf")
-        if not self._save_document(doc, tempfile, self._pdf_save_props):
-            return False
-        #rv =  self._extract_thumb_from_odt(tempfile)
-        rv =  self._pdf_to_image(tempfile)
-        if os.path.exists(tempfile):
-            os.remove(tempfile)
+        unused, ext = os.path.splitext(infile)
+        ext = ext[1:]
+        if(ext == 'pdf'):
+            rv =  self._pdf_to_image(infile)
+        else:
+            doc = self._load_document(infile)
+            if not doc:
+                return False
+            #tempfile = self._temp_filename(suffix=".odt")
+            tempfile = self._temp_filename(suffix=".pdf")
+            if not self._save_document(doc, tempfile, self._pdf_save_props):
+                return False
+            #rv =  self._extract_thumb_from_odt(tempfile)
+            rv =  self._pdf_to_image(tempfile)
+            if os.path.exists(tempfile):
+                os.remove(tempfile)
         return rv

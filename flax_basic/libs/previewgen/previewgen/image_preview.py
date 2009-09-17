@@ -40,15 +40,9 @@ def get_previewer():
         except ImportError:
             previewer = None
 
-    preview_maker_map = {}
-    if previewer:
-        preview_maker_map.update( {'doc' : previewer.get_preview } )
-
     def make_preview(filename):
-        unused, ext = os.path.splitext(filename)
-        ext = ext[1:]
         try:
-            return preview_maker_map[ext](filename)
+            return previewer.get_preview(filename)
         except KeyError:
             return None
     
