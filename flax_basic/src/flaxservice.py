@@ -73,7 +73,7 @@ sys.executable = _reg.runtimepath + '/startflax.exe'
 #######################################################
 
 import startflax
-import processing
+import multiprocessing as processing
 sys.executable = oldsysexec
 
 

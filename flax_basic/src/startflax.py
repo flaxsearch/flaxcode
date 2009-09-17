@@ -29,7 +29,8 @@ import threading
 import time
 import logging
 
-import processing
+import multiprocessing as processing
+
 import cpserver
 import flax
 import flaxauth
@@ -259,7 +260,7 @@ Note that the password will not appear as you type it.
     flaxauth.save()
 
 def main():
-    processing.freezeSupport()
+    processing.freeze_support()
     options = parse_cli_opts()
     main = FlaxMain(options)
     if options.set_admin_password:

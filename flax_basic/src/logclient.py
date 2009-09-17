@@ -28,7 +28,7 @@ import logging.config
 import flaxloghandlers
 import StringIO
 import threading
-import processing
+import multiprocessing as processing
 import time
 
 import util

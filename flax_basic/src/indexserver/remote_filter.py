@@ -23,7 +23,7 @@ fail in other ways will not break the whole indexing process.
 __docformat__ = "restructuredtext en"
 
 import sys
-import processing
+import multiprocessing as processing
 import functools
 import logging
 

@@ -27,7 +27,8 @@ import time
 import threading
 
 import setuppaths
-import processing
+import multiprocessing as processing
+
 import xappy
 
 import dbspec
@@ -269,7 +270,7 @@ class IndexProcess(logclient.LogClientProcess):
     def __init__(self, kill_self, *indexer_args):
         logclient.LogClientProcess.__init__(self)
         self.kill_self = kill_self
-        self.setStoppable(True)
+        self.daemon = True
         self.inpipe = processing.Pipe()
         self.outpipe = processing.Pipe()
         self.indexer_args = indexer_args
@@ -321,20 +322,19 @@ class IndexServer(object):
     """
 
     def __init__(self):
-        self.syncman = processing.Manager()
-        self.error_count_sv = self.syncman.SharedValue('i',0)
-        self.file_count_sv = self.syncman.SharedValue('i', 0)
+        self.error_count_sv = processing.Value('i',0)
+        self.file_count_sv = processing.Value('i', 0)
         # changes to stop_sv and currently_indexing should be atomic - use this lock to ensure so.
         self.state_lock = threading.Lock()
-        self.stop_sv = self.syncman.SharedValue('i', 0)
-        self.kill_indexer = self.syncman.SharedValue('i', 0)
+        self.stop_sv = processing.Value('i', 0)
+        self.kill_indexer = processing.Value('i', 0)
         self.currently_indexing = None
         self.hints = set()
         self.indexing_process = IndexProcess(self.kill_indexer,
                                              self.file_count_sv,
                                              self.error_count_sv,
                                              self.stop_sv)
-        control_log.info("Started the indexing process with pid: %d" % self.indexing_process.getPid())
+        control_log.info("Started the indexing process with pid: %d" % self.indexing_process.pid)
 
     def stop(self):
         # in order to stop in a timely fashion if something is
