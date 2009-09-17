@@ -36,7 +36,7 @@ class FilterRunner(logclient.LogClientProcess):
         self.i = i
         self.o = o
         self.filter = filter
-        self.setDaemon(True)
+        self.daemon = True
         self.start()
         
     def run(self):
@@ -110,13 +110,13 @@ class RemoteFilterRunner(object):
         self.server = self.inpipe = self.outpipe = None
 
     def maybe_start_server(self):
-        if not self.server or (self.server and not self.server.isAlive()):
+        if not self.server or (self.server and not self.server.is_alive()):
             if self.server:
                 self.kill_server()
             self.inpipe = processing.Pipe()
             self.outpipe = processing.Pipe()
             self.server = FilterRunner(self.filter, self.outpipe[1], self.inpipe[0])
-            log.info("Starting a remote filter process with pid: %d" % self.server.getPid())
+            log.info("Starting a remote filter process with pid: %d" % self.server.pid)
 
 
 # just for expermenting/testing

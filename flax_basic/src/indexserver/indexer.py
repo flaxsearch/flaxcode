@@ -270,7 +270,6 @@ class IndexProcess(logclient.LogClientProcess):
     def __init__(self, kill_self, *indexer_args):
         logclient.LogClientProcess.__init__(self)
         self.kill_self = kill_self
-        self.daemon = True
         self.inpipe = processing.Pipe()
         self.outpipe = processing.Pipe()
         self.indexer_args = indexer_args
