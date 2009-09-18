@@ -74,7 +74,7 @@ $flaxdb->addField('BYLINE', array('store' => true, 'exacttext' => true));
 $flaxdb->addField('DATELINE', array('store' => true, 'exacttext' => true));
 $flaxdb->addField('TEXT', array('store' => false, 'freetext' => array('language' => 'en')));
 $flaxdb->addField('_PATH', array('store' => true));
-$flaxdb->commit();
+$flaxdb->flush();
 
 foreach (array_slice($argv, 2) as $dir) {
     print "$dir\n";
@@ -102,6 +102,6 @@ foreach (array_slice($argv, 2) as $dir) {
     closedir($dir_handle);
 }
 
-$flaxdb->commit();
+$flaxdb->flush();
 
 ?>

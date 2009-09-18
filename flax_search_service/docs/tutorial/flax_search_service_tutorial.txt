@@ -4,18 +4,14 @@ Flax Search Service Tutorial
 
 Overview
 ========
-
 This document, and associated files, covers the basics of running the Flax 
 Search Service and using it to index, retrieve, and search for documents using 
 a simple schema. It is applicable to all the existing client libraries (Python,
 PHP and Perl).
 
-
 Requirements
 ============
-
 To follow this tutorial, you will need:  
-FIXME: links
 
     1. Xapian 1.0.6 or later installed on your computer.
     2. Python 2.5 or 2.6 (required for the search service).
@@ -25,13 +21,8 @@ FIXME: links
 To follow the tutorial with the PHP client library, you will need the PHP 5 
 command-line interpreter. Perl 5 is required for the Perl client.
 
-The ``curl`` command may be useful for talking directly to the Search Service 
-from the command line.
-
-
 Getting Started
 ===============
-
 If necessary, install the required software. Then start the Search Service by 
 cd'ing to the ``flax_search_service`` directory and running::
 
@@ -56,12 +47,10 @@ This will return information about the search service, formatted as JSON, e.g.::
 
     {"backends": {}, "versions": {"PROTOCOL": "dev20090312", "SERVER": "0.1"}}
 
-Don't worry about the exact meaning of these values for now!
-
+Don't worry about the exact meaning of these values.
 
 Loading the client libraries
 ============================
-
 In order to run the examples for Python, Perl or PHP, the relevant interpreter 
 needs to be able to locate the client libraries for loading. These are located 
 in subdirectories of ``clients``. The simplest method may be to create symbolic
@@ -74,10 +63,8 @@ e.g. for Python::
 Alternatively, add the location of the client library to ``PYTHONPATH`` (for 
 Python), ``@INC`` (for Perl), or your PHP configuration file.
 
-
 Creating a Database
 ===================
-
 The search server can support multiple databases, each of which is identified by
 a name. Currently, the name must only consist of ASCII letters and numbers, plus
 the characters "." and/or "_" (we plan to lift this restriction in a future 
@@ -87,10 +74,8 @@ To create a database, an HTTP POST request is made to the database resource URL
 on the search server. This will usually be done via the client libraries, and in
 this tutorial is handled in the next setp.
 
-
 Setting up a Schema
 ===================
-
 In Flax, documents consist of a simple flat set of named fields, where each 
 field has one or more string values. Fields may be indexed for full-text 
 searching or act as Boolean filters, and may be stored in the database or not 
@@ -129,30 +114,11 @@ To create a database called "books" and set this schema on it, run the
 comments in the script file.
 
 Assuming this runs without error, you will now have a database called "books" 
-with a suitable schema for indexing the book data. You can get a list of 
-databases by GETing the ``dbs`` resource on the server, e.g. using ``curl``::
-
-    $ curl http://localhost:8080/v1/dbs
-    
-    ["books"]
-
-Or to get the database schema::
-
-    $ curl http://localhost:8080/v1/dbs/books/schema
-    
-    {"templates": {}, "fields": {"author": {"exacttext": true, "store": true}, 
-    "first": {"store": true, "freetext": {"language": "en"}}, 
-    "title": {"store": true, "freetext": {"language": "en"}}}, 
-    "groups": {}, "language": "none"}
-
-The script ``t2_show_schema`` does a similar job using the client libraries, 
-but separates out the field information from the rest of the schema and displays
-it more tidily.
-
+with a suitable schema for indexing the book data. To display the schema,
+run the script ``t2_show_schema``.
 
 Indexing Documents
 ==================
-
 Documents are added to a database by POSTing them to the ``docs`` resource on
 the search server. They are represented as JSON objects, where keys are 
 fieldnames and values are strings (or lists of strings, for multiple field 
@@ -189,26 +155,15 @@ ID, the data in ``books2.txt`` should replace the documents previously added.
 Check this by running ``t4_show_db_info`` again, which will correctly give
 a total document count of 10.
 
-
 Retrieving Documents
 ====================
-
 Each document in a database is represented on the Flax server by a resource
 with the path: ``docs/<doc_id>``. Like database names, document IDs can only 
 consist of letters, numbers, "." and "_". The client libraries work around this
 by URL-encoding document IDs, which can thus consist of an arbitrary string.
 
-If you have ``curl``, you can access a document with it, e.g.:
-
-    $ curl http://localhost:8080/v1/dbs/books/docs/0%2D330%2D25864%2D8
-
-Which will return the stored information for The Hitch-Hiker's Guide to the
-Galaxy. The trailing path component is the URL-encoded version of 0-330-25864-8.
-Also notice how the ``first`` field is not returned, as the database schema 
-specifies that it is not stored.
-
-In the client libraries, documents can be retrieved using the ``get_document``
-method of database objects, as in the ``t5_get_doc`` script, e.g.:
+Documents are retrieved using the ``get_document`` method of database objects, 
+as in the ``t5_get_doc`` script, e.g.:
 
     $ python t5_get_doc.py 978-1-84149-419-7
     
@@ -217,16 +172,10 @@ method of database objects, as in the ``t5_get_doc`` script, e.g.:
 
 Searching
 =========
-
 Searching is accessed on the server through the ``search`` resource, which has
 ``simple``, ``structured`` and ``similar`` variants. To search, the client 
 sends a GET request with a query string containing the search words and other
-necessary parameters. Try this with ``curl`` if you have it:
-
-    $ curl http://localhost:8080/v1/dbs/books/search/simple?query=bear
-
-which will return a JSON object containing information about the documents
-matching the query. 
+necessary parameters.
 
 The client libraries provide search functionality via methods on database 
 objects, which return match result objects. The ``t6_search`` script 

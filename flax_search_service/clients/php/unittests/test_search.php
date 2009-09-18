@@ -45,7 +45,7 @@ class SearchTestCase extends UnitTestCase {
 
         $this->db->addDocument(array('f1' => 'Billy Bragg', 'f2' => 'A New England'), 'doc1');
         $this->db->addDocument(array('f1' => 'Billy Bragg', 'f2' => 'Between The Wars'), 'doc2');
-        $this->db->commit();
+        $this->db->flush();
 
         # check search results
         $results = $this->db->searchStructured('', '', '', '',
@@ -79,7 +79,7 @@ class SearchTestCase extends UnitTestCase {
 
         $this->db->addDocument(array('f1' => 'Billy Bragg', 'f2' => 'A New England'), 'doc1');
         $this->db->addDocument(array('f1' => 'Billy Bragg', 'f2' => 'between the wars'), 'doc2');
-        $this->db->commit();
+        $this->db->flush();
 
         # check search results (freetext search)
         $results = $this->db->searchSimple('A New england');
@@ -118,7 +118,7 @@ class SearchTestCase extends UnitTestCase {
         $this->db->addField('f1', new FlaxFreeTextField(false, 'en'));
         $this->db->addDocument(array('f1' => 'A New England'), 'doc1');
         $this->db->addDocument(array('f1' => 'between the wars'), 'doc2');
-        $this->db->commit();
+        $this->db->flush();
 
         $results = $this->db->searchSimple('warring');
         $this->assertEqual($results->matches_estimated, 1);
@@ -135,7 +135,7 @@ class SearchTestCase extends UnitTestCase {
         $this->db->addDocument(array('f1' => 'Milkman Of Human Kindness'), 'doc1');
         $this->db->addDocument(array('f1' => 'Milk Of Human Kindness'), 'doc2');
         $this->db->addDocument(array('f1' => 'nothing'), 'doc3');
-        $this->db->commit();
+        $this->db->flush();
 
         $results = $this->db->searchSimilar('doc2');
         $this->assertEqual($results->matches_estimated, 2);

@@ -214,7 +214,7 @@ class _FlaxDatabase {
         }
     }
 
-    function commit() {
+    function flush() {
         if ($this->deleted) {
             throw new FlaxDatabaseError('database has been deleted');
         }

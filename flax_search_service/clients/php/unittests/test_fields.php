@@ -56,7 +56,7 @@ class FieldsTestCase extends UnitTestCase {
         # flush changes
         # FIXME - make changes to DB structure commit automatically?
         # (can do at client or server level)
-        $this->db->commit();
+        $this->db->flush();
         
         # check it's been added ok
         $fnames = $this->db->getFieldNames();        
@@ -67,7 +67,7 @@ class FieldsTestCase extends UnitTestCase {
 
         # delete the field
         $this->db->deleteField('foo');
-        $this->db->commit();
+        $this->db->flush();
 
         # check it's gone
         try {
@@ -82,11 +82,11 @@ class FieldsTestCase extends UnitTestCase {
     function testOverwriteField() {
         # add a field
         $result = $this->db->addField('foo', new FlaxExactTextField(true));
-        $this->db->commit();
+        $this->db->flush();
 
         # check we can overwrite it
         $result = $this->db->replaceField('foo', new FlaxFreeTextField(true));
-        $this->db->commit();
+        $this->db->flush();
 
         # check it's been added ok
         $fnames = $this->db->getFieldNames();

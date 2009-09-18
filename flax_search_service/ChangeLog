@@ -1,3 +1,21 @@
+Fri 18 Sep 2009 15:05:21 BST  Tom Mortimer <tom@flax.co.uk>
+
+    * clients/php/unittests/test_search.php,
+    * clients/php/unittests/test_fields.php,
+    * clients/php/unittests/test_docs.php,
+    * clients/php/flax/flaxclient.php,
+    * clients/php/flax/flaxjsonobject.php,
+    * clients/php/flax/flaxfield.php,
+    * clients/php/flax/_restclient_curl.php,
+    * clients/php/flax/flaxsearch.php,
+    * clients/php/examples/newsml_indexer.php: Replaced commit() with flush(),
+      also tidied up whitespace.
+
+Fri 18 Sep 2009 12:42:41 BST  Tom Mortimer <tom@flax.co.uk>
+
+    * docs/tutorial/flax_search_service_tutorial.txt: Removed most 
+      references to curl command, as this is distracting.
+
 Fri 28 Aug 2009 14:45:17 BST  Tom Mortimer <tom@flax.co.uk>
 
     * tutorial/flax_search_service_tutorial.txt,

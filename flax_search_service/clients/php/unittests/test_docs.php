@@ -52,7 +52,7 @@ class DocsTestCase extends UnitTestCase {
         # add a doc with an ID
         $doc = array('foo' => 'bar');
         $this->db->addDocument($doc, 'doc002');
-        $this->db->commit();
+        $this->db->flush();
 
         # check it's been added ok
         $this->assertEqual($this->db->getDocCount(), 1);
@@ -66,7 +66,7 @@ class DocsTestCase extends UnitTestCase {
 
         # check we can delete it
         $this->db->deleteDocument('doc002');
-        $this->db->commit();
+        $this->db->flush();
 
         try {
             $this->db->getDocument('doc002');
@@ -139,7 +139,7 @@ post-structuralism.
 EOT;
         $doc = array('foo' => $text);
         $this->db->addDocument($doc);
-        $this->db->commit();
+        $this->db->flush();
 
         # check that we can search for it
         $results = $this->db->searchSimple('derrida');
