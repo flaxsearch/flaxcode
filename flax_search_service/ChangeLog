@@ -1,3 +1,9 @@
+Fri 18 Sep 2009 16:28:44 BST  Tom Mortimer <tom@flax.co.uk>
+
+    * docs/tutorial/perl
+    * docs/tutorial/perl/t1_create_db.pl
+    * docs/tutorial/perl/t2_show_schema.pl: Started to add perl tutorial.
+
 Fri 18 Sep 2009 15:39:10 BST  Tom Mortimer <tom@flax.co.uk>
 
     * docs/tutorial/php,
