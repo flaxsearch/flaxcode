@@ -1,3 +1,14 @@
+Fri 18 Sep 2009 15:39:10 BST  Tom Mortimer <tom@flax.co.uk>
+
+    * docs/tutorial/php,
+    * docs/tutorial/php/t1_create_db.php,
+    * docs/tutorial/php/t2_show_schema.php,
+    * docs/tutorial/php/t3_index_books.php,
+    * docs/tutorial/php/t4_show_db_info.php,
+    * docs/tutorial/php/t5_get_doc.php,
+    * docs/tutorial/php/t6_search.php,
+    * docs/tutorial/php/t7_search_author.php: Added PHP tutorial files.
+
 Fri 18 Sep 2009 15:05:21 BST  Tom Mortimer <tom@flax.co.uk>
 
     * clients/php/unittests/test_search.php,
