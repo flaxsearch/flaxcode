@@ -164,7 +164,7 @@ Deletes the database resource referenced by this object.
 
 =back
 
-=head3 commit
+=head3 flush
 
 =over 4
 

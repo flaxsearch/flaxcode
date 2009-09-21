@@ -1,3 +1,9 @@
+Mon 21 Sep 2009 11:11:28 BST  Tom Mortimer <tom@flax.co.uk>
+
+    * clients/perl/t/test.pl,
+    * clients/perl/Flax.pm,
+    * clients/perl/Flax/Database.pm: Renamed Flax::Database::commit to flush.
+
 Fri 18 Sep 2009 16:28:44 BST  Tom Mortimer <tom@flax.co.uk>
 
     * docs/tutorial/perl

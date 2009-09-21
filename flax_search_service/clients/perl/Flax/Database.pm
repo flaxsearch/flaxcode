@@ -179,7 +179,7 @@ sub deleteDocument {
     throw Flax::Error::Document($res->content) unless ($res->is_success);
 }
 
-sub commit {
+sub flush {
     my $self = shift;
     $self->_checkDeleted();
     my $res = $self->restclient->do_post($self->_baseUrl . '/flush', JSON::true);

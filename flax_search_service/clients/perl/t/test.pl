@@ -111,13 +111,13 @@ sub testNoFields {
 sub testAddDeleteFields {
     my $db = shift;
     my $res = $db->addField('foo', Flax::Field::ExactText->new('store'=>1));
-    $db->commit();
+    $db->flush();
     my $fnames = $db->getFieldNames();
     return 0 unless ($fnames->[0] eq 'foo');
     my $field = $db->getField('foo');
     return 0 unless ("$field" eq 'FlaxExactTextField[1]');
     $db->deleteField('foo');
-    $db->commit();
+    $db->flush();
     try {
         $db->getField('foo');
         return 0;
@@ -130,10 +130,10 @@ sub testAddDeleteFields {
 sub testOverwriteField {
     my $db = shift;
     my $res = $db->addField('foo', Flax::Field::ExactText->new('store' => 1));
-    $db->commit();
+    $db->flush();
 
     $res = $db->replaceField('foo', Flax::Field::FreeText->new('store' => 1));
-    $db->commit();
+    $db->flush();
 
     my $fnames = $db->getFieldNames();
     return 0 unless ($fnames->[0] eq 'foo');
@@ -159,7 +159,7 @@ sub testAddDoc {
     my $db = shift;
     my $doc = { 'foo' => 'bar' };
     $db->addDocument($doc, 'doc002');
-    $db->commit();
+    $db->flush();
 
     return 0 unless ($db->getDocCount() == 1);
 
@@ -170,7 +170,7 @@ sub testAddDoc {
     return 0 unless ($res->matches_estimated == 1);
 
     $db->deleteDocument('doc002');
-    $db->commit();
+    $db->flush();
 
     try {
         $db->getDocument('doc002');
@@ -242,7 +242,7 @@ post-structuralism.
 (source: http://en.wikipedia.org/wiki/Derrida )
 EOT
     $db->addDocument({ 'foo' => $text });
-    $db->commit();
+    $db->flush();
 
     my $res = $db->searchSimple('derrida');
     return 0 unless ($res->matches_estimated == 1);
@@ -267,7 +267,7 @@ sub testExact {
 
     $db->addDocument({'f1' => 'Billy Bragg', 'f2' => 'A New England'}, 'doc1');
     $db->addDocument({'f1' => 'Billy Bragg', 'f2' => 'Between The Wars'}, 'doc2');
-    $db->commit();
+    $db->flush();
 
     my $res1 = $db->searchStructured('', '', '', '',
                     [[ 'f2', 'A New England' ]]);
@@ -301,7 +301,7 @@ sub testFreetext {
     $db->addField('f2', Flax::Field::FreeText->new());
     $db->addDocument({'f1' => 'Billy Bragg', 'f2' => 'A New England'}, 'doc1');
     $db->addDocument({'f1' => 'Billy Bragg', 'f2' => 'between the wars'}, 'doc2');
-    $db->commit();
+    $db->flush();
 
     # check search results (freetext search)
     my $res1 = $db->searchSimple('A New england');
@@ -344,7 +344,7 @@ sub testFreetextStemmed {
     $db->addField('f1', Flax::Field::FreeText->new('store'=>0, 'lang'=> 'en'));
     $db->addDocument({'f1' => 'A New England'}, 'doc1');
     $db->addDocument({'f1' => 'between the wars'}, 'doc2');
-    $db->commit();
+    $db->flush();
 
     my $res1 = $db->searchSimple('warring');
     return 0 unless ($res1->matches_estimated == 1);
@@ -364,7 +364,7 @@ sub testSimilar {
     $db->addDocument({'f1' => 'Milkman Of Human Kindness'}, 'doc1');
     $db->addDocument({'f1' => 'Milk Of Human Kindness'}, 'doc2');
     $db->addDocument({'f1' => 'nothing'}, 'doc3');
-    $db->commit();
+    $db->flush();
 
     my $res1 = $db->searchSimilar('doc2');
     return 0 unless ($res1->matches_estimated == 2);
