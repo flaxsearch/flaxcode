@@ -1,3 +1,11 @@
+Mon 21 Sep 2009 14:21:20 BST  Tom Mortimer <tom@flax.co.uk>
+
+    * docs/tutorial/perl/t4_show_db_info.pl,
+    * docs/tutorial/perl/t5_get_doc.pl,
+    * docs/tutorial/perl/t6_search.pl,
+    * docs/tutorial/perl/t7_search_author.pl: Added remaining scripts.
+
+
 Mon 21 Sep 2009 11:11:28 BST  Tom Mortimer <tom@flax.co.uk>
 
     * clients/perl/t/test.pl,
