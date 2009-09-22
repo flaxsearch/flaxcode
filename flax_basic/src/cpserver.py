@@ -26,6 +26,7 @@ import templates
 import persist
 import util
 import logging
+import logserver
 
 import platform
 _is_windows = platform.system() == 'Windows'
@@ -504,8 +505,13 @@ class Admin(Top):
             else:
                 return "[['/', '/', 1, 1]]"
 
+def get_port(conf = None):
+    if conf is not None:
+        cherrypy.config.update(conf)
+    return cherrypy.server.socket_port
 
-def start_web_server(flax_data, index_server, conf_path, templates_path, blocking=True):
+def start_web_server(flax_data, index_server, conf_path,
+                     templates_path, logging_path, blocking=True):
     """Start the web server.
 
     """
@@ -543,7 +549,10 @@ def start_web_server(flax_data, index_server, conf_path, templates_path, blockin
     cherrypy.tree.mount(top, '/', config=conf_path)
     cherrypy.tree.graft(WSGIPreviewGen(),
                         '/make_preview')
-    
+
+    cherrypy.tree.graft(logserver.WSGILoggingApp(),
+                        logging_path)
+
     if _is_windows:
         
         # this is necessary because we make COM calls withing the
@@ -568,7 +577,6 @@ def start_web_server(flax_data, index_server, conf_path, templates_path, blockin
         # On older versions the following two lines should work:
         #cherrypy.engine.on_start_thread_list.append(InitializeCOM)
         #cherrypy.engine.on_stop_thread_list.append(UninitializeCOM)
-        
 
     cherrypy.engine.start()
     if blocking:

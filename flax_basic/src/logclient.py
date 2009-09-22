@@ -1,4 +1,4 @@
-# Copyright (C) 2007 Lemur Consulting Ltd
+# Copyright (C) 2007, 2008, 2009 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,34 +24,12 @@ __docformat__ = "restructuredtext en"
 
 import ConfigParser
 import logging
-import logging.config
-import flaxloghandlers
-import StringIO
-import threading
-import multiprocessing as processing
-import time
+import logging.handlers
+import multiprocessing
+import urllib
 
 import util
 import flaxpaths
-
-# Add flaxloghandlers to the logging module, to make it available from the
-# log configuration file.
-logging.flaxloghandlers = flaxloghandlers
-
-def update_log_config_from_string(s):
-    logging.config.fileConfig(StringIO.StringIO(s))
-
-class LogListener(threading.Thread):
-    def __init__(self, inpipe):
-        threading.Thread.__init__(self)
-        self.setDaemon(True)
-        self.inpipe=inpipe
-
-    def run(self):
-        while 1:
-            new_log = self.inpipe.recv()
-            update_log_config_from_string(new_log)
-
 
 class LogConf(object):
     """ Simple log configuration control/querying.
@@ -61,14 +39,30 @@ class LogConf(object):
         self.filepath = filepath
         self.parser = ConfigParser.SafeConfigParser()
 
-    def update_log_config(self):
-        with open(self.filepath) as f:
-            update_log_config_from_string(f.read())
+    #FIXME - refactor common parts of get_levels and set_levels
+    def get_levels(self, level_names):
+        """
+        Return a dictionary whose keys are the `logger_names`
+        and whose values are their levels.
 
+        """
+        self.parser.read(self.filepath)
+        rv = {}
+        for name in level_names:
+            if name == "":
+                name = "root"
+            sec_name = 'logger_%s' % name.replace('.','_')
+            level = self.parser.get(sec_name, 'level')
+            rv[name] = level
+        return rv
+    
     def set_levels(self, logger_levels):
         """
-        logger_levels is a sequence of (logger, level) pairs,
-        where logger is a string naming a logger and level is a number
+        logger_levels is a sequence of (logger, level) pairs, where
+        logger is a string naming a logger and level is a number.  If
+        the new levels are different from the current one the write
+        the configuration to self.filepath.
+        
         """
         self.parser.read(self.filepath)
         changed = False
@@ -85,34 +79,49 @@ class LogConf(object):
                 self.parser.write(f)
 
 class LogConfPub(object):
-    """ Publishes changes in the file named by `filepath` to all the
-    objects in subscribers. These must have a .send method which will
-    be called to send the new file contents to them.
     """
-    def __init__(self, filepath, subscribers):
+    Watches the file named by `filepath` for changes, and posts
+    its contents to `url` when it changes.
+    
+    """
+    def __init__(self, filepath, url):
         self.filepath = filepath
-        self.subscribers = subscribers
+        self.url = url
         util.FileWatcher(self.filepath, self.publish_new_file).start()
 
     def publish_new_file(self):
         with open(self.filepath) as f:
-            data = f.read()
-            for s in self.subscribers:
-                s.send(data)
+            urllib.urlopen(self.url, data=f.read())
 
-class LogClientProcess(processing.Process):
-    """ A processing.Process that can receive logging configuration
-        updates.  Subclass run implementations should call
-        initialise_logging before doing their main work.
+class FlaxHTTPHandler(logging.handlers.HTTPHandler):
+
+    def emit(self, msg):
+        logging.handlers.HTTPHandler.emit(self, msg)
+
+def initialise_logging(host, url):
+    # all log requests get sent - we don't want things to be filtered
+    # locally because it's the configuration at the log server's end
+    # that counts.
+    root_logger = logging.getLogger()
+    root_logger.level = 0
+    handler = FlaxHTTPHandler(host, url, 'POST')
+    handler.level = 0
+    root_logger.addHandler(handler)
+
+class LogClientProcess(multiprocessing.Process):
+    """
+    A processing.Process configuration so that logging calls are
+    handled by posting to the web location given by `host` and
+    `url`. Subclass run implementations should call initialise_logging
+    before doing their main work.
+
     """
 
-    def __init__(self):
-        processing.Process.__init__(self)
-        self.logconfio = processing.Pipe()
+    def __init__(self, *args, **kwargs):
+        super(LogClientProcess, self).__init__(*args, **kwargs)
         self.flaxpaths = flaxpaths.paths
-
-
+        
     def initialise_logging(self):
         flaxpaths.paths = self.flaxpaths
-        LogListener(self.logconfio[1]).start()
-        LogConf(flaxpaths.paths.logconf_path).update_log_config()
+        initialise_logging(self.flaxpaths.logging_host,
+                           self.flaxpaths.logging_path)

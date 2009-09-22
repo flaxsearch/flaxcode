@@ -111,6 +111,16 @@ def parse_cli_opts():
                           var_dir = realpath(options.var_dir),
                           set_admin_password = options.set_admin_password)
 
+
+# At the moment the logging server hangs of the main server. But it
+# doesn't need to be that way. The logging server could be hosted in a
+# seperate web server. One consequence of having it in the main server
+# is that once everything is bootstrapped logging from the main
+# webserver process won't go via http, because the logging
+# configuration file doesn't specify such a handler (by default - and
+# it shouldn't be changed to do so). Other processes will use this
+# mechanism tho'.
+
 class FlaxMain(object):
     """Class controlling starting and stopping Flax.
 
@@ -129,6 +139,13 @@ class FlaxMain(object):
                                  options.dbs_dir, options.log_dir,
                                  options.conf_dir, options.var_dir)
         flaxpaths.paths.makedirs()
+        flaxpaths.paths.logging_path = '/logging'
+        port = cpserver.get_port(flaxpaths.paths.cpconf_path)
+        flaxpaths.paths.logging_host = 'localhost:' + str(port)
+        def init_logging():
+            logclient.initialise_logging(flaxpaths.paths.logging_host,
+                                         flaxpaths.paths.logging_path+'/log')
+        threading.Timer(1, init_logging).start()
         self._stop_thread = None
         self._need_cleanup = False
 
@@ -142,19 +159,24 @@ class FlaxMain(object):
             self._do_cleanup()
         self._need_cleanup = True
         flaxauth.load()
-        webserver_logconfio = processing.Pipe()
         self.index_server = indexer.IndexServer()
-        logclient.LogConfPub(flaxpaths.paths.logconf_path,
-                             [webserver_logconfio[0], self.index_server.log_config_listener()])
-        logclient.LogListener(webserver_logconfio[1]).start()
-        logclient.LogConf(flaxpaths.paths.logconf_path).update_log_config()
+        self.logconfpub = logclient.LogConfPub(flaxpaths.paths.logconf_path,
+                                               "http://" +
+                                               flaxpaths.paths.logging_host +
+                                               flaxpaths.paths.logging_path +
+                                               '/config')
+
+        threading.Timer(1, self.logconfpub.publish_new_file).start()
+
         persist.read_flax(flaxpaths.paths.flaxstate_path, flax.options)
         scheduler.ScheduleIndexing(self.index_server).start()
         persist.DataSaver(flaxpaths.paths.flaxstate_path).start()
-        cpserver.start_web_server(flax.options, self.index_server,
-                                  flaxpaths.paths.cpconf_path,
-                                  flaxpaths.paths.templates_path,
-                                  blocking)
+        cpserver.start_web_server(
+            flax.options, self.index_server,
+            flaxpaths.paths.cpconf_path,
+            flaxpaths.paths.templates_path,
+            flaxpaths.paths.logging_path,
+            blocking)
 
     def _do_stop(self):
         """Internal method to perform all necessary cleanup when shutting down.

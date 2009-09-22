@@ -23,16 +23,13 @@ fail in other ways will not break the whole indexing process.
 __docformat__ = "restructuredtext en"
 
 import sys
-import multiprocessing as processing
+import multiprocessing
 import functools
 import logging
 
-import logclient
-
-class FilterRunner(logclient.LogClientProcess):
+class FilterRunner(multiprocessing.Process):
 
     def __init__(self, filter, i, o):
-        logclient.LogClientProcess.__init__(self)
         self.i = i
         self.o = o
         self.filter = filter
@@ -42,7 +39,6 @@ class FilterRunner(logclient.LogClientProcess):
     def run(self):
         """Repeatedly receive a filename on `self.i`, run
         self.filter on that file, send output to `o`"""
-        self.initialise_logging()
         remote_log = logging.getLogger("filtering.remote_filter.remote")
         while 1:
             filename = self.i.recv()

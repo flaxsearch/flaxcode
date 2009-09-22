@@ -23,12 +23,7 @@ import logging.handlers
 import os
 import flaxpaths
 
-import pkg_resources
-pkg_resources.require("ConcurrentLogHandler")
-import cloghandler
-
-
-class FlaxRotatingFileHandler(cloghandler.ConcurrentRotatingFileHandler):
+class FlaxRotatingFileHandler(logging.handlers.RotatingFileHandler):
     """A rotating file handler which logs to the flax log directory.
 
     This is just like a standard RotatingFileHandler, except that, if the
@@ -41,4 +36,4 @@ class FlaxRotatingFileHandler(cloghandler.ConcurrentRotatingFileHandler):
             filepath = filename
         else:
             filepath = os.path.join(flaxpaths.paths.log_dir, filename)
-        cloghandler.ConcurrentRotatingFileHandler.__init__(self, filepath, *args)
+        logging.handlers.RotatingFileHandler.__init__(self, filepath, *args)

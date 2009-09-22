@@ -51,7 +51,7 @@ class FlaxOptions(object):
     # FIXME - this should probably be kept in the logclient module, and
     # probably be generated from the loggers or the logging configuration
     # automatically.
-    logger_names = ("",
+    logger_names = ("root",
                     "collections",
                     "indexing",
                     "filtering",
@@ -141,7 +141,6 @@ class FlaxOptions(object):
         self.collections = collection_list.CollectionList()
         self.advanced_as_default = False
 
-
     def _set_log_settings(self, vals):
         new_levels = {}
         for name in self.logger_names:
@@ -153,16 +152,10 @@ class FlaxOptions(object):
         lq = logclient.LogConf(flaxpaths.paths.logconf_path)
         lq.set_levels(new_levels)
         
-        # This is here so that the web page that people see after
-        # setting a new option reflects the change that they've just
-        # made. See
-        # http://code.google.com/p/flaxcode/issues/detail?id=55
-        lq.update_log_config()
-
     def _get_log_settings(self):
-        # is .level part of the public api for logger objects?
-        # FIXME - check
-        return dict((name, logging.getLevelName(logging.getLogger(name).level)) for name in self.logger_names)
+        lq = logclient.LogConf(flaxpaths.paths.logconf_path)
+        return lq.get_levels(self.logger_names)
+
 
     log_settings = property(fset=_set_log_settings, fget=_get_log_settings, doc=
         """A dictionary mapping log event names to log levels.
