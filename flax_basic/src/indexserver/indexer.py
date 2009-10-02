@@ -31,6 +31,7 @@ import multiprocessing
 
 import xappy
 
+import logclient
 import dbspec
 import flaxpaths
 import util
