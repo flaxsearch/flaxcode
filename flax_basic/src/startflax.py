@@ -28,7 +28,7 @@ import sys
 import threading
 import time
 import logging
-
+import subprocess
 import multiprocessing as processing
 
 import cpserver
@@ -139,15 +139,15 @@ class FlaxMain(object):
                                  options.dbs_dir, options.log_dir,
                                  options.conf_dir, options.var_dir)
         flaxpaths.paths.makedirs()
-        flaxpaths.paths.logging_path = '/logging'
-        port = cpserver.get_port(flaxpaths.paths.cpconf_path)
-        flaxpaths.paths.logging_host = 'localhost:' + str(port)
-        def init_logging():
-            logclient.initialise_logging(flaxpaths.paths.logging_host,
-                                         flaxpaths.paths.logging_path+'/log')
-        threading.Timer(1, init_logging).start()
+        logclient.initialise_logging()
         self._stop_thread = None
         self._need_cleanup = False
+
+    def _start_log_server(self):
+        self.logserver = subprocess.Popen(
+            ["python",
+             os.path.join(flaxpaths.paths.src_dir, "runlogserver.py")]
+            )
 
     def _do_start(self, blocking):
         """Internal method to actually start all the required processes.
@@ -159,15 +159,12 @@ class FlaxMain(object):
             self._do_cleanup()
         self._need_cleanup = True
         flaxauth.load()
+        self._start_log_server()
+        time.sleep(2)
         self.index_server = indexer.IndexServer()
-        self.logconfpub = logclient.LogConfPub(flaxpaths.paths.logconf_path,
-                                               "http://" +
-                                               flaxpaths.paths.logging_host +
-                                               flaxpaths.paths.logging_path +
-                                               '/config')
-
-        threading.Timer(1, self.logconfpub.publish_new_file).start()
-
+        self.logconfpub = logclient.LogConfPub(
+            flaxpaths.paths.logconf_path)
+        self.logconfpub.publish_new_file()
         persist.read_flax(flaxpaths.paths.flaxstate_path, flax.options)
         scheduler.ScheduleIndexing(self.index_server).start()
         persist.DataSaver(flaxpaths.paths.flaxstate_path).start()
@@ -175,7 +172,6 @@ class FlaxMain(object):
             flax.options, self.index_server,
             flaxpaths.paths.cpconf_path,
             flaxpaths.paths.templates_path,
-            flaxpaths.paths.logging_path,
             blocking)
 
     def _do_stop(self):
@@ -195,6 +191,7 @@ class FlaxMain(object):
         persist.store_flax(flaxpaths.paths.flaxstate_path, flax.options)
         log.debug("_do_stop: stopping web server")
         cpserver.stop_web_server()
+        self.logserver.terminate()
         if self.index_server:
             log.debug("_do_stop: joining index_server")
             self.index_server.join()

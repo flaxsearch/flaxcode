@@ -149,11 +149,11 @@ class FlaxOptions(object):
         if "default" in vals:
             new_levels[""] = vals["default"]
 
-        lq = logclient.LogConf(flaxpaths.paths.logconf_path)
+        lq = logclient.LogConf(flaxpaths.paths.logclientconf_path)
         lq.set_levels(new_levels)
         
     def _get_log_settings(self):
-        lq = logclient.LogConf(flaxpaths.paths.logconf_path)
+        lq = logclient.LogConf(flaxpaths.paths.logclientconf_path)
         return lq.get_levels(self.logger_names)
 
 

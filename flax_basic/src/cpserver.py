@@ -26,7 +26,6 @@ import templates
 import persist
 import util
 import logging
-import logserver
 
 import platform
 _is_windows = platform.system() == 'Windows'
@@ -511,10 +510,11 @@ def get_port(conf = None):
     return cherrypy.server.socket_port
 
 def start_web_server(flax_data, index_server, conf_path,
-                     templates_path, logging_path, blocking=True):
+                     templates_path, blocking=True):
     """Start the web server.
 
     """
+
     renderer = templates.Renderer(templates_path)
     collections = Collections(flax_data,
                               renderer.collection_list_render,
@@ -536,11 +536,6 @@ def start_web_server(flax_data, index_server, conf_path,
     admin.collections = collections
     top.admin = admin
 
-    # this has to come before cherrypy makes any application objects
-    # if cp logging is to be properly integrated with the rest of flax
-    # logging.
-    cherrypy.log.logger_root = 'webserver'
-
     # HACK - customise the generic error template
     cherrypy._cperror._HTTPErrorTemplate = open(
         os.path.join(templates_path, 'cp_http_error.html')).read()
@@ -549,9 +544,6 @@ def start_web_server(flax_data, index_server, conf_path,
     cherrypy.tree.mount(top, '/', config=conf_path)
     cherrypy.tree.graft(WSGIPreviewGen(),
                         '/make_preview')
-
-    cherrypy.tree.graft(logserver.WSGILoggingApp(),
-                        logging_path)
 
     if _is_windows:
         

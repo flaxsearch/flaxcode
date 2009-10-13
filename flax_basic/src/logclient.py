@@ -22,14 +22,20 @@ configurations.
 from __future__ import with_statement
 __docformat__ = "restructuredtext en"
 
+import cStringIO
 import ConfigParser
 import logging
 import logging.handlers
+import logging.config
 import multiprocessing
 import urllib
 
 import util
 import flaxpaths
+
+def read_client_logconf():
+    logging.config.fileConfig(flaxpaths.paths.logclientconf_path)
+
 
 class LogConf(object):
     """ Simple log configuration control/querying.
@@ -77,36 +83,58 @@ class LogConf(object):
         if changed:
             with open(self.filepath, 'w') as f:
                 self.parser.write(f)
+            logging.config.fileConfig(self.filepath)
+            
 
 class LogConfPub(object):
     """
     Watches the file named by `filepath` for changes, and posts
     its contents to `url` when it changes.
+
+    If url is not provided use the client logging configuration to
+    figure out the url.
     
     """
-    def __init__(self, filepath, url):
+    def __init__(self, filepath, url=None):
         self.filepath = filepath
-        self.url = url
-        util.FileWatcher(self.filepath, self.publish_new_file).start()
+        if url is None:
+            self.url = self.url_from_client_conf()
+        else:
+            self.url = url
 
     def publish_new_file(self):
-        with open(self.filepath) as f:
-            urllib.urlopen(self.url, data=f.read())
+        data = cStringIO.StringIO()
+        logdir = flaxpaths.paths.log_dir
+        if logdir[-1] != '/':
+            logdir = logdir + '/'
+        logdir = "'" + logdir + "'"
+        parser = ConfigParser.SafeConfigParser(
+            defaults={'logdir': logdir})
+        parser.read(flaxpaths.paths.logconf_path)
+        parser.write(data)
+        urllib.urlopen(self.url, data=data.getvalue())
 
-class FlaxHTTPHandler(logging.handlers.HTTPHandler):
-
-    def emit(self, msg):
-        logging.handlers.HTTPHandler.emit(self, msg)
-
-def initialise_logging(host, url):
+    def url_from_client_conf(self):
+        parser = ConfigParser.SafeConfigParser()
+        parser.read(flaxpaths.paths.logclientconf_path)
+        args = parser.get('handler_mainhandler', 'args')
+        # looks like a potential security hole, but the logging module
+        # does this anyway so we're no doing anthing that's not
+        # already done by using logging.config.fileConfig. USers
+        # should ensure that the config file is secure.
+        args = eval(args)
+        host = args[0]
+        path = args[1]
+        #path includes the log url, so should strip that off
+        logpos = path.find('log')      
+        url = "http://" + host + path[:logpos] + 'config'
+        return url
+    
+def initialise_logging():
     # all log requests get sent - we don't want things to be filtered
     # locally because it's the configuration at the log server's end
     # that counts.
-    root_logger = logging.getLogger()
-    root_logger.level = 0
-    handler = FlaxHTTPHandler(host, url, 'POST')
-    handler.level = 0
-    root_logger.addHandler(handler)
+    read_client_logconf()
 
 class LogClientProcess(multiprocessing.Process):
     """
@@ -122,6 +150,4 @@ class LogClientProcess(multiprocessing.Process):
         self.flaxpaths = flaxpaths.paths
         
     def initialise_logging(self):
-        flaxpaths.paths = self.flaxpaths
-        initialise_logging(self.flaxpaths.logging_host,
-                           self.flaxpaths.logging_path)
+        read_client_logconf()

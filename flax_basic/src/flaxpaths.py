@@ -95,10 +95,19 @@ class FlaxPaths(object):
 
     @property
     def logconf_path(self):
-        """The path of the logging configuration file.
-
+        """The path of the main logging configuration file.  This is
+           sent to the log server.
         """
         return os.path.join(self.conf_dir, 'flaxlog.conf')
+
+    @property
+    def logclientconf_path(self):
+        """ The path of the logging configuration file for the main
+        process - this controls how the main processes interact with
+        the logging server.
+
+        """
+        return os.path.join(self.conf_dir, 'logclient.conf')
 
     @property
     def cpconf_path(self):
