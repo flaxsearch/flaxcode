@@ -20,7 +20,6 @@
 import logging
 import logging.config
 import logging.handlers
-import multiprocessing
 import StringIO
 import re
 import urlparse
@@ -119,19 +118,22 @@ class WSGILoggingApp(object):
                            [('Content-type', 'text/plain')])
             return "Only POSTing to this resource is supported"
 
-def start_log_server():
+def start_log_server(conf_file=None):
     # only import these here - not needed elsewhere, in particular
     # don't want a dependency on cherrypy if the wsgi application is
-    # to be hosted by another web server.
+    # to be hosted by another web server.  FIXME: - should check
+    # cherrypy version here - doesn't work with older ones
     import cherrypy
+    if conf_file:
+        cherrypy.config.update(conf_file)
+    cherrypy.tree.graft(WSGILoggingApp(), '/')
+    cherrypy.quickstart(None)
+
+def main():
     import os
     conf_dir = os.path.dirname(os.path.abspath(__file__))
     conf_file = os.path.join(conf_dir, 'cp.conf')
-    print conf_file
-    cherrypy.config.update(conf_file)
-    cherrypy.tree.graft(WSGILoggingApp(),'/')
-    cherrypy.quickstart(None)
+    start_log_server(conf_file)
 
 if __name__ == "__main__":
-    start_log_server()
-
+    main()
