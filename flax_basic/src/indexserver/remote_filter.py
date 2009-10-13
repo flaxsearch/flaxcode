@@ -26,8 +26,9 @@ import sys
 import multiprocessing
 import functools
 import logging
+import logclient
 
-class FilterRunner(multiprocessing.Process):
+class FilterRunner(logclient.LogClientProcess):
 
     def __init__(self, filter, i, o):
         self.i = i
