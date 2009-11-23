@@ -19,7 +19,7 @@
 __docformat__ = "restructuredtext en"
 
 import ConfigParser
-import md5
+import hashlib
 import os
 
 import flaxpaths
@@ -28,7 +28,9 @@ def encrypt_password(password):
     """Convert a password to the encrypted form.
 
     """
-    return md5.new(password).hexdigest()
+    hash = haslib.md5()
+    hash.update(password)
+    return hash.hexdigest()
 
 class FlaxAuth(object):
     """Authentication values used by Flax.

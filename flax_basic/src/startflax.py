@@ -22,6 +22,7 @@ __docformat__ = "restructuredtext en"
 
 import setuppaths
 import getpass
+import multiprocessing
 import optparse
 import os
 import sys
@@ -138,15 +139,8 @@ class FlaxMain(object):
                                  options.dbs_dir, options.log_dir,
                                  options.conf_dir, options.var_dir)
         flaxpaths.paths.makedirs()
-        logclient.initialise_logging()
         self._stop_thread = None
         self._need_cleanup = False
-
-    def _start_log_server(self):
-        self.logserver = subprocess.Popen(
-            ["python",
-             os.path.join(flaxpaths.paths.src_dir, "runlogserver.py")]
-            )
 
     def _do_start(self, blocking):
         """Internal method to actually start all the required processes.
@@ -158,12 +152,13 @@ class FlaxMain(object):
             self._do_cleanup()
         self._need_cleanup = True
         flaxauth.load()
-        self._start_log_server()
-        time.sleep(2)
+        webserver_logconfio = multiprocessing.Pipe()
         self.index_server = indexer.IndexServer()
         self.logconfpub = logclient.LogConfPub(
-            flaxpaths.paths.logconf_path)
-        self.logconfpub.publish_new_file()
+            flaxpaths.paths.logconf_path,
+            [webserver_logconfio[0], self.index_server.log_config_listener()])
+        logclient.LogListener(webserver_logconfio[1]).start()
+        logclient.LogConf(flaxpaths.paths.logconf_path).update_log_config()
         persist.read_flax(flaxpaths.paths.flaxstate_path, flax.options)
         scheduler.ScheduleIndexing(self.index_server).start()
         persist.DataSaver(flaxpaths.paths.flaxstate_path).start()
@@ -190,7 +185,6 @@ class FlaxMain(object):
         persist.store_flax(flaxpaths.paths.flaxstate_path, flax.options)
         log.debug("_do_stop: stopping web server")
         cpserver.stop_web_server()
-        self.logserver.terminate()
         if self.index_server:
             log.debug("_do_stop: joining index_server")
             self.index_server.join()

@@ -358,6 +358,10 @@ class IndexServer(object):
         get_control_log().debug("waiting to join indexing_process")
         self.indexing_process.join(timeout)
 
+    def log_config_listener(self):
+        "return a listener for log configuration changes in the remote indexing process"
+        return self.indexing_process.logconfio[0]
+
     def do_indexing(self, collection):
         assert not self.stop_sv.value
         name = collection.name

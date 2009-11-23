@@ -1,4 +1,4 @@
-# Copyright (C) 2007, 2008, 2009 Lemur Consulting Ltd
+# Copyright (C) 2007 Lemur Consulting Ltd
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,20 +22,44 @@ configurations.
 from __future__ import with_statement
 __docformat__ = "restructuredtext en"
 
-import os
-import cStringIO
 import ConfigParser
 import logging
-import logging.handlers
 import logging.config
-import multiprocessing
-import urllib
+import os
+import flaxloghandlers
+import StringIO
+import threading
+import multiprocessing as processing
+import time
 
 import util
 import flaxpaths
 
-def read_client_logconf():
-    logging.config.fileConfig(flaxpaths.paths.logclientconf_path)
+# Add flaxloghandlers to the logging module, to make it available from the
+# log configuration file.
+logging.flaxloghandlers = flaxloghandlers
+
+def sanitize_logdir(ld):
+    if not ld.endswith(os.sep):
+        ld = ld + os.sep
+    ld = ld.replace(os.sep, '/')
+    return ld
+
+config_defaults = {'logdir': sanitize_logdir(flaxpaths.paths.log_dir)}
+
+def update_log_config_from_string(s):
+    logging.config.fileConfig(StringIO.StringIO(s), config_defaults)
+
+class LogListener(threading.Thread):
+    def __init__(self, inpipe):
+        threading.Thread.__init__(self)
+        self.setDaemon(True)
+        self.inpipe=inpipe
+
+    def run(self):
+        while 1:
+            new_log = self.inpipe.recv()
+            update_log_config_from_string(new_log)
 
 
 class LogConf(object):
@@ -44,7 +68,12 @@ class LogConf(object):
     """
     def __init__(self, filepath):
         self.filepath = filepath
-        self.parser = ConfigParser.SafeConfigParser()
+        self.parser = ConfigParser.SafeConfigParser(
+            defaults=config_defaults)
+
+    def update_log_config(self):
+        with open(self.filepath) as f:
+            update_log_config_from_string(f.read())
 
     #FIXME - refactor common parts of get_levels and set_levels
     def get_levels(self, level_names):
@@ -65,11 +94,8 @@ class LogConf(object):
     
     def set_levels(self, logger_levels):
         """
-        logger_levels is a sequence of (logger, level) pairs, where
-        logger is a string naming a logger and level is a number.  If
-        the new levels are different from the current one the write
-        the configuration to self.filepath.
-        
+        logger_levels is a sequence of (logger, level) pairs,
+        where logger is a string naming a logger and level is a number
         """
         self.parser.read(self.filepath)
         changed = False
@@ -84,73 +110,37 @@ class LogConf(object):
         if changed:
             with open(self.filepath, 'w') as f:
                 self.parser.write(f)
-            logging.config.fileConfig(self.filepath)
-            
+
+        
 
 class LogConfPub(object):
+    """ Publishes changes in the file named by `filepath` to all the
+    objects in subscribers. These must have a .send method which will
+    be called to send the new file contents to them.
     """
-    Watches the file named by `filepath` for changes, and posts
-    its contents to `url` when it changes.
-
-    If url is not provided use the client logging configuration to
-    figure out the url.
-    
-    """
-    def __init__(self, filepath, url=None):
+    def __init__(self, filepath, subscribers):
         self.filepath = filepath
-        if url is None:
-            self.url = self.url_from_client_conf()
-        else:
-            self.url = url
+        self.subscribers = subscribers
+        util.FileWatcher(self.filepath, self.publish_new_file).start()
 
     def publish_new_file(self):
-        data = cStringIO.StringIO()
-        logdir = flaxpaths.paths.log_dir
-        if logdir[-1] != os.sep:
-            logdir = logdir + os.sep
-        logdir = logdir.replace(os.sep, '/')
-        parser = ConfigParser.SafeConfigParser(
-            defaults={'logdir': logdir})
-        parser.read(flaxpaths.paths.logconf_path)
-        parser.write(data)
-        output = data.getvalue()
-        encoded = urllib.urlencode({'val': output})
-        urllib.urlopen(self.url, data=encoded)
+        with open(self.filepath) as f:
+            data = f.read()
+            for s in self.subscribers:
+                s.send(data)
 
-    def url_from_client_conf(self):
-        parser = ConfigParser.SafeConfigParser()
-        parser.read(flaxpaths.paths.logclientconf_path)
-        args = parser.get('handler_mainhandler', 'args')
-        # looks like a potential security hole, but the logging module
-        # does this anyway so we're no doing anthing that's not
-        # already done by using logging.config.fileConfig. USers
-        # should ensure that the config file is secure.
-        args = eval(args)
-        host = args[0]
-        path = args[1]
-        #path includes the log url, so should strip that off
-        logpos = path.find('log')      
-        url = "http://" + host + path[:logpos] + 'config'
-        return url
-    
-def initialise_logging():
-    # all log requests get sent - we don't want things to be filtered
-    # locally because it's the configuration at the log server's end
-    # that counts.
-    read_client_logconf()
-
-class LogClientProcess(multiprocessing.Process):
-    """
-    A processing.Process configuration so that logging calls are
-    handled by posting to the web location given by `host` and
-    `url`. Subclass run implementations should call initialise_logging
-    before doing their main work.
-
+class LogClientProcess(processing.Process):
+    """ A processing.Process that can receive logging configuration
+        updates.  Subclass run implementations should call
+        initialise_logging before doing their main work.
     """
 
-    def __init__(self, *args, **kwargs):
-        super(LogClientProcess, self).__init__(*args, **kwargs)
+    def __init__(self):
+        processing.Process.__init__(self)
+        self.logconfio = processing.Pipe()
         self.flaxpaths = flaxpaths.paths
-        
+
     def initialise_logging(self):
-        read_client_logconf()
+        flaxpaths.paths = self.flaxpaths
+        LogListener(self.logconfio[1]).start()
+        LogConf(flaxpaths.paths.logconf_path).update_log_config()

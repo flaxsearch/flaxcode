@@ -75,12 +75,6 @@ python_dependencies = (
      '',
      (),
      ),
-    ('Http logging server',
-     'libs://logserver',
-     '',
-     '',
-     (),
-     ),
 )
 
 # List of the non-pure-python dependencies.
