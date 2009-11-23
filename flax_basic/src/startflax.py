@@ -29,7 +29,6 @@ import threading
 import time
 import logging
 import subprocess
-import multiprocessing as processing
 
 import cpserver
 import flax
@@ -162,6 +161,7 @@ class FlaxMain(object):
         self._start_log_server()
         time.sleep(2)
         self.index_server = indexer.IndexServer()
+        print flaxpaths.paths.logconf_path
         self.logconfpub = logclient.LogConfPub(
             flaxpaths.paths.logconf_path)
         self.logconfpub.publish_new_file()
@@ -279,7 +279,6 @@ Note that the password will not appear as you type it.
     flaxauth.save()
 
 def main():
-    processing.freeze_support()
     options = parse_cli_opts()
     main = FlaxMain(options)
     if options.set_admin_password:

@@ -110,8 +110,18 @@ class WSGILoggingApp(object):
         if method == 'POST':
             length = int(environ.get('CONTENT_LENGTH', 0))
             data = environ['wsgi.input'].read(length)
-            config_file = StringIO.StringIO(data)
-            logging.config.fileConfig(config_file)
+            decoded = urlparse.parse_qsl(data, keep_blank_values=True)
+            if len(decoded) != 1 or len(decoded[0] != 2):
+                start_response("400 Bad Request",
+                                [('Content-type', 'text/plain')])
+                return "Bad config data"
+            config_file = StringIO.StringIO(decoded[0][1])
+            try:
+                logging.config.fileConfig(config_file)
+            except:
+                start_response("400 Bad Request",
+                                [('Content-type', 'text/plain')])
+                return "Bad config data"
             start_response("200 OK", [('Content-type', 'text/plain')])
         else:
             start_response("405 Method not Allowed",

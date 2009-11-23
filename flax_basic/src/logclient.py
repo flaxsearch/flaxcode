@@ -22,6 +22,7 @@ configurations.
 from __future__ import with_statement
 __docformat__ = "restructuredtext en"
 
+import os
 import cStringIO
 import ConfigParser
 import logging
@@ -105,14 +106,16 @@ class LogConfPub(object):
     def publish_new_file(self):
         data = cStringIO.StringIO()
         logdir = flaxpaths.paths.log_dir
-        if logdir[-1] != '/':
-            logdir = logdir + '/'
-        logdir = "'" + logdir + "'"
+        if logdir[-1] != os.sep:
+            logdir = logdir + os.sep
+        logdir = logdir.replace(os.sep, '/')
         parser = ConfigParser.SafeConfigParser(
             defaults={'logdir': logdir})
         parser.read(flaxpaths.paths.logconf_path)
         parser.write(data)
-        urllib.urlopen(self.url, data=data.getvalue())
+        output = data.getvalue()
+        encoded = urllib.urlencode({'val': output})
+        urllib.urlopen(self.url, data=encoded)
 
     def url_from_client_conf(self):
         parser = ConfigParser.SafeConfigParser()

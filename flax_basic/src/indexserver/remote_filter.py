@@ -31,6 +31,7 @@ import logclient
 class FilterRunner(logclient.LogClientProcess):
 
     def __init__(self, filter, i, o):
+        super(FilterRunner, self).__init__()
         self.i = i
         self.o = o
         self.filter = filter
@@ -110,8 +111,8 @@ class RemoteFilterRunner(object):
         if not self.server or (self.server and not self.server.is_alive()):
             if self.server:
                 self.kill_server()
-            self.inpipe = processing.Pipe()
-            self.outpipe = processing.Pipe()
+            self.inpipe = multiprocessing.Pipe()
+            self.outpipe = multiprocessing.Pipe()
             self.server = FilterRunner(self.filter, self.outpipe[1], self.inpipe[0])
             log.info("Starting a remote filter process with pid: %d" % self.server.pid)
 
