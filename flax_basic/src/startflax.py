@@ -161,7 +161,6 @@ class FlaxMain(object):
         self._start_log_server()
         time.sleep(2)
         self.index_server = indexer.IndexServer()
-        print flaxpaths.paths.logconf_path
         self.logconfpub = logclient.LogConfPub(
             flaxpaths.paths.logconf_path)
         self.logconfpub.publish_new_file()
