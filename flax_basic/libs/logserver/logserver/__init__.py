@@ -97,7 +97,10 @@ class WSGILoggingApp(object):
             record = logging.makeLogRecord(args)
             logger = logging.getLogger(record.name)
             if logger.isEnabledFor(record.levelno):
-                logger.handle(record)
+                try:
+                    logger.handle(record)
+                except:
+                    logger.error("Error handling record - this shouldn't happen")
             return "Record Processed"
         else:
             start_response("405 Method not Allowed",
@@ -111,7 +114,7 @@ class WSGILoggingApp(object):
             length = int(environ.get('CONTENT_LENGTH', 0))
             data = environ['wsgi.input'].read(length)
             decoded = urlparse.parse_qsl(data, keep_blank_values=True)
-            if len(decoded) != 1 or len(decoded[0] != 2):
+            if (len(decoded) != 1 or len(decoded[0]) != 2):
                 start_response("400 Bad Request",
                                 [('Content-type', 'text/plain')])
                 return "Bad config data"
