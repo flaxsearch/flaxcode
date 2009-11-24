@@ -545,31 +545,6 @@ def start_web_server(flax_data, index_server, conf_path,
     cherrypy.tree.graft(WSGIPreviewGen(),
                         '/make_preview')
 
-    if _is_windows:
-        
-        # this is necessary because we make COM calls withing the
-        # threads that cp creates. At the time of writing this is only
-        # done from Top.make_preview.
-
-        import pythoncom
-
-        def InitializeCOM(threadIndex):
-            pythoncom.CoInitializeEx(pythoncom.COINIT_MULTITHREADED)
-
-        def UninitializeCOM(threadIndex):
-            pythoncom.CoUninitialize()
-
-        
-        # subscription protocol varies amongst cherrypy versions - if
-        # this errors google "cherrypy engine subscribe" - for 3.1 or
-        # newer the following 2 lines should work:      
-        cherrypy.engine.subscribe('start_thread', InitializeCOM)
-        cherrypy.engine.subscribe('stop_thread', UninitializeCOM)
-
-        # On older versions the following two lines should work:
-        #cherrypy.engine.on_start_thread_list.append(InitializeCOM)
-        #cherrypy.engine.on_stop_thread_list.append(UninitializeCOM)
-
     cherrypy.engine.start()
     if blocking:
         cherrypy.engine.block()
@@ -578,8 +553,5 @@ def stop_web_server():
     """Stop the flax web server.
 
     """
-    #calling this blocks sometimes, whereas simply terminating the
-    #process without calling it seems to work fine, so we don't call
-    #it - see: http://code.google.com/p/flaxcode/issues/detail?id=153
-    #cherrypy.server.stop()
-    pass
+    cherrypy.engine.exit()
+
