@@ -73,8 +73,20 @@ sys.executable = _reg.runtimepath + '/startflax.exe'
 #######################################################
 
 import startflax
-import multiprocessing as processing
+import multiprocessing
 sys.executable = oldsysexec
+
+
+# once the service is created it'll need permissions to write the log
+# files.  Either change the permissions on the log files, or change
+# the user that the service runs as to one that can write the log files.
+
+# Also it'll need permissions to read all the document
+# collections. This can particularly be an issue with network
+# drives. Again - either change the permissions or the user that the
+# service runs as.
+
+#need to patch multiprocessing - see http://bugs.python.org/issue5162
 
 
 import flaxpaths
@@ -182,6 +194,6 @@ def ctrlHandler(ctrlType):
 
 # Note that this method is never run in the 'frozen' executable, however it may be used for debugging
 if __name__ == '__main__':
-    processing.freezeSupport()
+    multiprocessing.freeze_support()
     win32api.SetConsoleCtrlHandler(ctrlHandler, True)
     win32serviceutil.HandleCommandLine(FlaxService)
