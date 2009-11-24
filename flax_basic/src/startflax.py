@@ -44,9 +44,6 @@ import util
 
 util.setup_psyco()
 
-
-log = logging.getLogger()
-
 class StartupOptions(object):
     """Options passed at startup time.
 
@@ -111,16 +108,6 @@ def parse_cli_opts():
                           var_dir = realpath(options.var_dir),
                           set_admin_password = options.set_admin_password)
 
-
-# At the moment the logging server hangs of the main server. But it
-# doesn't need to be that way. The logging server could be hosted in a
-# seperate web server. One consequence of having it in the main server
-# is that once everything is bootstrapped logging from the main
-# webserver process won't go via http, because the logging
-# configuration file doesn't specify such a handler (by default - and
-# it shouldn't be changed to do so). Other processes will use this
-# mechanism tho'.
-
 class FlaxMain(object):
     """Class controlling starting and stopping Flax.
 
@@ -159,6 +146,7 @@ class FlaxMain(object):
             [webserver_logconfio[0], self.index_server.log_config_listener()])
         logclient.LogListener(webserver_logconfio[1]).start()
         logclient.LogConf(flaxpaths.paths.logconf_path).update_log_config()
+        self.log = logging.getLogger()
         persist.read_flax(flaxpaths.paths.flaxstate_path, flax.options)
         scheduler.ScheduleIndexing(self.index_server).start()
         persist.DataSaver(flaxpaths.paths.flaxstate_path).start()
@@ -175,20 +163,20 @@ class FlaxMain(object):
 
         """
         if not self._need_cleanup:
-            log.debug("_do_stop: no cleanup needed, returning")
+            self.log.debug("_do_stop: no cleanup needed, returning")
             return
         self._need_cleanup = False
         if self.index_server:
-            log.debug("_do_stop: Telling index_server to stop")
+            self.log.debug("_do_stop: Telling index_server to stop")
             self.index_server.stop()
-        log.debug("_do_stop: storing persistent data")
+        self.log.debug("_do_stop: storing persistent data")
         persist.store_flax(flaxpaths.paths.flaxstate_path, flax.options)
-        log.debug("_do_stop: stopping web server")
+        self.log.debug("_do_stop: stopping web server")
         cpserver.stop_web_server()
         if self.index_server:
-            log.debug("_do_stop: joining index_server")
+            self.log.debug("_do_stop: joining index_server")
             self.index_server.join()
-            log.debug("FlaxMain._do_stop: joined index_server")
+            self.log.debug("FlaxMain._do_stop: joined index_server")
 
     def start(self, blocking=True):
         """Start all the Flax threads and processes.
@@ -210,10 +198,10 @@ class FlaxMain(object):
         it's been restarted since the previous call).
 
         """
-        log.debug("Creating stopping thread")
+        self.log.debug("Creating stopping thread")
         self._stop_thread = threading.Thread(target=self._do_stop)
         self._stop_thread.start()
-        log.debug("Stopping thread started")
+        self.log.debug("Stopping thread started")
 
     def join(self, timeout=None):
         """Block until all the Flax threads and processes have
@@ -228,13 +216,13 @@ class FlaxMain(object):
 
         """
         if self._stop_thread:
-#            log.debug("FlaxMain.join: joining _stop_thread timeout is %d" % timeout)
+            self.log.debug("FlaxMain.join: joining _stop_thread timeout is %d" % timeout)
             self._stop_thread.join(timeout)
             return not self._stop_thread.isAlive()
         else:
             # there's no stop thread, so stop() has not been called yet.
             # sleep here for a bit so something else can call stop if need be.
-            log.debug("FlaxMain.join: no stop thread, not sure we should be here")
+            self.log.debug("FlaxMain.join: no stop thread, not sure we should be here")
             time.sleep(1)
             return False
 
@@ -285,5 +273,4 @@ def main():
         raise
 
 if __name__ == "__main__":
-   main()
-    
+    main()
