@@ -25,7 +25,7 @@ import os
 import sys
 
 REGKEY_BASE = "SOFTWARE\\Lemur Consulting Ltd\\Flax Basic\\"
-DEFAULT_INSTALL_DIR = r"c:\Program Files\Flax"
+DEFAULT_INSTALL_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class FlaxRegistry(object):
     """Encapsulate all the settings we read from the Registry.
