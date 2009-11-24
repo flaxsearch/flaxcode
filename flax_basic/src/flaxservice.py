@@ -36,18 +36,6 @@ from servicemanager import LogInfoMsg, LogErrorMsg
 from flax_w32 import FlaxRegistry
 _reg = FlaxRegistry()
 
-# The "processing" module attempts to set a signal handler (by calling
-# signal.signal).  However, this is not possible when we're installing as a
-# service, since signal.signal only works in the main thread, and we are run in
-# a subthread by the service handling code.  Therefore, we install a dummy
-# signal handler to avoid an exception being thrown.
-# Signals are pretty unused on windows anyway, so hopefully this won't cause a
-# problem.  If it does cause a problem, we'll have to work out a way to set a
-# signal handler (perhaps, by running the whole of Flax in a sub-process).
-def _dummy_signal(*args, **kwargs):
-    pass
-import signal
-signal.signal = _dummy_signal
 
 
 # Before importing the Processing module we have to set sys.executable to point
