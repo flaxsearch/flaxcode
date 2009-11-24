@@ -49,12 +49,6 @@ def _dummy_signal(*args, **kwargs):
 import signal
 signal.signal = _dummy_signal
 
-# Pacify processing 0.35.
-# If we don't set argv[0] to '', processing 0.35 will raise an error due to an
-# attempt to access sys.modules['__main__'], which doesn't exist when running
-# as a service.
-if __name__ != '__main__':
-    sys.argv[0] = ''
 
 # Before importing the Processing module we have to set sys.executable to point
 # at the command-line version of Flax. This means the Processing module will correctly
