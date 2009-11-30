@@ -126,6 +126,8 @@ class FlaxMain(object):
                                  options.dbs_dir, options.log_dir,
                                  options.conf_dir, options.var_dir)
         flaxpaths.paths.makedirs()
+        logclient.LogConf(flaxpaths.paths.logconf_path).update_log_config()
+        self.log = logging.getLogger()
         self._stop_thread = None
         self._need_cleanup = False
 
@@ -145,8 +147,6 @@ class FlaxMain(object):
             flaxpaths.paths.logconf_path,
             [webserver_logconfio[0], self.index_server.log_config_listener()])
         logclient.LogListener(webserver_logconfio[1]).start()
-        logclient.LogConf(flaxpaths.paths.logconf_path).update_log_config()
-        self.log = logging.getLogger()
         persist.read_flax(flaxpaths.paths.flaxstate_path, flax.options)
         scheduler.ScheduleIndexing(self.index_server).start()
         persist.DataSaver(flaxpaths.paths.flaxstate_path).start()
@@ -203,7 +203,7 @@ class FlaxMain(object):
         self._stop_thread.start()
         self.log.debug("Stopping thread started")
 
-    def join(self, timeout=None):
+    def join(self, timeout=0):
         """Block until all the Flax threads and processes have
         finished.
 
