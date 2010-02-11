@@ -1,0 +1,33 @@
+Flax Filters
+------------
+
+Charlie Hull/Paul Rudin 
+(c) Lemur Consulting Ltd 2009,2010
+
+
+Flax Filters can be used for extracting plain-text content and some metadata 
+from various file formats. This data is returned as field/value pairs.
+
+extract_to_json.py shows how the filters can be used to process all the files
+ in a directory and create result files in JSON format.
+
+extract.py contains the actual extraction code, which runs either some 
+internal procedures (for the simpler formats) or external procedures to 
+extract the content and metadata. Of particular interest is the way a 
+'headless' Open Office instance can be used to extract data. utils.py
+contains the framework for spawing Open Office translators in 'killable'
+external processes - note that the Python code doesn't start Open Office 
+itself. The extraction code can also be run in multiple processes, with
+multiple instances of Open Office running on different ports, although 
+the extract_to_json example doesn't use this feature.
+
+The code logs to the usual Python logger and a .conf file controls how.
+
+Formats that are currently extracted are: HTML, plain text, PDF, Microsoft 
+Office and Open Office. The full list is available in extract.py . Note that
+various external programs are also required, most of these may already be 
+installed on Unix systems, but on Windows suitable executables may have to 
+be downloaded and installed on the PATH.
+
+Flax Filters require Python 2.6.
+
