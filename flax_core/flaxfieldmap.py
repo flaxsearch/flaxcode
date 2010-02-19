@@ -42,6 +42,13 @@ class FlaxFieldmap(object):
     """
     
     def __init__(self, database=None):
+        """Init a new fieldmap.
+        
+        If `database` is supplied, the map will be inited using the values
+        stored in the database, if any. Note that the database object is
+        not part of the FlaxFieldmap state.
+        
+        """
         self._fieldmap = {}
         if database:
             self.language = database.get_metadata('flax.language') or None
@@ -51,10 +58,22 @@ class FlaxFieldmap(object):
                     self._fieldmap[k] = tuple(v)
 
     def save(self, database):
+        """Save this fieldmap to the database specified.
+        
+        `database` must be a xapian.WritableDatabase
+        
+        """
         database.set_metadata('flax.fieldmap', json.dumps(self._fieldmap))
         database.set_metadata('flax.language', self.language)
 
     def setfield(self, fieldname, isfilter, overwrite=False):
+        """Set a field in the map.
+        
+        `fieldname` is the name of the field.
+        `isfilter` should be True iff the field is a filter.
+        `overwrite` must be true to overwrite an existing definition.
+        
+        """
         fieldname = unicode(fieldname)
         if self._fieldmap.get(fieldname) and not overwrite:
             raise FlaxError, 'field "%s" already exists' % fieldname
@@ -79,9 +98,15 @@ class FlaxFieldmap(object):
         return ''.join(ret)
     
     def __getitem__(self, key):
+        """Return settings for a field, as (prefix, value_number, isfilter)
+        
+        """
         return self._fieldmap[key]
 
     def __iter__(self):
+        """Iterate over the fields.
+        
+        """
         return self._fieldmap.iteritems()
     
     def __eq__(self, other):
@@ -91,6 +116,13 @@ class FlaxFieldmap(object):
         return 'FlaxFieldmap%r' % self._fieldmap
 
     def query_parser(self, default_fields=[], database=None):
+        """Return a xapian.QueryParser object set up for this fieldmap.
+        
+        `default_fields` is an iterable of fieldnames to specify which
+            fields will be searched by default.
+        `database` should be supplied if you want to use spelling correction etc.
+        
+        """
         qp = xapian.QueryParser()
         if database:
             qp.set_database(database)
@@ -112,6 +144,17 @@ class FlaxFieldmap(object):
         return qp
 
     def query(self, fieldname, value, weight=None, op=xapian.Query.OP_OR):
+        """Return a xapian.Query constructed from the data supplied.
+        
+        `fieldname` is the field to search.
+        `value` is the value to search for. This can be a string, an int, a
+            float, a datetime, or an iterable of any of these. The fieldmap
+            will try to handle each case appropriately.
+        `weight` is an optional weight to apply to the query.
+        `op` is the xapian.Query operator to use to combine sequence values
+            (default is OR).
+        
+        """
         prefix, valnum, isfilter = self._fieldmap[fieldname]
 
         def mq(v):
@@ -148,6 +191,16 @@ class FlaxFieldmap(object):
             return apply_weight(mq(value))
 
     def range_query(self, fieldname, value1, value2):
+        """Construct a xapian.Query object representing a value range.
+        
+        `fieldname` is the field to search.
+        `value1` and `value2` define the range, inclusively.
+        
+        The values must be of the same type (int, float or datetime). In the
+        latter case, the fieldmap will generate helper terms to try to
+        optimise the query.
+        
+        """
         if type(value1) is not type(value2):
             raise FlaxError, 'cannot mix types in a query range'
 
@@ -177,40 +230,92 @@ class FlaxFieldmap(object):
 
     @staticmethod
     def AND(query1, query2):
+        """Combine two xapian.Query objects with AND.
+        
+        For convenience, either query can be None, in which case the other
+        query will be returned.
+        
+        """
         return FlaxFieldmap._combine(xapian.Query.OP_AND, query1, query2)
 
     @staticmethod
     def OR(query1, query2):
+        """Combine two xapian.Query objects with OR (see AND).
+        
+        """
         return FlaxFieldmap._combine(xapian.Query.OP_OR, query1, query2)
 
     @staticmethod
     def XOR(query1, query2):
+        """Combine two xapian.Query objects with XOR (see AND).
+        
+        """
         return FlaxFieldmap._combine(xapian.Query.OP_XOR, query1, query2)
 
     @staticmethod
     def AND_NOT(query1, query2):
+        """Combine two xapian.Query objects with AND_NOT (see AND).
+        
+        """
         return FlaxFieldmap._combine(xapian.Query.OP_AND_NOT, query1, query2)
 
     @staticmethod
     def AND_MAYBE(query1, query2):
+        """Combine two xapian.Query objects with AND_MAYBE (see AND).
+        
+        """
         return FlaxFieldmap._combine(xapian.Query.OP_AND_MAYBE, query1, query2)
 
     @staticmethod
     def FILTER(query1, query2):
+        """Combine two xapian.Query objects with FILTER (see AND).
+        
+        """
         return FlaxFieldmap._combine(xapian.Query.OP_FILTER, query1, query2)
     
     def document(self):
+        """Return a Flax document object.
+
+        This is a thin wrapper for a xapian.Document to support Flax indexing.
+        
+        """
         return _FlaxDocument(self._fieldmap, self.language)
         
-    def add_document(self, database, doc):
+    @staticmethod
+    def add_document(database, doc):
+        """Add a document to a database.
+        
+        `database` is a xapian.WritableDatabase
+        `doc` is a Flax document
+        
+        Convenience method. If `doc` has a non-None `docid` attr, this will 
+        be used as the document ID, and it will replace any document with the
+        same ID.
+        
+        """
         if doc.docid is not None:
             database.replace_document('X:%s' % self.docid, doc.get_xapian_doc())
         else:
             database.add_document(doc.get_xapian_doc())
 
-    def search(self, db, query, startrank=0, maxitems=20, 
+    def search(self, database, query, startrank=0, maxitems=20, 
                facet_fields=[], maxfacets=100):
-        enq = xapian.Enquire(db)
+        """Search a database, returning hits and facets.
+        
+        `database` is a xapian.Database.
+        `query` is a xapian.Query.
+        `startrank` is the rank of the first hit to return.
+        `maxitems` is the maximum number of hits to return.
+        `facet_fields` is an iterable of fieldnames to collect facets for
+            (note that these must be filter fields in the fieldmap).
+        `maxfacets` is the maximum number of facet values to return for 
+            each facet field.
+            
+        Results are returned as a xapian.MSet, with an additional attribute
+        'facets' which is a dict containing the facets collected.
+        
+        """
+        enq = xapian.Enquire(database)
         enq.set_query(query)
 
         # set up matchspies for facets
@@ -250,6 +355,18 @@ class _FlaxDocument(object):
         return self._fieldmap
 
     def index(self, fieldname, value, store_facet=True, spelling=True, weight=1):
+        """Index a field value.
+        
+        `fieldname` is the field to index.
+        `value` is the value to index. This can be a string, int, float, or
+            datetime object. Flax will attempt to index each appropriately.
+        `store_facet` specifies whether to store facet values (filter fields
+            only) and is True by default.
+        `spelling` specifies whether to store spellings, True by default.
+        `weight` allows the WDF to be set (1 by default)
+        
+        """
+
         # what we do depends on type of value, and fieldname 'filter' param
         # e.g. we can index numeric ranges(?), text, dates 
         
@@ -295,9 +412,16 @@ class _FlaxDocument(object):
                 raise FlaxError, 'non-filter field requires text value'
 
     def set_data(self, data):
+        """Set the document data. This does no indexing.
+        
+        """
         self._xdoc.set_data(json.dumps(data))
     
     def get_xapian_doc(self):
+        """Return a xapian.Document for this Flax document.
+        
+        """
+        # now serialise and add facet values
         for slot, serialiser in self._facets.iteritems():
             self._xdoc.add_value(slot, serialiser.get())
         
@@ -310,7 +434,6 @@ class _FlaxDocument(object):
 if __name__ == '__main__':
     
     # some tests illustrating how to use it
-    # FIXME - doc strings!
 
     db = xapian.WritableDatabase('/tmp/flaxtest.db', xapian.DB_CREATE_OR_OVERWRITE)
 
