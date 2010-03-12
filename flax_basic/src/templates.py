@@ -392,13 +392,22 @@ def render_search_result (node, results, collections, selcols, formats):
 
     query = results.query
     is_string_query = isinstance(query, types.StringType)
-
+    
     if is_string_query:
-        q_or_ids = "?query=%s&exact=%s&exclusions=%s&%s" % (
+        allformats = ""
+        if results.formats:
+            # fix issue 220: we may get a single string here, so don't iterate in that case 
+            if isinstance(results.formats, basestring):
+                allformats = "&format=%s" % urllib.quote_plus(results.formats)
+            else:
+                for f in results.formats:
+                    allformats = allformats + "&format=%s" % urllib.quote_plus(f)
+                
+        q_or_ids = "?query=%s&exact=%s&exclusions=%s%s" % (
             urllib.quote_plus(query),
             urllib.quote_plus(results.exact or ""),
             urllib.quote_plus(results.exclusions or ""),
-            ["format=%s" % urllib.quote_plus(f) for f in results.formats if f != 'htm'] if results.formats else ""
+            allformats
         )
         node.search_form.query.atts['value'] = query
         if results.exact:
