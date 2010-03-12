@@ -6,7 +6,7 @@ rem first make sure the Visual C++ environment is set up correctly
 call setupvc.bat
 if (%1) == (nobindings) goto cont3
 cd ..\libs\xappy\libs
-call build_xapian_win32.bat 25
+call build_xapian_win32.bat 26
 if errorlevel 0 goto cont21
 echo ERROR: could not build Xapian python bindings
 cd ..\..\..\
@@ -14,10 +14,10 @@ goto end
 
 :cont21
 cd ..\..\xapian-core\win32\release\Python
-del C:\Python25\lib\site-packages\xapian.*
-del C:\Python25\lib\site-packages\_xapian.*
-copy xapian.py C:\Python25\lib\site-packages
-copy _xapian.pyd C:\Python25\lib\site-packages
+del C:\Python26\lib\site-packages\xapian.*
+del C:\Python26\lib\site-packages\_xapian.*
+copy xapian.py C:\Python26\lib\site-packages
+copy _xapian.pyd C:\Python26\lib\site-packages
 cd ..\..\..\..\..\..\..
 
 :cont3
