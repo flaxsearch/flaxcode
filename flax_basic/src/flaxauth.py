@@ -28,7 +28,7 @@ def encrypt_password(password):
     """Convert a password to the encrypted form.
 
     """
-    hash = haslib.md5()
+    hash = hashlib.md5()
     hash.update(password)
     return hash.hexdigest()
 
