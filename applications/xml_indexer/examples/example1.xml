@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    <book>
+        <metadata name="ETextNo" value="9304" />
+        <metadata name="Title" value="Initiation into Philosophy" />
+        <metadata name="Author" value="Emile Faguet" />
+        <metadata name="Year" value="1914" />
+        <sample>
+            The aim of philosophy is to seek the explanation of all
+            things: the quest is for the first causes of everything, and also
+            how all things are, and finally why, with what design, with a view
+            to what, things are. That is why, taking "principle" in all the senses
+            of the word, it has been called the science of first principles.
+        </sample>
+    </book>
+    <book>
+        <metadata name="ETextNo" value="16712" />
+        <metadata name="Title" value="Some Turns of Thought in Modern Philosophy" />
+        <metadata name="Author" value="George Santayana" />
+        <metadata name="Year" value="1933" />
+        <sample>
+        In Locke the central presuppositions, which he embraced heartily and
+        without question, were those of common sense. He adopted what he calls a
+        "plain, historical method", fit, in his own words, "to be brought into
+        well-bred company and polite conversation".
+        </sample>
+    </book>
+    <book>
+        <metadata name="ETextNo" value="1998" />
+        <metadata name="Title" value="Thus Spake Zarathustra" />
+        <metadata name="Author" value="Friedrich Wilhelm Nietzsche" />
+        <metadata name="Year" value="1885" />
+        <sample>
+            When Zarathustra was thirty years old, he left his home and the lake of
+            his home, and went into the mountains. There he enjoyed his spirit and
+            solitude, and for ten years did not weary of it. But at last his heart
+            changed, and rising one morning with the rosy dawn, he went before the
+            sun, and spake thus unto it:
+            Thou great star! What would be thy happiness if thou hadst not those 
+            for whom thou shinest!       
+        </sample>
+    </book>
+</library>    
