@@ -14,7 +14,14 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from __future__ import with_statement  # for Python 2.5
+r"""Flax actions are 
+
+See flaxcode/applications/xml_indexer and simple_search for examples of how
+to use Flax Core.
+
+"""
+
+from __future__ import with_statement
 
 import re
 import time
@@ -25,6 +32,9 @@ conf_re_1 = re.compile(r'\s+(\w+):(.*)')            # field def
 conf_re_2 = re.compile(r'(\w+)\(([^\)]*)\)|(\w+)')  # actions
 
 class _IndexerAction(object):
+    """Base class for actions.
+    
+    """
     isfilter = None
 
     def __init__(self):
@@ -44,6 +54,8 @@ class _IndexerAction(object):
 
 
 class DateAction(_IndexerAction):
+    """FIXME
+    """
     action_name = 'date'
     isfilter = True
     

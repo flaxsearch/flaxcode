@@ -21,18 +21,33 @@
 r"""Minimal helper classes for adding Flax functions to Xapian, without
 trying to abstract or hide the Xapian API.
 
+See flaxcode/applications/xml_indexer and simple_search for examples of how
+to use Flax Core.
+
 """
 
 import time
 from datetime import datetime
 import re
 import xapian
-import json
+try:
+    import json
+except ImportError:
+    import simplejson as json
+
 from errors import FieldmapError, IndexingError, SearchError
+
+# adapt facet code for version of Xapian
+try:
+    _FacetMatchSpy = xapian.MultiValueCountMatchSpy
+    _multivalues = True
+except AttributeError:
+    _FacetMatchSpy = xapian.ValueCountMatchSpy
+    _multivalues = False
 
 
 class Fieldmap(object):
-    """Utility class for adding named field functionality to Xapian.
+    """Helper class for adding named field functionality to Xapian.
     
     Supports indexing, easy query construction and search with facets.
     
@@ -44,6 +59,9 @@ class Fieldmap(object):
         If `database` is supplied, the map will be inited using the values
         stored in the database, if any. Note that the database object is
         not part of the Fieldmap state.
+        
+        If `language` is supplied, free-text fields will be stemmed using
+        the appropriate stemmer (if available) for indexing and retrieval.
         
         """
         self._fieldmap = {}
@@ -297,7 +315,7 @@ class Fieldmap(object):
             database.add_document(doc.get_xapian_doc())
 
     def search(self, database, query, startrank=0, maxitems=20, 
-               facet_fields=[], maxfacets=100):
+               facet_fields=[], maxfacets=100, checkatleast=100):
         """Search a database, returning hits and facets.
         
         `database` is a xapian.Database.
@@ -308,29 +326,35 @@ class Fieldmap(object):
             (note that these must be filter fields in the fieldmap).
         `maxfacets` is the maximum number of facet values to return for 
             each facet field.
-            
-        Results are returned as a xapian.MSet, with an additional attribute
-        'facets' which is a dict containing the facets collected.
+        `checkatleast` is the minimum number of documents to check
         
+        Results are returned as a xapian.MSet, with an additional attribute
+        `facets` containing the facets collected as a dict.
+        
+        FIXME - how to use MatchDeciders, Sorters etc ?
+
         """
         enq = xapian.Enquire(database)
         enq.set_query(query)
 
         # set up matchspies for facets
         matchspies = []
-        for field in facet_fields:
-            ms = xapian.MultiValueCountMatchSpy(self._fieldmap[field][1])
+        for field in facet_fields:        
+            ms = _FacetMatchSpy(self._fieldmap[field][1])
             enq.add_matchspy(ms)
             matchspies.append((field, ms))
 
-        # checkatleast param is hardcoded - FIXME?
-        mset = enq.get_mset(startrank, maxitems, 1000)
+        mset = enq.get_mset(startrank, maxitems, checkatleast)
     
         # collect facets
         facets = {}
-        for field, ms in matchspies:
-            facets[field] = [x[0] for x in ms.get_top_values(maxfacets)]
-
+        if _multivalues:
+            for field, ms in matchspies:
+                facets[field] = [x[0] for x in ms.get_top_values(maxfacets)]
+        else:
+            for field, ms in matchspies:
+                facets[field] = [x.term for x in ms.top_values(maxfacets)]
+        
         # this is ok in Python, but what about other languages?
         mset.facets = facets
         return mset
@@ -366,13 +390,11 @@ class _FlaxDocument(object):
             only) and is True by default.
         `spelling` specifies whether to store spellings, True by default.
         `weight` allows the WDF to be set (1 by default)
-        `isdocid` uses this field value as a docid (filter fields only)
+        `isdocid` uses this field value as a docid (filter fields only).
+            False by default.
         
         """
 
-        # what we do depends on type of value, and fieldname 'filter' param
-        # e.g. we can index numeric ranges(?), text, dates 
-        
         if not value:
             return
         
@@ -389,8 +411,14 @@ class _FlaxDocument(object):
                 self._xdoc.add_term(term)
 
                 if store_facet:
-                    self._facets.setdefault(valnum,
-                        xapian.StringListSerialiser()).append(value)
+                    if _multivalues:
+                        self._facets.setdefault(valnum,
+                            xapian.StringListSerialiser()).append(value)
+                    else:
+                        if self._facets.get(valnum):
+                            raise IndexingError, \
+                                'facet value already set for "%s" field' % fieldname
+                        self._facets[valnum] = value
 
                 if isdocid:
                     self._docid = term
@@ -440,16 +468,21 @@ class _FlaxDocument(object):
         """Return a xapian.Document for this Flax document.
         
         """
-        # serialise and add facet values
-        for slot, serialiser in self._facets.iteritems():
-            self._xdoc.add_value(slot, serialiser.get())
+        if _multivalues:
+            # serialise and add facet values
+            for slot, serialiser in self._facets.iteritems():
+                self._xdoc.add_value(slot, serialiser.get())
+        else:
+            for slot, value in self._facets.iteritems():
+                self._xdoc.add_value(slot, value)
         
         return self._xdoc
 
-
-if __name__ == '__main__':
+def run_tests():    
+    """Run some tests. These look at internal values, so are not really
+    a good example of how to use fieldmaps.
     
-    # some tests illustrating how to use it
+    """
 
     db = xapian.WritableDatabase('/tmp/flaxtest.db', xapian.DB_CREATE_OR_OVERWRITE)
 
@@ -470,7 +503,11 @@ if __name__ == '__main__':
     # index some fields
     doc.index('foo', 'gruyere cheese fondue')
     doc.index('bar', 'chips')
-    doc.index('bar', 'crisps')
+    try:
+        doc.index('bar', 'crisps')
+    except IndexingError:
+        if _multivalues: raise
+        
     doc.index('spam', 'carrot cake')
     doc.index('eggs', datetime(2010, 2, 3, 12, 0))
 
@@ -485,10 +522,14 @@ if __name__ == '__main__':
     assert 'XD20100203' in terms
 
     # TEST - do we have expected values?
-    tmp = xapian.StringListUnserialiser(xdoc.get_value(1))
-    assert tmp.get() == 'chips'
-    tmp.next()
-    assert tmp.get() == 'crisps'
+    if _multivalues:
+        tmp = xapian.StringListUnserialiser(xdoc.get_value(1))
+        assert tmp.get() == 'chips'
+        tmp.next()
+        assert tmp.get() == 'crisps'
+    else:
+        assert xdoc.get_value(1) == 'chips'
+        
     assert xdoc.get_value(3) == '20100203120000'
     
     # add document to database (if doc.docid was set, this will overwrite any
@@ -511,11 +552,16 @@ if __name__ == '__main__':
     # TEST - search and facets
     mset = fm.search(db, q1, facet_fields=['bar'])
     assert mset.get_matches_estimated() == 1
-    assert mset.facets['bar'] == ['chips', 'crisps']
+    if _multivalues:
+        assert mset.facets['bar'] == ['chips', 'crisps']
+    else:
+        assert mset.facets['bar'] == ['chips']
 
     # TEST - another query test with a query branch weight adjustment    
     q2 = fm.AND(fm.query('bar', 'chips'), fm.query('bar', 'chaps', 0.5))
     assert str(q2) == 'Xapian::Query((XBchips AND 0.5 * XBchaps))'
     
     print 'all tests passed'
-    
+
+if __name__ == '__main__':
+    run_tests()
