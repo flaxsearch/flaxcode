@@ -14,18 +14,6 @@
         </sample>
     </book>
     <book>
-        <metadata name="ETextNo" value="16712" />
-        <metadata name="Title" value="Some Turns of Thought in Modern Philosophy" />
-        <metadata name="Author" value="George Santayana" />
-        <metadata name="Year" value="1933" />
-        <sample>
-        In Locke the central presuppositions, which he embraced heartily and
-        without question, were those of common sense. He adopted what he calls a
-        "plain, historical method", fit, in his own words, "to be brought into
-        well-bred company and polite conversation".
-        </sample>
-    </book>
-    <book>
         <metadata name="ETextNo" value="1998" />
         <metadata name="Title" value="Thus Spake Zarathustra" />
         <metadata name="Author" value="Friedrich Wilhelm Nietzsche" />
@@ -38,6 +26,137 @@
             sun, and spake thus unto it:
             Thou great star! What would be thy happiness if thou hadst not those 
             for whom thou shinest!       
+        </sample>
+    </book>
+    <book>
+        <metadata name="ETextNo" value="4280" />
+        <metadata name="Title" value="The Critique of Pure Reason" />
+        <metadata name="Author" value="Immanuel Kant" />
+        <metadata name="Year" value="1781" />
+        <sample>
+            Human reason, in one sphere of its cognition, is called upon to
+            consider questions, which it cannot decline, as they are presented
+            by its own nature, but which it cannot answer, as they transcend every
+            faculty of the mind.
+        </sample>
+    </book>
+    <book>
+        <metadata name="ETextNo" value="5827" />
+        <metadata name="Title" value="The Problems of Philosophy" />
+        <metadata name="Author" value="Bertrand Russell" />
+        <metadata name="Year" value="1912" />
+        <sample>
+            Is there any knowledge in the world which is so certain that no 
+            reasonable man could doubt it? This question, which at first sight
+            might not seem difficult, is really one of the most difficult that 
+            can be asked. When we have realized the obstacles in the way of a 
+            straightforward and confident answer, we shall be well launched on 
+            the study of philosophy—for philosophy is merely the attempt to 
+            answer such ultimate questions, not carelessly and dogmatically, 
+            as we do in ordinary life and even in the sciences, but critically, 
+            after exploring all that makes such questions puzzling, and after 
+            realizing all the vagueness and confusion that underlie our ordinary 
+            ideas.        
+        </sample>
+    </book>
+    <book>
+        <metadata name="ETextNo" value="5740" />
+        <metadata name="Title" value="Tractatus Logico-Philosophicus" />
+        <metadata name="Author" value="Ludwig Wittgenstein" />
+        <metadata name="Year" value="1921" />
+        <sample>
+            The book deals with the problems of philosophy, and shows, I believe, 
+            that the reason why these problems are posed is that the logic of our 
+            language is misunderstood. The whole sense of the book might be 
+            summed up the following words: what can be said at all can be said 
+            clearly, and what we cannot talk about we must pass over in silence.
+        </sample>
+    </book>
+    <book>
+        <metadata name="ETextNo" value="4320" />
+        <metadata name="Title" value="An Enquiry Concerning the Principles of Morals" />
+        <metadata name="Author" value="David Hume" />
+        <metadata name="Year" value="1751" />
+        <sample>
+            DISPUTES with men, pertinaciously obstinate in their principles, 
+            are, of all others, the most irksome; except, perhaps, those with 
+            persons, entirely disingenuous, who really do not believe the 
+            opinions they defend, but engage in the controversy, from 
+            affectation, from a spirit of opposition, or from a desire of 
+            showing wit and ingenuity, superior to the rest of mankind. The 
+            same blind adherence to their own arguments is to be expected in 
+            both; the same contempt of their antagonists; and the same 
+            passionate vehemence, in inforcing sophistry and falsehood. 
+        </sample>
+    </book>
+    <book>
+        <metadata name="ETextNo" value="11224" />
+        <metadata name="Title" value="Utilitarianism" />
+        <metadata name="Author" value="John Stuart Mill" />
+        <metadata name="Year" value="1863" />
+        <sample>
+            There are few circumstances among those which make up the present
+            condition of human knowledge, more unlike what might have been 
+            expected, or more significant of the backward state in which 
+            speculation on the most important subjects still lingers, than the 
+            little progress which has been made in the decision of the 
+            controversy respecting the criterion of right and wrong. From the 
+            dawn of philosophy, the question concerning the summum bonum, or, 
+            what is the same thing, concerning the foundation of morality, 
+            has been accounted the main problem in speculative thought, has 
+            occupied the most gifted intellects, and divided them into sects 
+            and schools, carrying on a vigorous warfare against one another.        
+        </sample>
+    </book>
+    <book>
+        <metadata name="ETextNo" value="1232" />
+        <metadata name="Title" value="The Prince" />
+        <metadata name="Author" value="Niccolò Machiavelli" />
+        <metadata name="Year" value="1532" />
+        <sample>
+            All states, all powers, that have held and hold rule over men have 
+            been and are either republics or principalities.
+
+            Principalities are either hereditary, in which the family has been 
+            long established; or they are new.
+
+            The new are either entirely new, as was Milan to Francesco Sforza, 
+            or they are, as it were, members annexed to the hereditary state of
+            the prince who has acquired them, as was the kingdom of Naples to 
+            that of the King of Spain.
+
+            Such dominions thus acquired are either accustomed to live under a 
+            prince, or to live in freedom; and are acquired either by the arms 
+            of the prince himself, or of others, or else by fortune or by ability.
+        </sample>
+    </book>
+    <book>
+        <metadata name="ETextNo" value="61" />
+        <metadata name="Title" value="The Communist Manifesto" />
+        <metadata name="Author" value="Friedrich Engels and Karl Marx" />
+        <metadata name="Year" value="1848" />
+        <sample>
+            The history of all hitherto existing societies is the history
+            of class struggles.
+
+            Freeman and slave, patrician and plebeian, lord and serf,
+            guild-master and journeyman, in a word, oppressor and oppressed,
+            stood in constant opposition to one another, carried on an
+            uninterrupted, now hidden, now open fight, a fight that each time
+            ended, either in a revolutionary re-constitution of society at
+            large, or in the common ruin of the contending classes.
+        </sample>
+    </book>
+    <book>
+        <metadata name="ETextNo" value="16712" />
+        <metadata name="Title" value="Some Turns of Thought in Modern Philosophy" />
+        <metadata name="Author" value="George Santayana" />
+        <metadata name="Year" value="1933" />
+        <sample>
+        In Locke the central presuppositions, which he embraced heartily and
+        without question, were those of common sense. He adopted what he calls a
+        "plain, historical method", fit, in his own words, "to be brought into
+        well-bred company and polite conversation".
         </sample>
     </book>
 </library>    
