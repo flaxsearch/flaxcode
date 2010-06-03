@@ -14,6 +14,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+"""Minimal example of a flax.core indexing application, using lxml to
+index XML.
+
+"""
+
 from __future__ import with_statement
 
 import os, os.path
@@ -74,8 +79,10 @@ class Indexer(object):
         self.fieldmap.add_document(self.db, doc)
 
 if __name__ == '__main__':
-    # call with DB_PATH, XML_FILE, ACTIONS_FILE, ROOT_TAG
     import sys
-    indexer = Indexer(sys.argv[1], sys.argv[3], sys.argv[4])
-    indexer.index_file(sys.argv[2])
+    if len(sys.argv) != 5:
+        print "usage: python xml_indexer.py <db path> <xml file> <actions> <root tag>"
+    else:
+        indexer = Indexer(sys.argv[1], sys.argv[3], sys.argv[4])
+        indexer.index_file(sys.argv[2])
     
