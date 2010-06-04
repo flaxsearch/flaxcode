@@ -518,7 +518,7 @@ def run_tests():
     doc.set_data({'data': 'any data we like'})
     
     # index some fields
-    doc.index('foo', 'gruyere cheese fondue', search_default=True)
+    doc.index('foo', 'gruyere cheese fondue', search_default=True, spelling_db=db)
     doc.index('bar', 'chips')
     try:
         doc.index('bar', 'crisps')
@@ -574,6 +574,10 @@ def run_tests():
     # TEST - another query test with a query branch weight adjustment    
     q2 = fm.AND(fm.query('bar', 'chips'), fm.query('bar', 'chaps', 0.5))
     assert str(q2) == 'Xapian::Query((XBchips AND 0.5 * XBchaps))'
+    
+    # TEST spelling
+    spellings = [t.term for t in db.spellings()]
+    assert spellings == ['cheese', 'fondue', 'gruyere']
     
     print 'all tests passed'
 
