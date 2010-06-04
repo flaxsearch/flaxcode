@@ -364,10 +364,11 @@ class _FlaxDocument(object):
 
     def __init__(self, fieldmap, language):
         self._fieldmap = fieldmap
-        self._xdoc = xapian.Document()
+        self._doc = xapian.Document()
         self._stemmer = xapian.Stem(language) if language else None
         self._facets = {}
         self._docid = None
+        self.database = None
 
     @property
     def fieldmap(self):
@@ -377,7 +378,7 @@ class _FlaxDocument(object):
         self._docid = None
     
     def index(self, fieldname, value, search_default=False,
-              store_facet=True, spelling_db=None, weight=1, isdocid=False):
+              store_facet=True, spelling=False, weight=1, isdocid=False):
         """Index a field value.
         
         `fieldname` is the field to index.
@@ -386,7 +387,7 @@ class _FlaxDocument(object):
             This should either be a unicode object or a UTF-8 string.
         `store_facet` specifies whether to store facet values (filter fields
             only) and is True by default.
-        `spelling_db` is an optional database to store spellings.
+        `spelling` specifies whether to add spellings to the database.
         `weight` allows the WDF to be set (1 by default)
         `isdocid` uses this field value as a docid (filter fields only).
             False by default.
@@ -404,7 +405,7 @@ class _FlaxDocument(object):
 
         prefix, valnum, isfilter = self._fieldmap[fieldname]
     
-        if not isfilter or search_default or spelling_db:
+        if not isfilter or search_default or spelling:
             termgen = xapian.TermGenerator()
             if self._stemmer:
                 termgen.set_stemmer(self._stemmer)
@@ -417,7 +418,7 @@ class _FlaxDocument(object):
                 if isinstance(value, unicode):
                     value = value.encode('utf-8', 'ignore')
                 
-                self._xdoc.add_term(term)
+                self._doc.add_term(term)
 
                 if store_facet:
                     if _multivalues:
@@ -433,7 +434,7 @@ class _FlaxDocument(object):
                     self._docid = term
                     
             elif isinstance(value, float) or isinstance(value, int):
-                self._xdoc.add_value(valnum, xapian.sortable_serialise(value))
+                self._doc.add_value(valnum, xapian.sortable_serialise(value))
                 # FIXME - helper terms?
                 # FIXME - numeric facets
 
@@ -441,12 +442,12 @@ class _FlaxDocument(object):
                     self._docid = '%s%s' % (prefix, value)
 
             elif isinstance(value, datetime):            
-                self._xdoc.add_term('%s%04d' % (prefix, value.year))
-                self._xdoc.add_term('%s%04d%02d' % (prefix, 
+                self._doc.add_term('%s%04d' % (prefix, value.year))
+                self._doc.add_term('%s%04d%02d' % (prefix, 
                     value.year, value.month))
-                self._xdoc.add_term('%s%04d%02d%02d' % (prefix, 
+                self._doc.add_term('%s%04d%02d%02d' % (prefix, 
                     value.year, value.month, value.day))                    
-                self._xdoc.add_value(valnum, '%04d%02d%02d%02d%02d%02d' % (
+                self._doc.add_value(valnum, '%04d%02d%02d%02d%02d%02d' % (
                     value.year, value.month, value.day, 
                     value.hour, value.minute, value.second))
                     
@@ -454,7 +455,7 @@ class _FlaxDocument(object):
                     raise IndexingError, 'cannot use date as docid'
         else:                
             if isinstance(value, str):
-                termgen.set_document(self._xdoc)
+                termgen.set_document(self._doc)
                 termgen.index_text(value, weight, prefix)
             else:
                 raise IndexingError, 'non-filter field requires string value'
@@ -463,14 +464,16 @@ class _FlaxDocument(object):
                 raise IndexingError, 'cannot use non-filter field as docid'
 
         # spelling only works for prefix-less terms
-        if search_default or spelling_db:
+        if search_default or spelling:
             if search_default:
-                termgen.set_document(self._xdoc)
+                termgen.set_document(self._doc)
             else:
                 termgen.set_document(xapian.Document())  # dummy document
 
-            if spelling_db:
-                termgen.set_database(spelling_db)
+            if spelling:
+                if self.database is None:
+                    raise IndexingError, 'spelling requires document.database to be set'
+                termgen.set_database(self.database)
                 termgen.set_flags(termgen.FLAG_SPELLING)
 
             termgen.index_text(value)
@@ -479,7 +482,7 @@ class _FlaxDocument(object):
         """Set the document data. This does no indexing.
         
         """
-        self._xdoc.set_data(json.dumps(data))
+        self._doc.set_data(json.dumps(data))
     
     def get_xapian_doc(self):
         """Return a xapian.Document for this Flax document.
@@ -488,12 +491,12 @@ class _FlaxDocument(object):
         if _multivalues:
             # serialise and add facet values
             for slot, serialiser in self._facets.iteritems():
-                self._xdoc.add_value(slot, serialiser.get())
+                self._doc.add_value(slot, serialiser.get())
         else:
             for slot, value in self._facets.iteritems():
-                self._xdoc.add_value(slot, value)
+                self._doc.add_value(slot, value)
         
-        return self._xdoc
+        return self._doc
 
 def run_tests():    
     """Run some tests. These look at internal values, so are not really
@@ -515,10 +518,11 @@ def run_tests():
     
     # create a new document and set some data
     doc = fm.document()
+    doc.database = db
     doc.set_data({'data': 'any data we like'})
     
     # index some fields
-    doc.index('foo', 'gruyere cheese fondue', search_default=True, spelling_db=db)
+    doc.index('foo', 'gruyere cheese fondue', search_default=True, spelling=True)
     doc.index('bar', 'chips')
     try:
         doc.index('bar', 'crisps')

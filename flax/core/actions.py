@@ -169,7 +169,10 @@ class IndexAction(_IndexerAction):
                 raise ActionsError, 'unknown index parameter: %s=%s' % (k, v)
 
     def __call__(self, fieldname, value, doc):        
-        doc.index(fieldname, value, spelling=self.spelling, weight=self.weight)        
+        doc.index(fieldname, value, 
+                  search_default=self.default,
+                  spelling=self.spelling, 
+                  weight=self.weight)
         if self.next: self.next(fieldname, value, doc)
 
     def __str__(self):
