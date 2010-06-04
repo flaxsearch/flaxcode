@@ -42,15 +42,16 @@ class Indexer(object):
         
         try:
             self.db = xapian.WritableDatabase(db_path, xapian.DB_OPEN)
-            self.fieldmap = flax.core.fieldmap.Fieldmap(self.db)
+            self.fieldmap = flax.core.Fieldmap(self.db)
         except xapian.DatabaseOpeningError:
             # create the database and fieldmap
             self.db = xapian.WritableDatabase(db_path, xapian.DB_CREATE)
             
             # create a fieldmap from the actions and save it
-            self.fieldmap = flax.core.fieldmap.Fieldmap(language=LANGUAGE)
+            self.fieldmap = flax.core.Fieldmap(language=LANGUAGE)
             for act in self.actions:
                 self.fieldmap.setfield(act.fieldname, act.action.isfilter)
+                
             self.fieldmap.save(self.db)
             self.db.flush()
             
