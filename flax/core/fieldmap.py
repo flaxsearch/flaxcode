@@ -67,6 +67,7 @@ class Fieldmap(object):
         self._fieldmap = {}
         self.language = language
         if database:
+            # FIXME: handle conflict between saved and supplied arguments?
             self.language = database.get_metadata('flax.language') or None
             jstr = database.get_metadata('flax.fieldmap')
             if jstr:
@@ -131,14 +132,14 @@ class Fieldmap(object):
     def __str__(self):
         return 'Fieldmap: %r' % self._fieldmap
 
-    def query_parser(self, default_fields=[], database=None):
+    def query_parser(self, database=None):
         """Return a xapian.QueryParser object set up for this fieldmap.
         
-        `default_fields` is an iterable of fieldnames to specify which
-            fields will be searched by default.
         `database` should be supplied if you want to use spelling correction etc.
         
         """
+        
+        
         qp = xapian.QueryParser()
         if database:
             qp.set_database(database)
@@ -153,10 +154,6 @@ class Fieldmap(object):
             else:
                 qp.add_prefix(name, prefix)
 
-        # add default prefixes
-        for field in default_fields:
-            qp.add_prefix('', self._fieldmap[field][0])
-        
         return qp
 
     def query(self, fieldname, value, weight=None, op=xapian.Query.OP_OR):
@@ -379,16 +376,17 @@ class _FlaxDocument(object):
     def clear_docid(self):
         self._docid = None
     
-    def index(self, fieldname, value, 
-              store_facet=True, spelling=True, weight=1, isdocid=False):
+    def index(self, fieldname, value, search_default=False,
+              store_facet=True, spelling_db=None, weight=1, isdocid=False):
         """Index a field value.
         
         `fieldname` is the field to index.
         `value` is the value to index. This can be a string, int, float, or
             datetime object. Flax will attempt to index each appropriately.
+            This should either be a unicode object or a UTF-8 string.
         `store_facet` specifies whether to store facet values (filter fields
             only) and is True by default.
-        `spelling` specifies whether to store spellings, True by default.
+        `spelling_db` is an optional database to store spellings.
         `weight` allows the WDF to be set (1 by default)
         `isdocid` uses this field value as a docid (filter fields only).
             False by default.
@@ -405,9 +403,20 @@ class _FlaxDocument(object):
             value = value.encode('utf-8', 'ignore')
 
         prefix, valnum, isfilter = self._fieldmap[fieldname]
+    
+        if not isfilter or search_default or spelling_db:
+            termgen = xapian.TermGenerator()
+            if self._stemmer:
+                termgen.set_stemmer(self._stemmer)
+        
         if isfilter:
-            if isinstance(value, str):
-                term = '%s%s%s' % (prefix, ':' if value[0].isupper() else '', value)
+            if isinstance(value, basestring):
+                term = u'%s%s%s' % (prefix, ':' if value[0].isupper() else '', 
+                       value.decode('utf-8', 'ignore'))
+                term = term.encode('utf-8', 'ignore')
+                if isinstance(value, unicode):
+                    value = value.encode('utf-8', 'ignore')
+                
                 self._xdoc.add_term(term)
 
                 if store_facet:
@@ -443,20 +452,28 @@ class _FlaxDocument(object):
                     
                 if isdocid:
                     raise IndexingError, 'cannot use date as docid'
-        else:
+        else:                
             if isinstance(value, str):
-                tg = xapian.TermGenerator()
-                if spelling:
-                    tg.set_flags(tg.FLAG_SPELLING)
-                if self._stemmer:
-                    tg.set_stemmer(self._stemmer)
-                tg.set_document(self._xdoc)
-                tg.index_text(value, weight, prefix)
+                termgen.set_document(self._xdoc)
+                termgen.index_text(value, weight, prefix)
             else:
-                raise IndexingError, 'non-filter field requires text value'
+                raise IndexingError, 'non-filter field requires string value'
 
             if isdocid:
                 raise IndexingError, 'cannot use non-filter field as docid'
+
+        # spelling only works for prefix-less terms
+        if search_default or spelling_db:
+            if search_default:
+                termgen.set_document(self._xdoc)
+            else:
+                termgen.set_document(xapian.Document())  # dummy document
+
+            if spelling_db:
+                termgen.set_database(spelling_db)
+                termgen.set_flags(termgen.FLAG_SPELLING)
+
+            termgen.index_text(value)
 
     def set_data(self, data):
         """Set the document data. This does no indexing.
@@ -501,7 +518,7 @@ def run_tests():
     doc.set_data({'data': 'any data we like'})
     
     # index some fields
-    doc.index('foo', 'gruyere cheese fondue')
+    doc.index('foo', 'gruyere cheese fondue', search_default=True)
     doc.index('bar', 'chips')
     try:
         doc.index('bar', 'crisps')
@@ -514,12 +531,10 @@ def run_tests():
     # TEST - do we have expected terms?
     xdoc = doc.get_xapian_doc()
     terms = [t.term for t in xdoc]
-    assert 'XAcheese' in terms
-    assert 'ZXAchees' in terms
-    assert 'XCcake' in terms
-    assert 'XD2010' in terms
-    assert 'XD201002' in terms
-    assert 'XD20100203' in terms
+    for test in ['XAcheese', 'ZXAchees', 'XCcake',
+                 'Zgruyer', 'gruyere', 'Zchees', 'cheese',
+                 'XD2010', 'XD201002', 'XD20100203']:
+        assert test in terms, 'term %s is missing' % test
 
     # TEST - do we have expected values?
     if _multivalues:
@@ -537,12 +552,11 @@ def run_tests():
     fm.add_document(db, doc)
     db.flush()
     
-    # get a query parser which searches the 'foo' and 'eggs' fields by default
-    qp = fm.query_parser(['foo', 'eggs'])
+    qp = fm.query_parser()
     
     # TEST - does it work as expected?
     query = qp.parse_query('tea bar:coffee foo:gin')
-    assert str(query) == 'Xapian::Query(((XAtea:(pos=1) OR XDtea:(pos=1) OR XAgin:(pos=2)) FILTER XBcoffee))'
+    assert str(query) == 'Xapian::Query(((tea:(pos=1) OR XAgin:(pos=2)) FILTER XBcoffee))'
 
     # TEST - some other queries
     q1 = fm.OR(fm.query('foo', 'cheese'), fm.query('foo', 'tofu'))    

@@ -152,9 +152,13 @@ class IndexAction(_IndexerAction):
         _IndexerAction.__init__(self)
         self.weight = 1
         self.spelling = False
+        self.default = False
+        
         for v in args:
             if v == 'spell':
                 self.spelling = True
+            elif v == 'default':
+                self.default = True
             else:
                 raise ActionsError, 'unknown index parameter: %s' % v
         
