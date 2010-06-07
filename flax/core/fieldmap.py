@@ -329,6 +329,7 @@ class Fieldmap(object):
         `facets` containing the facets collected as a dict.
         
         FIXME - how to use MatchDeciders, Sorters etc ?
+        FIXME - stopwords?
 
         """
         enq = xapian.Enquire(database)
@@ -482,7 +483,7 @@ class _FlaxDocument(object):
         """Set the document data. This does no indexing.
         
         """
-        self._doc.set_data(json.dumps(data))
+        self._doc.set_data(data)
     
     def get_xapian_doc(self):
         """Return a xapian.Document for this Flax document.
