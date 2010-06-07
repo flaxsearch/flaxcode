@@ -1,2 +1,2 @@
-import fieldmap
+from fieldmap import Fieldmap
 import actions
