@@ -19,6 +19,8 @@ r"""Flax actions are
 See flaxcode/applications/xml_indexer and simple_search for examples of how
 to use Flax Core.
 
+FIXME - add some tests!
+
 """
 
 from __future__ import with_statement
@@ -176,7 +178,7 @@ class IndexAction(_IndexerAction):
         if self.next: self.next(fieldname, value, doc)
 
     def __str__(self):
-        return 'IndexAction'
+        return 'IndexAction[w=%s s=%s d=%s]' % (self.weight, self.spelling, self.default)
 
 
 class SplitAction(_IndexerAction):
