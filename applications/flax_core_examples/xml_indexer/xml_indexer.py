@@ -77,7 +77,8 @@ class Indexer(object):
                         'xpath expression "%s" does not evaluate to a string' % field.xpath
                 act.action(act.fieldname, item, doc)
 
-        doc.set_data(etree.tostring(element))
+        data = etree.tostring(element)
+        doc.set_data(data)
         self.fieldmap.add_document(self.db, doc)
 
 if __name__ == '__main__':
