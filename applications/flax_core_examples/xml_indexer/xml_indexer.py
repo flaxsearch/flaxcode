@@ -29,6 +29,7 @@ from lxml import etree
 import xapian
 import flax.core
 
+DBDIR = '/tmp/flaxdemo'
 LANGUAGE = 'en'
 
 class Indexer(object):
@@ -84,8 +85,11 @@ class Indexer(object):
 if __name__ == '__main__':
     import sys
     if len(sys.argv) != 5:
-        print "usage: python xml_indexer.py <db path> <xml file> <actions> <root tag>"
+        print "usage: python xml_indexer.py <db name> <xml file> <actions> <root tag>"
     else:
-        indexer = Indexer(sys.argv[1], sys.argv[3], sys.argv[4])
+        if not os.path.exists(DBDIR):
+            os.mkdir(DBDIR)
+            
+        indexer = Indexer(os.path.join(DBDIR, sys.argv[1]), sys.argv[3], sys.argv[4])
         indexer.index_file(sys.argv[2])
     
