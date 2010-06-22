@@ -4,6 +4,9 @@
   <head>
     ${self.head_tags()}
     <style type="text/css">
+    body {
+        font-family: helvetica, arial;
+    }
     .hit {
         margin: 20px 0px 20px 0px;
     }

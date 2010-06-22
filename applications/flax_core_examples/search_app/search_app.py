@@ -14,9 +14,25 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-"""Minimal web app for searching flax.core databases.
+"""Minimal example web app for searching flax.core databases, demonstrating
+searching, filters, facets and ranges.
 
-FIXME: facets and ranges
+To run this app, you will need 
+
+    - xapian, with Python bindings ( http://xapian.org/ )
+    - flax.core ( http://code.google.com/p/flaxcode/source/checkout )
+    - web.py framework ( http://webpy.org/ )
+    - mako templates ( http://www.makotemplates.org/ )
+
+You will also need one or more xapian databases created with a flax.core
+indexer (such as applications/flax_core_examples/xml_indexer in the flaxcode
+repository).
+
+Run the search app from the command line:
+
+    $ python search_app.py
+
+And point a browser at http://localhost:8080/ to choose and search a database.
 
 """
 
@@ -28,13 +44,25 @@ from mako.lookup import TemplateLookup
 import xapian
 import flax.core
 
+# change this to the directory that contains the flax.core databases
 DBDIR = '/tmp/flaxdemo'
 
 mlookup = TemplateLookup(directories=['templates'])
 
 urls = (
-    '^/(\w*)$', 'search',
+    '^/$', 'list',
+    '^/(\w*)/search$', 'search',
 )
+
+class list:
+    def GET(self):
+        web.header('Content-Type','text/html; charset=utf-8', unique=True)
+        dbs = [x for x in os.listdir(DBDIR) if x[0] != '.' and 
+               os.path.isdir(os.path.join(DBDIR, x))]
+       
+        t = mlookup.get_template('list.mako')
+        return t.render_unicode(
+            dbs=dbs).encode('utf-8', 'ignore')
 
 class search:
     def GET(self, dbname):
