@@ -183,8 +183,9 @@ class Fieldmap(object):
                     xapian.Query.OP_VALUE_RANGE, valnum, strv, strv)
             elif isinstance(v, datetime):                
                 term = '%s%04d%02d%02d' % (prefix, v.year, v.month, v.day)
-                strv = '%04d%02d%02d%02d%02d%02d' % (
-                    v.year, v.month, v.day, v.hour, v.minute, v.second)
+#                strv = '%04d%02d%02d%02d%02d%02d' % (
+#                    v.year, v.month, v.day, v.hour, v.minute, v.second)
+                strv = xapian.sortable_serialise(time.mktime(v.timetuple()))
                 return xapian.Query(xapian.Query.OP_AND,
                     xapian.Query(term), xapian.Query(
                         xapian.Query.OP_VALUE_RANGE, valnum, strv, strv))
@@ -231,9 +232,10 @@ class Fieldmap(object):
 #            term = '%s%04d%02d%02d' % (prefix, v.year, v.month, v.day)
 #            strv = '%04d%02d%02d%02d%02d%02d' % (
 #                v.year, v.month, v.day, v.hour, v.minute, v.second)
-#           FIXME - helper terms
-            return xapian.Query(xapian.Query.OP_VALUE_RANGE, valnum, 
-                strv, strv))
+#           FIXME - helper terms?
+            return xapian.Query(xapian.Query.OP_VALUE_RANGE, valnum,
+                xapian.sortable_serialise(time.mktime(value1.timetuple())), 
+                xapian.sortable_serialise(time.mktime(value2.timetuple())))
 
     @staticmethod
     def _combine(op, query1, query2):
@@ -526,7 +528,7 @@ def run_tests():
     # create a new document and set some data
     doc = fm.document()
     doc.database = db
-    doc.set_data({'data': 'any data we like'})
+    doc.set_data('document data is a string')
     
     # index some fields
     doc.index('foo', 'gruyere cheese fondue', search_default=True, spelling=True)
@@ -535,9 +537,10 @@ def run_tests():
         doc.index('bar', 'crisps')
     except IndexingError:
         if _multivalues: raise
-        
+    
+    mydate = datetime(2010, 2, 3, 12, 0)
     doc.index('spam', 'carrot cake')
-    doc.index('eggs', datetime(2010, 2, 3, 12, 0))
+    doc.index('eggs', mydate)
 
     # TEST - do we have expected terms?
     xdoc = doc.get_xapian_doc()
@@ -556,7 +559,7 @@ def run_tests():
     else:
         assert xdoc.get_value(1) == 'chips'
         
-    assert xdoc.get_value(3) == '20100203120000'
+    assert xdoc.get_value(3) == xapian.sortable_serialise(time.mktime(mydate.timetuple()))
     
     # add document to database (if doc.docid was set, this will overwrite any
     # document with the same ID)
