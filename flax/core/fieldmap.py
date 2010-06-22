@@ -217,7 +217,10 @@ class Fieldmap(object):
         if type(value1) is not type(value2):
             raise SearchError, 'cannot mix types in a query range'
 
-        prefix, valnum, isfilter = self._fieldmap[fieldname]
+        try:
+            prefix, valnum, isfilter = self._fieldmap[fieldname]
+        except KeyError:
+            raise SearchError, 'fieldname %s not in fieldmap' % fieldname
 
         if isinstance(v1, int) or isinstance(v1, float):
             return xapian.Query(xapian.Query.OP_VALUE_RANGE, valnum,
