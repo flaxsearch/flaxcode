@@ -44,23 +44,39 @@ class search:
             if not dbname:
                 return 'no database specified'
                 
-            i = web.input(query='', authfac=[], startrank=0)
+            i = web.input(query='', authfac=[], startrank=0, 
+                          yearfrom='', yearto='')
             t = mlookup.get_template('search.mako')
                         
             # FIXME - could cache these for efficiency
             db = xapian.Database(os.path.join(DBDIR, dbname))
-            fm = flax.core.Fieldmap(db)
-            qp = fm.query_parser(db)
+            fieldmap = flax.core.Fieldmap(db)
+            queryparser = fieldmap.query_parser(db)
 
-            qo = qp.parse_query(i.query)
+            query = queryparser.parse_query(i.query)
+            
+            # add authors filter, if supplied
             if i.authfac:
-                qo = fm.FILTER(qo, fm.query('author', i.authfac))
+                query = fieldmap.FILTER(query, fieldmap.query('author', i.authfac))
     
-            results = fm.search(db, qo, int(i.startrank), 20, 
-                                facet_fields=['author'])
+            # add year range filter, if supplied
+            if i.yearfrom or i.yearto:
+                yf = int(i.yearfrom) if i.yearfrom else 0
+                yt = int(i.yearto) if i.yearto else 3000
+                query = fieldmap.FILTER(query, fieldmap.range_query('published', yf, yt))
+
+            print 'debug: query=%s' % query
+            
+            results = fieldmap.search(db, query, int(i.startrank), 20, 
+                                      facet_fields=['author'])
     
-            return t.render_unicode(query=i.query, results=results,
-                authfac=i.authfac).encode('utf-8', 'ignore')
+            return t.render_unicode(
+                query=i.query, 
+                results=results,
+                authfac=i.authfac, 
+                yearfrom=i.yearfrom, 
+                yearto=i.yearto,
+                ).encode('utf-8', 'ignore')
 
         except xapian.DatabaseOpeningError:
             return 'no database at %s' % os.path.join(DBDIR, dbname)

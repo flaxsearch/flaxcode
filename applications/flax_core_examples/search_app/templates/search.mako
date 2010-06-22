@@ -19,7 +19,31 @@
 <h1>flax.core simple search</h1>
 
 <form method="GET">
-    <input id="query" name="query" value="${query}" />
+    Query: <input id="query" name="query" value="${query}" />
+    &nbsp;&nbsp;    
+    Year:
+    <select name="yearfrom">
+        <option value="">Any</option>
+        % for yr in xrange(1700, 2020, 10):
+            % if str(yr) == yearfrom:
+                <option selected>${yr}</option>
+            % else:
+                <option>${yr}</option>
+            % endif
+        % endfor
+    </select>
+    to
+    <select name="yearto">
+        <option value="">Any</option>
+        % for yr in xrange(1700, 2020, 10):
+            % if str(yr) == yearto:
+                <option selected>${yr}</option>
+            % else:
+                <option>${yr}</option>
+            % endif
+        % endfor
+    </select>
+        
     <input type="submit" value="Search" />
     
     % if results.size():
