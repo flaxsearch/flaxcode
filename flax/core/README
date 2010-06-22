@@ -1,0 +1,11 @@
+=========
+flax.core
+=========
+
+Minimal helper classes for adding useful functionality to Xapian without
+trying to abstract away or hide the Xapian API.
+
+See flaxcode/applications/xml_indexer and simple_search for examples of how
+to use flax.core.
+
+For more information, contact tom@flax.co.uk

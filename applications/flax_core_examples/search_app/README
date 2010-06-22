@@ -1,0 +1,21 @@
+This is a minimal example web app for searching flax.core databases, 
+demonstrating searching, filters, facets and ranges, and written in Python.
+
+To run this app, you will need Python 2.5 or higher plus:
+
+    - xapian, with Python bindings ( http://xapian.org/ )
+    - flax.core ( http://code.google.com/p/flaxcode/source/checkout )
+    - web.py framework ( http://webpy.org/ )
+    - mako templates ( http://www.makotemplates.org/ )
+
+You will also need one or more xapian databases created with a flax.core
+indexer (such as applications/flax_core_examples/xml_indexer in the flaxcode
+repository). The directory is specified by DBDIR in the app code.
+
+Run the search app from the command line:
+
+    $ python search_app.py
+
+And point a browser at http://localhost:8080/ to choose and search a database.
+
+For more information, contact tom@flax.co.uk

@@ -17,6 +17,27 @@
 """Minimal example of a flax.core indexing application, using lxml to
 index XML.
 
+To run the indexer, you will need Python 2.5 or higher plus:
+
+    - lxml ( http://codespeak.net/lxml/ )
+    - xapian ( http://xapian.org/ )
+    - flax.core ( http://code.google.com/p/flaxcode/source/checkout )
+
+Run the indexer with the following parameters:
+
+    $ python xml_indexer.py <db name> <xml file> <actions> <doc tag>
+
+where:
+
+    <db name> is the name of the database to create in DBDIR (see below)
+    <xml file> is the path to the source XML data
+    <actions> is the path to the indexer actions file
+    <root tag> is the tag name of the XML element to be treated as a document
+
+e.g. using the files provided in examples/ -
+
+    $ python xml_indexer.py books.db examples/books.xml examples/book.actions book
+
 """
 
 from __future__ import with_statement
@@ -29,7 +50,10 @@ from lxml import etree
 import xapian
 import flax.core
 
+# change this to the directory you want to create databases in
 DBDIR = '/tmp/flaxdemo'
+
+# language for stemming
 LANGUAGE = 'en'
 
 class Indexer(object):
@@ -85,7 +109,7 @@ class Indexer(object):
 if __name__ == '__main__':
     import sys
     if len(sys.argv) != 5:
-        print "usage: python xml_indexer.py <db name> <xml file> <actions> <root tag>"
+        print "usage: python xml_indexer.py <db name> <xml file> <actions> <doc tag>"
     else:
         if not os.path.exists(DBDIR):
             os.mkdir(DBDIR)
