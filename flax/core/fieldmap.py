@@ -222,17 +222,18 @@ class Fieldmap(object):
         except KeyError:
             raise SearchError, 'fieldname %s not in fieldmap' % fieldname
 
-        if isinstance(v1, int) or isinstance(v1, float):
+        if isinstance(value1, int) or isinstance(value1, float):
             return xapian.Query(xapian.Query.OP_VALUE_RANGE, valnum,
-                xapian.sortable_serialise(v1), xapian.sortable_serialise(v2))
+                xapian.sortable_serialise(value1), 
+                xapian.sortable_serialise(value2))
                 
-        elif isinstance(v, datetime):
-            term = '%s%04d%02d%02d' % (prefix, v.year, v.month, v.day)
-            strv = '%04d%02d%02d%02d%02d%02d' % (
-                v.year, v.month, v.day, v.hour, v.minute, v.second)
-            return xapian.Query(xapian.Query.OP_AND,
-                xapian.Query(term), xapian.Query(
-                    xapian.Query.OP_VALUE_RANGE, valnum, strv, strv))
+        elif isinstance(value1, datetime):
+#            term = '%s%04d%02d%02d' % (prefix, v.year, v.month, v.day)
+#            strv = '%04d%02d%02d%02d%02d%02d' % (
+#                v.year, v.month, v.day, v.hour, v.minute, v.second)
+#           FIXME - helper terms
+            return xapian.Query(xapian.Query.OP_VALUE_RANGE, valnum, 
+                strv, strv))
 
     @staticmethod
     def _combine(op, query1, query2):
@@ -451,9 +452,11 @@ class _FlaxDocument(object):
                     value.year, value.month))
                 self._doc.add_term('%s%04d%02d%02d' % (prefix, 
                     value.year, value.month, value.day))                    
-                self._doc.add_value(valnum, '%04d%02d%02d%02d%02d%02d' % (
-                    value.year, value.month, value.day, 
-                    value.hour, value.minute, value.second))
+#                self._doc.add_value(valnum, '%04d%02d%02d%02d%02d%02d' % (
+#                    value.year, value.month, value.day, 
+#                    value.hour, value.minute, value.second))
+                self._doc.add_value(valnum, xapian.sortable_serialise(
+                    time.mktime(value.timetuple())))
                     
                 if isdocid:
                     raise IndexingError, 'cannot use date as docid'
