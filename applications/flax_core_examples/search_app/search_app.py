@@ -51,7 +51,7 @@ mlookup = TemplateLookup(directories=['templates'])
 
 urls = (
     '^/$', 'list',
-    '^/(\w*)/search$', 'search',
+    '^/(.*)/search$', 'search',
 )
 
 class list:
