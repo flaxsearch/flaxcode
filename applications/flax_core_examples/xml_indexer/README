@@ -20,6 +20,6 @@ where:
 
 e.g. using the files provided in examples/ -
 
-    $ python xml_indexer.py books.db examples/books.xml examples/book.actions book
+    $ python xml_indexer.py books.db examples/books.xml examples/books.actions book
 
 For more information, contact tom@flax.co.uk
