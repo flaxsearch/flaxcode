@@ -13,7 +13,8 @@ Run the indexer with the following parameters:
 
 where:
 
-    <db name> is the name of the database to create in DBDIR (see below)
+    <db name> is the name of the database to create in DBDIR (defined in
+        xml_indexer.py)
     <xml file> is the path to the source XML data
     <actions> is the path to the indexer actions file
     <root tag> is the tag name of the XML element to be treated as a document
