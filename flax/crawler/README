@@ -1,0 +1,17 @@
+============
+flax.crawler
+============
+
+Works with Python 2.6
+
+The module crawler.py is a web crawling engine including an in-memory
+implementation of the data abstraction classes.
+
+The module sql_crawler.py is an SQL database reference implementation of the
+data abstraction classes.
+
+The directory 'test' contains a web site used in the test for crawler.py (see
+the source). For the test to work, a virtual host should be set up on localhost
+so that the URL http://test/ maps to the 'test' directory.
+
+For more information, contact tomw@flax.co.uk

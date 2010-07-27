@@ -1,0 +1,47 @@
+<html>
+    <head>
+        <title>SES Test site</title>
+        <meta name="robots" content="INDEX, FOLLOW">
+    </head>
+    <body>
+        <a href="http://test/find.html">Test allowed_hosts - should follow</a>
+        <br>
+        <a href="http://www.flax.co.uk/">Test allowed_hosts - should NOT follow</a>
+        <br>
+        Should follow all of these:
+        <a href="digits.php?1">1</a>
+        <a href="digits.php?2">2</a>
+        <a href="digits.php?3">3</a>
+        <a href="digits.php?4">4</a>
+        <a href="digits.php?5">5</a>
+        <a href="digits.php?6">6</a>
+        <a href="digits.php?7">7</a>
+        <a href="digits.php?8">8</a>
+        <a href="digits.php?9">9</a>
+        <br>
+        Should not crawl this image <img src="test.jpg">
+        <br>
+        Should crawl this image <img src="test.png">
+        <br>
+        Two of the same non-existent URL
+        <a href="does_not_exist.html">404</a>
+        <a href="does_not_exist.html">404</a>
+        <br>
+        <a href="http://doesnotexist.net.uk/page.html">Server Not Found</a>
+        <br>
+        <a href="empty.mp3">Should not crawl based on content type</a>
+        <br>
+        <a href="meta.html">META ROBOTS test</a>
+        <br>
+        <a href="test.doc">Word document test</a>
+        <br>
+        <a href="test.pdf">PDF test</a>
+        <br>
+        <a href="rss.xml">Here is an RSS feed</a>
+        <br>
+        <a href="mailto:webmaster@localhost">Mail</a>
+        <br>
+        <a href="redirect.php">Redirect</a>
+    </body>
+</html>
+
