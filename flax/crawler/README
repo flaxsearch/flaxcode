@@ -15,3 +15,56 @@ the source). For the test to work, a virtual host should be set up on localhost
 so that the URL http://test/ maps to the 'test' directory.
 
 For more information, contact tomw@flax.co.uk
+
+===============
+Getting Started
+===============
+
+To get a working crawler, you need to specify to the crawler a set of objects
+satisfying the crawler API. For example::
+
+    import crawler
+
+    crawler.dump = MyContentDumperImplementation()
+    crawler.pool = MyURLPoolImplementation()
+    crawler.follow = MyFollowDeciderImplementation()
+    crawler.duplicate = MyDuplicateDetectorImplementation()
+    crawler.parsers = (MyHtmlParser(), MyRSSParser())
+    crawler.throttle = MyThrottleImplementation()
+    crawler.robots = MyRobotManagerImplementation()
+    crawler.error = MyErrorHandler()
+
+Default, in-memory implementations are provided by the crawler.py module which
+may be suitable for some applications without modification. Also see the module
+sql_crawler.py which contains SQL database implementations, as well as a
+command line interface.
+
+Next, add some URLs to the URL pool and begin crawling::
+
+    crawler.pool.add_url(StdURL("http://test/"))
+    crawler.pool.add_url(StdURL("http://anothertest/"))
+    crawler.start()
+
+Notes:
+
+* All URLs that are passed to or returned from the sub-module API should be
+  wrapped using the StdURL class from the stdurl.py module, allowing access to
+  parts of the URL.
+
+* The same HTTPResource object is passed to various methods of the crawler API
+  during the processing of a single URL, so attributes may be added by to the
+  object for use by API methods further along in the processing.
+
+* Calls to objects satisfying the crawler API are synchronized if the object
+  has an attribute named _lock that is an instance of threading.Lock. However:
+
+* The crawler ensures that only one crawler thread is working on a domain at a
+  time. This level of synchronization may be sufficient for some
+  implementations.
+  
+* If a client method raises an exception of type CrawlerError, URLError, or
+  IncompleteRead then the crawler thread gives up and stores the error against
+  the URL it is crawling (by calling crawler.error.error). Any other exception
+  raised will cause the crawler thread to give up, and all crawler threads will
+  cease after crawling their current URL, terminating the crawler.
+
