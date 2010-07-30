@@ -21,10 +21,22 @@ Getting Started
 ===============
 
 To get a working crawler, you need to specify to the crawler a set of objects
-satisfying the crawler API. For example::
+satisfying the crawler API. Default, in-memory implementations are provided by
+the crawler.py module which may be suitable for some applications without
+modification. The minimum required to get a useful crawler is to provide a
+suitable content dumper, add some URLs to the URL pool and start the crawler::
 
     import crawler
 
+    crawler.dump = MyContentDumperImplementation()
+    crawler.pool.add_url(StdURL("http://test/"))
+    crawler.pool.add_url(StdURL("http://anothertest/"))
+    crawler.start()
+
+The call to start() blocks until no more URLs are left in the URL pool. In
+general, it is more likely that application specific implementations will be
+required for all of the objects satifying the crawler API::
+    
     crawler.dump = MyContentDumperImplementation()
     crawler.pool = MyURLPoolImplementation()
     crawler.follow = MyFollowDeciderImplementation()
@@ -34,16 +46,8 @@ satisfying the crawler API. For example::
     crawler.robots = MyRobotManagerImplementation()
     crawler.error = MyErrorHandler()
 
-Default, in-memory implementations are provided by the crawler.py module which
-may be suitable for some applications without modification. Also see the module
-sql_crawler.py which contains SQL database implementations, as well as a
-command line interface.
-
-Next, add some URLs to the URL pool and begin crawling::
-
-    crawler.pool.add_url(StdURL("http://test/"))
-    crawler.pool.add_url(StdURL("http://anothertest/"))
-    crawler.start()
+The module sql_crawler.py contains an SQL database implementation, as well as a
+command line interface, and is a useful starting example for an application.
 
 Notes:
 
