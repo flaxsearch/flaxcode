@@ -564,7 +564,7 @@ def _debug(*args):
         details if called in the context of an 'except' clause.
     """
     ty, e, tb = exc_info()
-    if e is None and silent:
+    if (e is None or isinstance(e, CrawlerError)) and silent:
         return
     if ty is not None:
         while tb.tb_next is not None:

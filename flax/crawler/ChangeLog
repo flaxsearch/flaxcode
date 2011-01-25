@@ -1,0 +1,3 @@
+Tue 25 Jan 2011 11:07:47 GMT  Tom Mortimer <tom@flax.co.uk>
+
+    * crawler.py: _debug ignores CrawlerError exceptions if silent
