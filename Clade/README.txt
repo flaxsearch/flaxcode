@@ -55,12 +55,12 @@ Installation prerequisites
 - Python modules
     lxml:       http://pypi.python.org/pypi/lxml/
     httplib2:   http://code.google.com/p/httplib2/downloads/list
+	
+	On Windows you can download binaries of httplib2 from http://www.lfd.uci.edu/~gohlke/pythonlibs/
 
 Download the latest versions from these sites and follow the installation
 instructions. The system has been developed on Linux and the following instructions
-assume a Linux environment, but it would be relatively simple to translate them
-to Windows command line syntax if necessary.
-
+assume a Linux environment, but Windows alternative syntax is included where necessary.
 
 ------------
 Example data
@@ -73,6 +73,10 @@ provided as a CSV file to illustrate how to import existing taxonomies.
 To import the taxonomy, run on the command line:
 
     $ python classify.py import data/socpsy.csv
+	
+	on Windows:
+	
+	C:\> python classify.py import data\socpsy.csv
 
 This will create a Python data structure, and pickle it as data/tax.
 
@@ -80,22 +84,40 @@ To import the documents, first copy the Clade Solr configuration files into your
 Solr home, e.g.:
 
     $ cp -f clade/solr-conf/* apache-solr-3.6.0/example/solr/conf
+	
+	on Windows:
+	
+	C:\> copy clade\solr-conf\*.* apache-solr-3.6.0\example\solr\conf
 
 Then [re]start Solr, e.g.:
 
     $ cd apache-solr-3.6.0/example
     $ java -jar start.jar &
+	
+	on Windows:
+
+    C:\> cd apache-solr-3.6.0\example
+    C:\> java -jar start.jar &
 
 Now start the Stanford Named Entity Recognition server, which is used to pull
 names, places etc. out of the source data:
  
     $ cd stanford-ner-2011-09-14
     $ ./server.sh &
+	
+	or on Windows:
+	
+	C:\ cd stanford-ner-2011-09-14
+	C:\ server.bat
 
 Finally, add the example documents (which are provided as plaintext files):
 
     $ python classify.py textdir data/socpsy-pages
-
+	
+	on Windows:
+	
+	C:\> python classify.py textdir data\socpsy-pages
+	
 This will output the name of each file as it is processed, and will take a 
 few minutes to complete. 
 
@@ -107,6 +129,10 @@ Running the UI
 The Clade UI is implemented as a web application. To start it, run:
  
     $ python server.py
+	
+	on Windows:
+	
+	C:\> python server.py
 
 Then point a browser at 
 
