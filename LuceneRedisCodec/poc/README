@@ -1,0 +1,45 @@
+So here's a sketched solution:
+
+The updateable term postings lists are stored as a binary blob in redis, keyed
+by term and segment, decodable into a list of integer docids.
+    seg_term = 0, 1, 5, 23, ...
+
+We create a new Codec that can a) fetch this list from a redis instance and
+create DocsEnum iterators over it, and b) write merged segment postings back out
+to redis.
+
+Updates are not done through the codec, however.  A separate update tool talks
+directly to redis and makes changes to the postings lists without talking to
+lucene.
+    Given a docid and a list of terms to remove and add:
+        - find the segment and internal docid of the document
+        - edit the postings lists of each term for that segment
+Might want to do edits in batches, depending on how efficient this turns out to
+be.
+
+You'll need to be running a redis instance for the test to work.
+    $ apt-get install redis
+    $ redis-server poc/etc/redis.conf
+
+test/uk/co/flax/rediscodec/TestCodec illustrates the process.  You can run it from
+the command line as follows:
+    $ ant test
+
+
+Caveats:
+ - This is a hacked-together proof of concept, not a piece of production software! As
+   such, the codec is sorely incomplete.  It does not store positions or doc frequencies,
+   and its postings format is extremely inefficient.  You can only store a
+   single field, and it has to be called 'tag'.  You can only use a redis server
+   running on localhost against the default port.  And so on, and so forth.  All of these
+   can of course be improved.
+
+ - Segment merges should be dealt with without a problem here, but we will need to ensure
+   that we somehow integrate the Updater with the Lucene index locking machinery.  At the
+   moment it is possible to run the updater while a merge is happening, which will result
+   in a corrupt index.
+
+ - Redis will back up its state to disk periodically, so that we can recover indexes in
+   the event of a system crash.  It's probably worth investigating the various settings
+   properly here though, to ensure no data loss.  Maybe telling redis to dump the db
+   state after every update?

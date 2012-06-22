@@ -1,0 +1,62 @@
+<!-- ANT build file -->
+
+
+<project name="rediscodec">
+
+    <description>
+        Proof-of-concept project illustrating a Lucene codec using redis
+    </description>
+
+    <!-- sources -->
+    <property name="javasrc" location="src/java"/>
+    <property name="testsrc" location="src/test"/>
+    <property name="resources" location="src/resources"/>
+
+    <!-- outputs -->
+    <property name="class-dir" location="out/production/ExternalFieldCodec"/>
+    <property name="test-class-dir" location="out/test/ExternalFieldCodec"/>
+    <property name="test-report-dir" location="out/test/reports"/>
+
+    <!-- Classpaths -->
+    <path id="classpath.base">
+        <fileset dir="lib">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+    <path id="classpath.test">
+        <pathelement location="${class-dir}"/>
+        <path refid="classpath.base"/>
+    </path>
+
+    <target name="init">
+        <mkdir dir="${class-dir}"/>
+        <mkdir dir="${test-class-dir}"/>
+    </target>
+
+    <target name="compile" description="Compile sources">
+        <javac srcdir="${javasrc}" destdir="${class-dir}" encoding="UTF-8">
+            <classpath refid="classpath.base"/>
+        </javac>
+        <copy todir="${class-dir}">
+            <fileset dir="${resources}"/>
+        </copy>
+    </target>
+
+    <target name="compile-test" depends="compile" description="Compile test sources">
+        <javac srcdir="${testsrc}" destdir="${test-class-dir}" encoding="UTF-8">
+            <classpath refid="classpath.test"/>
+        </javac>
+    </target>
+
+    <target name="test" depends="compile-test" description="Run tests">
+        <junit printsummary="yes" fork="yes" showoutput="yes">
+            <classpath>
+                <path location="${test-class-dir}"/>
+                <path refid="classpath.test"/>
+            </classpath>
+            <test name="uk.co.flax.rediscodec.TestCodec"/>
+        </junit>
+    </target>
+
+</project>
