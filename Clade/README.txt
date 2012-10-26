@@ -2,6 +2,8 @@
 Flax Clade PoC
 ==============
 
+26.Oct.12
+
 Flax Clade PoC is a proof-of-concept open source taxonomy management and
 document classification system, based on Apache Solr. In its current state it
 should be considered pre-alpha. As open-source software you are welcome to try,
@@ -9,7 +11,7 @@ use, copy and modify Clade as you like. We would love to hear any constructive
 suggestions you might have.
 
 - Tom Mortimer <tom@flax.co.uk>
-
+- Charlie Hull <charlie@flax.co.uk>
 
 --------------------------------------
 Taxonomies and document classification
@@ -58,13 +60,19 @@ Installation prerequisites
 	
 	On Windows you can download binaries of httplib2 from http://www.lfd.uci.edu/~gohlke/pythonlibs/
 
+---------------
+Getting started
+---------------
+
 Download the latest versions from these sites and follow the installation
 instructions. The system has been developed on Linux and the following instructions
 assume a Linux environment, but Windows alternative syntax is included where necessary.
 
-------------
-Example data
-------------
+**NEW** - Three batch files are provided (go1, go2 and go3.bat) that can be used to quickly start a 
+demonstration version of Clade on Windows: each must be run in a separate command line window. 
+You will need to provide the path to your Solr installation, Python and Java in setpaths.bat - 
+also provided is cleandata.bat which will remove any previously indexed data. Read the rest of this
+batch file to find out what the batch files are doing!
 
 The Clade distribution includes an example taxonomy and documents derived 
 from Wikipedia and on the topic of Social Psychology. The taxonomy is 
