@@ -1,3 +1,8 @@
+***
+Clade has now been moved to https://github.com/flaxsearch/clade
+***
+
+
 ==============
 Flax Clade PoC
 ==============
