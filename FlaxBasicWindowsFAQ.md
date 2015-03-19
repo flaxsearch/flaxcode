@@ -1,0 +1,1 @@
+This page has been renamed to FlaxBasicWindowsFaq - please update your bookmarks.

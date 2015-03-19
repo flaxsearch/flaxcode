@@ -1,0 +1,1 @@
+A number of wiki pages have been deleted and had their content has been moved to other places. This is to avoid duplication. The old pages are still, of course, available via subversion.
