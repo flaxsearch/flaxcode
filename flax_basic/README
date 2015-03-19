@@ -1,10 +1,10 @@
-Flax
-----
+Flax Basic
+----------
 
-Flax is a web based search system. See <http://www.flax.co.uk> for more
+Flax Basic is a web based search system built by Flax Basic. See <http://www.Flax.co.uk> for more
 information.
 
-If you are just interested in running Flax on Windows then the easiest
+If you are just interested in running Flax Basic on Windows then the easiest
 route is to use a prebuilt installer (available from the web site).
 
 The current version can also be run from the command line on any
@@ -23,9 +23,9 @@ current directory.
 Dependencies
 ------------
 
-Flax depends on Python 2.5, available from http://www.python.org/
+Flax Basic depends on Python 2.5, available from http://www.python.org/
 
-Flax also depends on several Python modules which are not part of the
+Flax Basic also depends on several Python modules which are not part of the
 standard distribution.  The easiest way to install these dependencies is
 simply to run:
 
@@ -35,7 +35,7 @@ This will install the dependencies locally (to a directory "localinst",
 which flax looks for when it starts up), so you won't need root or
 administrator privileges.
 
-Flax also depends on Xapian and its python bindings.
+Flax Basic also depends on Xapian and its python bindings.
 See http://www.xapian.org (you will need to use a recent snapshot)
 
 If you want to install the dependencies manually, then examine 
@@ -77,10 +77,10 @@ By default the web server will run on port 8090, but you can change
 that by editing cp.conf. The server can be terminated by raising
 KeyboardInterrupt (normally hitting Control-C).
 
-Note that Flax will start some other processes. These should all die
+Note that Flax Basic will start some other processes. These should all die
 when the main process finishes, in the event of abnormal termination
 then (depending on operating system) it might be that the other
 processes are not terminated and will need to be killed manually.
 
-There is more information on the internals of Flax available in
+There is more information on the internals of Flax Basic available in
 flaxcode/src/hacking.rst.
